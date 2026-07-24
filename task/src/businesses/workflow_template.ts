@@ -9,7 +9,7 @@ const unitIdToTemplateCategoryIds = {
 
 /**
  * Workflow template business.
- * @typedef {import('../entities/workflow_template')} WorkflowTemplateEntity
+ * @typedef {import('../entities/workflow_template').WorkflowTemplateEntity} WorkflowTemplateEntity
  */
 export class WorkflowTemplateBusiness extends Business {
   private static singleton: WorkflowTemplateBusiness;

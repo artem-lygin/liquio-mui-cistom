@@ -1,7 +1,7 @@
 const Sequelize = require('sequelize');
 const _ = require('lodash');
 const Model = require('./model');
-const UserInboxEntity = require('../entities/user_inbox');
+const { UserInboxEntity } = require('../entities/user_inbox');
 
 class UserInboxModel extends Model {
   constructor() {

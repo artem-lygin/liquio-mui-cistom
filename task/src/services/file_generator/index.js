@@ -7,10 +7,10 @@ const typeOf = require('../../lib/type_of');
 
 /**
  * File generator service.
- * @typedef {import('./options/option')} Option
- * @typedef {import('../../entities/document_template')} DocumentTemplateEntity
- * @typedef {import('../../entities/document')} DocumentEntity
- * @typedef {import('../../entities/workflow')} WorkflowEntity
+ * @typedef {import('./options/option').Option} Option
+ * @typedef {import('../../entities/document_template').DocumentTemplateEntity} DocumentTemplateEntity
+ * @typedef {import('../../entities/document').DocumentEntity} DocumentEntity
+ * @typedef {import('../../entities/workflow').WorkflowEntity} WorkflowEntity
  */
 class FileGeneratorService {
   /**

@@ -1,7 +1,7 @@
 const Sequelize = require('sequelize');
 
 const Model = require('./model');
-const KycEntity = require('../entities/kyc_session');
+const { KycSessionEntity } = require('../entities/kyc_session');
 
 class KycSessionModel extends Model {
   constructor() {
@@ -82,10 +82,10 @@ class KycSessionModel extends Model {
   /**
    * Prepare entity.
    * @param {object} item Item.
-   * @returns {KycEntity}
+   * @returns {KycSessionEntity}
    */
   prepareEntity(item) {
-    return new KycEntity({
+    return new KycSessionEntity({
       id: item.id,
       provider: item.provider,
       sessionId: item.sessionId,

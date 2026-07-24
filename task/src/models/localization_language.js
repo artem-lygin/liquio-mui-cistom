@@ -1,6 +1,6 @@
 const Sequelize = require('sequelize');
 const Model = require('./model');
-const LocalizationLanguageEntity = require('../entities/localization_language');
+const { LocalizationLanguageEntity } = require('../entities/localization_language');
 
 /**
  * Localization language model.

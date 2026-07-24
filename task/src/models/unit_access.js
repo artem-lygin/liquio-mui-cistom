@@ -1,6 +1,6 @@
 const Sequelize = require('sequelize');
 const Model = require('./model');
-const UnitAccessEntity = require('../entities/unit_access');
+const { UnitAccessEntity } = require('../entities/unit_access');
 const RedisClient = require('../lib/redis_client');
 const PgPubSub = require('../lib/pgpubsub');
 const { getArrayDifference } = require('../lib/utils');
@@ -10,7 +10,7 @@ const DEFAULT_CACHE_TTL = 300; // 5 minutes
 
 /**
  * Unit access model.
- * @typedef {import('../entities/document')} DocumentEntity
+ * @typedef {import('../entities/document').DocumentEntity} DocumentEntity
  */
 class UnitAccessModel extends Model {
   constructor() {

@@ -3,8 +3,8 @@ const SqlString = require('sequelize/lib/sql-string');
 const _ = require('lodash');
 const moment = require('moment');
 const Model = require('./model');
-const Entity = require('../entities/entity');
-const WorkflowEntity = require('../entities/workflow');
+const { Entity } = require('../entities/entity');
+const { WorkflowEntity } = require('../entities/workflow');
 const RedisClient = require('../lib/redis_client');
 
 const GET_ALL_BY_USER_ID_CACHE_TTL = 600; // 10 minutes

@@ -4,7 +4,7 @@ const _ = require('lodash');
 const moment = require('moment');
 
 const Model = require('./model');
-const TaskEntity = require('../entities/task');
+const { TaskEntity } = require('../entities/task');
 const RedisClient = require('../lib/redis_client');
 const { SequelizeDbError } = require('../lib/errors');
 
@@ -13,7 +13,7 @@ const GET_ALL_BY_USER_ID_CACHE_TTL = 600; // 10 minutes.
 
 /**
  * Task Model.
- * @typedef {import('../entities/document')} DocumentEntity
+ * @typedef {import('../entities/document').DocumentEntity} DocumentEntity
  */
 class TaskModel extends Model {
   constructor() {

@@ -1,6 +1,6 @@
 const Sequelize = require('sequelize');
 const Model = require('./model');
-const DocumentSignatureRejectionEntity = require('../entities/document_signature_rejection');
+const { DocumentSignatureRejectionEntity } = require('../entities/document_signature_rejection');
 
 class DocumentSignatureRejectionModel extends Model {
   constructor() {

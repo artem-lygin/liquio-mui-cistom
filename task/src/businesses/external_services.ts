@@ -26,7 +26,7 @@ const NAMESPACE_MAPPING = {
 
 /**
  * External services business.
- * @typedef {import('../entities/workflow')} WorkflowEntity.
+ * @typedef {import('../entities/workflow').WorkflowEntity} WorkflowEntity.
  */
 export class ExternalServicesBusiness extends Business {
   private static singleton: ExternalServicesBusiness;

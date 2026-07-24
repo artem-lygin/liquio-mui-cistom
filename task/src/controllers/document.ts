@@ -6,7 +6,7 @@ import jcopy from 'jcopy';
 
 import { JSONPath } from '../lib/jsonpath';
 import { Controller } from './controller';
-import DocumentAttachmentEntity from '../entities/document_attachment';
+import { DocumentAttachmentEntity } from '../entities/document_attachment';
 import DocumentModel from '../models/document';
 import DocumentAttachmentModel from '../models/document_attachment';
 import DocumentTemplateModel from '../models/document_template';

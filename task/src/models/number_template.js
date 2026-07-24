@@ -1,7 +1,7 @@
 const Sequelize = require('sequelize');
 
 const Model = require('./model');
-const NumberTemplateEntity = require('../entities/number_template');
+const { NumberTemplateEntity } = require('../entities/number_template');
 const RedisClient = require('../lib/redis_client');
 const PgPubSub = require('../lib/pgpubsub');
 

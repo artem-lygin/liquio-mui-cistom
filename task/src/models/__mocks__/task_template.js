@@ -1,4 +1,4 @@
-const TaskTemplateEntity = require('../../entities/task_template');
+const { TaskTemplateEntity } = require('../../entities/task_template');
 
 class TaskTemplateModel {
   constructor() {

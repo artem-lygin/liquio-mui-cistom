@@ -1,7 +1,7 @@
 
 const PropByPath = require('prop-by-path');
 const redis = require('redis');
-const DocumentUpdateLogEntity = require('../entities/document_update_log');
+const { DocumentUpdateLogEntity } = require('../entities/document_update_log');
 
 /**
  * Document update log service.

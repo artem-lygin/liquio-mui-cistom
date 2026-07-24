@@ -2,7 +2,7 @@ import _ from 'lodash';
 import moment from 'moment-business-days';
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 import iconv from 'iconv-lite';
-import SignatureInfoEntity from '../entities/signature_info';
+import { SignatureInfoEntity } from '../entities/signature_info';
 import SystemNotifier from '../lib/system_notifier';
 import { Business } from './business';
 import DocumentFiller from '../services/document_filler';
@@ -67,12 +67,12 @@ const ERROR_USER_TASK_ACCESS_AS_UNIT_HEAD = 'User doesn\'t have access to task a
 
 /**
  * Task business.
- * @typedef {import('../entities/workflow')} WorkflowEntity
- * @typedef {import('../entities/task_template')} TaskTemplateEntity
- * @typedef {import('../entities/task')} TaskEntity
- * @typedef {import('../entities/document')} DocumentEntity
- * @typedef {import('../entities/event')} EventEntity
- * @typedef {import('../entities/unit')} UnitEntity
+ * @typedef {import('../entities/workflow').WorkflowEntity} WorkflowEntity
+ * @typedef {import('../entities/task_template').TaskTemplateEntity} TaskTemplateEntity
+ * @typedef {import('../entities/task').TaskEntity} TaskEntity
+ * @typedef {import('../entities/document').DocumentEntity} DocumentEntity
+ * @typedef {import('../entities/event').EventEntity} EventEntity
+ * @typedef {import('../entities/unit').UnitEntity} UnitEntity
  */
 export class TaskBusiness extends Business {
   private static singleton: TaskBusiness;

@@ -1,6 +1,6 @@
 const Sequelize = require('sequelize');
 const Model = require('./model');
-const WorkflowRestartEntity = require('../entities/workflow_restart');
+const { WorkflowRestartEntity } = require('../entities/workflow_restart');
 
 class WorkflowRestartModel extends Model {
   constructor() {

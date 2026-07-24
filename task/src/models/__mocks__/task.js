@@ -1,5 +1,5 @@
-const TaskEntity = require('../../entities/task');
-const DocumentEntity = require('../../entities/document');
+const { TaskEntity } = require('../../entities/task');
+const { DocumentEntity } = require('../../entities/document');
 
 class TaskModel {
   constructor() {

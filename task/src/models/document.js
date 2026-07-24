@@ -1,6 +1,6 @@
 const Sequelize = require('sequelize');
 const Model = require('./model');
-const DocumentEntity = require('../entities/document');
+const { DocumentEntity } = require('../entities/document');
 const RedisClient = require('../lib/redis_client');
 
 // Constants.

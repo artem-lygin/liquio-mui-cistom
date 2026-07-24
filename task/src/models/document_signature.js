@@ -1,6 +1,6 @@
 const Sequelize = require('sequelize');
 const Model = require('./model');
-const DocumentSignatureEntity = require('../entities/document_signature');
+const { DocumentSignatureEntity } = require('../entities/document_signature');
 
 class DocumentSignatureModel extends Model {
   constructor() {

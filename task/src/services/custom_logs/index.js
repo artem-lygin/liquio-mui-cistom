@@ -1,12 +1,12 @@
 
 const redis = require('redis');
 
-const CustomLogEntity = require('../../entities/custom_log');
+const { CustomLogEntity } = require('../../entities/custom_log');
 const Sandbox = require('../../lib/sandbox');
 
 /**
  * Custom logs.
- * @typedef {import('../../entities/custom_log_template')} CustomLogTemplateEntity
+ * @typedef {import('../../entities/custom_log_template').CustomLogTemplateEntity} CustomLogTemplateEntity
  */
 class CustomLogs {
   /**

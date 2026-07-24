@@ -1,6 +1,6 @@
 const Sequelize = require('sequelize');
 const Model = require('./model');
-const EventEntity = require('../entities/event');
+const { EventEntity } = require('../entities/event');
 
 class EventModel extends Model {
   constructor() {

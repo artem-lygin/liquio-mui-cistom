@@ -1,9 +1,9 @@
 
 import crypto from 'node:crypto';
 import _ from 'lodash';
-import transliteration from 'transliteration';
+import * as transliteration from 'transliteration';
 import { appendTraceMeta, getTraceMeta, getTraceId } from '../lib/async_local_storage';
-import Entity from '../entities/entity';
+import { Entity } from '../entities/entity';
 import XmlJsConverter from '../lib/xml_js_converter';
 import { matchedData } from 'express-validator';
 import { SequelizeDbError } from '../lib/errors';

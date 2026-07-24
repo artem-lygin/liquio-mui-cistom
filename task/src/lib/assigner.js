@@ -7,11 +7,11 @@ const REASSIGN_TRIGGER_ERROR = 'reassignTrigger error.';
 
 /**
  * Assigner.
- * @typedef {import('../entities/workflow')} WorkflowEntity
- * @typedef {import('../entities/document')} DocumentEntity
- * @typedef {import('../entities/event')} EventEntity
- * @typedef {import('../models/task')} TaskModel
- * @typedef {import('../models/unit')} UnitModel
+ * @typedef {import('../entities/workflow').WorkflowEntity} WorkflowEntity
+ * @typedef {import('../entities/document').DocumentEntity} DocumentEntity
+ * @typedef {import('../entities/event').EventEntity} EventEntity
+ * @typedef {import('../models/task').TaskModel} TaskModel
+ * @typedef {import('../models/unit').UnitModel} UnitModel
  */
 class Assigner {
   /**

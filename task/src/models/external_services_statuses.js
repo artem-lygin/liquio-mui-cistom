@@ -1,7 +1,7 @@
 
 const Sequelize = require('sequelize');
 const Model = require('./model');
-const ExternalServiceStatusEntity = require('../entities/external_service_status');
+const { ExternalServiceStatusEntity } = require('../entities/external_service_status');
 
 
 class ExternalServicesStatusesModel extends Model {

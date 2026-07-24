@@ -1,4 +1,4 @@
-const DocumentEntity = require('../../entities/document');
+const { DocumentEntity } = require('../../entities/document');
 
 class DocumentModel {
   constructor() {

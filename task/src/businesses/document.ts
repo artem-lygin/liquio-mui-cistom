@@ -81,9 +81,9 @@ const ERROR_DOCUMENT_ACCESS = 'User doesn\'t have any access to document.';
 
 /**
  * Documents business.
- * @typedef {import('../entities/document')} DocumentEntity
- * @typedef {import('../entities/task_template')} TaskTemplateEntity
- * @typedef {import('../entities/unit')} UnitEntity
+ * @typedef {import('../entities/document').DocumentEntity} DocumentEntity
+ * @typedef {import('../entities/task_template').TaskTemplateEntity} TaskTemplateEntity
+ * @typedef {import('../entities/unit').UnitEntity} UnitEntity
  */
 export class DocumentBusiness extends Business {
   private static singleton: DocumentBusiness;

@@ -2,7 +2,7 @@ const Sequelize = require('sequelize');
 const jsoncParser = require('jsonc-parser');
 
 const Model = require('./model');
-const EventTemplateEntity = require('../entities/event_template');
+const { EventTemplateEntity } = require('../entities/event_template');
 const RedisClient = require('../lib/redis_client');
 const PgPubSub = require('../lib/pgpubsub');
 

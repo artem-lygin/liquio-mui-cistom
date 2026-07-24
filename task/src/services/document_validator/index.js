@@ -17,7 +17,7 @@ const INIT_DATA_PROP = 'initData'; // Data for system task.
 
 /**
  * Document validator service.
- @typedef {import('../../entities/document')} DocumentEntity
+ @typedef {import('../../entities/document').DocumentEntity} DocumentEntity
  */
 class DocumentValidatorService {
   /**

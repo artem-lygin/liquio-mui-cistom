@@ -1,7 +1,7 @@
 
 const Sequelize = require('sequelize');
 const Model = require('./model');
-const UIFilterEntity = require('../entities/ui_filter');
+const { UIFilterEntity } = require('../entities/ui_filter');
 
 /**
  * UI Filter model.

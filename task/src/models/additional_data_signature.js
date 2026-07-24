@@ -1,6 +1,6 @@
 const Sequelize = require('sequelize');
 const Model = require('./model');
-const AdditionalDataSignatureEntity = require('../entities/additional_data_signature');
+const { AdditionalDataSignatureEntity } = require('../entities/additional_data_signature');
 
 /**
  * Additional data signature model.

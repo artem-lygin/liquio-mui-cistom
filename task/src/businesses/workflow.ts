@@ -46,7 +46,7 @@ const WORKFLOWLIST_RESPONSE_FIELDS = [
 
 /**
  * Workflow business.
- * @typedef {import('../entities/workflow')} WorkflowEntity
+ * @typedef {import('../entities/workflow').WorkflowEntity} WorkflowEntity
  */
 export class WorkflowBusiness extends Business {
   private static singleton: WorkflowBusiness;

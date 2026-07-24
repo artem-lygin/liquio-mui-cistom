@@ -1,6 +1,6 @@
 const Sequelize = require('sequelize');
 const Model = require('./model');
-const GatewayEntity = require('../entities/gateway');
+const { GatewayEntity } = require('../entities/gateway');
 
 class GatewayModel extends Model {
   constructor() {

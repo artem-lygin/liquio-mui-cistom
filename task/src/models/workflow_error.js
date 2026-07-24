@@ -1,7 +1,7 @@
 
 const Sequelize = require('sequelize');
 const Model = require('./model');
-const WorkflowErrorEntity = require('../entities/workflow_error');
+const { WorkflowErrorEntity } = require('../entities/workflow_error');
 
 // Constants.
 const SUPPRESSED_ERRORS = [

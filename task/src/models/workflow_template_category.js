@@ -1,7 +1,7 @@
 const Sequelize = require('sequelize');
 
 const Model = require('./model');
-const WorkflowTemplateCategoryEntity = require('../entities/workflow_template_category');
+const { WorkflowTemplateCategoryEntity } = require('../entities/workflow_template_category');
 const RedisClient = require('../lib/redis_client');
 const PgPubSub = require('../lib/pgpubsub');
 

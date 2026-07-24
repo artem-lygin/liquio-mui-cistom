@@ -1,7 +1,7 @@
 
 const Sequelize = require('sequelize');
 const Model = require('./model');
-const CustomInterfaceEntity = require('../entities/custom_interface');
+const { CustomInterfaceEntity } = require('../entities/custom_interface');
 
 /**
  * Custom interface model.

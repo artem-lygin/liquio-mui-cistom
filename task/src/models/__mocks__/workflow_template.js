@@ -1,4 +1,4 @@
-const WorkflowTemplateEntity = require('../../entities/workflow_template');
+const { WorkflowTemplateEntity } = require('../../entities/workflow_template');
 
 class WorkflowTemplateModel {
   constructor() {
