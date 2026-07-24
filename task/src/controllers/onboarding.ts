@@ -1,4 +1,4 @@
-import AuthService from '../services/auth';
+import { AuthService } from '../services/auth';
 import { Controller } from './controller';
 import { RedisClient } from '../lib/redis_client';
 import { Helpers } from '../lib/helpers';

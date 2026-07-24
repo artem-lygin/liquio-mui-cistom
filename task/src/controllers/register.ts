@@ -3,7 +3,7 @@ import { matchedData } from 'express-validator';
 import _ from 'lodash';
 
 import { Controller } from './controller';
-import RegisterService from '../services/register';
+import { RegisterService } from '../services/register';
 import { Sandbox } from '../lib/sandbox';
 import { ERROR_DOCUMENT_TEMPLATE_NOT_FOUND, ERROR_DOCUMENT_NOT_FOUND } from '../constants/error';
 import { NotFoundError } from '../lib/errors';

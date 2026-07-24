@@ -3,7 +3,7 @@ import _ from 'lodash';
 import crypto from 'node:crypto';
 import { Controller } from './controller';
 import { UnitModel } from '../models/unit';
-import Auth from '../services/auth';
+import { AuthService as Auth } from '../services/auth';
 
 export class UserController extends Controller {
   private static singleton: UserController;

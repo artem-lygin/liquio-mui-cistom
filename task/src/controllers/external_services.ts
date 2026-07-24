@@ -10,8 +10,8 @@ import { DocumentAttachmentModel } from '../models/document_attachment';
 import { DocumentTemplateModel } from '../models/document_template';
 import { DocumentSignatureRejectionModel } from '../models/document_signature_rejection';
 import { WorkflowModel } from '../models/workflow';
-import StorageService from '../services/storage';
-import FileGeneratorService from '../services/file_generator';
+import { StorageService } from '../services/storage';
+import { FileGeneratorService } from '../services/file_generator';
 import { UnauthorizedError } from '../lib/errors';
 import typeOf from '../lib/type_of';
 

@@ -1,6 +1,6 @@
 
 import { Controller } from './controller';
-import AuthService from '../services/auth';
+import { AuthService } from '../services/auth';
 
 /**
  * Redirect controller.

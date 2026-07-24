@@ -5,7 +5,7 @@ import { matchedData } from 'express-validator';
 import { Controller } from './controller';
 import { RegisterBusiness } from '../businesses/register';
 import { DocumentAttachmentModel } from '../models/document_attachment';
-import StorageService from '../services/storage';
+import { StorageService } from '../services/storage';
 import { InvalidParamsError, ForbiddenError } from '../lib/errors';
 
 /**

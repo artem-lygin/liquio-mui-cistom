@@ -64,7 +64,7 @@ function searchByKeys(obj, searchKeys, { onlyInArrays = false } = {}) {
 const cache = {};
 const timeouts = [];
 
-export const JSONPath = (objOrPath, jsonDocument) => {
+export const JSONPath = (objOrPath, jsonDocument?) => {
   const startTime = Date.now();
   const { path = objOrPath, json = jsonDocument } =
     typeof objOrPath !== 'string' && objOrPath;

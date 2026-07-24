@@ -1,7 +1,7 @@
 import nock from 'nock';
 
 import { ExternalReader } from './external_reader';
-import StorageService from '../services/storage';
+import { StorageService } from '../services/storage';
 import { DocumentAttachmentModel } from '../models/document_attachment';
 import { Sandbox } from './sandbox';
 

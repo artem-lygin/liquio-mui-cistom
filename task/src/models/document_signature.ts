@@ -46,7 +46,7 @@ export class DocumentSignatureModel extends Model {
    * @param {Array<string>} [order] Sequelize order option.
    * @returns {Promise<DocumentSignatureEntity[]>} Document signatures list promise.
    */
-  async getByDocumentId(documentId, createdBy, attributes, order) {
+  async getByDocumentId(documentId, createdBy?, attributes?, order?) {
     const options: any = {
       where: {
         document_id: documentId

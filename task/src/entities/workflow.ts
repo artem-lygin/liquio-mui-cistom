@@ -13,6 +13,12 @@ export class WorkflowEntity extends Entity {
   lastEntryTaskId: any;
   lastEntryTaskFinishedAt: any;
   externalIds: any;
+  // Assigned externally via Model.getEntitiesByRelations.
+  tasks: any;
+  events: any;
+  gateways: any;
+  workflowErrors: any;
+  workflowRestarts: any;
   id: any;
   parentId: any;
   workflowTemplateId: any;

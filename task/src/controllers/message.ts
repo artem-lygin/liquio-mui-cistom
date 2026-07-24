@@ -1,6 +1,6 @@
 
 import { Controller } from './controller';
-import NotifierService from '../services/notifier';
+import { NotifierService } from '../services/notifier';
 
 /**
  * Message controller.

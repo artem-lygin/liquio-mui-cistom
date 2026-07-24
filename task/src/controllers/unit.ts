@@ -1,7 +1,7 @@
 import { Controller } from './controller';
 import { UnitModel } from '../models/unit';
-import Auth from '../services/auth';
-import CustomLogs from '../services/custom_logs';
+import { AuthService as Auth } from '../services/auth';
+import { CustomLogs } from '../services/custom_logs';
 import { UnitRulesModel } from '../models/unit_rules';
 
 // Constants.

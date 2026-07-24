@@ -1,8 +1,8 @@
 
 import crypto from 'node:crypto';
 import { Controller } from './controller';
-import Auth from '../services/auth';
-import LdapClient from '../services/ldap';
+import { AuthService as Auth } from '../services/auth';
+import { LdapClient } from '../services/ldap';
 import { Token } from '../lib/token';
 import { UserAccess } from '../lib/user_access';
 import { UnitModel } from '../models/unit';

@@ -2,7 +2,7 @@ import axios from 'axios';
 import { PassThrough } from 'node:stream';
 
 import { appendTraceMeta, getTraceMeta, getTraceId } from './async_local_storage';
-import StorageService from '../services/storage';
+import { StorageService } from '../services/storage';
 import { DocumentAttachmentModel } from '../models/document_attachment';
 import { Sandbox } from './sandbox';
 import typeOf from './type_of';

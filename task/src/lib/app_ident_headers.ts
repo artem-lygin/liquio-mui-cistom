@@ -16,8 +16,8 @@ export class AppIdentHeaders {
   static add(app) {
     // Defoine app info.
     const appInfo = new AppInfo();
-    const customer = config && config.server && config.server.customer || DEFAULT_CUSTOMER;
-    const environment = config && config.server && config.server.environment || DEFAULT_ENVIRONMENT;
+    const customer = global.config && global.config.server && global.config.server.customer || DEFAULT_CUSTOMER;
+    const environment = global.config && global.config.server && global.config.server.environment || DEFAULT_ENVIRONMENT;
 
     // Set headers.
     app.use(function (req, res, next) {
