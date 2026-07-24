@@ -43,7 +43,7 @@ Per-service image tag versions managed in chart templates.
   "persist-link" "0.1.4"
   "register" "0.1.2"
   "sign-tool" "0.1.0"
-  "task" "0.1.4"
+  "task" "0.1.5"
 -}}
 {{- if and (kindIs "map" $overrides) (hasKey $overrides $component) -}}
 {{- index $overrides $component -}}
