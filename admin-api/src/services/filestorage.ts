@@ -39,6 +39,71 @@ export class FileStorageService {
   }
 
   /**
+   * Download preview request options.
+   * @param {string} id ID.
+   * @returns {Promise<object>}
+   */
+  async downloadPreviewRequestOptions(id) {
+    return {
+      url: `${this.apiHost}/files/${id}/preview`,
+      method: 'GET',
+      headers: {
+        token: this.token,
+      },
+    };
+  }
+
+  /**
+   * Find file metadata by ID.
+   * @param {string} id ID.
+   * @returns {Promise<object>}
+   */
+  async findInfoById(id) {
+    const response = await global.httpClient.request(
+      `${this.apiHost}/files/${id}/info`,
+      {
+        method: 'GET',
+        headers: {
+          token: this.token,
+        },
+      },
+      'filestorage-find-info-by-id',
+    );
+
+    return response.json();
+  }
+
+  /**
+   * Upload file.
+   * @param {object} params Upload params.
+   * @returns {Promise<object>}
+   */
+  async upload({ name, contentType, contentLength, content, withPreview = true, meta = {} }: any) {
+    const query = new URLSearchParams({
+      name,
+      container_id: String(this.containerId),
+      with_preview: withPreview ? 'true' : 'false',
+      meta: Buffer.from(JSON.stringify(meta), 'utf8').toString('base64'),
+    });
+
+    const response = await global.httpClient.request(
+      `${this.apiHost}/files?${query.toString()}`,
+      {
+        method: 'POST',
+        headers: {
+          token: this.token,
+          'content-type': contentType || 'application/octet-stream',
+          'content-length': String(contentLength || content.length),
+        },
+        body: content,
+      },
+      'filestorage-upload-file',
+    );
+
+    return response.json();
+  }
+
+  /**
    * Download p7s request options.
    * @param {string} id ID.
    * @param {boolean} [asFile] Get as file indicator.

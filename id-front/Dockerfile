@@ -20,6 +20,9 @@ RUN VERSION="$(npm pkg get version)" && \
 # Stage 2: Serve the frontend with nginx
 FROM nginxinc/nginx-unprivileged:1-alpine-slim
 
+USER root
+RUN apk add --no-cache curl
+
 # Asset the built frontend files
 COPY --from=frontend /var/www/app/build/ /usr/share/nginx/html
 COPY nginx.conf /etc/nginx/conf.d/default.conf

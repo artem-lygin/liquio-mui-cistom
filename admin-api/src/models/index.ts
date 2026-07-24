@@ -37,6 +37,8 @@ import { MassMessagesMailingModel } from './mass_messages_mailing';
 import { SignatureRemovalHistory } from './signature_removal_history';
 import { AdditionalDataSignatureModel } from './additional_data_signature';
 import { UserSettingsModel } from './user_settings';
+import { FileLibraryItemModel } from './file_library_item';
+import { FileLibraryGrantModel } from './file_library_grant';
 
 // Constants.
 const MODELS_CLASSES_LIST = {
@@ -79,6 +81,8 @@ const MODELS_CLASSES_LIST = {
   SignatureRemovalHistory,
   AdditionalDataSignatureModel,
   UserSettingsModel,
+  FileLibraryItemModel,
+  FileLibraryGrantModel,
 };
 
 export class Models {
@@ -163,6 +167,8 @@ export class Models {
       signatureRemovalHistory: SignatureRemovalHistory,
       additionalDataSignature: AdditionalDataSignatureModel,
       userSettings: UserSettingsModel,
+      fileLibraryItem: FileLibraryItemModel,
+      fileLibraryGrant: FileLibraryGrantModel,
       ...customModels,
     };
 
