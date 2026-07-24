@@ -217,7 +217,16 @@ export class FileLibraryItemModel extends Model {
     return rows.some((row) => this.permissionMatches(row.permission, permission));
   }
 
-  async createItem({ type, parentId = null, name, fileId = null, ownerUserId, visibility = 'private', createdBy, previewStatus = 'unsupported' }: any) {
+  async createItem({
+    type,
+    parentId = null,
+    name,
+    fileId = null,
+    ownerUserId,
+    visibility = 'private',
+    createdBy,
+    previewStatus = 'unsupported',
+  }: any) {
     this.validateType(type);
     this.validateVisibility(visibility);
 
