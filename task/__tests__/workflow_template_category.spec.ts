@@ -2,7 +2,7 @@ import { TestApp } from './test-app';
 import { expectAuthRequired } from './helpers/auth_guard';
 
 describe('WorkflowTemplateCategory Controller', () => {
-  let app;
+  let app: TestApp;
 
   const TEST_USER_ID = '61efddaa351d6219eee09046';
 

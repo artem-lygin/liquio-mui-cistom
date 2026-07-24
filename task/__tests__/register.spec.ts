@@ -4,7 +4,7 @@ import { prepareFixtures } from './fixtures';
 import { expectAuthRequired } from './helpers/auth_guard';
 
 describe('Register Controller', () => {
-  let app;
+  let app: TestApp;
 
   const TEST_USER_ID = '61efddaa351d6219eee09043';
   const TEST_TEMPLATE_ID = 990001;

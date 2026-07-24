@@ -4,7 +4,7 @@ import { prepareFixtures, DOCUMENT_FIXTURES } from './fixtures';
 import { expectAuthRequired } from './helpers/auth_guard';
 
 describe('Document', () => {
-  let app;
+  let app: TestApp;
 
   beforeAll(async () => {
     await TestApp.beforeAll();

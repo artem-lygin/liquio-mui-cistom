@@ -3,7 +3,7 @@ import { TestApp } from './test-app';
 import { prepareFixtures, WORKFLOW_FIXTURES } from './fixtures';
 
 describe('External Services', () => {
-  let app;
+  let app: TestApp;
 
   const token = 'Basic dGVzdDp0ZXN0IC1uCg==';
 

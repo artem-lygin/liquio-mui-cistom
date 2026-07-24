@@ -2,7 +2,7 @@ import { TestApp } from './test-app';
 import { expectAuthRequired } from './helpers/auth_guard';
 
 describe('ProtectedFile Controller', () => {
-  let app;
+  let app: TestApp;
 
   beforeAll(async () => {
     await TestApp.beforeAll();

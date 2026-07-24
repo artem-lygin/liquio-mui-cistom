@@ -14,11 +14,12 @@
     "build": "tsc",
     "migration-up": "sequelize db:migrate",
     "migration-clear": "sequelize db:migrate:undo:all",
-    "lint": "eslint \"**/*.{js,ts}\"",
+    "lint": "eslint \"**/*.{js,ts}\" && npm run test:build",
     "lint:fix": "eslint \"**/*.{js,ts}\" --fix",
     "test": "jest",
     "test:watch": "jest --watch",
     "test:cov": "jest --coverage",
+    "test:build": "tsc --noEmit && tsc --noEmit -p tsconfig.tests.json",
     "command": "node bin/index.js"
   },
   "dependencies": {

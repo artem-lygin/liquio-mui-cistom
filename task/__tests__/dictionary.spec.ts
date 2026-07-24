@@ -1,7 +1,7 @@
 import { TestApp } from './test-app';
 
 describe('Dictionary Controller', () => {
-  let app;
+  let app: TestApp;
 
   beforeAll(async () => {
     await TestApp.beforeAll();

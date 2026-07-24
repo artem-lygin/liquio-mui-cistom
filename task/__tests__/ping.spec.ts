@@ -1,7 +1,7 @@
 import { TestApp } from './test-app';
 
 describe('Ping Controller', () => {
-  let app;
+  let app: TestApp;
 
   beforeAll(async () => {
     await TestApp.beforeAll();
