@@ -34,6 +34,9 @@ const config = {
   // Indicates which provider should be used to instrument code for coverage
   coverageProvider: 'v8',
 
+  // Transforms both .js and .ts test files through ts-jest.
+  preset: 'ts-jest/presets/js-with-ts',
+
   // A list of reporter names that Jest uses when writing coverage reports
   // coverageReporters: [
   //   "json",
@@ -69,7 +72,10 @@ const config = {
   // globals: {},
 
   // The maximum amount of workers used to run your tests. Can be specified as % or a number. E.g. maxWorkers: 10% will use 10% of your CPU amount + 1 as the maximum worker number. maxWorkers: 2 will use a maximum of 2 workers.
-  // maxWorkers: "50%",
+  // Capped low because most spec files under __tests__/ are e2e tests that each spin up their
+  // own Postgres + Redis testcontainers; running many of those in parallel exhausts local
+  // Docker/DB resources and causes flaky "connection terminated" failures.
+  maxWorkers: 2,
 
   // An array of directory names to be searched recursively up from the requiring module's location
   // moduleDirectories: [
@@ -92,7 +98,7 @@ const config = {
   // moduleNameMapper: {},
 
   // An array of regexp pattern strings, matched against all module paths before considered 'visible' to the module loader
-  // modulePathIgnorePatterns: [],
+  modulePathIgnorePatterns: ['<rootDir>/dist/'],
 
   // Activates notifications for test results
   // notify: false,
@@ -159,7 +165,9 @@ const config = {
     '**/?(*.)+(spec|test).[tj]s?(x)'
   ],
   testPathIgnorePatterns: [
-    '/validators/test.js'
+    '/validators/test\\.[jt]s$',
+    '/node_modules/',
+    '/dist/'
   ],
 
   // An array of regexp pattern strings that are matched against all test paths, matched tests are skipped
@@ -196,7 +204,7 @@ const config = {
   // verbose: undefined,
 
   // An array of regexp patterns that are matched against all source file paths before re-running tests in watch mode
-  // watchPathIgnorePatterns: [],
+  watchPathIgnorePatterns: ['<rootDir>/dist/'],
 
   // Whether to use watchman for file crawling
   // watchman: true,
