@@ -1,6 +1,7 @@
 import { TestApp } from './test-app';
 
 import { prepareFixtures, DOCUMENT_FIXTURES } from './fixtures';
+import { expectAuthRequired } from './helpers/auth_guard';
 
 describe('Document', () => {
   let app;
@@ -335,6 +336,162 @@ describe('Document', () => {
         .expect((response) => {
           expect(response.body).toEqual({ data: { check: true, message: 'disabled by isEnabled parameter' }});
         });
+    });
+  });
+
+  describe('GET /documents/:id', () => {
+    it('requires auth', async () => {
+      await expectAuthRequired(app, 'get', '/documents/:id');
+    });
+  });
+
+  describe('PUT /documents/:id', () => {
+    it('requires auth', async () => {
+      await expectAuthRequired(app, 'put', '/documents/:id');
+    });
+  });
+
+  describe('POST /documents/:id/pdf', () => {
+    it('requires auth', async () => {
+      await expectAuthRequired(app, 'post', '/documents/:id/pdf');
+    });
+  });
+
+  describe('POST /documents/:id/large-pdf', () => {
+    it('requires auth', async () => {
+      await expectAuthRequired(app, 'post', '/documents/:id/large-pdf');
+    });
+  });
+
+  describe('GET /documents/:id/pdf', () => {
+    it('requires auth', async () => {
+      await expectAuthRequired(app, 'get', '/documents/:id/pdf');
+    });
+  });
+
+  describe('GET /documents/:id/asic', () => {
+    it('requires auth', async () => {
+      await expectAuthRequired(app, 'get', '/documents/:id/asic');
+    });
+  });
+
+  describe('POST /documents/:id/attachments', () => {
+    it('requires auth', async () => {
+      await expectAuthRequired(app, 'post', '/documents/:id/attachments');
+    });
+  });
+
+  describe('GET /documents/:id/attachments/zip', () => {
+    it('requires auth', async () => {
+      await expectAuthRequired(app, 'get', '/documents/:id/attachments/zip');
+    });
+  });
+
+  describe('GET /documents/:id/attachments/:attachment_id', () => {
+    it('requires auth', async () => {
+      await expectAuthRequired(app, 'get', '/documents/:id/attachments/:attachment_id');
+    });
+  });
+
+  describe('DELETE /documents/:id/attachments/:attachment_id', () => {
+    it('requires auth', async () => {
+      await expectAuthRequired(app, 'delete', '/documents/:id/attachments/:attachment_id');
+    });
+  });
+
+  describe('POST /documents/:id/continue-sign', () => {
+    it('requires auth', async () => {
+      await expectAuthRequired(app, 'post', '/documents/:id/continue-sign');
+    });
+  });
+
+  describe('DELETE /documents/:id/sign', () => {
+    it('requires auth', async () => {
+      await expectAuthRequired(app, 'delete', '/documents/:id/sign');
+    });
+  });
+
+  describe('POST /documents/:id/singlesign/check', () => {
+    it('requires auth', async () => {
+      await expectAuthRequired(app, 'post', '/documents/:id/singlesign/check');
+    });
+  });
+
+  describe('GET /documents/:id/encrypt', () => {
+    it('requires auth', async () => {
+      await expectAuthRequired(app, 'get', '/documents/:id/encrypt');
+    });
+  });
+
+  describe('POST /documents/:id/encrypt', () => {
+    it('requires auth', async () => {
+      await expectAuthRequired(app, 'post', '/documents/:id/encrypt');
+    });
+  });
+
+  describe('POST /documents/:id/sign-rejection', () => {
+    it('requires auth', async () => {
+      await expectAuthRequired(app, 'post', '/documents/:id/sign-rejection');
+    });
+  });
+
+  describe('GET /documents/:id/workflow_files', () => {
+    it('requires auth', async () => {
+      await expectAuthRequired(app, 'get', '/documents/:id/workflow_files');
+    });
+  });
+
+  describe('GET /documents/:id/workflow_files_direct', () => {
+    it('requires auth', async () => {
+      await expectAuthRequired(app, 'get', '/documents/:id/workflow_files_direct');
+    });
+  });
+
+  describe('POST /documents/:id/calc', () => {
+    it('requires auth', async () => {
+      await expectAuthRequired(app, 'post', '/documents/:id/calc');
+    });
+  });
+
+  describe('POST /documents/:id/prepare', () => {
+    it('requires auth', async () => {
+      await expectAuthRequired(app, 'post', '/documents/:id/prepare');
+    });
+  });
+
+  describe('POST /documents/:id/validate', () => {
+    it('requires auth', async () => {
+      await expectAuthRequired(app, 'post', '/documents/:id/validate');
+    });
+  });
+
+  describe('POST /documents/:id/external-reader/check', () => {
+    it('requires auth', async () => {
+      await expectAuthRequired(app, 'post', '/documents/:id/external-reader/check');
+    });
+  });
+
+  describe('POST /documents/:id/external-reader/check/async', () => {
+    it('requires auth', async () => {
+      await expectAuthRequired(app, 'post', '/documents/:id/external-reader/check/async');
+    });
+  });
+
+  describe('PUT /documents/:id/verified-user-info', () => {
+    it('requires auth', async () => {
+      await expectAuthRequired(app, 'put', '/documents/:id/verified-user-info');
+    });
+  });
+
+  describe('GET /files/:download_token', () => {
+    it('requires auth', async () => {
+      await expectAuthRequired(app, 'get', '/files/:download_token');
+    });
+  });
+
+  describe('POST /files', () => {
+    it('requires auth', async () => {
+      await expectAuthRequired(app, 'post', '/files');
     });
   });
 });

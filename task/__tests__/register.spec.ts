@@ -1,6 +1,7 @@
 import { TestApp } from './test-app';
 
 import { prepareFixtures } from './fixtures';
+import { expectAuthRequired } from './helpers/auth_guard';
 
 describe('Register Controller', () => {
   let app;
@@ -241,5 +242,119 @@ describe('Register Controller', () => {
         expect(Array.isArray(response.body.data)).toBe(true);
         expect(response.body.data).toHaveLength(0);
       });
+  });
+
+  describe('GET /registers', () => {
+    it('requires auth', async () => {
+      await expectAuthRequired(app, 'get', '/registers');
+    });
+  });
+
+  describe('GET /registers/specifics/addresses', () => {
+    it('requires auth', async () => {
+      await expectAuthRequired(app, 'get', '/registers/specifics/addresses');
+    });
+  });
+
+  describe('GET /registers/keys', () => {
+    it('requires auth', async () => {
+      await expectAuthRequired(app, 'get', '/registers/keys');
+    });
+  });
+
+  describe('GET /registers/keys/:key_id/search', () => {
+    it('requires auth', async () => {
+      await expectAuthRequired(app, 'get', '/registers/keys/:key_id/search');
+    });
+  });
+
+  describe('GET /registers/keys/:key_id/records', () => {
+    it('requires auth', async () => {
+      await expectAuthRequired(app, 'get', '/registers/keys/:key_id/records');
+    });
+  });
+
+  describe('GET /registers/keys/:key_id/history', () => {
+    it('requires auth', async () => {
+      await expectAuthRequired(app, 'get', '/registers/keys/:key_id/history');
+    });
+  });
+
+  describe('GET /registers/keys/:key_id/viewing_history', () => {
+    it('requires auth', async () => {
+      await expectAuthRequired(app, 'get', '/registers/keys/:key_id/viewing_history');
+    });
+  });
+
+  describe('POST /registers/keys/:key_id/records/filter', () => {
+    it('requires auth', async () => {
+      await expectAuthRequired(app, 'post', '/registers/keys/:key_id/records/filter');
+    });
+  });
+
+  describe('GET /registers/keys/:key_ids/records_tree', () => {
+    it('requires auth', async () => {
+      await expectAuthRequired(app, 'get', '/registers/keys/:key_ids/records_tree');
+    });
+  });
+
+  describe('GET /registers/keys/:key_id/records/:id', () => {
+    it('requires auth', async () => {
+      await expectAuthRequired(app, 'get', '/registers/keys/:key_id/records/:id');
+    });
+  });
+
+  describe('GET /registers/keys/:key_id/records/:record_id/history', () => {
+    it('requires auth', async () => {
+      await expectAuthRequired(app, 'get', '/registers/keys/:key_id/records/:record_id/history');
+    });
+  });
+
+  describe('GET /registers/keys/:key_id/records/:record_id/viewing_history', () => {
+    it('requires auth', async () => {
+      await expectAuthRequired(app, 'get', '/registers/keys/:key_id/records/:record_id/viewing_history');
+    });
+  });
+
+  describe('POST /registers/keys/:key_id/records', () => {
+    it('requires auth', async () => {
+      await expectAuthRequired(app, 'post', '/registers/keys/:key_id/records');
+    });
+  });
+
+  describe('PUT /registers/keys/:key_id/records/:id', () => {
+    it('requires auth', async () => {
+      await expectAuthRequired(app, 'put', '/registers/keys/:key_id/records/:id');
+    });
+  });
+
+  describe('DELETE /registers/keys/:key_id/records/:id', () => {
+    it('requires auth', async () => {
+      await expectAuthRequired(app, 'delete', '/registers/keys/:key_id/records/:id');
+    });
+  });
+
+  describe('POST /registers/rollback/start', () => {
+    it('requires auth', async () => {
+      await expectAuthRequired(app, 'post', '/registers/rollback/start');
+    });
+  });
+
+  describe('GET /registers/rollback/:rollbackId/status', () => {
+    it('requires auth', async () => {
+      await expectAuthRequired(app, 'get', '/registers/rollback/:rollbackId/status');
+    });
+  });
+
+  describe('POST /registers/rollback/record', () => {
+    it('requires auth', async () => {
+      await expectAuthRequired(app, 'post', '/registers/rollback/record');
+    });
+  });
+
+  describe('DELETE /register/cache', () => {
+    it('requires basic auth credentials', async () => {
+      await app.request().delete('/register/cache').expect(401);
+    });
   });
 });

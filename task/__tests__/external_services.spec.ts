@@ -287,4 +287,61 @@ describe('External Services', () => {
 `);
       });
   });
+
+  describe('GET /external-services/ping-rest', () => {
+    it('should be able to ping-rest', async () => {
+      await app
+        .request()
+        .get('/external-services/ping-rest')
+        .expect(200)
+        .expect((response) => {
+          expect(response.body).toEqual({ data: { message: 'pong', processPid: expect.any(Number) } });
+        });
+    });
+  });
+
+  describe('POST /external-services/ping-soap', () => {
+    it('should be able to ping-soap', async () => {
+      await app
+        .request()
+        .post('/external-services/ping-soap')
+        .expect(200);
+    });
+  });
+
+  describe('PUT /external_services/workflow/:workflow_id/task_template/:task_template_id', () => {
+    it('requires basic auth credentials', async () => {
+      await app.request().put('/external_services/workflow/placeholder/task_template/placeholder').expect(401);
+    });
+  });
+
+  describe('POST /external_services/workflow', () => {
+    it('requires basic auth credentials', async () => {
+      await app.request().post('/external_services/workflow').expect(401);
+    });
+  });
+
+  describe('POST /external_services/attachments/:id', () => {
+    it('requires basic auth credentials', async () => {
+      await app.request().post('/external_services/attachments/placeholder').expect(401);
+    });
+  });
+
+  describe('POST /external_services/workflow/:workflow_id/task_template/:task_template_id/calc_payment', () => {
+    it('requires basic auth credentials', async () => {
+      await app.request().post('/external_services/workflow/placeholder/task_template/placeholder/calc_payment').expect(401);
+    });
+  });
+
+  describe('POST /external_services/workflow/:workflow_id/task_template/:task_template_id/commit', () => {
+    it('requires basic auth credentials', async () => {
+      await app.request().post('/external_services/workflow/placeholder/task_template/placeholder/commit').expect(401);
+    });
+  });
+
+  describe('GET /external_services/workflow/:workflow_id/task_template/:task_template_id/document', () => {
+    it('requires basic auth credentials', async () => {
+      await app.request().get('/external_services/workflow/placeholder/task_template/placeholder/document').expect(401);
+    });
+  });
 });

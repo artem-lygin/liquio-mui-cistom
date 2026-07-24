@@ -190,6 +190,11 @@ export class PgPubSub {
     this.isReconnecting = false;
     this.reconnectAttempts = 0;
 
+    // Let any in-flight queries (e.g. LISTEN commands enqueued by model
+    // subscriptions during startup) settle before tearing down the client,
+    // so they don't race the client.end()/nulling below.
+    await this.queryQueue.catch(() => undefined);
+
     try {
       if (this.client) {
         await this.client.end();

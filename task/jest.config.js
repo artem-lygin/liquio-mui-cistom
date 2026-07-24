@@ -72,7 +72,10 @@ const config = {
   // globals: {},
 
   // The maximum amount of workers used to run your tests. Can be specified as % or a number. E.g. maxWorkers: 10% will use 10% of your CPU amount + 1 as the maximum worker number. maxWorkers: 2 will use a maximum of 2 workers.
-  // maxWorkers: "50%",
+  // Capped low because most spec files under __tests__/ are e2e tests that each spin up their
+  // own Postgres + Redis testcontainers; running many of those in parallel exhausts local
+  // Docker/DB resources and causes flaky "connection terminated" failures.
+  maxWorkers: 2,
 
   // An array of directory names to be searched recursively up from the requiring module's location
   // moduleDirectories: [
