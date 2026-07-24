@@ -46,12 +46,12 @@ export class HelpersFiller extends Filler {
         case 'helpers.deepLink':
           valueToSet = {
             method: itemSchema.method,
-            host: config.persist_link.qrFrontUrl,
+            host: global.config.persist_link.qrFrontUrl,
             hash: crypto.randomBytes(16).toString('hex'),
           };
           break;
         case 'helpers.frontUrl':
-          valueToSet = config.auth.authRedirectUrl;
+          valueToSet = global.config.auth.authRedirectUrl;
           break;
         default:
           valueToSet = undefined;

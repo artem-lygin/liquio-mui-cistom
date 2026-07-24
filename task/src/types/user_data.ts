@@ -1,4 +1,18 @@
-class UserData {
+export class UserData {
+  userId: any;
+  email: any;
+  provider: any;
+  phone: any;
+  ipn: any;
+  edrpou: any;
+  firstName: any;
+  lastName: any;
+  middleName: any;
+  userUnitIds: any;
+  userUnits: any;
+  companyName: any;
+  companyUnit: any;
+
   /**
    * @param {Object} item
    * @param {string} item.userId
@@ -35,4 +49,3 @@ class UserData {
     this.companyUnit = item.companyUnit;
   }
 }
-module.exports.UserData = UserData;

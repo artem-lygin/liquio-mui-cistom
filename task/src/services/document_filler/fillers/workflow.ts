@@ -49,7 +49,7 @@ export class WorkflowFiller extends Filler {
       // Fill current element.
       let valueToSet;
       try {
-        const workflow = await models.workflow.findById(workflowId);
+        const workflow = await global.models.workflow.findById(workflowId);
         if (!workflow) { return; }
 
         // Define value to set.

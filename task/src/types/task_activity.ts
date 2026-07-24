@@ -1,4 +1,4 @@
-const { InternalServerError } = require('../lib/errors');
+import { InternalServerError } from '../lib/errors';
 
 /**
  * @typedef {'TASK_CREATED'|'TASK_PERFORMERS_CHANGED'|'TASK_COMMITTED'} Type
@@ -13,14 +13,18 @@ const { InternalServerError } = require('../lib/errors');
  * @typedef {Array<{userId: UserId, userUnits: UserUnits}>} UnassignedUsers
  * @typedef {Array<number>} UnassignedUnits
  */
-class TaskActivity {
+export class TaskActivity {
+  createdAt: any;
+  type: any;
+  details: any;
+
   /**
    * @param {Object} item
    * @param {Date} [item.createdAt]
    * @param {Type} item.type
    * @param {{[createType]: CreateType, [changeType]: ChangeType, [commitType]: CommitType, [systemName]: SystemName, [userId]: UserId, [userUnits]: UserUnits, [assignedUsers]: AssignedUsers, [assignedUnits]: AssignedUnits, [unassignedUsers]: UnassignedUsers, [unassignedUnits]: UnassignedUnits}} [item.details]
    */
-  constructor({ createdAt, type, details = {} }) {
+  constructor({ createdAt, type, details = {} }: any) {
     if (!type) {
       throw new InternalServerError('TaskActivity.type required.');
     }
@@ -60,6 +64,4 @@ class TaskActivity {
     this.details = details;
   }
 }
-
-module.exports = TaskActivity;
 

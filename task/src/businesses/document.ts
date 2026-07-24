@@ -24,7 +24,7 @@ import { NotifierService as Notifier } from '../services/notifier';
 import { RegisterService } from '../services/register';
 import { FileGeneratorService } from '../services/file_generator';
 import { DocumentAttachmentModel } from '../models/document_attachment';
-import TaskActivity from '../types/task_activity';
+import { TaskActivity } from '../types/task_activity';
 import { UnitModel } from '../models/unit';
 import { Helpers } from '../lib/helpers';
 import { NumberGenerator } from '../lib/number_generator';

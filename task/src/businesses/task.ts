@@ -19,7 +19,7 @@ import { PaymentService } from '../services/payment';
 import { NotifierService } from '../services/notifier';
 import validator from 'validator';
 import { UnitModel } from '../models/unit';
-import TaskActivity from '../types/task_activity';
+import { TaskActivity } from '../types/task_activity';
 import { CustomLogs } from '../services/custom_logs';
 import { Eds } from '../lib/eds';
 import { Helpers } from '../lib/helpers';

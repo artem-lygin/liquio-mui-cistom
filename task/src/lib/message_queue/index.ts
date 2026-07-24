@@ -81,12 +81,12 @@ export class MessageQueue {
 
     // Try to reconnect.
     this.reconnectTimeout = setTimeout(async () => {
-      log.save('amqp-starting-reconnect', { totalReconnectCount: this.totalReconnectCount });
+      global.log.save('amqp-starting-reconnect', { totalReconnectCount: this.totalReconnectCount });
       await this.close();
       this.reconnectTimeout = null;
       await this.init();
       this.totalReconnectCount += 1;
-      log.save('amqp-successfully-reconnected', { totalReconnectCount: this.totalReconnectCount });
+      global.log.save('amqp-successfully-reconnected', { totalReconnectCount: this.totalReconnectCount });
     }, this.config.retryConnectionTime || RETRY_CONNECTION_TIME);
   }
 
@@ -104,26 +104,26 @@ export class MessageQueue {
       amqp.connect(amqpConnectionUrl, (error, connection) => {
         // Check error.
         if (error) {
-          log.save('amqp-connection-error|cannot-create-connection', error, 'error');
+          global.log.save('amqp-connection-error|cannot-create-connection', error, 'error');
           this.reconnect();
           return resolve();
         }
 
         // Subscribe on connection error events.
         connection.on('error', async (error) => {
-          log.save('amqp-connection-error', error && error.message, 'error');
+          global.log.save('amqp-connection-error', error && error.message, 'error');
         });
 
         // Subscribe on connection close events.
         connection.on('close', async () => {
-          log.save('amqp-connection-closed');
+          global.log.save('amqp-connection-closed');
           this.reconnect();
           return resolve();
         });
 
         // Save connection.
         this.connection = connection;
-        log.save('amqp-connected', true);
+        global.log.save('amqp-connected', true);
         resolve();
       });
     });
@@ -143,7 +143,7 @@ export class MessageQueue {
       this.createNewChannel(),
       this.createNewChannel()
     ]);
-    log.save('amqp-channel-opened', true);
+    global.log.save('amqp-channel-opened', true);
 
     // Save channels.
     this.channels = { reading, writing, readingPdf, writingPdf, errors, delayedAutoCommit };
@@ -250,18 +250,18 @@ export class MessageQueue {
       this.connection.createChannel((error, ch) => {
         // Check error.
         if (error) {
-          log.save('amqp-channel-error|cannot-create-channel', error, 'error');
+          global.log.save('amqp-channel-error|cannot-create-channel', error, 'error');
           return this.reconnect();
         }
 
         // Subscribe on channel error events.
         ch.on('error', async (error) => {
-          log.save('amqp-channel-error', error && error.message, 'error');
+          global.log.save('amqp-channel-error', error && error.message, 'error');
         });
 
         // Subscribe on channel close events.
         ch.on('close', async (data) => {
-          log.save('amqp-channel-closed', data);
+          global.log.save('amqp-channel-closed', data);
           return this.reconnect();
         });
 
@@ -293,22 +293,22 @@ export class MessageQueue {
       this.channels[channel].sendToQueue(queueName, preparedMessage, {
         persistent: true
       });
-      log.save('amqp-message-sent', { messageString });
+      global.log.save('amqp-message-sent', { messageString });
       return true;
     } catch {
       // Handle error.
       try {
         // Try to send message to queue again.
-        log.save('amqp-message-try-to-send-again', { messageString });
+        global.log.save('amqp-message-try-to-send-again', { messageString });
         await new Promise(resolve => setTimeout(resolve, RETRY_SEND_MESSAGE_TIME));
         this.channels[channel].sendToQueue(queueName, preparedMessage, {
           persistent: true
         });
-        log.save('amqp-message-sent', { messageString });
+        global.log.save('amqp-message-sent', { messageString });
         return true;
       } catch (error) {
         // Handle error after retry.
-        log.save('amqp-send-message-error', { error: error?.message, message }, 'error');
+        global.log.save('amqp-send-message-error', { error: error?.message, message }, 'error');
         this.checkErrorAndExitIfNeedIt(error);
       }
     }
@@ -328,7 +328,7 @@ export class MessageQueue {
 
         // Convert message.
         const messageString = message.content.toString();
-        log.save('message-from-queue-to-handle', { messageString });
+        global.log.save('message-from-queue-to-handle', { messageString });
         const messageObject = JSON.parse(messageString);
         const { amqpMessageId } = messageObject;
 
@@ -339,16 +339,16 @@ export class MessageQueue {
             if (amqpMessageIdFromRedis) {
               try {
                 // Inform that handled.
-                log.save('message-from-queue-handled-from-redis', { messageString });
+                global.log.save('message-from-queue-handled-from-redis', { messageString });
                 this.channels.reading.ack(message);
-                log.save('message-from-queue-ack-from-redis', { messageString });
+                global.log.save('message-from-queue-ack-from-redis', { messageString });
               } catch (error) {
-                log.save('message-from-queue-ack-error-from-redis', error.message, 'error');
+                global.log.save('message-from-queue-ack-error-from-redis', error.message, 'error');
               }
               return;
             }
           } catch (error) {
-            log.save('message-from-queue-id-get-redis-error', error.message, 'error');
+            global.log.save('message-from-queue-id-get-redis-error', error.message, 'error');
           }
         }
 
@@ -358,15 +358,15 @@ export class MessageQueue {
         // Check handling status.
         if (!isHandled) {
           // Inform that not handled and exit.
-          log.save('message-from-queue-not-handled', { messageString });
+          global.log.save('message-from-queue-not-handled', { messageString });
           this.channels[channel].nack(message);
           return;
         }
 
         // Inform that handled.
-        log.save('message-from-queue-handled', { messageString });
+        global.log.save('message-from-queue-handled', { messageString });
         this.channels[channel].ack(message);
-        log.save('message-from-queue-ack', { messageString });
+        global.log.save('message-from-queue-ack', { messageString });
 
         // Try to set amqp message id.
         if (global.redisClientCommonBpmn && global.config?.redis?.redisCommonBpmn?.amqpMessageCache?.isEnabled && amqpMessageId) {
@@ -374,7 +374,7 @@ export class MessageQueue {
             const ttl = global.config?.redis?.redisCommonBpmn?.amqpMessageCache?.ttl || DEFAULT_REDIS_TTL;
             await global.redisClientCommonBpmn.set(`${REDIS_AMQP_KEY_PREFIX}.${amqpMessageId} `, amqpMessageId, ttl);
           } catch (error) {
-            log.save('message-from-queue-id-set-redis-error', error.message, 'error');
+            global.log.save('message-from-queue-id-set-redis-error', error.message, 'error');
           }
         }
       });
@@ -384,7 +384,7 @@ export class MessageQueue {
       // Get message from queue.
       this.channels[channel].consume(queueName, decoratedHandler, { noAck: false });
     } catch (error) {
-      log.save('amqp-send-message-error', error?.message, 'error');
+      global.log.save('amqp-send-message-error', error?.message, 'error');
       this.checkErrorAndExitIfNeedIt(error);
     }
   }
@@ -394,7 +394,7 @@ export class MessageQueue {
    */
   async close() {
     if (!this.connection) {
-      log.save('connection-has-already-been-closed');
+      global.log.save('connection-has-already-been-closed');
       this.isClosing = false;
       return;
     }
@@ -406,12 +406,12 @@ export class MessageQueue {
     return new Promise<void>((resolve) => {
       this.connection.close((error) => {
         if (error) {
-          log.save('can-not-close-connection', error && error.message);
+          global.log.save('can-not-close-connection', error && error.message);
           this.isClosing = false;
           return resolve();
         }
 
-        log.save('connection-closed-by-app');
+        global.log.save('connection-closed-by-app');
         this.isClosing = false;
         return resolve();
       });

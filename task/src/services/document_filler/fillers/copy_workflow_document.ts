@@ -57,7 +57,7 @@ export class CopyWorkflowDocumentFiller extends Filler {
         }
 
         const { document } =
-          (await models.task.findDocumentByWorkflowIdAndTaskTemplateId(
+          (await global.models.task.findDocumentByWorkflowIdAndTaskTemplateId(
             workflowId,
             taskTemplateId,
             true
@@ -119,7 +119,7 @@ export class CopyWorkflowDocumentFiller extends Filler {
         }
 
         // Copy attachments.
-        const attachments = await models.documentAttachment.getByDocumentId(document.id);
+        const attachments = await global.models.documentAttachment.getByDocumentId(document.id);
         const copyAttachments = [];
         for (const attachment of attachments) {
           const {
@@ -135,7 +135,7 @@ export class CopyWorkflowDocumentFiller extends Filler {
           const file = await this.storageService.provider.copyFile(link);
 
           if (file && file.id) {
-            const documentAttachment = await models.documentAttachment.create({
+            const documentAttachment = await global.models.documentAttachment.create({
               documentId,
               link: file.id,
               name,

@@ -75,10 +75,10 @@ export class CustomLogs {
       const { taskTemplateId } = task || {};
 
       // Get custom log templates.
-      customLogTemplates = await models.customLogTemplate
+      customLogTemplates = await global.models.customLogTemplate
         .getByOperationTypeAndDocumentTemplateIdWithCache(operationType, documentTemplateId || taskTemplateId);
     } else {
-      customLogTemplates = await models.customLogTemplate.getByOperationType(operationType);
+      customLogTemplates = await global.models.customLogTemplate.getByOperationType(operationType);
     }
 
     // Handle.
@@ -91,8 +91,8 @@ export class CustomLogs {
 
       // TODO: Execute this outside of the loop.
       if (isGetWorkflowData && workflowId) {
-        documents = await models.task.getDocumentsByWorkflowId(workflowId);
-        events = await models.event.getEventsByWorkflowId(workflowId);
+        documents = await global.models.task.getDocumentsByWorkflowId(workflowId);
+        events = await global.models.event.getEventsByWorkflowId(workflowId);
       }
 
       // Main params.
@@ -135,7 +135,7 @@ export class CustomLogs {
       }
 
       // Create custom log.
-      const customLog = await models.customLog.create(logParams);
+      const customLog = await global.models.customLog.create(logParams);
       global.log.save('custom-log-created', { customLogId: customLog && customLog.id || null });
 
       // Save to cache.

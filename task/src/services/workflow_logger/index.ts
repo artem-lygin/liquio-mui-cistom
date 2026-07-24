@@ -39,7 +39,7 @@ export class WorkflowLoggerService {
       throw new ForbiddenError(ERROR_ROLE_ADMIN);
     }
 
-    const workflow = await models.workflow.findById(id, {
+    const workflow = await global.models.workflow.findById(id, {
       with: ['tasks', 'events', 'gateways', 'workflowErrors', 'workflowRestarts']
     });
     if (!workflow) {
@@ -81,7 +81,7 @@ export class WorkflowLoggerService {
       }
 
       if (!task.name) {
-        const taskTemplate = await models.taskTemplate.findById(
+        const taskTemplate = await global.models.taskTemplate.findById(
           task.taskTemplateId
         );
         if (taskTemplate && taskTemplate.name) {
@@ -89,17 +89,17 @@ export class WorkflowLoggerService {
         }
       }
 
-      const document = await models.document.findById(task.documentId);
+      const document = await global.models.document.findById(task.documentId);
       if (document) {
         // Add document.
         task.document = document;
 
         // Append attachments.
-        const attachments = await models.documentAttachment.getByDocumentId(document.id);
+        const attachments = await global.models.documentAttachment.getByDocumentId(document.id);
         task.document.attachments = attachments;
 
         // Append document signature.
-        const signatures = await models.documentSignature.getByDocumentId(document.id);
+        const signatures = await global.models.documentSignature.getByDocumentId(document.id);
         task.document.signatures = signatures;
       }
 
@@ -142,7 +142,7 @@ export class WorkflowLoggerService {
         workflowError.data.queueMessage &&
         workflowError.data.queueMessage.taskTemplateId
       ) {
-        const taskTemplate = await models.taskTemplate.findById(
+        const taskTemplate = await global.models.taskTemplate.findById(
           workflowError.data.queueMessage.taskTemplateId
         );
         if (taskTemplate && taskTemplate.name) {
@@ -153,7 +153,7 @@ export class WorkflowLoggerService {
         workflowError.data.queueMessage &&
         workflowError.data.queueMessage.eventTemplateId
       ) {
-        const eventTemplate = await models.eventTemplate.findById(
+        const eventTemplate = await global.models.eventTemplate.findById(
           workflowError.data.queueMessage.eventTemplateId
         );
         if (eventTemplate && eventTemplate.name) {
@@ -164,7 +164,7 @@ export class WorkflowLoggerService {
         workflowError.data.queueMessage &&
         workflowError.data.queueMessage.gatewayTemplateId
       ) {
-        const gatewayTemplate = await models.gatewayTemplate.findById(
+        const gatewayTemplate = await global.models.gatewayTemplate.findById(
           workflowError.data.queueMessage.gatewayTemplateId
         );
         if (gatewayTemplate && gatewayTemplate.name) {

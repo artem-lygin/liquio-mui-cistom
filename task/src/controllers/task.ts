@@ -6,7 +6,7 @@ import { DocumentAttachmentModel } from '../models/document_attachment';
 import { UnitModel } from '../models/unit';
 import { AuthService as Auth } from '../services/auth';
 import { CustomLogs } from '../services/custom_logs';
-import TaskActivity from '../types/task_activity';
+import { TaskActivity } from '../types/task_activity';
 import { Helpers } from '../lib/helpers';
 import { ERROR_TASK_NOT_FOUND } from '../constants/error';
 import { NotFoundError } from '../lib/errors';

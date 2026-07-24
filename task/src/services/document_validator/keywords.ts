@@ -455,7 +455,7 @@ export class Keywords {
       return '';
     }
 
-    const units = await models.unit.getAll();
+    const units = await global.models.unit.getAll();
     if (units.length === 0) {
       return error;
     }
