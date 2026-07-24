@@ -1,8 +1,8 @@
 import Sequelize from 'sequelize';
 import { Model } from './model';
 import { UnitAccessEntity } from '../entities/unit_access';
-import RedisClient from '../lib/redis_client';
-import PgPubSub from '../lib/pgpubsub';
+import { RedisClient } from '../lib/redis_client';
+import { PgPubSub } from '../lib/pgpubsub';
 import { getArrayDifference } from '../lib/utils';
 
 // Constants.

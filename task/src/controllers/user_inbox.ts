@@ -2,9 +2,9 @@
 import { matchedData } from 'express-validator';
 import { Controller } from './controller';
 import { UserInboxModel } from '../models/user_inbox';
-import DownloadToken from '../lib/download_token';
+import { DownloadToken } from '../lib/download_token';
 import StorageService from '../services/storage';
-import Eds from '../lib/eds';
+import { Eds } from '../lib/eds';
 
 /**
  * User inbox controller.

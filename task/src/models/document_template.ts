@@ -3,8 +3,8 @@ import jsoncParser from 'jsonc-parser';
 
 import { Model } from './model';
 import { DocumentTemplateEntity } from '../entities/document_template';
-import RedisClient from '../lib/redis_client';
-import PgPubSub from '../lib/pgpubsub';
+import { RedisClient } from '../lib/redis_client';
+import { PgPubSub } from '../lib/pgpubsub';
 
 // Constants.
 const DEFAULT_CACHE_TTL = 300; // 5 minutes

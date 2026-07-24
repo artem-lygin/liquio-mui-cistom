@@ -1,6 +1,6 @@
 
 const Provider = require('./provider');
-const FileStorage = require('../../../lib/filestorage');
+const { FileStorage } = require('../../../lib/filestorage');
 
 /**
  * File storage provider.

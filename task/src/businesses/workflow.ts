@@ -3,10 +3,10 @@ import axios from 'axios';
 
 import { JSONPath } from '../lib/jsonpath';
 import { Business } from './business';
-import XmlJsConverter from '../lib/xml_js_converter';
-import Eds from '../lib/eds';
+import { XmlJsConverter } from '../lib/xml_js_converter';
+import { Eds } from '../lib/eds';
 import StorageService from '../services/storage';
-import Sandbox from '../lib/sandbox';
+import { Sandbox } from '../lib/sandbox';
 import typeOf from '../lib/type_of';
 import { EvaluateSchemaFunctionError, NotFoundError, ForbiddenError } from '../lib/errors';
 import { ERROR_WORKFLOW_NOT_FOUND, ERROR_WORKFLOW_ACCESS } from '../constants/error';

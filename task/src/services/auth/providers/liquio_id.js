@@ -4,7 +4,7 @@ const PropByPath = require('prop-by-path');
 const crypto = require('crypto');
 
 const Provider = require('./provider');
-const HttpRequest = require('../../../lib/http_request');
+const { HttpRequest } = require('../../../lib/http_request');
 const { getTraceId } = require('../../../lib/async_local_storage');
 
 // Constants.

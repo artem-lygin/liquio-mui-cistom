@@ -2,7 +2,7 @@
 const crypto = require('crypto');
 const PropByPath = require('prop-by-path');
 
-const Sandbox = require('../../../lib/sandbox');
+const { Sandbox } = require('../../../lib/sandbox');
 
 // Constants.
 const TRANSACTION_SEPARATOR = '/';

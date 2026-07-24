@@ -3,8 +3,8 @@ import Sequelize from 'sequelize';
 import { Model } from './model';
 import { WorkflowTemplateEntity } from '../entities/workflow_template';
 import { WorkflowTemplateCategoryModel } from './workflow_template_category';
-import RedisClient from '../lib/redis_client';
-import PgPubSub from '../lib/pgpubsub';
+import { RedisClient } from '../lib/redis_client';
+import { PgPubSub } from '../lib/pgpubsub';
 
 // Constants.
 const DEFAULT_CACHE_TTL = 300; // 5 minutes

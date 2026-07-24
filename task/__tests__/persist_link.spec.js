@@ -1,4 +1,4 @@
-const PersistLink = require('../src/lib/persist_link');
+const { PersistLink } = require('../src/lib/persist_link');
 const axios = require('axios');
 
 // Mock axios

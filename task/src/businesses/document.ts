@@ -9,10 +9,10 @@ import nodeHtmlParser from 'node-html-parser';
 
 import { JSONPath } from '../lib/jsonpath';
 import { Business } from './business';
-import Eds from '../lib/eds';
-import Stream from '../lib/stream';
-import DownloadToken from '../lib/download_token';
-import ExternalReader from '../lib/external_reader';
+import { Eds } from '../lib/eds';
+import { Stream } from '../lib/stream';
+import { DownloadToken } from '../lib/download_token';
+import { ExternalReader } from '../lib/external_reader';
 import StorageService from '../services/storage';
 import DocumentValidator from '../services/document_validator';
 import DocumentFiller from '../services/document_filler';
@@ -26,10 +26,10 @@ import FileGeneratorService from '../services/file_generator';
 import { DocumentAttachmentModel } from '../models/document_attachment';
 import TaskActivity from '../types/task_activity';
 import { UnitModel } from '../models/unit';
-import Helpers from '../lib/helpers';
-import NumberGenerator from '../lib/number_generator';
+import { Helpers } from '../lib/helpers';
+import { NumberGenerator } from '../lib/number_generator';
 import typeOf from '../lib/type_of';
-import Sandbox from '../lib/sandbox';
+import { Sandbox } from '../lib/sandbox';
 import {
   EvaluateSchemaFunctionError,
   InvalidSchemaError,

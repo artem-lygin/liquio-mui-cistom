@@ -38,9 +38,9 @@ import { FavoritesModel } from '../models/favorites';
 import { ExternalServicesStatusesModels } from '../models/external_services_statuses';
 import { KycSessionModel } from '../models/kyc_session';
 
-import Log from '../lib/log';
+import { Log } from '../lib/log';
 
-import httpClient from '../lib/http_client';
+import { HttpClient as httpClient } from '../lib/http_client';
 
 declare global {
   var businesses: {

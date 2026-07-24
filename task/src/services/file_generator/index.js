@@ -3,7 +3,7 @@ const handlebars = require('handlebars');
 const qrImage = require('qr-image');
 
 const Options = require('./options');
-const typeOf = require('../../lib/type_of');
+const typeOf = require('../../lib/type_of').default;
 
 /**
  * File generator service.

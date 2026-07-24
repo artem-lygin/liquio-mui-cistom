@@ -1,5 +1,5 @@
 const nock = require('nock');
-const HttpRequest = require('../src/lib/http_request');
+const { HttpRequest } = require('../src/lib/http_request');
 const { getTraceId } = require('../src/lib/async_local_storage');
 
 // Mock the async_local_storage module

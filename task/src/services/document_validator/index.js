@@ -4,12 +4,12 @@ const Ajv = require('ajv');
 const PropByPath = require('prop-by-path');
 
 const { JSONPath } = require('../../lib/jsonpath');
-const DocumentHandler = require('../../lib/document_handler');
+const { DocumentHandler } = require('../../lib/document_handler');
 const Keywords = require('./keywords');
 const ValidatorError = require('./validator_error');
 const Paths = require('./paths');
 const RegisterService = require('../../services/register');
-const Sandbox = require('../../lib/sandbox');
+const { Sandbox } = require('../../lib/sandbox');
 
 // Constants.
 // const CONTROL_PAYMENT_NAME = 'payment';

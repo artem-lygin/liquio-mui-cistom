@@ -2,8 +2,8 @@ import Sequelize from 'sequelize';
 
 import { Model } from './model';
 import { NumberTemplateEntity } from '../entities/number_template';
-import RedisClient from '../lib/redis_client';
-import PgPubSub from '../lib/pgpubsub';
+import { RedisClient } from '../lib/redis_client';
+import { PgPubSub } from '../lib/pgpubsub';
 
 // Constants.
 const DEFAULT_CACHE_TTL = 600; // 10 minutes

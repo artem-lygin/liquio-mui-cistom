@@ -1,7 +1,7 @@
 import AuthService from '../services/auth';
 import { Controller } from './controller';
-import RedisClient from '../lib/redis_client';
-import Helpers from '../lib/helpers';
+import { RedisClient } from '../lib/redis_client';
+import { Helpers } from '../lib/helpers';
 
 export class OnboardingController extends Controller {
   auth: any;

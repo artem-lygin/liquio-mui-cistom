@@ -1,8 +1,8 @@
 
 const PropByPath = require('prop-by-path');
 
-const DocumentHandler = require('../../../lib/document_handler');
-const Sandbox = require('../../../lib/sandbox');
+const { DocumentHandler } = require('../../../lib/document_handler');
+const { Sandbox } = require('../../../lib/sandbox');
 
 // Constants.
 const ERROR_MESSAGE_METHOD_NOT_DEFINED = 'Method should be overridden in child class.';

@@ -2,7 +2,7 @@
 const _ = require('lodash');
 
 const { JSONPath } = require('../../lib/jsonpath');
-const Sandbox = require('../../lib/sandbox');
+const { Sandbox } = require('../../lib/sandbox');
 
 // Constants.
 const KEYWORD_CHECK_VALID = 'checkValid';

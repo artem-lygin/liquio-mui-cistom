@@ -1,11 +1,11 @@
 import moment from 'moment';
 
-import Db from './lib/db';
-import PgPubSub from './lib/pgpubsub';
-import Log from './lib/log';
-import ConsoleLogProvider from './lib/log/providers/console';
-import MessageQueue from './lib/message_queue';
-import RedisClient from './lib/redis_client';
+import { Db } from './lib/db';
+import { PgPubSub } from './lib/pgpubsub';
+import { Log } from './lib/log';
+import { ConsoleLogProvider } from './lib/log/providers/console';
+import { MessageQueue } from './lib/message_queue';
+import { RedisClient } from './lib/redis_client';
 import { Models } from './models';
 import { DictionaryModels as DictionariesModel } from './models/dictionaries';
 import DocumentFillerService from './services/document_filler';
@@ -16,13 +16,13 @@ import FileGeneratorService from './services/file_generator';
 import StorageService from './services/storage';
 import LdapClient from './services/ldap';
 import Commands from './commands';
-import Errors from './lib/errors';
-import LogsBroadcasting from './lib/logs_broadcasting';
+import * as Errors from './lib/errors';
+import { LogsBroadcasting } from './lib/logs_broadcasting';
 import typeOf from './lib/type_of';
-import HttpClient from './lib/http_client';
-import ExternalServicesStatusesDaemon from './lib/external_services_statuses_daemon';
+import { HttpClient } from './lib/http_client';
+import { ExternalServicesStatusesDaemon } from './lib/external_services_statuses_daemon';
 import { loadConfig } from './lib/config';
-import JSONPath from './lib/jsonpath';
+import * as JSONPath from './lib/jsonpath';
 
 const CONFIG_PATH = process.env.CONFIG_PATH || '../config/task';
 

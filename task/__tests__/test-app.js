@@ -17,28 +17,32 @@ jest.setTimeout(30000);
 
 // Mock the RabbitMQ connection
 jest.mock('../src/lib/message_queue', () => {
-  return jest.fn().mockImplementation(() => {
-    return {
-      init: jest.fn(),
-      produce: jest.fn(),
-    };
-  });
+  return {
+    MessageQueue: jest.fn().mockImplementation(() => {
+      return {
+        init: jest.fn(),
+        produce: jest.fn(),
+      };
+    }),
+  };
 });
 
 // Mock the log module
 jest.mock('../src/lib/log', () => {
   const debug = require('debug');
-  const originalLog = jest.requireActual('../src/lib/log');
+  const { Log: OriginalLog } = jest.requireActual('../src/lib/log');
   const logs = [];
-  return class extends originalLog {
-    save(...args) {
-      debug('test:log')(...args);
-      logs.push(args);
-    }
+  return {
+    Log: class extends OriginalLog {
+      save(...args) {
+        debug('test:log')(...args);
+        logs.push(args);
+      }
 
-    getLogs() {
-      return logs;
-    }
+      getLogs() {
+        return logs;
+      }
+    },
   };
 });
 

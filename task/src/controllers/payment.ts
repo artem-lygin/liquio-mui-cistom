@@ -1,6 +1,6 @@
 
 import { Controller } from './controller';
-import Stream from '../lib/stream';
+import { Stream } from '../lib/stream';
 
 // Constants.
 const RAW_PAYMENT_ACTION_TYPE = 'raw';

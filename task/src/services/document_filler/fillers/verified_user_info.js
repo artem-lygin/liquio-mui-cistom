@@ -1,5 +1,5 @@
 const Filler = require('./filler');
-const ExternalReader = require('../../../lib/external_reader');
+const { ExternalReader } = require('../../../lib/external_reader');
 const RegisterService = require('../../register');
 
 /**

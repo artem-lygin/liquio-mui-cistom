@@ -18,12 +18,12 @@ import { WorkflowModel } from '../models/workflow';
 import StorageService from '../services/storage';
 import FileGeneratorService from '../services/file_generator';
 import DocumentUpdateLog from '../services/document_update_log';
-import ExternalReader from '../lib/external_reader';
-import DownloadToken from '../lib/download_token';
-import PersistLink from '../lib/persist_link';
+import { ExternalReader } from '../lib/external_reader';
+import { DownloadToken } from '../lib/download_token';
+import { PersistLink } from '../lib/persist_link';
 import Notifier from '../services/notifier';
 import CustomLogs from '../services/custom_logs';
-import Sandbox from '../lib/sandbox';
+import { Sandbox } from '../lib/sandbox';
 import { InvalidParamsError, BadRequestError, NotFoundError } from '../lib/errors';
 import { ERROR_DOCUMENT_ALREADY_COMMITTED, ERROR_DRAFT_EXPIRED, ERROR_CAN_NOT_DELETE, ERROR_DOCUMENT_NOT_FOUND } from '../constants/error';
 

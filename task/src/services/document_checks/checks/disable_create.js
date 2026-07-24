@@ -1,6 +1,6 @@
 
 const Checks = require('./index');
-const Sandbox = require('../../../lib/sandbox');
+const { Sandbox } = require('../../../lib/sandbox');
 
 /**
  * Disable create document service

@@ -2,7 +2,7 @@
 import { randomUUID } from 'node:crypto';
 
 import { Controller } from './controller';
-import ExternalReader from '../lib/external_reader';
+import { ExternalReader } from '../lib/external_reader';
 import typeOf from '../lib/type_of';
 
 /**

@@ -2,10 +2,10 @@ import { Controller } from './controller';
 import Auth from '../services/auth';
 import NotifierService from '../services/notifier';
 import RegisterService from '../services/register';
-import Eds from '../lib/eds';
-import AppInfo from '../lib/app_info';
-import FileStorage from '../lib/filestorage';
-import HttpRequest from '../lib/http_request';
+import { Eds } from '../lib/eds';
+import { AppInfo } from '../lib/app_info';
+import { FileStorage } from '../lib/filestorage';
+import { HttpRequest } from '../lib/http_request';
 import PaymentService from '../services/payment';
 
 // Constants.

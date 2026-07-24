@@ -7,7 +7,7 @@ import { UnitModel } from '../models/unit';
 import Auth from '../services/auth';
 import CustomLogs from '../services/custom_logs';
 import TaskActivity from '../types/task_activity';
-import Helpers from '../lib/helpers';
+import { Helpers } from '../lib/helpers';
 import { ERROR_TASK_NOT_FOUND } from '../constants/error';
 import { NotFoundError } from '../lib/errors';
 

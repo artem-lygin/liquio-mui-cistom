@@ -1,4 +1,4 @@
-const FileStorage = require('../src/lib/filestorage');
+const { FileStorage } = require('../src/lib/filestorage');
 const nock = require('nock');
 const { Readable } = require('stream');
 
@@ -754,24 +754,17 @@ describe('FileStorage', () => {
   describe('generateFileNameForUser', () => {
     const userId = 'user-123';
 
-    beforeEach(() => {
-      // Mock the missing getFileNameForUserSuffix method
-      fileStorage.getFileNameForUserSuffix = jest.fn().mockReturnValue('suffix-123');
-    });
-
     it('should generate a file name for user without extension', () => {
       const result = fileStorage.generateFileNameForUser(userId);
-      
-      expect(result).toMatch(/^[a-f0-9]{80}-suffix-123$/);
-      expect(fileStorage.getFileNameForUserSuffix).toHaveBeenCalled();
+
+      expect(result).toMatch(/^[a-f0-9]{80}$/);
     });
 
     it('should generate a file name for user with extension', () => {
       const extension = 'pdf';
       const result = fileStorage.generateFileNameForUser(userId, extension);
-      
-      expect(result).toMatch(/^[a-f0-9]{80}\.pdf-suffix-123$/);
-      expect(fileStorage.getFileNameForUserSuffix).toHaveBeenCalled();
+
+      expect(result).toMatch(/^[a-f0-9]{80}\.pdf$/);
     });
 
     it('should throw error for invalid user ID', () => {

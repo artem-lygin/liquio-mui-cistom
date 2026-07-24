@@ -1,7 +1,7 @@
 import Sequelize from 'sequelize';
 import { Model } from './model';
 import { DocumentEntity } from '../entities/document';
-import RedisClient from '../lib/redis_client';
+import { RedisClient } from '../lib/redis_client';
 
 // Constants.
 const SYSTEM_USER = 'system';

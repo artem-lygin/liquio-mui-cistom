@@ -5,7 +5,7 @@ import moment from 'moment';
 import { Model } from './model';
 import { Entity } from '../entities/entity';
 import { WorkflowEntity } from '../entities/workflow';
-import RedisClient from '../lib/redis_client';
+import { RedisClient } from '../lib/redis_client';
 
 const GET_ALL_BY_USER_ID_CACHE_TTL = 600; // 10 minutes
 

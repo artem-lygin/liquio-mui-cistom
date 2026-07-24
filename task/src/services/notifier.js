@@ -1,6 +1,6 @@
 
-const HttpRequest = require('../lib/http_request');
-const DownloadToken = require('../lib/download_token');
+const { HttpRequest } = require('../lib/http_request');
+const { DownloadToken } = require('../lib/download_token');
 const { getTraceId } = require('../lib/async_local_storage');
 
 // Constants.

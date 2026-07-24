@@ -5,7 +5,7 @@ import moment from 'moment';
 
 import { Model } from './model';
 import { TaskEntity } from '../entities/task';
-import RedisClient from '../lib/redis_client';
+import { RedisClient } from '../lib/redis_client';
 import { SequelizeDbError } from '../lib/errors';
 
 // Constants.
