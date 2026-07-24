@@ -1,6 +1,6 @@
-const { TestApp } = require('./test-app');
+import { TestApp } from './test-app';
 
-const { prepareFixtures, DOCUMENT_FIXTURES } = require('./fixtures');
+import { prepareFixtures, DOCUMENT_FIXTURES } from './fixtures';
 
 describe('Document', () => {
   let app;

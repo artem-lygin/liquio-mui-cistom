@@ -1,5 +1,5 @@
-const { PersistLink } = require('../src/lib/persist_link');
-const axios = require('axios');
+import { PersistLink } from '../src/lib/persist_link';
+import axios from 'axios';
 
 // Mock axios
 jest.mock('axios');
@@ -8,7 +8,7 @@ jest.mock('axios');
 const mockLog = {
   save: jest.fn()
 };
-global.log = mockLog;
+global.log = mockLog as any;
 
 // Mock global config
 const mockConfig = {
@@ -36,7 +36,7 @@ describe('PersistLink', () => {
     jest.clearAllMocks();
     
     // Reset singleton
-    PersistLink.singleton = null;
+    (PersistLink as any).singleton = null;
     
     persistLink = new PersistLink();
   });
@@ -47,11 +47,11 @@ describe('PersistLink', () => {
       const instance2 = new PersistLink();
       
       expect(instance1).toBe(instance2);
-      expect(PersistLink.singleton).toBe(instance1);
+      expect((PersistLink as any).singleton).toBe(instance1);
     });
 
     it('should use default config when no config provided', () => {
-      PersistLink.singleton = null;
+      (PersistLink as any).singleton = null;
       
       const instance = new PersistLink({});
       
@@ -61,7 +61,7 @@ describe('PersistLink', () => {
     });
 
     it('should merge provided config with defaults', () => {
-      PersistLink.singleton = null;
+      (PersistLink as any).singleton = null;
       
       const customConfig = {
         server: 'https://custom-server.com',
@@ -99,7 +99,7 @@ describe('PersistLink', () => {
     };
 
     it('should successfully get QR and link to document', async () => {
-      axios.mockResolvedValue(mockResponse);
+      (axios as any).mockResolvedValue(mockResponse);
 
       const result = await persistLink.getQrAndLinkToDocument(documentId);
 
@@ -128,7 +128,7 @@ describe('PersistLink', () => {
 
     it('should reject on axios error', async () => {
       const error = new Error('Network error');
-      axios.mockRejectedValue(error);
+      (axios as any).mockRejectedValue(error);
 
       await expect(persistLink.getQrAndLinkToDocument(documentId)).rejects.toThrow('Network error');
       
@@ -141,7 +141,7 @@ describe('PersistLink', () => {
         statusText: 'Internal Server Error',
         data: null
       };
-      axios.mockResolvedValue(errorResponse);
+      (axios as any).mockResolvedValue(errorResponse);
 
       await expect(persistLink.getQrAndLinkToDocument(documentId)).rejects.toThrow('HTTP 500: Internal Server Error');
     });
@@ -160,7 +160,7 @@ describe('PersistLink', () => {
     };
 
     it('should successfully get QR and link to case', async () => {
-      axios.mockResolvedValue(mockResponse);
+      (axios as any).mockResolvedValue(mockResponse);
 
       const result = await persistLink.getQrAndLinkToCase(caseId);
 
@@ -189,7 +189,7 @@ describe('PersistLink', () => {
 
     it('should reject on error', async () => {
       const error = new Error('Case error');
-      axios.mockRejectedValue(error);
+      (axios as any).mockRejectedValue(error);
 
       await expect(persistLink.getQrAndLinkToCase(caseId)).rejects.toThrow('Case error');
       
@@ -211,7 +211,7 @@ describe('PersistLink', () => {
     };
 
     it('should successfully get QR and link to proceeding', async () => {
-      axios.mockResolvedValue(mockResponse);
+      (axios as any).mockResolvedValue(mockResponse);
 
       const result = await persistLink.getQrAndLinkToProceeding(proceedingId, caseId);
 
@@ -240,7 +240,7 @@ describe('PersistLink', () => {
 
     it('should reject on error', async () => {
       const error = new Error('Proceeding error');
-      axios.mockRejectedValue(error);
+      (axios as any).mockRejectedValue(error);
 
       await expect(persistLink.getQrAndLinkToProceeding(proceedingId, caseId)).rejects.toThrow('Proceeding error');
       
@@ -313,7 +313,7 @@ describe('PersistLink', () => {
     };
 
     it('should successfully get QR link to static file in OpenStack', async () => {
-      axios.mockResolvedValue(mockResponse);
+      (axios as any).mockResolvedValue(mockResponse);
 
       const result = await persistLink.getQrLinkToStaticFileInOpenStack(fileName);
 
@@ -342,7 +342,7 @@ describe('PersistLink', () => {
 
     it('should reject on error', async () => {
       const error = new Error('OpenStack error');
-      axios.mockRejectedValue(error);
+      (axios as any).mockRejectedValue(error);
 
       await expect(persistLink.getQrLinkToStaticFileInOpenStack(fileName)).rejects.toThrow('OpenStack error');
       
@@ -363,7 +363,7 @@ describe('PersistLink', () => {
     };
 
     it('should successfully get link to static file in Filestorage', async () => {
-      axios.mockResolvedValue(mockResponse);
+      (axios as any).mockResolvedValue(mockResponse);
 
       const result = await persistLink.getLinkToStaticFileInFilestorage(fileId, definedHash);
 
@@ -393,9 +393,9 @@ describe('PersistLink', () => {
     });
 
     it('should reject on error and log response data', async () => {
-      const error = new Error('Filestorage error');
+      const error: any = new Error('Filestorage error');
       error.response = { data: { error: 'File not found' } };
-      axios.mockRejectedValue(error);
+      (axios as any).mockRejectedValue(error);
 
       await expect(persistLink.getLinkToStaticFileInFilestorage(fileId, definedHash)).rejects.toThrow('Filestorage error');
       
@@ -415,7 +415,7 @@ describe('PersistLink', () => {
     const mockResponseData = { data: { status: 'ok' } };
 
     it('should successfully send ping request', async () => {
-      axios.mockResolvedValue({
+      (axios as any).mockResolvedValue({
         status: 200,
         headers: mockResponseHeaders,
         data: mockResponseData
@@ -443,7 +443,7 @@ describe('PersistLink', () => {
       // Mock console.log to avoid output during tests
       const consoleSpy = jest.spyOn(console, 'log').mockImplementation();
       
-      axios.mockRejectedValue(error);
+      (axios as any).mockRejectedValue(error);
 
       await expect(persistLink.sendPingRequest()).rejects.toThrow('Ping error');
       
@@ -454,7 +454,7 @@ describe('PersistLink', () => {
     it('should reject on non-200 status code', async () => {
       const consoleSpy = jest.spyOn(console, 'log').mockImplementation();
       
-      axios.mockResolvedValue({
+      (axios as any).mockResolvedValue({
         status: 500,
         statusText: 'Internal Server Error'
       });
@@ -466,7 +466,7 @@ describe('PersistLink', () => {
     });
 
     it('should handle empty response body gracefully', async () => {
-      axios.mockResolvedValue({
+      (axios as any).mockResolvedValue({
         status: 200,
         headers: mockResponseHeaders,
         data: {}
@@ -485,7 +485,7 @@ describe('PersistLink', () => {
 
   describe('Configuration Edge Cases', () => {
     it('should handle missing routes in custom config', () => {
-      PersistLink.singleton = null;
+      (PersistLink as any).singleton = null;
       
       const customConfig = {
         server: 'https://custom.com',
@@ -500,7 +500,7 @@ describe('PersistLink', () => {
     });
 
     it('should handle partial routes in custom config', () => {
-      PersistLink.singleton = null;
+      (PersistLink as any).singleton = null;
       
       const customConfig = {
         routes: {

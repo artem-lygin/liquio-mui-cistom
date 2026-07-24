@@ -34,7 +34,7 @@ const GENERIC_TASK_FIXTURE = {
   required_performer_units: [],
 };
 
-const TASK_FIXTURES = [
+export const TASK_FIXTURES = [
   {
     ...GENERIC_TASK_FIXTURE,
     id: '63454280-111a-11ef-b95e-15b9ffbcc467',
@@ -84,4 +84,3 @@ const TASK_FIXTURES = [
   },
 ];
 
-module.exports = { TASK_FIXTURES };

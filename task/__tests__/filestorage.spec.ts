@@ -1,12 +1,13 @@
-const { FileStorage } = require('../src/lib/filestorage');
-const nock = require('nock');
-const { Readable } = require('stream');
+import { FileStorage } from '../src/lib/filestorage';
+import nock from 'nock';
+import { Readable } from 'node:stream';
+import axios from 'axios';
 
 // Mock the log module
 const mockLog = {
   save: jest.fn()
 };
-global.log = mockLog;
+global.log = mockLog as any;
 
 // Mock async_local_storage
 jest.mock('../src/lib/async_local_storage', () => ({
@@ -34,7 +35,7 @@ describe('FileStorage', () => {
     jest.clearAllMocks();
     
     // Reset singleton
-    FileStorage.singleton = null;
+    (FileStorage as any).singleton = null;
     
     fileStorage = new FileStorage();
     
@@ -54,7 +55,6 @@ describe('FileStorage', () => {
     nock.enableNetConnect(); // Re-enable network connections after each test
     
     // Clean up any axios connections that might still be open
-    const axios = require('axios');
     if (axios.defaults.httpAgent && typeof axios.defaults.httpAgent.destroy === 'function') {
       axios.defaults.httpAgent.destroy();
     }
@@ -73,7 +73,6 @@ describe('FileStorage', () => {
     nock.enableNetConnect(); // Ensure network connections are restored
     
     // Clean up axios instances and close any open connections
-    const axios = require('axios');
     
     // Force close any existing HTTP/HTTPS agents
     if (axios.defaults.httpAgent) {
@@ -98,7 +97,7 @@ describe('FileStorage', () => {
       const instance2 = new FileStorage();
       
       expect(instance1).toBe(instance2);
-      expect(FileStorage.singleton).toBe(instance1);
+      expect((FileStorage as any).singleton).toBe(instance1);
     });
 
     it('should use default config when no config provided', () => {
@@ -111,7 +110,7 @@ describe('FileStorage', () => {
     });
 
     it('should use provided config when given', () => {
-      FileStorage.singleton = null;
+      (FileStorage as any).singleton = null;
       
       const customConfig = {
         apiHost: 'https://custom-filestorage.com',

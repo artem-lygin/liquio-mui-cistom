@@ -1,4 +1,4 @@
-const TASK_TEMPLATE_FIXTURES = [
+export const TASK_TEMPLATE_FIXTURES = [
   {
     id: 31689003,
     name: 'Збереження статусу',
@@ -22,4 +22,3 @@ const TASK_TEMPLATE_FIXTURES = [
   },
 ];
 
-module.exports = { TASK_TEMPLATE_FIXTURES };

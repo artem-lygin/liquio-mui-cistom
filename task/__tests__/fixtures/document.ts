@@ -19,7 +19,7 @@ const GENERIC_DOCUMENT_FIXTURE = {
   file_size: null,
 };
 
-const DOCUMENT_FIXTURES = [
+export const DOCUMENT_FIXTURES = [
   {
     ...GENERIC_DOCUMENT_FIXTURE,
     id: '6348ec00-111a-11ef-b95e-15b9ffbcc467',
@@ -94,4 +94,3 @@ const DOCUMENT_FIXTURES = [
   },
 ];
 
-module.exports = { DOCUMENT_FIXTURES };

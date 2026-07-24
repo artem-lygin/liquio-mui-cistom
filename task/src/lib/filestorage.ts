@@ -26,7 +26,7 @@ export class FileStorage {
    * File storage constructor.
    * @param {{apiHost, token, containerId, signatureTimeout, downloadUploadTimeout, timeout}} options File storage options.
    */
-  constructor(options) {
+  constructor(options?) {
     if (!FileStorage.singleton) {
       const {
         apiHost,

@@ -1,4 +1,4 @@
-const USER_INBOX_FIXTURES = [
+export const USER_INBOX_FIXTURES = [
   {
     id: '90156ae0-881b-11ec-ba07-6919f679b467',
     user_id: 'test',
@@ -12,4 +12,3 @@ const USER_INBOX_FIXTURES = [
   },
 ];
 
-module.exports = { USER_INBOX_FIXTURES };

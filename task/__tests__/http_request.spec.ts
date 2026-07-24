@@ -1,6 +1,6 @@
-const nock = require('nock');
-const { HttpRequest } = require('../src/lib/http_request');
-const { getTraceId } = require('../src/lib/async_local_storage');
+import nock from 'nock';
+import { HttpRequest } from '../src/lib/http_request';
+import { getTraceId } from '../src/lib/async_local_storage';
 
 // Mock the async_local_storage module
 jest.mock('../src/lib/async_local_storage', () => ({
@@ -11,7 +11,7 @@ describe('HttpRequest', () => {
   beforeEach(() => {
     // Reset all mocks before each test
     jest.clearAllMocks();
-    getTraceId.mockReturnValue('test-trace-id-123');
+    (getTraceId as any).mockReturnValue('test-trace-id-123');
     
     // Clean all nock interceptors
     nock.cleanAll();

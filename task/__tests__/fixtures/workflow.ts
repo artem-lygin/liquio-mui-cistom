@@ -23,7 +23,7 @@ const GENERIC_WORKFLOW_FIXTURE = {
   elastic_reindex_state: null,
 };
 
-const WORKFLOW_FIXTURES = [
+export const WORKFLOW_FIXTURES = [
   {
     ...GENERIC_WORKFLOW_FIXTURE,
     id: 'a26753f0-1119-11ef-b95e-15b9ffbcc467',
@@ -51,4 +51,3 @@ const WORKFLOW_FIXTURES = [
   },
 ];
 
-module.exports = { WORKFLOW_FIXTURES };

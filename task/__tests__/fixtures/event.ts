@@ -1,4 +1,4 @@
-const EVENT_FIXTURES = [
+export const EVENT_FIXTURES = [
   {
     id: '915f8860-de3a-11ed-829e-376793cdec28',
     event_template_id: 31689002,
@@ -25,4 +25,3 @@ const EVENT_FIXTURES = [
   },
 ];
 
-module.exports = { EVENT_FIXTURES };

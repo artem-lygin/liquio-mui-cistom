@@ -1,4 +1,4 @@
-const DOCUMENT_TEMPLATE_FIXTURES = [
+export const DOCUMENT_TEMPLATE_FIXTURES = [
   {
     id: 31689003,
     name: 'Збереження статусу',
@@ -99,4 +99,3 @@ const DOCUMENT_TEMPLATE_FIXTURES = [
   },
 ];
 
-module.exports = { DOCUMENT_TEMPLATE_FIXTURES };

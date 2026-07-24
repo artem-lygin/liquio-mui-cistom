@@ -1,4 +1,4 @@
-const DOCUMENT_SIGNATURE_FIXTURES = [
+export const DOCUMENT_SIGNATURE_FIXTURES = [
   {
     id: '0895db60-7dc9-11ec-9f2a-d53bd673d4f4',
     document_id: '6348ec00-111a-11ef-b95e-15b9ffbcc467',
@@ -11,4 +11,3 @@ const DOCUMENT_SIGNATURE_FIXTURES = [
   },
 ];
 
-module.exports = { DOCUMENT_SIGNATURE_FIXTURES };

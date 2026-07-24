@@ -1,16 +1,16 @@
-const supertest = require('supertest');
-const portfinder = require('portfinder');
-const pg = require('pg');
-const nock = require('nock');
-const { execSync } = require('child_process');
-const { readFileSync } = require('fs');
-const debug = require('debug');
-const { PostgreSqlContainer } = require('@testcontainers/postgresql');
-const { RedisContainer } = require('@testcontainers/redis');
-const { randomBytes } = require('crypto');
-const jsonwebtoken = require('jsonwebtoken');
+import supertest from 'supertest';
+import portfinder from 'portfinder';
+import pg from 'pg';
+import nock from 'nock';
+import { execSync } from 'node:child_process';
+import { readFileSync } from 'node:fs';
+import debug from 'debug';
+import { PostgreSqlContainer } from '@testcontainers/postgresql';
+import { RedisContainer } from '@testcontainers/redis';
+import { randomBytes } from 'node:crypto';
+import jsonwebtoken from 'jsonwebtoken';
 
-const { BpmnTaskCore } = require('../src/app');
+import { BpmnTaskCore } from '../src/app';
 
 // E2E tests are slow, so we increase the timeout
 jest.setTimeout(30000);
@@ -29,6 +29,7 @@ jest.mock('../src/lib/message_queue', () => {
 
 // Mock the log module
 jest.mock('../src/lib/log', () => {
+  // eslint-disable-next-line @typescript-eslint/no-require-imports
   const debug = require('debug');
   const { Log: OriginalLog } = jest.requireActual('../src/lib/log');
   const logs = [];
@@ -47,8 +48,9 @@ jest.mock('../src/lib/log', () => {
 });
 
 // Mock the configuration module
-let configOverride = {};
+const configOverride: any = {};
 jest.mock('../src/lib/config', () => {
+  // eslint-disable-next-line @typescript-eslint/no-require-imports
   const Multiconf = require('multiconf');
   const baseConfig = Multiconf.get('../config-templates/task');
 
@@ -64,10 +66,11 @@ jest.mock('../src/lib/config', () => {
 });
 
 // Obtain the default configuration object
+// eslint-disable-next-line @typescript-eslint/no-require-imports
 const { getConfig } = require('../src/lib/config');
 const defaultConfig = getConfig();
 
-class TestApp extends BpmnTaskCore {
+export class TestApp extends BpmnTaskCore {
   static pgContainer;
   static redisContainer;
 
@@ -179,7 +182,7 @@ class TestApp extends BpmnTaskCore {
 
     // Create a unique database for each test run
     if (isExternalDb) {
-      const uniqueDbName = `test_db_${crypto.randomBytes(8).toString('hex')}`;
+      const uniqueDbName = `test_db_${randomBytes(8).toString('hex')}`;
       await client.query(`CREATE DATABASE ${uniqueDbName};`);
       dbConfig.database = uniqueDbName;
     }
@@ -212,11 +215,13 @@ class TestApp extends BpmnTaskCore {
         debug('test:db')(
           await client
             .query(testData)
-            .then((res) => `Executed ${res.length} queries`)
+            .then((res: any) => `Executed ${res.length} queries`)
             .catch((err) => `Failed to seed data: ${err}`),
         );
       } catch (error) {
-        throw new Error(`Unable to load test data: ${error.message}`, { cause: error });
+        const wrapped: any = new Error(`Unable to load test data: ${error.message}`);
+        wrapped.cause = error;
+        throw wrapped;
       }
       await client.end();
     }
@@ -243,7 +248,7 @@ class TestApp extends BpmnTaskCore {
 
   // Obtain a client instance to interact with the application
   request() {
-    const address = `http://${config.server.host}:${config.server.port}`;
+    const address = `http://${global.config.server.host}:${global.config.server.port}`;
     return supertest(address);
   }
 
@@ -257,13 +262,13 @@ class TestApp extends BpmnTaskCore {
       },
     };
     return {
-      jwt: jsonwebtoken.sign(JSON.stringify(payload), config.auth.jwtSecret),
+      jwt: jsonwebtoken.sign(JSON.stringify(payload), global.config.auth.jwtSecret),
       payload,
     };
   }
 
   nock(...args) {
-    return args.length === 0 ? nock : nock(...args);
+    return args.length === 0 ? nock : (nock as any)(...args);
   }
 
   /**
@@ -272,7 +277,7 @@ class TestApp extends BpmnTaskCore {
    * @returns {import('nock').Scope}
    */
   get nockId() {
-    const { server, port } = config.auth.LiquioId;
+    const { server, port } = global.config.auth.LiquioId;
     return nock(`${server}:${port}`);
   }
 
@@ -289,5 +294,3 @@ class TestApp extends BpmnTaskCore {
     await this.stop();
   }
 }
-
-module.exports = { TestApp };
