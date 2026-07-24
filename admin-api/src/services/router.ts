@@ -42,6 +42,7 @@ import { MassMessagesMailingController } from '../controllers/mass_messages_mail
 import { LocalizationLanguageController } from '../controllers/localization_language';
 import { LocalizationTextController } from '../controllers/localization_text';
 import { UserSettingsController } from '../controllers/user_settings';
+import { FileLibraryController } from '../controllers/file_library';
 import { Validators } from '../validators';
 import { asyncLocalStorageMiddleware } from '../lib/async_local_storage';
 import {
@@ -114,7 +115,12 @@ export class RouterService {
       }),
     );
 
-    app.use(express.json({ limit: this.config.server.maxBodySize }));
+    app.use(
+      express.json({
+        limit: this.config.server.maxBodySize,
+        type: (req) => (req as any).path !== '/file-library/files' && (req as any).is('application/json'),
+      }),
+    );
 
     // App info in headers.
     AppIdentHeaders.add(app);
@@ -199,6 +205,7 @@ export class RouterService {
     const localizationLanguageController = new LocalizationLanguageController(this.config);
     const localizationTextController = new LocalizationTextController(this.config);
     const userSettingsController = new UserSettingsController(this.config);
+    const fileLibraryController = new FileLibraryController(this.config);
 
     // Init validators.
     const validators = new Validators(this.config);
@@ -217,6 +224,103 @@ export class RouterService {
 
     app.get('/redirect/auth', redirectController.auth.bind(redirectController));
     app.get('/redirect/logout', redirectController.logout.bind(redirectController));
+
+    app.get(
+      '/file-library/public/:slug/preview',
+      validators.getHandler('fileLibrary', 'publicSlug'),
+      validators.getValidationResultHandler(),
+      fileLibraryController.publicPreview.bind(fileLibraryController),
+    );
+    app.get(
+      '/file-library/public/:slug/:name',
+      validators.getHandler('fileLibrary', 'publicSlug'),
+      validators.getValidationResultHandler(),
+      fileLibraryController.publicDownload.bind(fileLibraryController),
+    );
+    app.get(
+      '/file-library/public/:slug',
+      validators.getHandler('fileLibrary', 'publicSlug'),
+      validators.getValidationResultHandler(),
+      fileLibraryController.publicDownload.bind(fileLibraryController),
+    );
+
+    app.get(
+      '/file-library/items',
+      authController.getCheckMiddleware(adminRoles, [SYSTEM_ADMIN_UNIT, READONLY_SYSTEM_ADMIN_UNIT, SUPPORT_ADMIN_UNIT, READONLY_SUPPORT_ADMIN_UNIT]),
+      validators.getHandler('fileLibrary', 'list'),
+      validators.getValidationResultHandler(),
+      fileLibraryController.list.bind(fileLibraryController),
+    );
+    app.post(
+      '/file-library/folders',
+      authController.getCheckMiddleware(adminRoles, [SYSTEM_ADMIN_UNIT, SUPPORT_ADMIN_UNIT]),
+      validators.getHandler('fileLibrary', 'createFolder'),
+      validators.getValidationResultHandler(),
+      fileLibraryController.createFolder.bind(fileLibraryController),
+    );
+    app.post(
+      '/file-library/files',
+      authController.getCheckMiddleware(adminRoles, [SYSTEM_ADMIN_UNIT, SUPPORT_ADMIN_UNIT]),
+      validators.getHandler('fileLibrary', 'uploadFile'),
+      validators.getValidationResultHandler(),
+      fileLibraryController.uploadFile.bind(fileLibraryController),
+    );
+    app.get(
+      '/file-library/items/:id',
+      authController.getCheckMiddleware(adminRoles, [SYSTEM_ADMIN_UNIT, READONLY_SYSTEM_ADMIN_UNIT, SUPPORT_ADMIN_UNIT, READONLY_SUPPORT_ADMIN_UNIT]),
+      validators.getHandler('fileLibrary', 'id'),
+      validators.getValidationResultHandler(),
+      fileLibraryController.get.bind(fileLibraryController),
+    );
+    app.put(
+      '/file-library/items/:id',
+      authController.getCheckMiddleware(adminRoles, [SYSTEM_ADMIN_UNIT, SUPPORT_ADMIN_UNIT]),
+      validators.getHandler('fileLibrary', 'update'),
+      validators.getValidationResultHandler(),
+      fileLibraryController.update.bind(fileLibraryController),
+    );
+    app.delete(
+      '/file-library/items/:id',
+      authController.getCheckMiddleware(adminRoles, [SYSTEM_ADMIN_UNIT, SUPPORT_ADMIN_UNIT]),
+      validators.getHandler('fileLibrary', 'id'),
+      validators.getValidationResultHandler(),
+      fileLibraryController.remove.bind(fileLibraryController),
+    );
+    app.put(
+      '/file-library/items/:id/access',
+      authController.getCheckMiddleware(adminRoles, [SYSTEM_ADMIN_UNIT, SUPPORT_ADMIN_UNIT]),
+      validators.getHandler('fileLibrary', 'grants'),
+      validators.getValidationResultHandler(),
+      fileLibraryController.setGrants.bind(fileLibraryController),
+    );
+    app.post(
+      '/file-library/items/:id/public-link',
+      authController.getCheckMiddleware(adminRoles, [SYSTEM_ADMIN_UNIT, SUPPORT_ADMIN_UNIT]),
+      validators.getHandler('fileLibrary', 'publicLink'),
+      validators.getValidationResultHandler(),
+      fileLibraryController.createPublicLink.bind(fileLibraryController),
+    );
+    app.delete(
+      '/file-library/items/:id/public-link',
+      authController.getCheckMiddleware(adminRoles, [SYSTEM_ADMIN_UNIT, SUPPORT_ADMIN_UNIT]),
+      validators.getHandler('fileLibrary', 'id'),
+      validators.getValidationResultHandler(),
+      fileLibraryController.disablePublicLink.bind(fileLibraryController),
+    );
+    app.get(
+      '/file-library/items/:id/download',
+      authController.getCheckMiddleware(adminRoles, [SYSTEM_ADMIN_UNIT, READONLY_SYSTEM_ADMIN_UNIT, SUPPORT_ADMIN_UNIT, READONLY_SUPPORT_ADMIN_UNIT]),
+      validators.getHandler('fileLibrary', 'id'),
+      validators.getValidationResultHandler(),
+      fileLibraryController.download.bind(fileLibraryController),
+    );
+    app.get(
+      '/file-library/items/:id/preview',
+      authController.getCheckMiddleware(adminRoles, [SYSTEM_ADMIN_UNIT, READONLY_SYSTEM_ADMIN_UNIT, SUPPORT_ADMIN_UNIT, READONLY_SUPPORT_ADMIN_UNIT]),
+      validators.getHandler('fileLibrary', 'id'),
+      validators.getValidationResultHandler(),
+      fileLibraryController.preview.bind(fileLibraryController),
+    );
 
     app.get(
       '/registers/keys',

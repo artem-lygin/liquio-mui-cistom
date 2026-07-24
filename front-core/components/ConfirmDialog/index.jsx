@@ -10,127 +10,39 @@ import {
   DialogTitle,
   IconButton
 } from '@mui/material';
+import CloseIcon from '@mui/icons-material/Close';
 import withStyles from '@mui/styles/withStyles';
 import { translate } from 'react-translate';
-import classNames from 'classnames';
-
 import ProgressLine from 'components/Preloader/ProgressLine';
-import CloseIcon from 'assets/img/ic_close_big.svg';
-import CloseIconDark from 'assets/img/ic_close_big_white.svg';
+import classNames from 'classnames';
 
 const withMobileDialog = () => (WrappedComponent) => (props) => (
   <WrappedComponent {...props} width="lg" fullScreen={false} />
 );
 
 const styles = (theme) => ({
-  contentRoot: {
-    overflowY: 'visible',
-    [theme.breakpoints.down('lg')]: {
-      paddingLeft: 16,
-      paddingRight: 16
-    }
-  },
-  paperWidthSm: {
-    padding: 46,
-    paddingRight: 70,
-    paddingTop: 60,
-    paddingBottom: 80,
-    maxWidth: 600,
-    minWidth: 600,
-    maxHeight: 'unset',
-    [theme.breakpoints.down('lg')]: {
-      padding: 5,
-      margin: '40px auto!important',
-      width: '95%',
-      maxWidth: 'unset',
-      minWidth: 'unset',
-      paddingTop: 35
-    }
-  },
-  paperScrollBody: {
-    [theme.breakpoints.down('md')]: {
-      maxWidth: 'calc(100% - 32px)!important',
-      paddingLeft: 0,
-      paddingRight: 0,
-      paddingBottom: 0,
-      paddingTop: 40
-    }
-  },
-  dialogActions: {
-    justifyContent: 'start',
-    margin: 0,
-    padding: 0,
-    marginTop: 20,
-    paddingLeft: 24,
-    [theme.breakpoints.down('lg')]: {
-      marginBottom: 20
-    },
-    [theme.breakpoints.down('md')]: {
-      marginBottom: 16,
-      padding: 0,
-      paddingLeft: 16
-    }
-  },
   closeIcon: {
-    position: 'absolute',
-    top: 42,
-    right: 42,
-    fontSize: 50,
-    padding: 6,
-    minWidth: 40,
     ...(theme.confirmDialogCloseIcon || {}),
-    [theme.breakpoints.down('lg')]: {
-      top: 7,
-      right: 10
-    },
+    marginLeft: 16,
     '&:focus-visible': {
-      outline: `3px solid ${theme?.outlineColor || theme?.palette?.primary?.main}`
+      outline: '3px solid #0073E6'
     }
   },
-  closeIconImg: {
-    width: 37,
-    height: 37,
-    [theme.breakpoints.down('lg')]: {
-      width: 25,
-      height: 25
-    }
+  dialogTitleContent: {
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    gap: 16
   },
-  dialogTitleRoot: {
-    marginBottom: 20,
-    paddingRight: 80,
-    fontSize: '2.125rem',
-    lineHeight: '1.17',
-    [theme.breakpoints.down('lg')]: {
-      padding: 0,
-      margin: 0,
-      paddingLeft: 24,
-      fontSize: '26px'
-    },
-    [theme.breakpoints.down('md')]: {
-      paddingLeft: 16,
-      paddingRight: 16
-    },
-    '&>h6': {
-      fontSize: '2.125rem',
-      lineHeight: '1.17',
-      [theme.breakpoints.down('lg')]: {
-        fontSize: '26px'
-      }
-    },
-    '&>h2': {
-      fontSize: '2.125rem',
-      lineHeight: '1.17',
-      [theme.breakpoints.down('lg')]: {
-        fontSize: '26px'
-      }
-    }
+  dialogTitleText: {
+    flex: 1
   },
   acceptButton: {
     marginLeft: '20px',
     padding: '18px 44px',
     ...(theme.confirmDialogAcceptButton || {}),
     '&:focus-visible': {
-      outline: `3px solid ${theme?.outlineColor || theme?.palette?.primary?.main}`
+      outline: '3px solid #0073E6'
     }
   },
   removePadding: {
@@ -139,13 +51,9 @@ const styles = (theme) => ({
   progressLineWrapper: {
     marginTop: 20
   },
-  reducedWrapperHorizontalPadding: {
-    paddingLeft: 16,
-    paddingRight: 16
-  },
   cancelIcon: {
     '&:focus-visible': {
-      outline: `3px solid ${theme?.outlineColor || theme?.palette?.primary?.main}`
+      outline: '3px solid #0073E6'
     }
   }
 });
@@ -162,53 +70,62 @@ const ConfirmDialog = ({
   t,
   classes,
   children,
-  darkTheme,
   disabled,
-  shouldReduceDialogPadding,
+  acceptButtonDisabled,
   hideClose
 }) => {
+  const hasCloseHandler = typeof handleClose === 'function';
+  const descriptionContent = React.isValidElement(description) ? (
+    description
+  ) : (
+    <Typography tabIndex={0}>{description}</Typography>
+  );
+
   return (
     <Dialog
       open={open}
-      onClose={handleClose}
-      classes={{
-        root: classes.dialogRoot,
-        paperWidthSm: classNames(classes.paperWidthSm, {
-          [classes.reducedWrapperHorizontalPadding]: shouldReduceDialogPadding
-        }),
-        paperScrollBody: classes.paperScrollBody
-      }}
+      onClose={hasCloseHandler ? handleClose : undefined}
+      fullWidth={true}
+      maxWidth="sm"
       scroll="body"
+      data-testid="confirm-dialog"
     >
-      {handleClose && !hideClose ? (
-        <IconButton onClick={handleClose} className={classes.closeIcon} tabIndex={0}>
-          <img
-            src={darkTheme ? CloseIconDark : CloseIcon}
-            alt={t('Cancel')}
-            className={classes.closeIconImg}
-          />
-        </IconButton>
-      ) : null}
-      {title ? (
-        <DialogTitle classes={{ root: classes.dialogTitleRoot }} tabIndex={0}>
-          {title}
-        </DialogTitle>
-      ) : null}
-      <DialogContent classes={{ root: classes.contentRoot }}>
+      <DialogTitle tabIndex={0}>
+        <div className={classes.dialogTitleContent}>
+          <span className={classes.dialogTitleText}>{title}</span>
+          {!hideClose && hasCloseHandler ? (
+            <IconButton
+              className={classes.closeIcon}
+              onClick={handleClose}
+              aria-label={t('Close')}
+              data-testid="confirm-dialog-close"
+              color="inherit"
+              size="large"
+            >
+              <CloseIcon fontSize="inherit" />
+            </IconButton>
+          ) : null}
+        </div>
+      </DialogTitle>
+      <DialogContent>
         <DialogContentText component="div">
-          {description ? <Typography tabIndex={0}>{description}</Typography> : null}
+          {description ? descriptionContent : null}
           {children || null}
-          <ProgressLine loading={loading} classes={classes.progressLineWrapper} />
+          <ProgressLine
+            loading={loading}
+            classes={classes.progressLineWrapper}
+          />
         </DialogContentText>
       </DialogContent>
-      <DialogActions classes={{ root: classes.dialogActions }}>
-        {handleClose ? (
+      <DialogActions>
+        {hasCloseHandler ? (
           <Button
             onClick={handleClose}
             disabled={disabled}
             variant={disabled ? 'contained' : 'outlined'}
             color="primary"
             id="cancel-btn"
+            data-testid="confirm-dialog-cancel"
             aria-label={t('Cancel')}
             className={classes.cancelIcon}
           >
@@ -220,12 +137,13 @@ const ConfirmDialog = ({
             variant="contained"
             color="primary"
             onClick={handleConfirm}
-            disabled={disabled}
+            disabled={disabled || acceptButtonDisabled}
             autoFocus={true}
             id="accept-btn"
+            data-testid="confirm-dialog-confirm"
             className={classNames({
               [classes.acceptButton]: true,
-              [classes.removePadding]: !handleClose
+              [classes.removePadding]: !hasCloseHandler
             })}
             aria-label={t('Accept')}
           >
@@ -243,21 +161,21 @@ ConfirmDialog.propTypes = {
   open: PropTypes.bool.isRequired,
   t: PropTypes.func.isRequired,
   title: PropTypes.string,
-  description: PropTypes.oneOfType([PropTypes.string, PropTypes.func]),
+  description: PropTypes.oneOfType([PropTypes.node, PropTypes.func]),
   loading: PropTypes.bool,
   darkTheme: PropTypes.bool,
   disabled: PropTypes.bool,
-  shouldReduceDialogPadding: PropTypes.bool
+  acceptButtonDisabled: PropTypes.bool
 };
 ConfirmDialog.defaultProps = {
-  handleClose: false,
+  handleClose: undefined,
   title: '',
   description: '',
   handleConfirm: null,
   loading: false,
   darkTheme: false,
   disabled: false,
-  shouldReduceDialogPadding: false
+  acceptButtonDisabled: false
 };
 
 const translated = translate('Elements')(ConfirmDialog);

@@ -17,7 +17,7 @@ ENV CONFIG_PATH=/var/www/config
 # Set the working directory
 WORKDIR /var/www/app
 
-RUN apt-get update && apt-get install -y --no-install-recommends curl && rm -rf /var/lib/apt/lists/*
+RUN apt-get update && apt-get install -y --no-install-recommends curl python3 make g++ && rm -rf /var/lib/apt/lists/*
 
 # Copy package files and install dependencies
 COPY package*.json /var/www/app
