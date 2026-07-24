@@ -1,10 +1,12 @@
-const RegenerateCommand = require('./pdf/regenerate');
+import { RegenerateCommand } from './pdf/regenerate';
 
 const commands = [RegenerateCommand];
 
-class Commands {
+export class Commands {
+  private static instance: Commands;
+
   constructor() {
-    if (!this.instance) {
+    if (!Commands.instance) {
       Commands.instance = this;
     }
 
@@ -17,5 +19,3 @@ class Commands {
     }
   }
 }
-
-module.exports = Commands;

@@ -20,7 +20,8 @@
     "ignoreDeprecations": "6.0"
   },
   "include": [
-    "src/**/*"
+    "src/**/*",
+    "bin/**/*"
   ],
   "exclude": [
     "node_modules",

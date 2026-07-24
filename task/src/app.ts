@@ -15,7 +15,7 @@ import { RouterService } from './services/router';
 import { FileGeneratorService } from './services/file_generator';
 import { StorageService } from './services/storage';
 import { LdapClient } from './services/ldap';
-import Commands from './commands';
+import { Commands } from './commands';
 import * as Errors from './lib/errors';
 import { LogsBroadcasting } from './lib/logs_broadcasting';
 import typeOf from './lib/type_of';
