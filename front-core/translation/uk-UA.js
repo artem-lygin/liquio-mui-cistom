@@ -1231,6 +1231,8 @@ export default {
     SwitchView: 'Переключити відображення',
     Show: 'Показати:',
     EmptyData: 'Немає даних',
+    AddFolder: 'Папка',
+    UploadFiles: 'Завантажити',
     AddItem: 'Додати запис',
     CustomizateColumns: 'Колонки',
     CustomizeColumns: 'Колонки',

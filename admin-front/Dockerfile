@@ -24,6 +24,9 @@ RUN VERSION="$(npm pkg get version)" && \
 # Serve the built application with Nginx
 FROM nginxinc/nginx-unprivileged:1-alpine-slim
 
+USER root
+RUN apk add --no-cache curl
+
 # Deploy the built application files
 COPY --from=frontend /app/build/ /usr/share/nginx/html
 COPY nginx.conf /etc/nginx/conf.d/default.conf

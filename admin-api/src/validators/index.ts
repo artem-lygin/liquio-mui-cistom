@@ -32,6 +32,7 @@ import { MassMessagesMailingValidator } from './mass_messages_mailing';
 import { LocalizationLanguageValidator } from './localization_language';
 import { LocalizationTextValidator } from './localization_text';
 import { UserSettingsValidator } from './user_settings';
+import { FileLibraryValidator } from './file_library';
 
 export class Validators {
   static singleton: Validators;
@@ -88,6 +89,7 @@ export class Validators {
       localizationLanguage: LocalizationLanguageValidator,
       localizationText: LocalizationTextValidator,
       userSettings: UserSettingsValidator,
+      fileLibrary: FileLibraryValidator,
       ...customValidators,
     };
 

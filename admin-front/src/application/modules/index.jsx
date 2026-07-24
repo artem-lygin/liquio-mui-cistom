@@ -17,6 +17,7 @@ import processStatistic from './processStatistics';
 import favorites from './favorites';
 import debugLogs from './debugLogs';
 import multiLang from './multiLang';
+import fileLibrary from './fileLibrary';
 
 const getModules = () => {
   return [
@@ -37,6 +38,7 @@ const getModules = () => {
     getMetricsModule(),
     multiLang,
     processStatistic,
+    fileLibrary,
     debugLogs,
     homeModule
   ];
