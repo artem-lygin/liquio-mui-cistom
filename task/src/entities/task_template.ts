@@ -20,7 +20,7 @@ export class TaskTemplateEntity extends Entity {
    * @param {object} options.jsonSchema Json schema.
    * @param {string} options.htmlTemplate Html template.
    */
-  constructor({ id, name, documentTemplateId, jsonSchema, htmlTemplate }) {
+  constructor({ id, name, documentTemplateId, jsonSchema, htmlTemplate }: any) {
     super();
 
     this.id = id;

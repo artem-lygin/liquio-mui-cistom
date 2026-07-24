@@ -2,7 +2,7 @@ const nock = require('nock');
 
 const ExternalReader = require('./external_reader');
 const StorageService = require('../services/storage');
-const DocumentAttachmentModel = require('../models/document_attachment');
+const { DocumentAttachmentModel } = require('../models/document_attachment');
 const Sandbox = require('./sandbox');
 
 // Mock dependencies

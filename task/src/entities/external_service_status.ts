@@ -26,7 +26,7 @@ export class ExternalServiceStatusEntity extends Entity {
    * @param {string} options.state
    * @param {string} options.rejectedReason
    */
-  constructor({ id, createdAt, updatedAt, service, user, ip, data, contentType, state, rejectedReason }) {
+  constructor({ id, createdAt, updatedAt, service, user, ip, data, contentType, state, rejectedReason }: any) {
     super();
 
     this.id = id;

@@ -1,7 +1,7 @@
 
 const PropByPath = require('prop-by-path');
 const Filler = require('./filler');
-const TaskModel = require('../../../models/task');
+const { TaskModel } = require('../../../models/task');
 
 /**
  * Workflow documents filler.

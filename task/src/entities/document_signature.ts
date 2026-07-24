@@ -23,7 +23,7 @@ export class DocumentSignatureEntity extends Entity {
    * @param {string} options.createdBy Created by.
    *
    */
-  constructor({ id, documentId, signature, type, certificate, createdBy }) {
+  constructor({ id, documentId, signature, type, certificate, createdBy }: any) {
     super();
 
     this.id = id;

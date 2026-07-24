@@ -1,5 +1,5 @@
 import { Controller } from './controller';
-import FavoritesModel from '../models/favorites';
+import { FavoritesModel } from '../models/favorites';
 
 /**
  * Favorites controller.

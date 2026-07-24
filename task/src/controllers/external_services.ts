@@ -5,11 +5,11 @@
 
 import xml2js from 'xml2js';
 import { Controller } from './controller';
-import DocumentModel from '../models/document';
-import DocumentAttachmentModel from '../models/document_attachment';
-import DocumentTemplateModel from '../models/document_template';
-import DocumentSignatureRejectionModel from '../models/document_signature_rejection';
-import WorkflowModel from '../models/workflow';
+import { DocumentModel } from '../models/document';
+import { DocumentAttachmentModel } from '../models/document_attachment';
+import { DocumentTemplateModel } from '../models/document_template';
+import { DocumentSignatureRejectionModel } from '../models/document_signature_rejection';
+import { WorkflowModel } from '../models/workflow';
 import StorageService from '../services/storage';
 import FileGeneratorService from '../services/file_generator';
 import { UnauthorizedError } from '../lib/errors';

@@ -3,7 +3,7 @@ const { PassThrough } = require('stream');
 
 const { appendTraceMeta, getTraceMeta, getTraceId } = require('./async_local_storage');
 const StorageService = require('../services/storage');
-const DocumentAttachmentModel = require('../models/document_attachment');
+const { DocumentAttachmentModel } = require('../models/document_attachment');
 const Sandbox = require('./sandbox');
 const typeOf = require('./type_of');
 

@@ -1,6 +1,6 @@
 
 import { Controller } from './controller';
-import WorkflowTemplateCategoryModel from '../models/workflow_template_category';
+import { WorkflowTemplateCategoryModel } from '../models/workflow_template_category';
 
 /**
  * Workflow template category controller.

@@ -2,7 +2,7 @@
 import _ from 'lodash';
 import crypto from 'node:crypto';
 import { Controller } from './controller';
-import UnitModel from '../models/unit';
+import { UnitModel } from '../models/unit';
 import Auth from '../services/auth';
 
 export class UserController extends Controller {

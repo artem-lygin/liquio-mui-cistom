@@ -1,4 +1,4 @@
-import LocalizationTextModel from '../models/localization_text';
+import { LocalizationTextModel } from '../models/localization_text';
 
 /**
  * Localization text business.

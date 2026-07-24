@@ -128,7 +128,7 @@ export class TaskEntity extends Entity {
     version,
     activityLog,
     draftExpiredAt,
-  }) {
+  }: any) {
     super();
 
     this.id = id;

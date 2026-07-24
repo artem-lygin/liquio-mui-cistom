@@ -59,7 +59,7 @@ export class CustomLogEntity extends Entity {
     custom,
     createdAt,
     updatedAt,
-  }) {
+  }: any) {
     super();
 
     this.id = id;

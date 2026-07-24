@@ -1,6 +1,6 @@
 
-const TaskModel = require('../../../models/task');
-const EventModel = require('../../../models/event');
+const { TaskModel } = require('../../../models/task');
+const { EventModel } = require('../../../models/event');
 const HelpersFiller = require('./helpers');
 const UserInfoFiller = require('./user_info');
 const CalculatedFieldsFiller = require('./calculated_fields');

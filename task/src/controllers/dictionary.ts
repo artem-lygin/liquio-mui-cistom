@@ -1,6 +1,6 @@
 
 import { Controller } from './controller';
-import DictionaryModels from '../models/dictionaries';
+import { DictionaryModels } from '../models/dictionaries';
 
 // Constants.
 const ERROR_DICTIONARY_DOES_NOT_EXIST = 'Dictionary doesn\'t exist.';

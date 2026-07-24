@@ -46,7 +46,7 @@ export class AdditionalDataSignatureEntity extends Entity {
     meta,
     createdAt,
     updatedAt,
-  }) {
+  }: any) {
     super();
 
     this.id = id;

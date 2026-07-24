@@ -1,8 +1,8 @@
 import { Controller } from './controller';
-import UnitModel from '../models/unit';
+import { UnitModel } from '../models/unit';
 import Auth from '../services/auth';
 import CustomLogs from '../services/custom_logs';
-import UnitRulesModel from '../models/unit_rules';
+import { UnitRulesModel } from '../models/unit_rules';
 
 // Constants.
 const UNIT_EXCLUSIVE_RULE_TYPE = 'exclusive';

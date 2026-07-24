@@ -1,6 +1,6 @@
 
 import { Controller } from './controller';
-import TaskTemplateModel from '../models/task_template';
+import { TaskTemplateModel } from '../models/task_template';
 import { ERROR_TASK_TEMPLATE_NOT_FOUND } from '../constants/error';
 import { NotFoundError } from '../lib/errors';
 

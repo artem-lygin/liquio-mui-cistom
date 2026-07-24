@@ -5,9 +5,9 @@ import Auth from '../services/auth';
 import LdapClient from '../services/ldap';
 import Token from '../lib/token';
 import UserAccess from '../lib/user_access';
-import UnitModel from '../models/unit';
-import TaskModel from '../models/task';
-import WorkflowModel from '../models/workflow';
+import { UnitModel } from '../models/unit';
+import { TaskModel } from '../models/task';
+import { WorkflowModel } from '../models/workflow';
 import { GROUPS as ROUTE_GROUPS } from '../services/router/routes';
 import { OnboardingController } from './onboarding';
 

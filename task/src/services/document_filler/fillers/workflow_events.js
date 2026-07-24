@@ -1,7 +1,7 @@
 
 const PropByPath = require('prop-by-path');
 const Filler = require('./filler');
-const EventModel = require('../../../models/event');
+const { EventModel } = require('../../../models/event');
 
 /**
  * Workflow events filler. 

@@ -1,4 +1,4 @@
-const KycSessionModel = require('../../models/kyc_session');
+const { KycSessionModel } = require('../../models/kyc_session');
 const { StripeProvider } = require('./providers/stripe');
 const { BadRequestError, NotFoundError } = require('../../lib/errors');
 

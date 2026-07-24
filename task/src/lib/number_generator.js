@@ -1,7 +1,7 @@
 const moment = require('moment');
 const handlebars = require('handlebars');
 const RedisClient = require('./redis_client');
-const NumberTemplateModel = require('../models/number_template');
+const { NumberTemplateModel } = require('../models/number_template');
 
 class NumberGenerator {
   /**

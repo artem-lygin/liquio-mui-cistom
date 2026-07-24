@@ -12,6 +12,7 @@ export class DocumentTemplateEntity extends Entity {
   htmlTemplate: any;
   accessJsonSchema: any;
   additionalDataToSign: any;
+  taskTemplate: any; // Assigned externally by models/document_template.ts's getAll.
 
   /**
    * Constructor.
@@ -23,7 +24,7 @@ export class DocumentTemplateEntity extends Entity {
    * @param {object} options.accessJsonSchema Inboxes JSON schema.
    * @param {string} options.additionalDataToSign Additional data to sign.
    */
-  constructor({ id, name, jsonSchema, htmlTemplate, accessJsonSchema, additionalDataToSign }) {
+  constructor({ id, name, jsonSchema, htmlTemplate, accessJsonSchema, additionalDataToSign }: any) {
     super();
 
     this.id = id;

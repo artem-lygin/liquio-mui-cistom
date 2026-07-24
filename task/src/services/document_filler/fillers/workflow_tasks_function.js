@@ -1,6 +1,6 @@
 
 const Filler = require('./filler');
-const TaskModel = require('../../../models/task');
+const { TaskModel } = require('../../../models/task');
 
 /**
  * Workflow tasks function filler.

@@ -2,7 +2,7 @@
 import _ from 'lodash';
 
 import { Business } from './business';
-import UnitAccessModel from '../models/unit_access';
+import { UnitAccessModel } from '../models/unit_access';
 import { UnitAccessEntity } from '../entities/unit_access';
 import RegisterService from '../services/register';
 import { JSONPath } from '../lib/jsonpath';

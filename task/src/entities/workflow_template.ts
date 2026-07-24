@@ -27,7 +27,7 @@ export class WorkflowTemplateEntity extends Entity {
    * @param {boolean} options.isActive Is active.
    * @param {{id:string, email:string}[]} options.errorsSubscribers Errors subscribers.
    */
-  constructor({ id, workflowTemplateCategoryId, name, description, xmlBpmnSchema, data, isActive, errorsSubscribers }) {
+  constructor({ id, workflowTemplateCategoryId, name, description, xmlBpmnSchema, data, isActive, errorsSubscribers }: any) {
     super();
 
     this.id = id;

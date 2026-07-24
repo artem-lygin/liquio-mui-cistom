@@ -1,6 +1,6 @@
 
 import { Controller } from './controller';
-import UnitAccessModel from '../models/unit_access';
+import { UnitAccessModel } from '../models/unit_access';
 
 /**
  * Unit access controller.

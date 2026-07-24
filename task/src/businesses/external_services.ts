@@ -4,7 +4,7 @@ import { Business } from './business';
 import Eds from '../lib/eds';
 import Sign from '../lib/sign';
 import StorageService from '../services/storage';
-import DocumentAttachmentModel from '../models/document_attachment';
+import { DocumentAttachmentModel } from '../models/document_attachment';
 import { certResultSetStatus } from './external_services/cert_result_set_status';
 
 // Constants.

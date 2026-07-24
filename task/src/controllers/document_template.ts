@@ -1,6 +1,6 @@
 
 import { Controller } from './controller';
-import DocumentTemplateModel from '../models/document_template';
+import { DocumentTemplateModel } from '../models/document_template';
 import redisClient from '../lib/redis_client';
 import { ERROR_DOCUMENT_TEMPLATE_NOT_FOUND } from '../constants/error';
 import { NotFoundError } from '../lib/errors';

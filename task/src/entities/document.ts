@@ -86,7 +86,7 @@ export class DocumentEntity extends Entity {
     asic,
     attachments,
     documentTemplate
-  }) {
+  }: any) {
     super();
 
     this.id = id;

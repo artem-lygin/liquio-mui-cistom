@@ -1,6 +1,6 @@
 
 import { Business } from './business';
-import WorkflowTemplateModel from '../models/workflow_template';
+import { WorkflowTemplateModel } from '../models/workflow_template';
 import Sandbox from '../lib/sandbox';
 
 const unitIdToTemplateCategoryIds = {

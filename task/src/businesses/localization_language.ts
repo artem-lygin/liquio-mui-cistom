@@ -1,4 +1,4 @@
-import LocalizationLanguageModel from '../models/localization_language';
+import { LocalizationLanguageModel } from '../models/localization_language';
 
 /**
  * Localization language business.

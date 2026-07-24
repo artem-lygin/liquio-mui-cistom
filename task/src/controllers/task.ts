@@ -1,9 +1,9 @@
 import { matchedData } from 'express-validator';
 import { Controller } from './controller';
 import { AuthController } from './auth';
-import TaskModel from '../models/task';
-import DocumentAttachmentModel from '../models/document_attachment';
-import UnitModel from '../models/unit';
+import { TaskModel } from '../models/task';
+import { DocumentAttachmentModel } from '../models/document_attachment';
+import { UnitModel } from '../models/unit';
 import Auth from '../services/auth';
 import CustomLogs from '../services/custom_logs';
 import TaskActivity from '../types/task_activity';
