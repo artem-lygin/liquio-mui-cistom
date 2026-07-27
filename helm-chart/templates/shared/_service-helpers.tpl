@@ -37,7 +37,7 @@ Per-service image tag versions managed in chart templates.
   "gateway" "0.1.2"
   "id-api" "0.1.11"
   "id-front" "0.1.2"
-  "manager" "0.1.4"
+  "manager" "0.1.5"
   "notification" "0.1.6"
   "pdf-generator" "0.1.2"
   "persist-link" "0.1.4"
