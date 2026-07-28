@@ -1,4 +1,4 @@
-const { getTraceId } = require('back-core');
+const { getTraceId } = require('@liquio/back-core');
 
 // Constants.
 const HTTP_STATUS_CODE_OK = 200;

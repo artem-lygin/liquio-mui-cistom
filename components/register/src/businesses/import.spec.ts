@@ -2,7 +2,7 @@ import ImportBusiness from './import';
 import RecordModel from '../models/record';
 import RegisterModel from '../models/register';
 import KeyModel from '../models/key';
-import { Log, LogProvider } from 'back-core';
+import { Log, LogProvider } from '@liquio/back-core';
 
 // Mock models
 jest.mock('../models/record');

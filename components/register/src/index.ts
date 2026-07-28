@@ -1,4 +1,4 @@
-import { Log, ConsoleLogProvider } from 'back-core';
+import { Log, ConsoleLogProvider } from '@liquio/back-core';
 import Db from './lib/db';
 import Afterhandler from './lib/afterhandler';
 import ErrorWithDetails from './lib/errors';

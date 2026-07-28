@@ -1,6 +1,6 @@
 
 import { HttpRequest } from './http_request';
-import { getTraceId } from 'back-core';
+import { getTraceId } from '@liquio/back-core';
 
 /**
  * System Notifier.

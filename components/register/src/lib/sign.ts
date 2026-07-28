@@ -2,7 +2,7 @@ import axios, { AxiosRequestConfig } from 'axios';
 
 import prepareAxiosErrorToLog from './prepareAxiosErrorToLog';
 
-import { Log } from 'back-core';
+import { Log } from '@liquio/back-core';
 
 // Constants.
 const ROUTES = {

@@ -7,7 +7,7 @@ import acorn from 'acorn';
 import { literal } from 'sequelize';
 import { LRUCache } from 'lru-cache';
 
-import { getTraceMeta } from 'back-core';
+import { getTraceMeta } from '@liquio/back-core';
 import { Helpers } from './helpers';
 
 const { randomUUID } = crypto;

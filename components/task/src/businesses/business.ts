@@ -1,5 +1,5 @@
 
-import { appendTraceMeta, getTraceMeta, getTraceId } from 'back-core';
+import { appendTraceMeta, getTraceMeta, getTraceId } from '@liquio/back-core';
 
 /**
  * Business.

@@ -1,4 +1,4 @@
-import { getTraceId, Log } from 'back-core';
+import { getTraceId, Log } from '@liquio/back-core';
 import Sign from '../lib/sign';
 import { Response } from '../router';
 

@@ -1,6 +1,6 @@
 const Provider = require('./provider');
 const HttpRequest = require('../../../../../lib/http_request');
-const { getTraceId } = require('back-core');
+const { getTraceId } = require('@liquio/back-core');
 
 /**
  * Liquio provider.

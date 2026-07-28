@@ -1,4 +1,4 @@
-const { AppInfo } = require('back-core');
+const { AppInfo } = require('@liquio/back-core');
 
 // Constants.
 const DEFAULT_CUSTOMER = '1';

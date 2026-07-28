@@ -1,6 +1,6 @@
 import { Strategy as PassportStrategy } from 'passport-strategy';
 
-import { Log } from 'back-core';
+import { Log } from '@liquio/back-core';
 import { Express, Request, Response } from '../types';
 import { saveSession } from '../middleware/session';
 import { SignatureInfoSigner, X509Service } from '../services/x509.service';

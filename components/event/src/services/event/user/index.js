@@ -1,7 +1,7 @@
 const _ = require('lodash');
 
 const HttpRequest = require('../../../lib/http_request');
-const { getTraceId } = require('back-core');
+const { getTraceId } = require('@liquio/back-core');
 const UserResult = require('./user_result');
 const UnitRulesModel = require('../../../models/unit_rules');
 const typeOf = require('../../../lib/type_of');

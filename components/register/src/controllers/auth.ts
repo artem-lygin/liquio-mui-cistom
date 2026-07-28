@@ -2,7 +2,7 @@ import { NextFunction } from 'express';
 
 import { Request, Response } from '../router';
 import Controller from './controller';
-import { appendTraceMeta, Log } from 'back-core';
+import { appendTraceMeta, Log } from '@liquio/back-core';
 
 /**
  * Auth controller.

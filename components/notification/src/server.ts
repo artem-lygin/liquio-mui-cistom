@@ -1,7 +1,7 @@
 import express from 'express';
 import cookieParser from 'cookie-parser';
 
-import { asyncLocalStorageMiddleware } from 'back-core';
+import { asyncLocalStorageMiddleware } from '@liquio/back-core';
 import {
   securityHeadersMiddleware,
   inputSanitizationMiddleware,

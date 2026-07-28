@@ -1,6 +1,6 @@
 import { Client, ClientConfig } from 'pg';
 
-import { Log } from 'back-core';
+import { Log } from '@liquio/back-core';
 
 interface PgPubSubConfig extends ClientConfig {
   username: string;

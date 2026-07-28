@@ -11,7 +11,7 @@ import createDebug from 'debug';
 import { PostgreSqlContainer } from '@testcontainers/postgresql';
 import * as Multiconf from 'multiconf';
 
-import { ConsoleLogProvider, Log } from 'back-core';
+import { ConsoleLogProvider, Log } from '@liquio/back-core';
 import { testConsoleSmsAdapter } from '../src/adapters/test_console_sms_adapter';
 
 const debug = createDebug;

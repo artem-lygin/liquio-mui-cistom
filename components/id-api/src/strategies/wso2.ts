@@ -2,7 +2,7 @@ import { Strategy } from 'passport-oauth2';
 import axios from 'axios';
 
 import { CallbackFn, Express } from '../types';
-import { Log } from 'back-core';
+import { Log } from '@liquio/back-core';
 import { Models, UserAttributes } from '../models';
 
 export async function wso2(app: Express) {

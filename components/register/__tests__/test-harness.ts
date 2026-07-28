@@ -18,7 +18,7 @@ import { Config } from '../src/lib/config';
 import Db from '../src/lib/db';
 import Encryption from '../src/lib/encryption';
 import ErrorWithDetails from '../src/lib/errors';
-import { Log, ConsoleLogProvider, LogProvider } from 'back-core';
+import { Log, ConsoleLogProvider, LogProvider } from '@liquio/back-core';
 
 type LogLevels = 'info' | 'warning' | 'error';
 import { RedisClient } from '../src/lib/redis_client';

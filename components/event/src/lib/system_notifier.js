@@ -1,5 +1,5 @@
 const HttpRequest = require('./http_request');
-const { getTraceId } = require('back-core');
+const { getTraceId } = require('@liquio/back-core');
 
 /**
  * System Notifier.

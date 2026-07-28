@@ -9,7 +9,7 @@ import { avatarByGender } from '../lib/helpers';
 import { prepareLoginHistoryData } from '../lib/login_history_extractor';
 import { ServerCrypt } from '../lib/server_crypt';
 import { AuthMiddleware } from '../middleware';
-import { appendTraceMeta } from 'back-core';
+import { appendTraceMeta } from '@liquio/back-core';
 import { saveSession } from '../middleware/session';
 import { UserAttributes } from '../models';
 import { Express, NextFunction, Request, Response, Router } from '../types';

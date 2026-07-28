@@ -1,5 +1,5 @@
 
-import { AppInfo } from 'back-core';
+import { AppInfo } from '@liquio/back-core';
 
 // Constants.
 const DEFAULT_CUSTOMER = '1';

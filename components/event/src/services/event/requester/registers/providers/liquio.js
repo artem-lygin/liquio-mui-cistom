@@ -4,7 +4,7 @@ const axios = require('axios');
 
 const Provider = require('./provider');
 const HttpRequest = require('../../../../../lib/http_request');
-const { getTraceId } = require('back-core');
+const { getTraceId } = require('@liquio/back-core');
 const { prepareAxiosErrorToLog } = require('../../../../../lib/helpers');
 const { FILE_DOCUMENT_TEMPLATE_ID } = require('../../../../../constants/common');
 

@@ -1,12 +1,5 @@
 FROM node:22-slim AS builder
 
-# Build back-core first. Mirror the monorepo layout so the
-# "back-core": "file:../../packages/back-core" dependency in package.json
-# resolves to the same relative path here and in the runtime stage below.
-WORKDIR /var/www/packages/back-core
-COPY --from=back-core . .
-RUN npm ci && npm run build
-
 WORKDIR /var/www/components/persist-link
 
 RUN apt-get update && apt-get install -y --no-install-recommends bzip2 && rm -rf /var/lib/apt/lists/*
@@ -26,10 +19,6 @@ ENV CONFIG_PATH=/var/www/config
 
 # Install curl for healthcheck
 RUN apt-get update && apt-get install -y --no-install-recommends curl bzip2 && rm -rf /var/lib/apt/lists/*
-
-WORKDIR /var/www/packages/back-core
-COPY --from=builder /var/www/packages/back-core/package.json .
-COPY --from=builder /var/www/packages/back-core/dist ./dist
 
 # Set the working directory
 WORKDIR /var/www/components/persist-link

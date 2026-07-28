@@ -1,7 +1,7 @@
 const moment = require('moment');
 
 const Db = require('./lib/db');
-const { Log, ConsoleLogProvider, getTraceId } = require('back-core');
+const { Log, ConsoleLogProvider, getTraceId } = require('@liquio/back-core');
 const MessageQueue = require('./lib/message_queue');
 const Errors = require('./lib/errors');
 const Models = require('./models');

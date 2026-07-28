@@ -9,7 +9,7 @@ import { PostgreSqlContainer } from '@testcontainers/postgresql';
 import * as Multiconf from 'multiconf';
 
 import { Db } from '../src/lib/db';
-import { Log, ConsoleLogProvider } from 'back-core';
+import { Log, ConsoleLogProvider } from '@liquio/back-core';
 import { Providers } from '../src/providers';
 import { Models } from '../src/models';
 import { Router } from '../src/router';

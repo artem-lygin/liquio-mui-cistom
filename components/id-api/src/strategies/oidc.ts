@@ -2,7 +2,7 @@ import { Strategy as OAuth2Strategy } from 'passport-oauth2';
 import axios from 'axios';
 
 import { CallbackFn, Express } from '../types';
-import { Log } from 'back-core';
+import { Log } from '@liquio/back-core';
 import { Models, UserAttributes } from '../models';
 import { OIDCProviderConfig } from '../config';
 import { PKCEOAuth2Strategy, generatePKCEParameters } from './passport_libs/passport-oidc/strategy';

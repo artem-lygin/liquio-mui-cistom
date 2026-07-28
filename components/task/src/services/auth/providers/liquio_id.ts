@@ -5,7 +5,7 @@ import * as crypto from 'node:crypto';
 
 import { Provider } from './provider';
 import { HttpRequest } from '../../../lib/http_request';
-import { getTraceId } from 'back-core';
+import { getTraceId } from '@liquio/back-core';
 
 // Constants.
 const DEFAULT_ROUTES = {

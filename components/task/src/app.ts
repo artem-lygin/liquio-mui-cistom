@@ -2,7 +2,7 @@ import moment from 'moment';
 
 import { Db } from './lib/db';
 import { PgPubSub } from './lib/pgpubsub';
-import { Log, ConsoleLogProvider } from 'back-core';
+import { Log, ConsoleLogProvider } from '@liquio/back-core';
 import { MessageQueue } from './lib/message_queue';
 import { RedisClient } from './lib/redis_client';
 import { Models } from './models';

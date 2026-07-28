@@ -311,7 +311,7 @@ describe('ExternalReader', () => {
     it('should append returned mock header', async () => {
       const mockResponse = { data: { items: [] } };
       // eslint-disable-next-line @typescript-eslint/no-require-imports
-      const { appendTraceMeta } = require('back-core');
+      const { appendTraceMeta } = require('@liquio/back-core');
       
       nock('https://external-reader.example.com')
         .post('/test-service/test-method')
@@ -666,7 +666,7 @@ describe('ExternalReader', () => {
 
   describe('helper methods', () => {
     // eslint-disable-next-line @typescript-eslint/no-require-imports
-    const { appendTraceMeta, getTraceMeta } = require('back-core');
+    const { appendTraceMeta, getTraceMeta } = require('@liquio/back-core');
 
     beforeEach(() => {
       getTraceMeta.mockReturnValue({

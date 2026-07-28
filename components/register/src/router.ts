@@ -7,7 +7,7 @@ import AppIdentHeaders from './lib/app_ident_headers';
 import HttpRequest from './lib/http_request';
 import Controllers from './controllers';
 import Validators from './validators';
-import { Log, asyncLocalStorageMiddleware } from 'back-core';
+import { Log, asyncLocalStorageMiddleware } from '@liquio/back-core';
 
 /**
  * Express Request with application metadata.

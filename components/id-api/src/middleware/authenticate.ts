@@ -13,7 +13,7 @@ import { oidc } from '../strategies/oidc';
 import { wso2 } from '../strategies/wso2';
 import { x509 } from '../strategies/x509';
 import { Express, NextFunction, Request, Response } from '../types';
-import { Log, appendTraceMeta } from 'back-core';
+import { Log, appendTraceMeta } from '@liquio/back-core';
 import { destroySession, saveSession } from './session';
 
 export class AuthMiddleware {
