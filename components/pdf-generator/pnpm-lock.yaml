@@ -27,8 +27,8 @@ importers:
         specifier: ^11.0.0
         version: 11.1.0(chokidar@4.0.3)(prettier@3.8.3)(typescript@5.9.3)
       '@nestjs/testing':
-        specifier: ^11.1.11
-        version: 11.1.25(@nestjs/common@11.1.25(class-transformer@0.5.1)(class-validator@0.14.4)(reflect-metadata@0.2.2)(rxjs@7.8.2))(@nestjs/core@11.1.25)(@nestjs/platform-express@11.1.25)
+        specifier: ^11.1.28
+        version: 11.1.28(@nestjs/common@11.1.25(class-transformer@0.5.1)(class-validator@0.14.4)(reflect-metadata@0.2.2)(rxjs@7.8.2))(@nestjs/core@11.1.25)(@nestjs/platform-express@11.1.25)
       '@swc/cli':
         specifier: ^0.7.10
         version: 0.7.10(@swc/core@1.15.40)(chokidar@4.0.3)
@@ -805,8 +805,8 @@ packages:
       prettier:
         optional: true
 
-  '@nestjs/testing@11.1.25':
-    resolution: {integrity: sha512-rvTXbeT6e2IMMShT7aKtbjSE3i3nbS8hejszpjQd5IR1Sh674U/KJ8EioqyI01vcGDbph2fopdzRMsyaeZuyPg==}
+  '@nestjs/testing@11.1.28':
+    resolution: {integrity: sha512-B+VgRxeLaH7jkOMgAyUP3N3rpFlisQ7JRxixRbgHvG6a0VgKbbkNSofKExexCgKmQQak80undb3+2kE1lUBmRQ==}
     peerDependencies:
       '@nestjs/common': ^11.0.0
       '@nestjs/core': ^11.0.0
@@ -4285,7 +4285,7 @@ snapshots:
     transitivePeerDependencies:
       - chokidar
 
-  '@nestjs/testing@11.1.25(@nestjs/common@11.1.25(class-transformer@0.5.1)(class-validator@0.14.4)(reflect-metadata@0.2.2)(rxjs@7.8.2))(@nestjs/core@11.1.25)(@nestjs/platform-express@11.1.25)':
+  '@nestjs/testing@11.1.28(@nestjs/common@11.1.25(class-transformer@0.5.1)(class-validator@0.14.4)(reflect-metadata@0.2.2)(rxjs@7.8.2))(@nestjs/core@11.1.25)(@nestjs/platform-express@11.1.25)':
     dependencies:
       '@nestjs/common': 11.1.25(class-transformer@0.5.1)(class-validator@0.14.4)(reflect-metadata@0.2.2)(rxjs@7.8.2)
       '@nestjs/core': 11.1.25(@nestjs/common@11.1.25(class-transformer@0.5.1)(class-validator@0.14.4)(reflect-metadata@0.2.2)(rxjs@7.8.2))(@nestjs/platform-express@11.1.25)(reflect-metadata@0.2.2)(rxjs@7.8.2)
