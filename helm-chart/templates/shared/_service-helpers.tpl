@@ -28,9 +28,9 @@ Per-service image tag versions managed in chart templates.
 {{- $overrides := .Values.serviceVersions | default dict -}}
 {{- $versions := dict
   "admin-api" "0.1.17"
-  "admin-front" "0.1.27"
+  "admin-front" "0.1.28"
   "cabinet-api" "0.1.1"
-  "cabinet-front" "0.1.30"
+  "cabinet-front" "0.1.31"
   "event" "0.1.4"
   "external-reader" "0.1.0"
   "filestorage" "0.1.1"
