@@ -41,6 +41,20 @@ jobs:
           FRONT_CORE=$(echo "$CHANGED" | grep -c '^packages/front-core/' || true)
           WORKFLOW=$(echo "$CHANGED" | grep -c '^\.github/workflows/docker-build\.yml' || true)
 
+          # Returns 0 (true) if ghcr.io/liquio/<svc>:<ver> already exists
+          is_published() {
+            local svc=$1 ver=$2
+            local repo="liquio/${svc}"
+            local token
+            token=$(curl -fsS "https://ghcr.io/token?scope=repository:${repo}:pull" | jq -r .token)
+            local status
+            status=$(curl -s -o /dev/null -w "%{http_code}" \
+              -H "Authorization: Bearer ${token}" \
+              -H "Accept: application/vnd.oci.image.index.v1+json,application/vnd.docker.distribution.manifest.list.v2+json" \
+              "https://ghcr.io/v2/${repo}/manifests/${ver}")
+            [ "$status" = "200" ]
+          }
+
           # Returns 0 (true) if the service should be built
           should_build() {
             local svc=$1
@@ -50,6 +64,9 @@ jobs:
             if [ "$FRONT_CORE" -gt 0 ]; then
               { [ "$svc" = "admin-front" ] || [ "$svc" = "cabinet-front" ]; } && return 0
             fi
+            local ver
+            ver=$(jq -r .version "components/${svc}/package.json")
+            ! is_published "$svc" "$ver" && return 0
             return 1
           }
 
