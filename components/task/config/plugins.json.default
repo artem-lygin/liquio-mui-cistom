@@ -1,20 +1,4 @@
 {
   "pluginsDir": "/var/www/plugins",
-  "plugins": [
-    {
-      "package": "@liquio/task-payone-plugin",
-      "version": "0.1.0",
-      "isEnabled": true,
-      "name": "payone",
-      "options": {
-        "apiKey": "<PAYONE API key>",
-        "apiSecret": "<PAYONE API secret>",
-        "baseUrl": "https://api.preprod.commerce.payone.com",
-        "merchantId": "<PAYONE merchant ID>",
-        "paymentProductId": 3012,
-        "defaultRedirectUrl": "https://cabinet.example.gov.ua/payment/return",
-        "defaultCurrency": "UAH"
-      }
-    }
-  ]
+  "plugins": []
 }
