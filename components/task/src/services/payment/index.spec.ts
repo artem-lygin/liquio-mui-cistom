@@ -1,4 +1,5 @@
 import { PaymentService } from './index';
+import { BadRequestError } from '../../lib/errors';
 
 describe('PaymentService', () => {
   let paymentService: PaymentService;
@@ -89,14 +90,14 @@ describe('PaymentService', () => {
       );
     });
 
-    it('throws a wrapped Error (not the raw TypeError) for an unknown provider', async () => {
+    it('throws a wrapped Error (not the raw BadRequestError) for an unknown provider', async () => {
       const data = { paymentSystemParams: { providerName: 'unknownProvider' } };
 
       const rejection = paymentService.calculatePayment(data);
       await expect(rejection).rejects.toBeInstanceOf(Error);
-      await expect(rejection).rejects.not.toBeInstanceOf(TypeError);
+      await expect(rejection).rejects.not.toBeInstanceOf(BadRequestError);
       await expect(rejection).rejects.toMatchObject({
-        cause: expect.any(TypeError),
+        cause: expect.any(BadRequestError),
       });
     });
   });
@@ -154,14 +155,14 @@ describe('PaymentService', () => {
       );
     });
 
-    it('throws a wrapped Error (not the raw TypeError) for an unknown provider', async () => {
+    it('throws a wrapped Error (not the raw BadRequestError) for an unknown provider', async () => {
       const providerOptions = { providerName: 'unknownProvider' };
 
       const rejection = paymentService.handleStatus({}, providerOptions, 'x', {}, {}, false);
       await expect(rejection).rejects.toBeInstanceOf(Error);
-      await expect(rejection).rejects.not.toBeInstanceOf(TypeError);
+      await expect(rejection).rejects.not.toBeInstanceOf(BadRequestError);
       await expect(rejection).rejects.toMatchObject({
-        cause: expect.any(TypeError),
+        cause: expect.any(BadRequestError),
       });
     });
   });
@@ -199,12 +200,12 @@ describe('PaymentService', () => {
       );
     });
 
-    it('throws a raw TypeError for an unknown provider', async () => {
+    it('throws a raw BadRequestError for an unknown provider', async () => {
       const providerOptions = { providerName: 'unknownProvider' };
 
       await expect(
         paymentService.confirmBySmsCode(providerOptions, {}, '0000'),
-      ).rejects.toThrow(TypeError);
+      ).rejects.toThrow(BadRequestError);
     });
   });
 
@@ -239,12 +240,12 @@ describe('PaymentService', () => {
       );
     });
 
-    it('throws a raw TypeError for an unknown provider', async () => {
+    it('throws a raw BadRequestError for an unknown provider', async () => {
       const providerOptions = { providerName: 'unknownProvider' };
 
       await expect(
         paymentService.cancelOrder(providerOptions, 'order-1', 'txn-1', 'session-1'),
-      ).rejects.toThrow(TypeError);
+      ).rejects.toThrow(BadRequestError);
     });
   });
 
@@ -277,10 +278,10 @@ describe('PaymentService', () => {
       );
     });
 
-    it('throws a raw TypeError for an unknown provider', async () => {
+    it('throws a raw BadRequestError for an unknown provider', async () => {
       const data = { paymentOptions: { providerName: 'unknownProvider' } };
 
-      await expect(paymentService.unHoldPayment(data)).rejects.toThrow(TypeError);
+      await expect(paymentService.unHoldPayment(data)).rejects.toThrow(BadRequestError);
     });
   });
 
@@ -315,12 +316,12 @@ describe('PaymentService', () => {
       );
     });
 
-    it('throws a raw TypeError for an unknown provider', async () => {
+    it('throws a raw BadRequestError for an unknown provider', async () => {
       const providerOptions = { providerName: 'unknownProvider' };
 
       await expect(
         paymentService.checkStatus(providerOptions, 'session-1', 'invoice-1'),
-      ).rejects.toThrow(TypeError);
+      ).rejects.toThrow(BadRequestError);
     });
   });
 
@@ -358,12 +359,12 @@ describe('PaymentService', () => {
       );
     });
 
-    it('throws a raw TypeError for an unknown provider', async () => {
+    it('throws a raw BadRequestError for an unknown provider', async () => {
       const providerOptions = { providerName: 'unknownProvider' };
 
       await expect(
         paymentService.getPaymentReceiptInfo(providerOptions, 'order-1'),
-      ).rejects.toThrow(TypeError);
+      ).rejects.toThrow(BadRequestError);
     });
   });
 
@@ -412,12 +413,12 @@ describe('PaymentService', () => {
       );
     });
 
-    it('throws a raw TypeError for an unknown provider', async () => {
+    it('throws a raw BadRequestError for an unknown provider', async () => {
       const providerOptions = { providerName: 'unknownProvider' };
 
       await expect(
         paymentService.getPaymentReceiptFiles(providerOptions, 'order-1', 'pdf', {}),
-      ).rejects.toThrow(TypeError);
+      ).rejects.toThrow(BadRequestError);
     });
   });
 
@@ -455,12 +456,12 @@ describe('PaymentService', () => {
       );
     });
 
-    it('throws a raw TypeError for an unknown provider', async () => {
+    it('throws a raw BadRequestError for an unknown provider', async () => {
       const providerOptions = { providerName: 'unknownProvider' };
 
       await expect(
         paymentService.getWithdrawalFundsStatus(providerOptions, 'order-1'),
-      ).rejects.toThrow(TypeError);
+      ).rejects.toThrow(BadRequestError);
     });
   });
 
@@ -495,12 +496,12 @@ describe('PaymentService', () => {
       );
     });
 
-    it('throws a raw TypeError for an unknown provider', async () => {
+    it('throws a raw BadRequestError for an unknown provider', async () => {
       const providerOptions = { providerName: 'unknownProvider' };
 
       await expect(
         paymentService.sendCheckRequest(providerOptions),
-      ).rejects.toThrow(TypeError);
+      ).rejects.toThrow(BadRequestError);
     });
   });
 });
