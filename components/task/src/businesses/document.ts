@@ -1908,6 +1908,87 @@ export class DocumentBusiness extends Business {
   }
 
   /**
+   * Resolve payment amount/description/orderId/etc. formulas defined in the JSON schema's
+   * payment properties into plain values, evaluated against the document.
+   * @param {object} document Document.
+   * @param {string} paymentControlPath Payment control path.
+   * @param {object} jsonSchema Json schema.
+   * @param {object} [options] Options.
+   * @param {boolean} [options.isReturnOnlyList] Some providers by API always expect `recipient` param as list of recipients, even if there is only one recipient.
+   * @returns {object|object[]} Resolved payment amount data.
+   */
+  resolvePaymentAmount(document, paymentControlPath, jsonSchema, options: any = {}) {
+    const { isReturnOnlyList = false } = options;
+
+    const paymentProperties = PropByPath.get(jsonSchema && jsonSchema.properties, paymentControlPath);
+    const recipients = paymentProperties && paymentProperties.recipients;
+
+    if (recipients) {
+      return recipients.map(v => {
+        const obj = {};
+        for (const prop in v) {
+          obj[prop] = typeof v[prop] === 'string'
+            ? this.sandbox.evalWithArgs(
+              v[prop],
+              [document],
+              { checkArrow: true, meta: { fn: 'DocumentBusiness.resolvePaymentAmount', prop } },
+            )
+            : v[prop];
+        }
+        return obj;
+      }).filter(v => v && v.amount !== 0);
+    }
+
+    const paymentFormula = paymentProperties && paymentProperties.amount;
+    const descriptionFormula = paymentProperties && paymentProperties.description;
+    const orderIdFormula = paymentProperties && paymentProperties.orderId;
+    const recipientFormula = paymentProperties && paymentProperties.recipient;
+    const payerFormula = paymentProperties && paymentProperties.payer;
+    const suffixFormula = paymentProperties && paymentProperties.suffixFormula;
+    const orderNumFormula = paymentProperties && paymentProperties.orderNum;
+
+    const amount = this.sandbox.evalWithArgs(
+      paymentFormula,
+      [document],
+      { checkArrow: true, meta: { fn: 'DocumentBusiness.resolvePaymentAmount.payment', documentId: document.id } },
+    );
+    const description = this.sandbox.evalWithArgs(
+      descriptionFormula,
+      [document],
+      { checkArrow: true, meta: { fn: 'DocumentBusiness.resolvePaymentAmount.description', documentId: document.id } },
+    );
+    const orderId = this.sandbox.evalWithArgs(
+      orderIdFormula,
+      [document],
+      { checkArrow: true, meta: { fn: 'DocumentBusiness.resolvePaymentAmount.orderId', documentId: document.id } },
+    );
+    const recipient = this.sandbox.evalWithArgs(
+      recipientFormula,
+      [document],
+      { checkArrow: true, meta: { fn: 'DocumentBusiness.resolvePaymentAmount.recipient', documentId: document.id } },
+    );
+    const payer = this.sandbox.evalWithArgs(
+      payerFormula,
+      [document],
+      { checkArrow: true, meta: { fn: 'DocumentBusiness.resolvePaymentAmount.payer', documentId: document.id } },
+    );
+    const orderIdSuffix = this.sandbox.evalWithArgs(
+      suffixFormula,
+      [document],
+      { checkArrow: true, meta: { fn: 'DocumentBusiness.resolvePaymentAmount.suffix', documentId: document.id } },
+    );
+    const orderNum = this.sandbox.evalWithArgs(
+      orderNumFormula,
+      [document],
+      { checkArrow: true, meta: { fn: 'DocumentBusiness.resolvePaymentAmount.orderNum', documentId: document.id } },
+    );
+
+    return isReturnOnlyList
+      ? [ { recipient, amount, description, orderId, payer, orderIdSuffix, orderNum } ]
+      : { recipient, amount, description, orderId, payer, orderIdSuffix, orderNum };
+  }
+
+  /**
    * Calculate payment.
    * @param {string} documentId Document ID.
    * @param {string} payload Payload.
@@ -1979,19 +2060,25 @@ export class DocumentBusiness extends Business {
       }
     }
 
+    // Resolve amount/description/orderId/etc. formulas against the document (either the
+    // `recipients`-list array form, or the single-recipient object form).
+    const resolvedPaymentAmount = this.resolvePaymentAmount(document, paymentControlPath, jsonSchema);
+    const isRecipientsList = Array.isArray(resolvedPaymentAmount);
+
     const paymentData = await this.paymentService.calculatePayment({
       paymentSystemParams,
-      document,
-      documentTemplate,
+      documentId: documentId || document.id,
+      workflowId: workflowId || (document.task && document.task.workflowId),
       paymentControlPath,
-      jsonSchema,
       paymentCustomer,
       extraData,
       userName,
       paymentDocumentPath,
       userContactData,
       sumForTest,
-      paymentProperties,
+      ...(isRecipientsList
+        ? { recipients: resolvedPaymentAmount }
+        : resolvedPaymentAmount),
     });
     if (!paymentData) {
       throw new Error(ERROR_GET_PAYMENT_DATA);

@@ -5,8 +5,7 @@ import { DocumentBusiness } from './document';
 // convention in document.spec.ts of assigning mocked services directly onto the
 // instance, e.g. `documentBusiness.storageService = {...}`) because this file tests
 // document.ts's own orchestration logic (config lookups, argument construction, error
-// propagation) — not PaymentService/provider behavior itself, which other Group T
-// tasks already cover.
+// propagation) — not PaymentService/provider behavior itself, which is covered elsewhere.
 describe('DocumentBusiness payment methods', () => {
   let documentBusiness: any;
 
@@ -92,7 +91,16 @@ describe('DocumentBusiness payment methods', () => {
 
     const jsonSchema = {
       properties: {
-        payment: { customer: 'testCustomer' },
+        payment: {
+          customer: 'testCustomer',
+          amount: '(document) => document.amount',
+          description: '(document) => `Payment for ${document.name}`',
+          orderId: '(document) => `order-${document.id}`',
+          recipient: '(document) => document.name',
+          payer: '(document) => document.payerName',
+          suffixFormula: '(document) => "suffix"',
+          orderNum: '(document) => 7',
+        },
       },
     };
 
@@ -100,9 +108,12 @@ describe('DocumentBusiness payment methods', () => {
 
     const documentEntity = {
       id: documentId,
-      task: { id: 'task-1' },
+      task: { id: 'task-1', workflowId: 'workflow-1' },
       documentTemplateId: 'tpl-1',
       data: {},
+      amount: 100,
+      name: 'Alice',
+      payerName: 'Bob',
     };
 
     it('builds the expected data/config shape and forwards it to PaymentService.calculatePayment (happy path)', async () => {
@@ -129,15 +140,30 @@ describe('DocumentBusiness payment methods', () => {
       expect(documentBusiness.paymentService.calculatePayment).toHaveBeenCalledWith(
         expect.objectContaining({
           paymentSystemParams: basePaymentConfig.testCustomer,
-          document: documentEntity,
-          documentTemplate,
+          documentId,
+          workflowId: 'workflow-1',
           paymentControlPath: payload.paymentControlPath,
-          jsonSchema,
           paymentCustomer: 'testCustomer',
           extraData: payload.extraData,
           userName,
           userContactData,
           sumForTest: basePaymentConfig.sumForTest,
+          // Resolved formula values (amount/description/orderId/etc.) - not the raw
+          // document/jsonSchema/paymentProperties blob.
+          amount: 100,
+          description: 'Payment for Alice',
+          orderId: `order-${documentId}`,
+          recipient: 'Alice',
+          payer: 'Bob',
+          orderIdSuffix: 'suffix',
+          orderNum: 7,
+        }),
+      );
+      expect(documentBusiness.paymentService.calculatePayment).toHaveBeenCalledWith(
+        expect.not.objectContaining({
+          document: expect.anything(),
+          jsonSchema: expect.anything(),
+          paymentProperties: expect.anything(),
         }),
       );
       expect(global.models.document.updateData).toHaveBeenCalledWith(documentId, userId, expect.any(Object));

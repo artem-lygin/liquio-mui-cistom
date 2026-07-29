@@ -1,20 +1,42 @@
+import { PluginRegistry } from '@liquio/plugin-sdk';
+
+import { BadRequestError } from '../../lib/errors';
+
 /**
  * Payment service.
  */
 export class PaymentService {
   private static singleton: PaymentService;
   providers: any;
+  pluginRegistry?: PluginRegistry;
 
-  constructor(_config) {
+  constructor(_config, pluginRegistry?: PluginRegistry) {
     if (!PaymentService.singleton) {
       this.providers = {
         // TODO: add new providers here.
       };
+      this.pluginRegistry = pluginRegistry;
       PaymentService.singleton = this;
     }
 
     // Return singleton.
     return PaymentService.singleton;
+  }
+
+  /**
+   * Resolve a provider by name, checking built-in providers first and
+   * falling back to a plugin registered via `pluginRegistry`.
+   * @param {string} name Provider name.
+   * @returns {any} Provider instance.
+   */
+  private getProvider(name: string) {
+    const builtIn = this.providers[name];
+    if (builtIn) return builtIn;
+
+    const plugin = this.pluginRegistry?.get(name);
+    if (!plugin) throw new BadRequestError(`Provider not configured: ${name}`);
+
+    return plugin;
   }
 
   /**
@@ -29,7 +51,7 @@ export class PaymentService {
     // Calculate payment data.
     let result;
     try {
-      result = await this.providers[providerName].calculatePayment(data);
+      result = await this.getProvider(providerName).calculatePayment(data);
     } catch (error) {
       global.log.save('calculate-payment-data-error', { error: error && error.message }, 'error');
       const wrapped: any = new Error(error.message || error);
@@ -55,7 +77,7 @@ export class PaymentService {
 
     let result;
     try {
-      result = await this.providers[providerName].handleStatus(data, providerOptions, status, queryParamsObject, headersObject, checkPrevTransaction);
+      result = await this.getProvider(providerName).handleStatus(data, providerOptions, status, queryParamsObject, headersObject, checkPrevTransaction);
     } catch (error) {
       global.log.save('handle-payment-status-on-provider-error', { error }, 'error');
       const wrapped: any = new Error(error.message || error);
@@ -78,7 +100,7 @@ export class PaymentService {
 
     let result;
     try {
-      result = await this.providers[providerName].confirmBySmsCode(providerOptions, calculatedData, smsCode);
+      result = await this.getProvider(providerName).confirmBySmsCode(providerOptions, calculatedData, smsCode);
     } catch (error) {
       global.log.save('confirm-payment-by-sms-code-error', { error }, 'error');
       throw error;
@@ -99,7 +121,7 @@ export class PaymentService {
     try {
       const providerName = providerOptions && providerOptions.providerName;
 
-      const result = await this.providers[providerName].cancelOrder(providerOptions, orderId, transactionId, sessionId);
+      const result = await this.getProvider(providerName).cancelOrder(providerOptions, orderId, transactionId, sessionId);
 
       global.log.save('cancel-order-payment-service-result', { result });
 
@@ -120,7 +142,7 @@ export class PaymentService {
 
     let result;
     try {
-      result = await this.providers[providerName].unHoldOrder(data);
+      result = await this.getProvider(providerName).unHoldOrder(data);
     } catch (error) {
       global.log.save('unhold-payment-error', { error }, 'error');
       throw error;
@@ -141,7 +163,7 @@ export class PaymentService {
 
     let result;
     try {
-      result = await this.providers[providerName].checkStatus(providerOptions, sessionId, invoiceId);
+      result = await this.getProvider(providerName).checkStatus(providerOptions, sessionId, invoiceId);
     } catch (error) {
       global.log.save('cancel-payment-error', { error }, 'error');
       throw error;
@@ -162,7 +184,7 @@ export class PaymentService {
 
     let result;
     try {
-      result = await this.providers[providerName].getPaymentReceiptInfo({ paymentSystemParams: providerOptions, orderId });
+      result = await this.getProvider(providerName).getPaymentReceiptInfo({ paymentSystemParams: providerOptions, orderId });
     } catch (error) {
       global.log.save('get-payment-receipt-info-error', { error: error && error.message ? error.message : error }, 'error');
       throw error;
@@ -185,7 +207,7 @@ export class PaymentService {
 
     let result;
     try {
-      result = await this.providers[providerName].getPaymentReceiptFiles({
+      result = await this.getProvider(providerName).getPaymentReceiptFiles({
         paymentSystemParams: providerOptions,
         orderId,
         receiptFormat,
@@ -211,7 +233,7 @@ export class PaymentService {
 
     let result;
     try {
-      result = await this.providers[providerName].getWithdrawalFundsStatus({ paymentSystemParams: providerOptions, orderId });
+      result = await this.getProvider(providerName).getWithdrawalFundsStatus({ paymentSystemParams: providerOptions, orderId });
     } catch (error) {
       global.log.save('get-withdrawal-status-provider-error', { error }, 'error');
       throw error;
@@ -230,7 +252,7 @@ export class PaymentService {
 
     let result;
     try {
-      result = await this.providers[providerName].sendCheckRequest(providerOptions);
+      result = await this.getProvider(providerName).sendCheckRequest(providerOptions);
     } catch (error) {
       global.log.save('send-check-request-error', { error }, 'error');
       throw error;
