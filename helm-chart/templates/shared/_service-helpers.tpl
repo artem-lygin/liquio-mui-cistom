@@ -31,8 +31,8 @@ Per-service image tag versions managed in chart templates.
   "admin-front" "0.1.28"
   "cabinet-api" "0.1.3"
   "cabinet-front" "0.1.31"
-  "event" "0.1.6"
-  "external-reader" "0.1.0"
+  "event" "0.1.7"
+  "external-reader" "0.1.1"
   "filestorage" "0.1.3"
   "gateway" "0.1.2"
   "id-api" "0.1.13"
@@ -43,7 +43,7 @@ Per-service image tag versions managed in chart templates.
   "persist-link" "0.1.6"
   "register" "0.1.4"
   "sign-tool" "0.1.0"
-  "task" "0.1.7"
+  "task" "0.1.8"
 -}}
 {{- if and (kindIs "map" $overrides) (hasKey $overrides $component) -}}
 {{- index $overrides $component -}}
