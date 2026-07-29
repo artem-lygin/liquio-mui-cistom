@@ -36,6 +36,31 @@ spec:
         {{- include "liquio.initContainer.waitForPostgres" . | nindent 8 }}
         {{- include "liquio.initContainer.waitForRabbitmq" . | nindent 8 }}
         {{- include "liquio.initContainer.waitForRedis" . | nindent 8 }}
+        - name: plugin-installer
+          image: {{ include "liquio.image" (dict "component" "task" "Values" .Values "Chart" .Chart) }}
+          imagePullPolicy: {{ include "liquio.imagePullPolicy" . }}
+          command: ["npm", "run", "plugin-installer"]
+          securityContext:
+            {{- toYaml .Values.securityContext | nindent 12 }}
+          resources:
+            {{- toYaml .Values.initContainerResources | nindent 12 }}
+          env:
+            - name: CONFIG_PATH
+              value: "/var/www/config"
+            - name: PLUGINS_INSTALL_DIR
+              value: "/var/www/plugins"
+            # npm's default cache dir is $HOME/.npm, which is not writable once
+            # readOnlyRootFilesystem is set above - redirect it into the writable tmp mount.
+            - name: npm_config_cache
+              value: "/tmp/.npm"
+          volumeMounts:
+            - name: config
+              mountPath: /var/www/config
+              readOnly: true
+            - name: plugins
+              mountPath: /var/www/plugins
+            - name: tmp
+              mountPath: /tmp
       containers:
         - name: task
           securityContext:
@@ -64,6 +89,9 @@ spec:
               readOnly: true
             - name: tmp
               mountPath: /tmp
+            - name: plugins
+              mountPath: /var/www/plugins
+              readOnly: true
           livenessProbe:
             httpGet:
               path: /test/ping
@@ -86,6 +114,8 @@ spec:
           secret:
             secretName: {{ include "liquio.secretConfig.name" (dict "ctx" . "service" "task") }}
         - name: tmp
+          emptyDir: {}
+        - name: plugins
           emptyDir: {}
       {{- with .Values.nodeSelector }}
       nodeSelector:
