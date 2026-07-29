@@ -1,6 +1,7 @@
 import { PluginContext } from "@liquio/plugin-sdk";
 
 const createCommerceCaseRequestMock = jest.fn();
+const getCheckoutRequestMock = jest.fn();
 
 // `pcp-server-nodejs-sdk` ships ESM-only output, so `jest.requireActual` can't load it under
 // ts-jest's CommonJS transform - instead, re-declare just the bits this spec needs (the real
@@ -10,6 +11,17 @@ jest.mock("pcp-server-nodejs-sdk", () => {
   enum OrderType {
     Full = "FULL",
     Partial = "PARTIAL",
+  }
+
+  // Mirrors `pcp-server-nodejs-sdk/dist/models/StatusCheckout.d.ts` verbatim - real enum values,
+  // not invented.
+  enum StatusCheckout {
+    OPEN = "OPEN",
+    PENDINGCOMPLETION = "PENDING_COMPLETION",
+    COMPLETED = "COMPLETED",
+    BILLED = "BILLED",
+    CHARGEBACKED = "CHARGEBACKED",
+    DELETED = "DELETED",
   }
 
   class ApiException extends Error {
@@ -44,6 +56,7 @@ jest.mock("pcp-server-nodejs-sdk", () => {
 
   return {
     OrderType,
+    StatusCheckout,
     ApiException,
     ApiErrorResponseException,
     ApiResponseRetrievalException,
@@ -51,14 +64,19 @@ jest.mock("pcp-server-nodejs-sdk", () => {
     CommerceCaseApiClient: jest.fn().mockImplementation(() => ({
       createCommerceCaseRequest: createCommerceCaseRequestMock,
     })),
+    CheckoutApiClient: jest.fn().mockImplementation(() => ({
+      getCheckoutRequest: getCheckoutRequestMock,
+    })),
   };
 });
 
 import {
   ApiErrorResponseException,
+  CheckoutApiClient,
   CommerceCaseApiClient,
   CommunicatorConfiguration,
   OrderType,
+  StatusCheckout,
 } from "pcp-server-nodejs-sdk";
 
 import { PayoneProvider } from "./payone_provider";
@@ -91,10 +109,11 @@ describe("PayoneProvider", () => {
     jest.clearAllMocks();
   });
 
-  it("builds the SDK client in the constructor without throwing", () => {
+  it("builds the SDK clients in the constructor without throwing", () => {
     expect(() => new PayoneProvider(context, options)).not.toThrow();
     expect(CommunicatorConfiguration).toBeDefined();
     expect(CommerceCaseApiClient).toHaveBeenCalledTimes(1);
+    expect(CheckoutApiClient).toHaveBeenCalledTimes(1);
   });
 
   describe("calculatePayment", () => {
@@ -157,6 +176,62 @@ describe("PayoneProvider", () => {
         amount: 100.5,
         currency: "EUR",
       });
+    });
+
+    it("appends documentId/paymentControlPath onto returnUrl so handleStatus can identify the callback later", async () => {
+      createCommerceCaseRequestMock.mockResolvedValue({
+        commerceCaseId: "commerce-case-round-trip",
+        checkout: {
+          checkoutId: "checkout-round-trip",
+          paymentResponse: {
+            merchantAction: {
+              redirectData: {
+                redirectURL: "https://secure.payone.com/redirect/round-trip",
+              },
+            },
+          },
+        },
+      });
+
+      const provider = new PayoneProvider(context, options);
+      await provider.calculatePayment({
+        ...resolvedData,
+        documentId: "doc-1",
+        paymentControlPath: "payment",
+      } as PayoneResolvedPaymentData);
+
+      const sentRequest = createCommerceCaseRequestMock.mock.calls[0][1];
+      const sentReturnUrl = new URL(
+        sentRequest.checkout.orderRequest.paymentMethodSpecificInput
+          .redirectPaymentMethodSpecificInput.redirectionData.returnUrl,
+      );
+      expect(sentReturnUrl.searchParams.get("documentId")).toBe("doc-1");
+      expect(sentReturnUrl.searchParams.get("paymentControlPath")).toBe(
+        "payment",
+      );
+
+      // The whole point: handleStatus (task 10) must be able to pick these back up from
+      // whatever query params the browser redirect carries.
+      getCheckoutRequestMock.mockResolvedValue({
+        checkoutStatus: StatusCheckout.COMPLETED,
+        references: { merchantReference: resolvedData.orderId },
+      });
+      const queryParamsObject = Object.fromEntries(
+        sentReturnUrl.searchParams.entries(),
+      );
+      const statusInfo = await provider.handleStatus(
+        {},
+        {},
+        "success",
+        {
+          ...queryParamsObject,
+          commerceCaseId: "commerce-case-round-trip",
+          checkoutId: "checkout-round-trip",
+        },
+        {},
+      );
+      expect(statusInfo.documentId).toBe("doc-1");
+      expect(statusInfo.paymentControlPath).toBe("payment");
     });
 
     it("falls back to defaultRedirectUrl and defaultCurrency when data does not supply them", async () => {
@@ -223,6 +298,175 @@ describe("PayoneProvider", () => {
       await expect(provider.calculatePayment(resolvedData)).rejects.toThrow(
         /PAYONE API returned an error response \(status 400\)/,
       );
+    });
+  });
+
+  describe("handleStatus", () => {
+    const identifyingParams = {
+      commerceCaseId: "commerce-case-1",
+      checkoutId: "checkout-1",
+      documentId: "document-1",
+      paymentControlPath: "properties.payment",
+    };
+
+    it("re-queries PAYONE and returns a success shape for a completed checkout", async () => {
+      getCheckoutRequestMock.mockResolvedValue({
+        commerceCaseId: "commerce-case-1",
+        checkoutId: "checkout-1",
+        checkoutStatus: "COMPLETED",
+        references: { merchantReference: "order-42" },
+        paymentExecutions: [{ paymentExecutionId: "exec-1" }],
+        statusOutput: { paymentStatus: "PAYMENT_COMPLETED" },
+      });
+
+      const provider = new PayoneProvider(context, options);
+      const result = await provider.handleStatus(
+        "",
+        options,
+        "success",
+        identifyingParams,
+        {},
+      );
+
+      expect(getCheckoutRequestMock).toHaveBeenCalledWith(
+        "merchant-123",
+        "commerce-case-1",
+        "checkout-1",
+      );
+      expect(result).toEqual({
+        documentId: "document-1",
+        paymentControlPath: "properties.payment",
+        transactionId: "exec-1",
+        status: { isSuccess: true },
+        extraData: {
+          order_id: "order-42",
+          commerceCaseId: "commerce-case-1",
+          checkoutId: "checkout-1",
+          checkoutStatus: "COMPLETED",
+          paymentStatus: "PAYMENT_COMPLETED",
+          checkPrevTransaction: false,
+        },
+      });
+    });
+
+    it("re-queries PAYONE and returns a failure shape for a still-open/non-terminal checkout, never trusting the incoming status", async () => {
+      getCheckoutRequestMock.mockResolvedValue({
+        commerceCaseId: "commerce-case-1",
+        checkoutId: "checkout-1",
+        checkoutStatus: "OPEN",
+      });
+
+      const provider = new PayoneProvider(context, options);
+      // The redirect claims "success" in the URL, but PAYONE's own API says the checkout is still
+      // OPEN - the defensive design must trust the re-query, not the incoming callback status.
+      const result = await provider.handleStatus(
+        "",
+        options,
+        "success",
+        identifyingParams,
+        {},
+      );
+
+      expect(result.status).toEqual({ isSuccess: false });
+      expect(result.transactionId).toBe("checkout-1");
+    });
+
+    it("returns a failure shape for a chargebacked checkout", async () => {
+      getCheckoutRequestMock.mockResolvedValue({
+        checkoutStatus: "CHARGEBACKED",
+      });
+
+      const provider = new PayoneProvider(context, options);
+      const result = await provider.handleStatus(
+        "",
+        options,
+        "success",
+        identifyingParams,
+        {},
+      );
+
+      expect(result.status).toEqual({ isSuccess: false });
+    });
+
+    it("throws a clear, descriptive error and never calls the SDK when no commerceCaseId/checkoutId can be identified", async () => {
+      const provider = new PayoneProvider(context, options);
+
+      await expect(
+        provider.handleStatus("", options, "success", {}, {}),
+      ).rejects.toThrow(/could not identify which PAYONE commerce case/);
+      expect(getCheckoutRequestMock).not.toHaveBeenCalled();
+    });
+
+    it("throws a clear error when the checkout is identifiable but documentId/paymentControlPath are not", async () => {
+      const provider = new PayoneProvider(context, options);
+
+      await expect(
+        provider.handleStatus(
+          "",
+          options,
+          "success",
+          { commerceCaseId: "commerce-case-1", checkoutId: "checkout-1" },
+          {},
+        ),
+      ).rejects.toThrow(
+        /could not identify which document\/paymentControlPath/,
+      );
+      expect(getCheckoutRequestMock).not.toHaveBeenCalled();
+    });
+
+    it("parses a JSON string webhook body (POST case) the same way as query params", async () => {
+      getCheckoutRequestMock.mockResolvedValue({ checkoutStatus: "BILLED" });
+
+      const provider = new PayoneProvider(context, options);
+      const result = await provider.handleStatus(
+        JSON.stringify(identifyingParams),
+        options,
+        "success",
+        {},
+        {},
+      );
+
+      expect(getCheckoutRequestMock).toHaveBeenCalledWith(
+        "merchant-123",
+        "commerce-case-1",
+        "checkout-1",
+      );
+      expect(result.status).toEqual({ isSuccess: true });
+    });
+
+    it("identifies the checkout directly from `data` for the checkPrevTransaction re-check path (no query params)", async () => {
+      getCheckoutRequestMock.mockResolvedValue({ checkoutStatus: "COMPLETED" });
+
+      const provider = new PayoneProvider(context, options);
+      const result = await provider.handleStatus(
+        {
+          commerceCaseId: "commerce-case-1",
+          checkoutId: "checkout-1",
+          documentId: "document-1",
+          paymentControlPath: "properties.payment",
+          transactionId: "prev-transaction-id",
+        },
+        options,
+        "prev-transaction-id",
+        undefined,
+        undefined,
+        true,
+      );
+
+      expect(result.status.isSuccess).toBe(true);
+      expect(result.extraData.checkPrevTransaction).toBe(true);
+      expect(result.transactionId).toBe("prev-transaction-id");
+    });
+
+    it("translates a thrown ApiErrorResponseException from the re-query into a clear error", async () => {
+      const apiError = new ApiErrorResponseException(404, "not found");
+      getCheckoutRequestMock.mockRejectedValue(apiError);
+
+      const provider = new PayoneProvider(context, options);
+
+      await expect(
+        provider.handleStatus("", options, "success", identifyingParams, {}),
+      ).rejects.toThrow(/PAYONE API returned an error response \(status 404\)/);
     });
   });
 });

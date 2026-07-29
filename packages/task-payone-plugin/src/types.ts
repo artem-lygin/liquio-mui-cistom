@@ -67,6 +67,27 @@ export interface PayoneResolvedPaymentData {
   [key: string]: unknown;
 }
 
+/**
+ * Shape returned by {@link PayoneProvider#handleStatus}, matching the contract
+ * `components/task/src/businesses/document.ts#handlePaymentStatus` requires: it destructures
+ * `{ documentId, paymentControlPath, extraData, transactionId }`, later reads
+ * `statusInfo.status.isSuccess` and pushes `statusInfo` verbatim into the document's
+ * processed-payment-history array.
+ */
+export interface PayoneStatusInfo {
+  /** Which document this payment belongs to. */
+  documentId: string;
+  paymentControlPath: string;
+  transactionId: string;
+  status: {
+    isSuccess: boolean;
+  };
+  extraData: {
+    order_id?: string;
+    [key: string]: unknown;
+  };
+}
+
 /** Shape returned by {@link PayoneProvider#calculatePayment}. */
 export interface PayoneCalculatedPaymentData {
   /** URL to redirect the customer to in order to complete payment on PAYONE's hosted page. */
