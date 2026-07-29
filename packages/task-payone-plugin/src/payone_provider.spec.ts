@@ -2,6 +2,8 @@ import { PluginContext } from "@liquio/plugin-sdk";
 
 const createCommerceCaseRequestMock = jest.fn();
 const getCheckoutRequestMock = jest.fn();
+const getCheckoutsRequestMock = jest.fn();
+const cancelOrderMock = jest.fn();
 
 // `pcp-server-nodejs-sdk` ships ESM-only output, so `jest.requireActual` can't load it under
 // ts-jest's CommonJS transform - instead, re-declare just the bits this spec needs (the real
@@ -54,19 +56,39 @@ jest.mock("pcp-server-nodejs-sdk", () => {
 
   class ApiResponseRetrievalException extends ApiException {}
 
+  // Minimal mirror of `pcp-server-nodejs-sdk/dist/queries/GetCheckoutsQuery.d.ts` - only the
+  // one setter/behavior `cancelOrder` actually uses (`setCheckoutId`) is meaningfully faked.
+  class GetCheckoutsQuery {
+    private checkoutId?: string;
+    setCheckoutId(checkoutId: string): this {
+      this.checkoutId = checkoutId;
+      return this;
+    }
+    getCheckoutId(): string | undefined {
+      return this.checkoutId;
+    }
+  }
+
   return {
     OrderType,
     StatusCheckout,
     ApiException,
     ApiErrorResponseException,
     ApiResponseRetrievalException,
+    GetCheckoutsQuery,
     CommunicatorConfiguration: jest.fn(),
     CommerceCaseApiClient: jest.fn().mockImplementation(() => ({
       createCommerceCaseRequest: createCommerceCaseRequestMock,
     })),
     CheckoutApiClient: jest.fn().mockImplementation(() => ({
       getCheckoutRequest: getCheckoutRequestMock,
+      getCheckoutsRequest: getCheckoutsRequestMock,
     })),
+    OrderManagementCheckoutActionsApiClient: jest
+      .fn()
+      .mockImplementation(() => ({
+        cancelOrder: cancelOrderMock,
+      })),
   };
 });
 
@@ -75,6 +97,7 @@ import {
   CheckoutApiClient,
   CommerceCaseApiClient,
   CommunicatorConfiguration,
+  OrderManagementCheckoutActionsApiClient,
   OrderType,
   StatusCheckout,
 } from "pcp-server-nodejs-sdk";
@@ -114,6 +137,7 @@ describe("PayoneProvider", () => {
     expect(CommunicatorConfiguration).toBeDefined();
     expect(CommerceCaseApiClient).toHaveBeenCalledTimes(1);
     expect(CheckoutApiClient).toHaveBeenCalledTimes(1);
+    expect(OrderManagementCheckoutActionsApiClient).toHaveBeenCalledTimes(1);
   });
 
   describe("calculatePayment", () => {
@@ -467,6 +491,220 @@ describe("PayoneProvider", () => {
       await expect(
         provider.handleStatus("", options, "success", identifyingParams, {}),
       ).rejects.toThrow(/PAYONE API returned an error response \(status 404\)/);
+    });
+  });
+
+  describe("cancelOrder", () => {
+    it("resolves the checkoutId's commerceCaseId and cancels the order (happy path)", async () => {
+      getCheckoutsRequestMock.mockResolvedValue({
+        numberOfCheckouts: 1,
+        checkouts: [
+          { checkoutId: "checkout-1", commerceCaseId: "commerce-case-1" },
+        ],
+      });
+      cancelOrderMock.mockResolvedValue({
+        cancelPaymentResponse: { payment: { id: "payment-1" } },
+      });
+
+      const provider = new PayoneProvider(context, options);
+      const result = await provider.cancelOrder(
+        options,
+        "order-42",
+        "task-transaction-id",
+        "checkout-1",
+      );
+
+      expect(getCheckoutsRequestMock).toHaveBeenCalledWith(
+        "merchant-123",
+        expect.anything(),
+      );
+      expect(cancelOrderMock).toHaveBeenCalledWith(
+        "merchant-123",
+        "commerce-case-1",
+        "checkout-1",
+      );
+      expect(result).toEqual({
+        orderId: "order-42",
+        transactionId: "task-transaction-id",
+        sessionId: "checkout-1",
+        commerceCaseId: "commerce-case-1",
+        checkoutId: "checkout-1",
+        cancelResponse: {
+          cancelPaymentResponse: { payment: { id: "payment-1" } },
+        },
+      });
+    });
+
+    it("throws a descriptive error when sessionId is missing", async () => {
+      const provider = new PayoneProvider(context, options);
+
+      await expect(
+        provider.cancelOrder(options, "order-42", "task-transaction-id", ""),
+      ).rejects.toThrow(/missing "sessionId"/);
+      expect(getCheckoutsRequestMock).not.toHaveBeenCalled();
+    });
+
+    it("throws a descriptive error when no matching checkout/commerceCaseId can be found", async () => {
+      getCheckoutsRequestMock.mockResolvedValue({
+        numberOfCheckouts: 0,
+        checkouts: [],
+      });
+
+      const provider = new PayoneProvider(context, options);
+
+      await expect(
+        provider.cancelOrder(
+          options,
+          "order-42",
+          "task-transaction-id",
+          "checkout-unknown",
+        ),
+      ).rejects.toThrow(/could not resolve a PAYONE commerceCaseId/);
+      expect(cancelOrderMock).not.toHaveBeenCalled();
+    });
+
+    it("translates a thrown ApiErrorResponseException into a clear error", async () => {
+      const apiError = new ApiErrorResponseException(400, "bad request");
+      getCheckoutsRequestMock.mockRejectedValue(apiError);
+
+      const provider = new PayoneProvider(context, options);
+
+      await expect(
+        provider.cancelOrder(options, "order-42", "tx-1", "checkout-1"),
+      ).rejects.toThrow(/PAYONE API returned an error response \(status 400\)/);
+    });
+  });
+
+  describe("checkStatus", () => {
+    it("re-queries the checkout by commerceCaseId/checkoutId and returns a success shape", async () => {
+      getCheckoutRequestMock.mockResolvedValue({
+        checkoutStatus: "COMPLETED",
+        statusOutput: { paymentStatus: "PAYMENT_COMPLETED" },
+        references: { merchantReference: "order-42" },
+      });
+
+      const provider = new PayoneProvider(context, options);
+      const result = await provider.checkStatus(
+        options,
+        "checkout-1",
+        "commerce-case-1",
+      );
+
+      expect(getCheckoutRequestMock).toHaveBeenCalledWith(
+        "merchant-123",
+        "commerce-case-1",
+        "checkout-1",
+      );
+      expect(result).toEqual({
+        isSuccess: true,
+        commerceCaseId: "commerce-case-1",
+        checkoutId: "checkout-1",
+        checkoutStatus: "COMPLETED",
+        paymentStatus: "PAYMENT_COMPLETED",
+        orderId: "order-42",
+      });
+    });
+
+    it("returns a failure shape for a non-terminal checkout", async () => {
+      getCheckoutRequestMock.mockResolvedValue({ checkoutStatus: "OPEN" });
+
+      const provider = new PayoneProvider(context, options);
+      const result = await provider.checkStatus(
+        options,
+        "checkout-1",
+        "commerce-case-1",
+      );
+
+      expect(result).toMatchObject({ isSuccess: false });
+    });
+
+    it("throws a descriptive error when sessionId/invoiceId are missing", async () => {
+      const provider = new PayoneProvider(context, options);
+
+      await expect(provider.checkStatus(options, "", "")).rejects.toThrow(
+        /missing "sessionId"\/"invoiceId"/,
+      );
+      expect(getCheckoutRequestMock).not.toHaveBeenCalled();
+    });
+
+    it("translates a thrown ApiErrorResponseException into a clear error", async () => {
+      const apiError = new ApiErrorResponseException(404, "not found");
+      getCheckoutRequestMock.mockRejectedValue(apiError);
+
+      const provider = new PayoneProvider(context, options);
+
+      await expect(
+        provider.checkStatus(options, "checkout-1", "commerce-case-1"),
+      ).rejects.toThrow(/PAYONE API returned an error response \(status 404\)/);
+    });
+  });
+
+  describe("not-supported methods", () => {
+    it("confirmBySmsCode rejects with a specific reason", async () => {
+      const provider = new PayoneProvider(context, options);
+
+      await expect(
+        provider.confirmBySmsCode(options, {}, "1234"),
+      ).rejects.toThrow(
+        /confirmBySmsCode is not supported by the Payone provider/,
+      );
+    });
+
+    it("unHoldOrder rejects with a specific reason", async () => {
+      const provider = new PayoneProvider(context, options);
+
+      await expect(provider.unHoldOrder({})).rejects.toThrow(
+        /unHoldOrder is not supported by the Payone provider/,
+      );
+    });
+
+    it("getPaymentReceiptInfo rejects with a specific reason", async () => {
+      const provider = new PayoneProvider(context, options);
+
+      await expect(
+        provider.getPaymentReceiptInfo({
+          paymentSystemParams: options,
+          orderId: "order-42",
+        }),
+      ).rejects.toThrow(
+        /getPaymentReceiptInfo is not supported by the Payone provider/,
+      );
+    });
+
+    it("getPaymentReceiptFiles rejects with a specific reason", async () => {
+      const provider = new PayoneProvider(context, options);
+
+      await expect(
+        provider.getPaymentReceiptFiles({
+          paymentSystemParams: options,
+          orderId: "order-42",
+          receiptFormat: "pdf",
+          paymentControlSchema: {},
+        }),
+      ).rejects.toThrow(
+        /getPaymentReceiptFiles is not supported by the Payone provider/,
+      );
+    });
+
+    it("getWithdrawalFundsStatus rejects with a specific reason", async () => {
+      const provider = new PayoneProvider(context, options);
+
+      await expect(
+        provider.getWithdrawalFundsStatus({
+          paymentSystemParams: options,
+          orderId: "order-42",
+        }),
+      ).rejects.toThrow(
+        /getWithdrawalFundsStatus is not supported by the Payone provider/,
+      );
+    });
+
+    it("sendCheckRequest rejects with a specific reason", async () => {
+      const provider = new PayoneProvider(context, options);
+
+      await expect(provider.sendCheckRequest(options)).rejects.toThrow(
+        /sendCheckRequest is not supported by the Payone provider/,
+      );
     });
   });
 });
