@@ -291,6 +291,7 @@ describe('Payment Controller', () => {
       };
 
       try {
+        const rawCountBefore = await paymentLogsModel.count({ where: { payment_action: 'raw' } });
         const processedCountBefore = await paymentLogsModel.count({ where: { payment_action: 'processed' } });
 
         const response = await app.request().get(`/payment/${CUSTOMER_SUCCESS}/success`);
@@ -299,8 +300,11 @@ describe('Payment Controller', () => {
         expect(rawRowSeenDuringProcessing).toBeDefined();
         expect(rawRowSeenDuringProcessing.payment_action).toBe('raw');
 
-        // A new processed row is persisted after processing completes.
+        // Exactly one new raw row and one new processed row were persisted - i.e. the raw row
+        // was not later flipped/upserted into the processed row, it remains its own row.
+        const rawCountAfter = await paymentLogsModel.count({ where: { payment_action: 'raw' } });
         const processedCountAfter = await paymentLogsModel.count({ where: { payment_action: 'processed' } });
+        expect(rawCountAfter).toBe(rawCountBefore + 1);
         expect(processedCountAfter).toBe(processedCountBefore + 1);
 
         const [processedRow] = await paymentLogsModel.findAll({
@@ -309,9 +313,24 @@ describe('Payment Controller', () => {
           limit: 1,
         });
         expect(processedRow).toBeDefined();
+
+        // The raw row (captured mid-processing above) and the processed row are two distinct
+        // database records, not one row whose action/data got updated in place.
+        expect(processedRow.get('id')).not.toBe(rawRowSeenDuringProcessing.id);
+
+        // Data fidelity: the persisted "processed" row's `data` column matches the exact
+        // response payload handlePaymentStatus produced, proving JSON round-tripping through
+        // the real webhook flow (including the nested `extraData`/`status` objects), not just
+        // that some row exists.
         const processedData = processedRow.get({ plain: true }).data;
-        expect(processedData.transactionId).toBe(FAKE_TRANSACTION_ID);
-        expect(processedData.url).toBe(FAKE_REDIRECT_URL);
+        expect(processedData).toEqual({
+          url: FAKE_REDIRECT_URL,
+          transactionId: FAKE_TRANSACTION_ID,
+          documentId: DOCUMENT_ID,
+          paymentControlPath: PAYMENT_CONTROL_PATH,
+          extraData: { redirectUrl: FAKE_REDIRECT_URL },
+          status: { isSuccess: false },
+        });
 
         // Redirects to the fixture provider's returned URL.
         expect(response.status).toBe(302);
