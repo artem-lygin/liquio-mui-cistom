@@ -5,8 +5,7 @@ import { DocumentBusiness } from './document';
 // convention in document.spec.ts of assigning mocked services directly onto the
 // instance, e.g. `documentBusiness.storageService = {...}`) because this file tests
 // document.ts's own orchestration logic (config lookups, argument construction, error
-// propagation) — not PaymentService/provider behavior itself, which other Group T
-// tasks already cover.
+// propagation) — not PaymentService/provider behavior itself, which is covered elsewhere.
 describe('DocumentBusiness payment methods', () => {
   let documentBusiness: any;
 

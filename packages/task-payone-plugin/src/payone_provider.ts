@@ -24,15 +24,12 @@ import {
 /**
  * PAYONE Commerce Platform payment provider for `components/task`.
  *
- * v1 scope is redirect/hosted-checkout only (see plan §5.4/§8.2) - card tokenization requires
- * client-side tokenizer work in `cabinet-front` and is explicitly out of scope here.
+ * Supports PAYONE's redirect/hosted-checkout flow only - card tokenization would require
+ * client-side tokenizer work in `cabinet-front` and is not implemented here.
  */
 export class PayoneProvider extends TaskPaymentProvider<PayoneOptions> {
   private readonly commerceCaseClient: CommerceCaseApiClient;
   private readonly checkoutClient: CheckoutApiClient;
-  // Added for task 11's cancelOrder (needed for OrderManagementCheckoutActionsApiClient.cancelOrder -
-  // see that method below for why this particular client, rather than
-  // PaymentExecutionApiClient.cancelPayment, was chosen).
   private readonly orderManagementClient: OrderManagementCheckoutActionsApiClient;
 
   constructor(context: PluginContext, options: PayoneOptions) {
@@ -82,8 +79,8 @@ export class PayoneProvider extends TaskPaymentProvider<PayoneOptions> {
     // Append documentId/paymentControlPath as query params so they round-trip back on the
     // customer's browser redirect (RedirectionData.returnUrl's own JSDoc: "You can add any
     // number of key value pairs in the query string... that help you identify the customer when
-    // they return"). This is what lets handleStatus (task 10) identify which document/control a
-    // later callback is about - without it, handleStatus has nothing to key off.
+    // they return"). This is what lets handleStatus identify which document/control a later
+    // callback is about - without it, handleStatus has nothing to key off.
     const returnUrl = this.buildReturnUrl(
       payload.returnUrl ?? this.options.defaultRedirectUrl,
       {
@@ -187,11 +184,6 @@ export class PayoneProvider extends TaskPaymentProvider<PayoneOptions> {
         );
   }
 
-  // --- Remaining TaskPaymentProvider abstract methods -----------------------------------------
-  // Intentionally NOT implemented in this task (core config + calculatePayment only). These are
-  // temporary stubs so the class is fully concrete and the package builds; replaced by tasks
-  // 10 (handleStatus) and 11 (cancelOrder/checkStatus/the rest).
-
   /**
    * Handle both the customer's browser being redirected back from PAYONE's hosted checkout page
    * (`GET /payment/:customer/:status`) and any async server-to-server webhook PAYONE might send
@@ -199,25 +191,20 @@ export class PayoneProvider extends TaskPaymentProvider<PayoneOptions> {
    * (`components/task/src/controllers/payment.ts#handleStatus` ->
    * `businesses/document.ts#handlePaymentStatus`).
    *
-   * KNOWN UNKNOWN (see plan/task doc for full detail): PAYONE's exact webhook/redirect-callback
-   * payload schema and signing mechanism could not be confirmed - `docs.commerce.payone.com`'s
-   * webhook reference is a JS-rendered SPA that only ever yields the landing page to both an
-   * automated fetch and a web search, never the actual payload schema (verified again while
-   * implementing this method, not just during planning). A webhook doc page was found at
-   * `developer.payone.com/en/integration/api-developer-guide/webhooks` describing a
-   * `payment.id`/HMAC-signed payload, but that surface has no `commerceCaseId`/`checkoutId`
-   * concepts at all, so it cannot be confirmed to describe *this* SDK's Commerce Platform
-   * (checkout/commerce-case based) webhooks rather than PAYONE's separate legacy Server API -
-   * it is NOT relied upon below.
+   * PAYONE's exact webhook/redirect-callback payload schema and signing mechanism are not
+   * confirmed - PAYONE's public webhook reference documentation is a JS-rendered page that could
+   * not be retrieved programmatically, and a separate PAYONE developer-guide webhook page
+   * describes a `payment.id`/HMAC-signed payload with no `commerceCaseId`/`checkoutId` concepts,
+   * so it isn't clear that it applies to this Commerce Platform (checkout/commerce-case based)
+   * API rather than PAYONE's separate legacy Server API - it is not relied upon below.
    *
-   * DEFENSIVE DESIGN used instead (deliberate, not an oversight): never trust the incoming
-   * callback payload's status field - treat the callback as "something changed, go check" and
-   * re-query PAYONE's own API (`CheckoutApiClient.getCheckoutRequest`) for authoritative status.
-   * This is standard webhook-security practice anyway and sidesteps needing the exact payload
-   * schema. It does NOT remove the need to identify *which* checkout the callback is about, so
-   * multiple plausible key names are checked defensively in both the payload and the query
-   * params, pending real PAYONE sandbox testing to confirm/narrow this (no sandbox account is
-   * confirmed to exist yet).
+   * Design used instead (deliberate, not an oversight): never trust the incoming callback
+   * payload's status field - treat the callback as "something changed, go check" and re-query
+   * PAYONE's own API (`CheckoutApiClient.getCheckoutRequest`) for authoritative status. This is
+   * standard webhook-security practice anyway and sidesteps needing the exact payload schema. It
+   * does not remove the need to identify *which* checkout the callback is about, so multiple
+   * plausible key names are checked defensively in both the payload and the query params,
+   * pending real PAYONE sandbox testing to confirm/narrow this.
    */
   async handleStatus(
     data: unknown,
@@ -280,13 +267,10 @@ export class PayoneProvider extends TaskPaymentProvider<PayoneOptions> {
       throw this.translateSdkError(error);
     }
 
-    // --- Status mapping table (explicit, not implicit branching) --------------------------------
-    // Source: `StatusCheckout` enum, `pcp-server-nodejs-sdk/dist/models/StatusCheckout.d.ts`
-    // (real values read directly from the installed SDK, not invented). Note:
-    // `ExtendedCheckoutStatus` (mentioned in the task doc as a possible second signal) is exported
-    // by the SDK but is NOT actually a field of `CheckoutResponse` (confirmed by reading
-    // `CheckoutResponse.d.ts` - it only has `checkoutStatus: StatusCheckout`), so it cannot be
-    // read off this response and is not used here.
+    // Status mapping (explicit, not implicit branching). Source: the real `StatusCheckout` enum
+    // shipped by the SDK. `ExtendedCheckoutStatus` is exported by the SDK but is not actually a
+    // field of `CheckoutResponse` (it only has `checkoutStatus: StatusCheckout`), so it isn't
+    // used here.
     //   OPEN                -> false (checkout still awaiting completion)
     //   PENDING_COMPLETION  -> false (payment in progress, not yet finalized)
     //   COMPLETED           -> true  (order executed successfully)
@@ -301,17 +285,16 @@ export class PayoneProvider extends TaskPaymentProvider<PayoneOptions> {
       checkout.checkoutStatus && successStatuses.has(checkout.checkoutStatus),
     );
 
-    // `checkPrevTransaction` (per `document.ts`'s only caller of this path with it set) is used to
-    // check whether an already-`calculatePayment`'d checkout has *already* reached a terminal
-    // status before creating a brand new PAYONE checkout for the same document - i.e. duplicate/
-    // re-entry protection, not duplicate-webhook-delivery protection. Since this method always
-    // re-queries PAYONE's API (an idempotent GET) rather than mutating anything, there is no
-    // extra "don't reprocess" branching needed here for correctness - the caller
-    // (`document.ts#calculatePayment`) itself already decides what to do based on the returned
-    // `status.isSuccess` (skip creating a new checkout when true). `checkPrevTransaction` is kept
-    // as a parameter (matching the abstract signature) and is safe to ignore for the re-query
-    // itself, but is threaded into `extraData` below so it's visible in the persisted history for
-    // audit purposes.
+    // `checkPrevTransaction` (per `document.ts#calculatePayment`'s only caller of this path with
+    // it set) is used to check whether an already-`calculatePayment`'d checkout has *already*
+    // reached a terminal status before creating a brand new PAYONE checkout for the same
+    // document - i.e. duplicate/re-entry protection, not duplicate-webhook-delivery protection.
+    // Since this method always re-queries PAYONE's API (an idempotent GET) rather than mutating
+    // anything, there is no extra "don't reprocess" branching needed here for correctness - the
+    // caller decides what to do based on the returned `status.isSuccess` (skip creating a new
+    // checkout when true). `checkPrevTransaction` is kept as a parameter (matching the abstract
+    // signature) and threaded into `extraData` below so it's visible in the persisted history
+    // for audit purposes.
     const transactionId =
       this.pickField(parsedData, params, [
         "transactionId",
@@ -372,11 +355,8 @@ export class PayoneProvider extends TaskPaymentProvider<PayoneOptions> {
   }
 
   /**
-   * NOT SUPPORTED (deliberate, permanent decision - task 11's bounded check of PAYONE's SDK
-   * surface, `docs.payone.com/pcp/commerce-platform-api`, and the 8 endpoint clients under
-   * `pcp-server-nodejs-sdk/dist/endpoints/` found no SMS-confirmation concept anywhere). This
-   * matches the plan (§5.2)'s own high-confidence note: v1 uses PAYONE's hosted redirect
-   * checkout (see `calculatePayment`'s `redirectPaymentMethodSpecificInput`) - the customer
+   * Not supported: PAYONE's hosted redirect checkout has no SMS-confirmation step - no
+   * SMS-confirmation concept exists anywhere in PAYONE's Commerce Platform API. The customer
    * completes/authenticates the payment entirely on PAYONE's own hosted page (including any
    * 3-D Secure/OTP step PAYONE itself needs), so `components/task` never sees, and PAYONE never
    * asks this backend for, a merchant-relayed SMS code.
@@ -394,30 +374,27 @@ export class PayoneProvider extends TaskPaymentProvider<PayoneOptions> {
   /**
    * Cancel (reverse) a PAYONE order.
    *
-   * Chosen SDK method: `OrderManagementCheckoutActionsApiClient.cancelOrder` (NOT
+   * Chosen SDK method: `OrderManagementCheckoutActionsApiClient.cancelOrder` (not
    * `PaymentExecutionApiClient.cancelPayment`). Both exist and both ultimately reverse a
    * payment, but `OrderManagementCheckoutActionsApiClient.cancelOrder`'s request/response
-   * (`CancelRequest`/`CancelResponse`, read from `pcp-server-nodejs-sdk/dist/models/`) is
-   * explicitly checkout/order-scoped - its own JSDoc is "mark items as of the respective
-   * Checkout as cancelled and to automatically reverse the associated payment", and omitting
-   * `cancelItems` cancels the whole ShoppingCart - i.e. exactly "cancel the order" as this
-   * method's name says. `PaymentExecutionApiClient.cancelPayment` is payment-execution-scoped
-   * (keyed by `paymentExecutionId`, not the checkout as a whole) and reads more like a
-   * "cancelPayment" primitive than the order-level operation this method is named for.
+   * (`CancelRequest`/`CancelResponse`) is explicitly checkout/order-scoped - its own JSDoc is
+   * "mark items as of the respective Checkout as cancelled and to automatically reverse the
+   * associated payment", and omitting `cancelItems` cancels the whole ShoppingCart - i.e. exactly
+   * "cancel the order" as this method's name says. `PaymentExecutionApiClient.cancelPayment` is
+   * payment-execution-scoped (keyed by `paymentExecutionId`, not the checkout as a whole) and
+   * reads more like a "cancelPayment" primitive than the order-level operation this method is
+   * named for.
    *
-   * ID mapping (task's `orderId`/`transactionId`/`sessionId` are NOT PAYONE's own IDs - see the
-   * task doc's own framing of this problem):
+   * ID mapping (`components/task`'s `orderId`/`transactionId`/`sessionId` are not PAYONE's own
+   * IDs):
    * - `sessionId` is treated as PAYONE's `checkoutId` (consistent with `checkStatus` below,
    *   which makes the same choice for its own `sessionId` parameter - the hosted "payment
-   *   session" *is* the PAYONE checkout in this v1, redirect-only integration).
+   *   session" *is* the PAYONE checkout in this redirect-only integration).
    * - PAYONE's `cancelOrder` also needs `commerceCaseId`, which none of `orderId`/
-   *   `transactionId`/`sessionId` carry directly (this plugin has no persistence of its own -
-   *   see the class-level doc comment - and there is no confirmed round-trip of `commerceCaseId`
-   *   through `task`'s own storage back into these three call-site parameters). Rather than
-   *   guessing, it is looked up from PAYONE itself: `CheckoutApiClient.getCheckoutsRequest`
+   *   `transactionId`/`sessionId` carry directly (this plugin has no persistence of its own).
+   *   Rather than guessing, it is looked up from PAYONE itself: `CheckoutApiClient.getCheckoutsRequest`
    *   filtered by `checkoutId` returns the matching `CheckoutResponse`, whose own
-   *   `commerceCaseId` field (confirmed present on `CheckoutResponse.d.ts`) is the value PAYONE
-   *   needs.
+   *   `commerceCaseId` field is the value PAYONE needs.
    * - `orderId` (the merchant-facing order id / `merchantReference`) and `transactionId` (a
    *   `task`-internal, base64-encoded id per `Provider.generateTransactionId` - not a PAYONE id
    *   at all) are not needed to identify the PAYONE resources being cancelled, but are still
@@ -470,29 +447,23 @@ export class PayoneProvider extends TaskPaymentProvider<PayoneOptions> {
   }
 
   /**
-   * NOT SUPPORTED (deliberate, permanent decision). Task 11's bounded check specifically
-   * inspected `PaymentExecutionApiClient.pausePayment`/`refreshPayment` (the two candidates
-   * flagged by the task doc as most likely to map to "unhold") by reading their request/response
-   * models directly: `PausePaymentRequest` is an empty object and `PausePaymentResponse` only
-   * carries a `status` - `pausePayment`'s own description is "Request to pause a payment", i.e.
-   * the *opposite* direction of what "unhold" means here (per `document.ts#unholdPayment`'s only
-   * caller: releasing a previously *held* payment so it can be collected, right before a document
-   * is finalized). `refreshPayment` merely re-fetches/refreshes payment status - it does not
-   * change any hold state either. Neither is a "release the hold" operation.
+   * Not supported: no "release a hold" operation applies to this integration.
+   * `PaymentExecutionApiClient.pausePayment`/`refreshPayment` were considered as candidates, but
+   * `pausePayment`'s own description is "Request to pause a payment" - the *opposite* direction
+   * of "unhold" (releasing a previously held payment so it can be collected) - and
+   * `refreshPayment` merely re-fetches payment status without changing any hold state.
    *
    * The SDK method that actually matches "release a hold so funds get collected" is
    * `PaymentExecutionApiClient.capturePayment` (`CapturePaymentRequest`'s own JSDoc: "capture...
-   * the amount that was authorized"). But this plugin's `calculatePayment` always sets
-   * `autoExecuteOrder: true` on the order it creates (see that method above, not modified by this
-   * task) - PAYONE auto-executes/captures the order as soon as the checkout completes, so there
-   * is no separate authorize-then-hold step in this v1 integration for `capturePayment` to ever
-   * apply to. Supporting a genuine hold/capture flow would require redoing `calculatePayment` to
-   * stop auto-executing, which is out of this task's scope (v1 is redirect/hosted-checkout only,
-   * per the class-level doc comment referencing plan §5.4/§8.2).
+   * the amount that was authorized"). But `calculatePayment` above always sets
+   * `autoExecuteOrder: true` on the order it creates - PAYONE auto-executes/captures the order as
+   * soon as the checkout completes, so there is no separate authorize-then-hold step in this
+   * integration for `capturePayment` to ever apply to. Supporting a genuine hold/capture flow
+   * would require reworking `calculatePayment` to stop auto-executing.
    */
   async unHoldOrder(_data: unknown): Promise<never> {
     throw new Error(
-      "unHoldOrder is not supported by the Payone provider (calculatePayment always creates an auto-executed order - Payone captures funds immediately on checkout completion, so there is no separate authorization hold to release in this v1 integration).",
+      "unHoldOrder is not supported by the Payone provider (calculatePayment always creates an auto-executed order - Payone captures funds immediately on checkout completion, so there is no separate authorization hold to release in this integration).",
     );
   }
 
@@ -501,11 +472,9 @@ export class PayoneProvider extends TaskPaymentProvider<PayoneOptions> {
    *
    * ID mapping (mirrors `cancelOrder`'s reasoning above for consistency): `sessionId` is treated
    * as PAYONE's `checkoutId` and `invoiceId` as PAYONE's `commerceCaseId` - the two IDs
-   * `CheckoutApiClient.getCheckoutRequest` needs alongside `merchantId`. There is no other
-   * confirmed caller of this method in `components/task` today (see task doc's own note: this
-   * path is currently unreachable since no provider existed before this plugin) to derive a
-   * stricter mapping from, so this is documented as the deliberate interpretation for this
-   * provider rather than a universal contract.
+   * `CheckoutApiClient.getCheckoutRequest` needs alongside `merchantId`. This is documented as
+   * the deliberate interpretation for this provider rather than a universal contract, since
+   * PAYONE does not define its own meaning for `sessionId`/`invoiceId`.
    */
   async checkStatus(
     _providerOptions: unknown,
@@ -527,9 +496,8 @@ export class PayoneProvider extends TaskPaymentProvider<PayoneOptions> {
           sessionId,
         );
 
-      // Same success-status table as `handleStatus` above (kept as an independent, small,
-      // duplicated const rather than a shared helper, so this task does not have to touch
-      // `handleStatus` itself per its own scope constraints).
+      // Same success-status table as `handleStatus` above, kept as an independent, small,
+      // duplicated const rather than a shared helper.
       const successStatuses: ReadonlySet<StatusCheckout> = new Set([
         StatusCheckout.COMPLETED,
         StatusCheckout.BILLED,
@@ -552,17 +520,13 @@ export class PayoneProvider extends TaskPaymentProvider<PayoneOptions> {
   }
 
   /**
-   * NOT SUPPORTED (deliberate, permanent decision). Task 11's bounded check found no
-   * receipt/invoice-document endpoint anywhere among PAYONE's 8 endpoint clients
-   * (`AuthenticationApiClient`, `BaseApiClient`, `CheckoutApiClient`, `CommerceCaseApiClient`,
-   * `OrderManagementCheckoutActionsApiClient`, `PaymentExecutionApiClient`,
-   * `PaymentInformationApiClient`, `PaymentIntentApiClient`) nor in
-   * `docs.payone.com/pcp/commerce-platform-api` - PAYONE's Commerce Platform API returns
-   * structured checkout/payment status data (`CheckoutResponse`/`PaymentExecution`/etc.), not a
-   * merchant-facing receipt document. Any receipt shown to the payer is PAYONE's own hosted-page
-   * concern; any receipt `task` itself needs to produce would have to be generated from the
-   * structured data already returned by `calculatePayment`/`handleStatus`/`checkStatus` above,
-   * not fetched from PAYONE as a distinct "receipt" resource.
+   * Not supported: no receipt/invoice-document endpoint exists anywhere in PAYONE's Commerce
+   * Platform API. PAYONE's API returns structured checkout/payment status data
+   * (`CheckoutResponse`/`PaymentExecution`/etc.), not a merchant-facing receipt document. Any
+   * receipt shown to the payer is PAYONE's own hosted-page concern; any receipt `task` itself
+   * needs to produce would have to be generated from the structured data already returned by
+   * `calculatePayment`/`handleStatus`/`checkStatus` above, not fetched from PAYONE as a distinct
+   * "receipt" resource.
    */
   async getPaymentReceiptInfo(_args: {
     paymentSystemParams: unknown;
@@ -574,9 +538,9 @@ export class PayoneProvider extends TaskPaymentProvider<PayoneOptions> {
   }
 
   /**
-   * NOT SUPPORTED (deliberate, permanent decision) - same bounded-check finding as
-   * `getPaymentReceiptInfo` above: no file/document-download endpoint (PDF or otherwise) exists
-   * anywhere in this SDK's surface for Payone to hand back a receipt file/`contentType` pair.
+   * Not supported: same reasoning as `getPaymentReceiptInfo` above - no file/document-download
+   * endpoint (PDF or otherwise) exists anywhere in PAYONE's API for a receipt file/`contentType`
+   * pair to come from.
    */
   async getPaymentReceiptFiles(_args: {
     paymentSystemParams: unknown;
@@ -590,14 +554,12 @@ export class PayoneProvider extends TaskPaymentProvider<PayoneOptions> {
   }
 
   /**
-   * NOT SUPPORTED (deliberate, permanent decision). Task 11's bounded check found no
-   * payout/withdrawal-status endpoint or model anywhere in the 8 endpoint clients or
-   * `docs.payone.com/pcp/commerce-platform-api` (the closest surface, `PaymentExecutionApiClient`
-   * /`PaymentInformationApiClient`, only cover collecting/refunding/cancelling a *customer's*
-   * payment into the merchant, never a separate merchant-side "withdrawal" of settled funds).
-   * PAYONE settles collected funds to the merchant's own bank account per the merchant's
-   * commercial agreement with PAYONE, outside of any API surface this SDK exposes - there is no
-   * per-order "withdrawal" resource for this method to query the status of.
+   * Not supported: no payout/withdrawal-status endpoint or model exists in PAYONE's Commerce
+   * Platform API. The closest surfaces (`PaymentExecutionApiClient`/`PaymentInformationApiClient`)
+   * only cover collecting/refunding/cancelling a *customer's* payment into the merchant, never a
+   * separate merchant-side "withdrawal" of settled funds. PAYONE settles collected funds to the
+   * merchant's own bank account per the merchant's commercial agreement with PAYONE, outside of
+   * any API surface this SDK exposes - there is no per-order "withdrawal" resource to query.
    */
   async getWithdrawalFundsStatus(_args: {
     paymentSystemParams: unknown;
@@ -609,13 +571,10 @@ export class PayoneProvider extends TaskPaymentProvider<PayoneOptions> {
   }
 
   /**
-   * NOT SUPPORTED (deliberate, permanent decision). `sendCheckRequest` has no PAYONE-specific
-   * meaning found anywhere in this SDK's surface or PAYONE's docs during the bounded check - the
-   * base `Provider.sendCheckRequest` (`components/task/src/services/payment/providers/
-   * provider.ts`) is an unconditional "must be overridden" abstract stub with no documented
-   * generic contract either, and the naming (a fiscal "check"/receipt being sent, e.g. to a
-   * national fiscal-receipt registrar) does not correspond to any concept in PAYONE's card/
-   * redirect Commerce Platform API, which is not fiscalization-aware.
+   * Not supported: `sendCheckRequest` has no PAYONE-specific meaning - it does not correspond to
+   * any concept in PAYONE's card/redirect Commerce Platform API, which is not fiscalization-aware
+   * (the naming suggests a fiscal "check"/receipt being sent, e.g. to a national fiscal-receipt
+   * registrar).
    */
   async sendCheckRequest(_providerOptions: unknown): Promise<never> {
     throw new Error(

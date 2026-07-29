@@ -234,8 +234,8 @@ describe("PayoneProvider", () => {
         "payment",
       );
 
-      // The whole point: handleStatus (task 10) must be able to pick these back up from
-      // whatever query params the browser redirect carries.
+      // The whole point: handleStatus must be able to pick these back up from whatever query
+      // params the browser redirect carries.
       getCheckoutRequestMock.mockResolvedValue({
         checkoutStatus: StatusCheckout.COMPLETED,
         references: { merchantReference: resolvedData.orderId },
