@@ -186,16 +186,33 @@ services:
     volumes:
       - ./config/sign-tool:/var/www/config:ro
 
+  task-plugin-installer:
+    build:
+      context: ./components/task
+    command: ["npm", "run", "plugin-installer"]
+    restart: on-failure
+    volumes:
+      - ./config/task:/var/www/config:ro
+      - task-plugins:/var/www/plugins
+    environment:
+      PLUGINS_INSTALL_DIR: /var/www/plugins
+
   task:
     build:
       context: ./components/task
     restart: on-failure
     volumes:
       - ./config/task:/var/www/config:ro
+      - task-plugins:/var/www/plugins:ro
     depends_on:
-      - postgres
-      - rabbitmq
-      - redis
+      task-plugin-installer:
+        condition: service_completed_successfully
+      postgres:
+        condition: service_started
+      rabbitmq:
+        condition: service_started
+      redis:
+        condition: service_started
 
   notification:
     build:
@@ -344,3 +361,4 @@ volumes:
   redis_data:
   event-plugins:
   external-reader-plugins:
+  task-plugins:
