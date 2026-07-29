@@ -1910,8 +1910,6 @@ export class DocumentBusiness extends Business {
   /**
    * Resolve payment amount/description/orderId/etc. formulas defined in the JSON schema's
    * payment properties into plain values, evaluated against the document.
-   * (Near-literal port of the formerly-dead `Provider.getPaymentAmount` - moved here so
-   * payment providers/plugins receive a resolved payload instead of a raw JSON-schema blob.)
    * @param {object} document Document.
    * @param {string} paymentControlPath Payment control path.
    * @param {object} jsonSchema Json schema.
