@@ -28,10 +28,10 @@ jest.mock('../src/lib/message_queue', () => {
 });
 
 // Mock the log module
-jest.mock('back-core', () => {
+jest.mock('@liquio/back-core', () => {
   // eslint-disable-next-line @typescript-eslint/no-require-imports
   const debug = require('debug');
-  const original = jest.requireActual('back-core');
+  const original = jest.requireActual('@liquio/back-core');
   const { Log: OriginalLog } = original;
   const logs = [];
   return {
@@ -54,7 +54,7 @@ const configOverride: any = {};
 jest.mock('../src/lib/config', () => {
   // eslint-disable-next-line @typescript-eslint/no-require-imports
   const Multiconf = require('multiconf');
-  const baseConfig = Multiconf.get('../config-templates/task');
+  const baseConfig = Multiconf.get('../../config-templates/task');
 
   const getMerged = () => ({ ...baseConfig, ...configOverride });
 

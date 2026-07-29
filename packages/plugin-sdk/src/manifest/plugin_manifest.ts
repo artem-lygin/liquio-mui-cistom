@@ -1,4 +1,7 @@
-export type PluginKind = "event-external-service" | "external-reader-provider";
+export type PluginKind =
+  | "event-external-service"
+  | "external-reader-provider"
+  | "task-payment-provider";
 
 export interface PluginManifest {
   name: string;
@@ -10,6 +13,7 @@ export interface PluginManifest {
 const VALID_KINDS: PluginKind[] = [
   "event-external-service",
   "external-reader-provider",
+  "task-payment-provider",
 ];
 
 export function readPluginManifest(
