@@ -70,10 +70,6 @@ Then reference `"payone"` as the `providerName` in `components/task`'s own payme
 
 Each unsupported method throws a descriptive `Error` explaining why, rather than silently returning an empty/placeholder result — see the inline comments above each method in `src/payone_provider.ts` for the full reasoning.
 
-## Testing against PAYONE
-
-As of this writing, no PAYONE sandbox/preprod merchant account is confirmed to exist for this project. This plugin has only been verified against a mocked PAYONE SDK in unit tests (`npm test` in this package) — real integration testing against a live PAYONE preprod endpoint is still pending. Obtain a preprod merchant account and credentials before relying on this plugin in a real environment, and point `baseUrl` at PAYONE's preprod endpoint (e.g. `https://api.preprod.commerce.payone.com`) for that testing.
-
 ## Scope note: redirect-only in v1
 
 This plugin implements PAYONE's redirect / hosted-checkout flow only — it does not support card tokenization. Integrators should not assume broader payment-method coverage than what is described above.
