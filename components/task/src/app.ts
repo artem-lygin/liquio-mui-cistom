@@ -1,8 +1,11 @@
 import moment from 'moment';
 
+import { PluginLoader } from '@liquio/plugin-sdk';
+
 import { Db } from './lib/db';
 import { PgPubSub } from './lib/pgpubsub';
 import { Log, ConsoleLogProvider } from '@liquio/back-core';
+import { PaymentService } from './services/payment';
 import { MessageQueue } from './lib/message_queue';
 import { RedisClient } from './lib/redis_client';
 import { Models } from './models';
@@ -155,6 +158,15 @@ export class BpmnTaskCore {
     // Init models.
     this.models = new Models(customModels);
     new DictionariesModel(customDictionaryModels);
+
+    // Init plugins.
+    const pluginsConfig = config.plugins;
+    const pluginRegistry = pluginsConfig ? await new PluginLoader(log).load(pluginsConfig) : undefined;
+
+    // Pre-warm the PaymentService singleton with the plugin registry, so that when
+    // businesses/document.ts later constructs it (via `new PaymentService(config.payment)`,
+    // unaware of plugins), the singleton guard returns this already-plugin-aware instance.
+    new PaymentService(config.payment, pluginRegistry);
 
     // Init businesses.
     const businesses: any = new Businesses(config);

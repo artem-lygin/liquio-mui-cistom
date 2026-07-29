@@ -20,11 +20,14 @@
     "test:watch": "jest --watch",
     "test:cov": "jest --coverage",
     "test:build": "tsc --noEmit && tsc --noEmit -p tsconfig.tests.json",
-    "command": "node bin/index.js"
+    "command": "node bin/index.js",
+    "plugin-installer": "liquio-plugin-installer"
   },
   "dependencies": {
     "@liquio/back-core": "^0.1.0",
+    "@liquio/plugin-installer": "^0.1.0",
     "@liquio/plugin-sdk": "^0.1.1",
+    "@liquio/task-payone-plugin": "^0.1.0",
     "acorn": "^8.14.1",
     "ajv": "^6.12.6",
     "amqplib": "^0.10.9",
