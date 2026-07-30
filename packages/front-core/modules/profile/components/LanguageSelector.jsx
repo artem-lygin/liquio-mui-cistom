@@ -163,8 +163,12 @@ export const LanguageSelector = ({ darkTheme = false }) => {
     }),
   );
 
-  const languages = useSelector((state) => state?.app?.localization || []);
-  if (!appConfig.multiLanguage || !Array.isArray(languages) || languages.length <= 1) {
+  const localization = useSelector((state) => state?.app?.localization || []);
+  const languages = Array.isArray(localization) && localization.length
+    ? localization
+    : [{ code: chosen }];
+
+  if (!languages.length) {
     return null;
   }
 

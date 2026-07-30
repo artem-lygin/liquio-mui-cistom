@@ -15,6 +15,15 @@ import { getConfig } from 'helpers/configLoader';
 import { LanguageSelector } from './LanguageSelector';
 
 const styles = (theme) => ({
+  root: {
+    display: 'flex',
+    flexDirection: 'column',
+    alignItems: 'flex-start',
+    minWidth: 0,
+    [theme.breakpoints.down('sm')]: {
+      alignItems: 'flex-end'
+    }
+  },
   userName: {
     fontWeight: 500,
     fontSize: 14,
@@ -79,6 +88,12 @@ const styles = (theme) => ({
       },
       '&:hover': {
         backgroundColor: 'transparent'
+      }
+    },
+    [theme.breakpoints.down('sm')]: {
+      '& > li': {
+        fontSize: 11,
+        lineHeight: '14px'
       }
     }
   }
@@ -146,24 +161,18 @@ class ProfileAppBar extends React.Component {
 
     return (
       <>
-        {this.applicationType !== 'adminpanel' && isMobile ? null : (
-          <>
-            <div style={{ flex: '1 1 0%' }} />
-            <LanguageSelector />
-          </>
-        )}
+        <div style={{ flex: '1 1 0%' }} />
+        <LanguageSelector />
         <div className={classes.root}>
-          {this.applicationType !== 'adminpanel' && isMobile ? null : (
-            <p className={classes.userName}>
-              <UserName {...userInfo} />
-            </p>
-          )}
+          <p className={classes.userName}>
+            <UserName {...userInfo} />
+          </p>
           <MenuList
             classes={{
               root: classes.menuListRoot
             }}
           >
-            {this.applicationType !== 'adminpanel' && !isMobile ? (
+            {this.applicationType !== 'adminpanel' ? (
               <MenuItem
                 autoFocus={true}
                 aria-label={t('MyProfile')}
