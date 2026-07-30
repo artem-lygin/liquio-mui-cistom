@@ -9,6 +9,7 @@ metadata:
     app.kubernetes.io/component: external-reader
     app.kubernetes.io/tier: backend
     app.kubernetes.io/exposure: internal
+    liquio.tech/uses-plugins: true
 spec:
   replicas: {{ .Values.services.externalReader.replicaCount }}
   selector:
@@ -22,6 +23,7 @@ spec:
         app.kubernetes.io/component: external-reader
         app.kubernetes.io/tier: backend
         app.kubernetes.io/exposure: internal
+        liquio.tech/uses-plugins: true
     spec:
       {{- with .Values.global.imagePullSecrets }}
       imagePullSecrets:
