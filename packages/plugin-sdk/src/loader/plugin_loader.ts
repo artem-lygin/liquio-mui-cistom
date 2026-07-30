@@ -68,7 +68,10 @@ export class PluginLoader {
       const instance = new PluginClass(context, entry.options ?? {});
       await instance.onInit();
       registry.register(entry.name, instance);
-      this.log.save("plugin-load-success", { name: entry.name, package: entry.package });
+      this.log.save("plugin-load-success", {
+        name: entry.name,
+        package: entry.package,
+      });
     } catch (err) {
       const loadError = new PluginLoadError(
         entry.name,
