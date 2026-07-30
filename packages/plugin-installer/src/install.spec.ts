@@ -25,7 +25,7 @@ describe('installPlugins', () => {
 
     await installPlugins(options, deps);
 
-    expect(deps.log).toHaveBeenCalledWith(`[plugin-installer] No config directory at ${options.configDir}, nothing to install.`);
+    expect(deps.log).toHaveBeenCalledWith('plugin-installer-no-config-dir', { configDir: options.configDir });
     expect(deps.loadConfig).not.toHaveBeenCalled();
     expect(deps.execFileSync).not.toHaveBeenCalled();
   });
@@ -35,7 +35,7 @@ describe('installPlugins', () => {
 
     await installPlugins(options, deps);
 
-    expect(deps.log).toHaveBeenCalledWith(`[plugin-installer] No plugins.json in ${options.configDir}, nothing to install.`);
+    expect(deps.log).toHaveBeenCalledWith('plugin-installer-no-plugins-config', { configDir: options.configDir });
     expect(deps.execFileSync).not.toHaveBeenCalled();
   });
 
@@ -48,7 +48,7 @@ describe('installPlugins', () => {
 
     await installPlugins(options, deps);
 
-    expect(deps.log).toHaveBeenCalledWith('[plugin-installer] No enabled plugins in plugins.json, nothing to install.');
+    expect(deps.log).toHaveBeenCalledWith('plugin-installer-no-enabled-plugins');
     expect(deps.execFileSync).not.toHaveBeenCalled();
   });
 
@@ -59,7 +59,7 @@ describe('installPlugins', () => {
 
     await installPlugins(options, deps);
 
-    expect(deps.log).toHaveBeenCalledWith('[plugin-installer] No enabled plugins in plugins.json, nothing to install.');
+    expect(deps.log).toHaveBeenCalledWith('plugin-installer-no-enabled-plugins');
     expect(deps.execFileSync).not.toHaveBeenCalled();
   });
 

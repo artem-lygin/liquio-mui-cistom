@@ -1,5 +1,5 @@
 import * as path from "path";
-import { Log } from "@liquio/back-core";
+import { PluginLogger } from "../logger";
 import {
   readPluginManifest,
   assertManifestCompatible,
@@ -33,16 +33,21 @@ const defaultDeps: PluginLoadDependencies = {
 
 export class PluginLoader {
   constructor(
-    private readonly log: Log,
+    private readonly log: PluginLogger,
     private readonly deps: PluginLoadDependencies = defaultDeps,
   ) {}
 
   async load(config: PluginsConfig): Promise<PluginRegistry> {
     const registry = new PluginRegistry();
-    for (const entry of config.plugins) {
-      if (!entry.isEnabled) continue;
+    const enabled = config.plugins.filter((entry) => entry.isEnabled);
+    for (const entry of enabled) {
       await this.loadOne(registry, config.pluginsDir, entry);
     }
+    this.log.save("plugin-load-summary", {
+      configured: enabled.length,
+      loaded: registry.all().size,
+      plugins: [...registry.all().keys()],
+    });
     return registry;
   }
 
@@ -63,6 +68,7 @@ export class PluginLoader {
       const instance = new PluginClass(context, entry.options ?? {});
       await instance.onInit();
       registry.register(entry.name, instance);
+      this.log.save("plugin-load-success", { name: entry.name, package: entry.package });
     } catch (err) {
       const loadError = new PluginLoadError(
         entry.name,

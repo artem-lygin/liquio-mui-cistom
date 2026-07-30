@@ -1,3 +1,4 @@
+export * from "./logger";
 export * from "./manifest/plugin_manifest";
 export * from "./providers/base_provider";
 export * from "./providers/event_external_service_provider";

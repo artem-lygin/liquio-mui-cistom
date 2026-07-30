@@ -1,7 +1,6 @@
 import { Injectable, OnModuleInit } from '@nestjs/common';
 
-import { Log } from '@liquio/back-core';
-import { PluginLoader, PluginRegistry } from '@liquio/plugin-sdk';
+import { PluginLoader, PluginLogger, PluginRegistry } from '@liquio/plugin-sdk';
 
 import { ConfigurationService } from '@components/configuration/configuration.service';
 import { Configuration } from '@components/configuration/configuration.types';
@@ -31,10 +30,16 @@ export class ProvidersService implements OnModuleInit {
   async onModuleInit() {
     const pluginsConfig = this.config.get('plugins');
     if (pluginsConfig) {
-      // `LoggerService` is a NestJS `ConsoleLogger`, not a `@liquio/back-core` `Log` instance
-      // (their APIs are unrelated), so `PluginLoader` gets its own standalone `Log` instance
-      // rather than the injected logger.
-      this.pluginRegistry = await new PluginLoader(new Log()).load(pluginsConfig);
+      // Adapt the injected NestJS `LoggerService` to the minimal `PluginLogger` contract
+      const logger = this.logger;
+      const pluginLog: PluginLogger = {
+        save: (type: string, data?: unknown, level?: string) => {
+          if (level === 'error') return logger.error(type, data);
+          if (level === 'warning') return logger.warn(type, data);
+          return logger.log(type, data);
+        },
+      };
+      this.pluginRegistry = await new PluginLoader(pluginLog).load(pluginsConfig);
     }
     this.loadServices();
   }
