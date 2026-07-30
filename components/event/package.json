@@ -1,6 +1,6 @@
 {
   "name": "liquio-event",
-  "version": "0.1.7",
+  "version": "0.1.8",
   "engines": {
     "node": "22"
   },
@@ -25,9 +25,8 @@
   ],
   "dependencies": {
     "@liquio/back-core": "^0.1.0",
-    "@liquio/event-xroad-plugin": "^0.1.0",
-    "@liquio/plugin-installer": "^0.1.0",
-    "@liquio/plugin-sdk": "^0.1.0",
+    "@liquio/plugin-installer": "^0.1.1",
+    "@liquio/plugin-sdk": "^0.1.2",
     "acorn": "^8.16.0",
     "adm-zip": "^0.5.10",
     "amqplib": "^0.10.9",

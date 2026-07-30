@@ -161,7 +161,12 @@ export class BpmnTaskCore {
 
     // Init plugins.
     const pluginsConfig = config.plugins;
-    const pluginRegistry = pluginsConfig ? await new PluginLoader(log).load(pluginsConfig) : undefined;
+    let pluginRegistry;
+    if (pluginsConfig) {
+      pluginRegistry = await new PluginLoader(log).load(pluginsConfig);
+    } else {
+      log.save('plugin-load-summary', { configured: 0, loaded: 0, plugins: [] });
+    }
 
     // Pre-warm the PaymentService singleton with the plugin registry, so that when
     // businesses/document.ts later constructs it (via `new PaymentService(config.payment)`,
