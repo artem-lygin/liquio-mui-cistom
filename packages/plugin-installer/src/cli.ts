@@ -2,11 +2,14 @@
 import fs from 'node:fs';
 import { execFileSync } from 'node:child_process';
 import Multiconf from 'multiconf';
+import { ConsoleLogProvider, Log } from '@liquio/back-core';
 import { installPlugins } from './install';
 
 const configDir = process.env.CONFIG_PATH || '/var/www/config';
 const secretPath = process.env.SECRET_PATH;
 const envConfigPrefix = process.env.LIQUIO_CONFIG_PREFIX || 'LIQUIO_CFG_PLUGIN_INSTALLER_';
+
+const log = new Log([new ConsoleLogProvider('console')], ['console']);
 
 installPlugins(
   {
@@ -21,9 +24,9 @@ installPlugins(
     mkdirSync: (p) => fs.mkdirSync(p, { recursive: true }),
     writeFileSync: fs.writeFileSync,
     execFileSync,
-    log: console.log,
+    log: log.save.bind(log),
   },
 ).catch((err) => {
-  console.error(err);
+  log.save('plugin-installer-error', { message: err.message, error: err }, 'error');
   process.exit(1);
 });

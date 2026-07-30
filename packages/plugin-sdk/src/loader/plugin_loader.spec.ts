@@ -64,7 +64,14 @@ describe("PluginLoader", () => {
 
     expect(registry.has("some-plugin")).toBe(true);
     expect(registry.get("some-plugin")).toBeInstanceOf(WorkingPlugin);
-    expect(log.save).not.toHaveBeenCalled();
+    expect(log.save).toHaveBeenCalledWith(
+      "plugin-load-success",
+      { name: "some-plugin", package: "some-plugin-package" },
+    );
+    expect(log.save).toHaveBeenCalledWith(
+      "plugin-load-summary",
+      { configured: 1, loaded: 1, plugins: ["some-plugin"] },
+    );
   });
 
   it("skips a disabled entry without calling requirePackageJson", async () => {
@@ -80,7 +87,10 @@ describe("PluginLoader", () => {
     expect(deps.requirePackageJson).not.toHaveBeenCalled();
     expect(deps.requireModule).not.toHaveBeenCalled();
     expect(registry.has("some-plugin")).toBe(false);
-    expect(log.save).not.toHaveBeenCalled();
+    expect(log.save).toHaveBeenCalledWith(
+      "plugin-load-summary",
+      { configured: 0, loaded: 0, plugins: [] },
+    );
   });
 
   it("degrades gracefully when the manifest is missing/invalid", async () => {
@@ -97,7 +107,16 @@ describe("PluginLoader", () => {
     const registry = await loader.load(makeConfig());
 
     expect(registry.has("some-plugin")).toBe(false);
-    expect(log.save).toHaveBeenCalledTimes(1);
+    expect(log.save).toHaveBeenCalledWith(
+      "plugin-load-error",
+      expect.objectContaining({ message: expect.any(String) }),
+      "error",
+    );
+    expect(log.save).toHaveBeenCalledWith(
+      "plugin-load-summary",
+      { configured: 1, loaded: 0, plugins: [] },
+    );
+    expect(log.save).toHaveBeenCalledTimes(2);
   });
 
   it("degrades gracefully when the plugin constructor throws", async () => {
@@ -113,7 +132,7 @@ describe("PluginLoader", () => {
     const registry = await loader.load(makeConfig());
 
     expect(registry.has("some-plugin")).toBe(false);
-    expect(log.save).toHaveBeenCalledTimes(1);
+    expect(log.save).toHaveBeenCalledTimes(2);
   });
 
   it("loads the fine entry and skips the broken one when both are present", async () => {
@@ -152,6 +171,10 @@ describe("PluginLoader", () => {
     expect(registry.has("broken-plugin")).toBe(false);
     expect(registry.has("fine-plugin")).toBe(true);
     expect(registry.get("fine-plugin")).toBeInstanceOf(WorkingPlugin);
-    expect(log.save).toHaveBeenCalledTimes(1);
+    expect(log.save).toHaveBeenCalledWith(
+      "plugin-load-summary",
+      { configured: 2, loaded: 1, plugins: ["fine-plugin"] },
+    );
+    expect(log.save).toHaveBeenCalledTimes(3);
   });
 });

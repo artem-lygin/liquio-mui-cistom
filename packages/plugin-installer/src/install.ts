@@ -1,4 +1,5 @@
 import path from 'node:path';
+import { Log } from '@liquio/back-core';
 
 export interface InstallOptions {
   configDir: string;
@@ -13,12 +14,12 @@ export interface InstallDependencies {
   mkdirSync: (p: string) => void;
   writeFileSync: (p: string, contents: string) => void;
   execFileSync: (cmd: string, args: string[], opts: { cwd: string; stdio: 'inherit' }) => void;
-  log: (message: string) => void;
+  log: Log['save'];
 }
 
 export async function installPlugins(options: InstallOptions, deps: InstallDependencies): Promise<void> {
   if (!deps.existsSync(options.configDir)) {
-    deps.log(`[plugin-installer] No config directory at ${options.configDir}, nothing to install.`);
+    deps.log('plugin-installer-no-config-dir', { configDir: options.configDir });
     return;
   }
 
@@ -26,14 +27,14 @@ export async function installPlugins(options: InstallOptions, deps: InstallDepen
   const pluginsConfig = config.plugins as { plugins?: { package: string; version: string; isEnabled: boolean }[] } | undefined;
 
   if (!pluginsConfig) {
-    deps.log(`[plugin-installer] No plugins.json in ${options.configDir}, nothing to install.`);
+    deps.log('plugin-installer-no-plugins-config', { configDir: options.configDir });
     return;
   }
 
   const plugins = (pluginsConfig.plugins || []).filter((p) => p.isEnabled);
 
   if (plugins.length === 0) {
-    deps.log('[plugin-installer] No enabled plugins in plugins.json, nothing to install.');
+    deps.log('plugin-installer-no-enabled-plugins');
     return;
   }
 
@@ -44,12 +45,12 @@ export async function installPlugins(options: InstallOptions, deps: InstallDepen
   );
 
   const specs = plugins.map((p) => `${p.package}@${p.version}`);
-  deps.log(`[plugin-installer] Installing: ${specs.join(', ')}`);
+  deps.log('plugin-installer-installing', { plugins: specs });
 
   deps.execFileSync('npm', ['install', '--omit=dev', '--registry', options.registry, ...specs], {
     cwd: options.installDir,
     stdio: 'inherit',
   });
 
-  deps.log('[plugin-installer] Done.');
+  deps.log('plugin-installer-done', { plugins: specs });
 }

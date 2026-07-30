@@ -1,7 +1,7 @@
-import { Log } from "@liquio/back-core";
+import { PluginLogger } from "../logger";
 
 export interface PluginContext {
-  log: Log;
+  log: PluginLogger;
   pluginConfig: Record<string, unknown>;
 }
 
