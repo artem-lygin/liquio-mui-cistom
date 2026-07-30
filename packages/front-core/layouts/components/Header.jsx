@@ -63,11 +63,12 @@ const styles = (theme) => ({
     backgroundRepeat: 'no-repeat',
     backgroundPosition: 'center',
     flexShrink: 0,
+    ...(theme.logoStyles || {}),
     [theme.breakpoints.down('sm')]: {
-      width: 160,
+      ...(theme.logoStyles?.[theme.breakpoints.down('sm')] || {}),
+      width: theme.logoStyles?.width || 160,
       backgroundSize: 'contain',
     },
-    ...(theme.logoStyles || {}),
   },
   logoLink: {
     '&:focus': {
