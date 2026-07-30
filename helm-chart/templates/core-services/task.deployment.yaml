@@ -9,7 +9,7 @@ metadata:
     app.kubernetes.io/component: task
     app.kubernetes.io/tier: backend
     app.kubernetes.io/exposure: internal
-    liquio.tech/uses-plugins: true
+    liquio.tech/uses-plugins: "true"
   annotations:
     "argocd.argoproj.io/sync-wave": "2"
 spec:
@@ -25,7 +25,7 @@ spec:
         app.kubernetes.io/component: task
         app.kubernetes.io/tier: backend
         app.kubernetes.io/exposure: internal
-        liquio.tech/uses-plugins: true
+        liquio.tech/uses-plugins: "true"
     spec:
       {{- with .Values.global.imagePullSecrets }}
       imagePullSecrets:
