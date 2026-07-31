@@ -193,14 +193,8 @@ describe('installPlugins', () => {
     await installPlugins(options, deps);
 
     expect(mockedFs.rmSync).not.toHaveBeenCalledWith(options.installDir, expect.anything());
-    expect(mockedFs.rmSync).toHaveBeenCalledWith(
-      expect.stringContaining('node_modules'),
-      { recursive: true, force: true },
-    );
-    expect(mockedFs.rmSync).toHaveBeenCalledWith(
-      expect.stringContaining('package-lock.json'),
-      { force: true },
-    );
+    expect(mockedFs.rmSync).toHaveBeenCalledWith(expect.stringContaining('node_modules'), { recursive: true, force: true });
+    expect(mockedFs.rmSync).toHaveBeenCalledWith(expect.stringContaining('package-lock.json'), { force: true });
     expect(mockedFs.mkdirSync).toHaveBeenCalledWith(options.installDir, { recursive: true });
     expect(mockedFs.writeFileSync).toHaveBeenCalledWith(expect.stringContaining(options.installDir), expect.any(String));
     expect(callOrder).toEqual(['rmSync', 'rmSync', 'mkdirSync', 'writeFileSync', 'spawnSync']);
