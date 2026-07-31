@@ -1,4 +1,6 @@
 import path from 'node:path';
+import { existsSync, mkdirSync, rmSync, writeFileSync } from 'node:fs';
+import { spawnSync } from 'node:child_process';
 import { Log } from '@liquio/back-core';
 
 export interface InstallOptions {
@@ -9,22 +11,30 @@ export interface InstallOptions {
 }
 
 export interface InstallDependencies {
-  existsSync: (p: string) => boolean;
   loadConfig: (configDir: string, envConfigPrefix: string) => Record<string, unknown>;
-  mkdirSync: (p: string) => void;
-  writeFileSync: (p: string, contents: string) => void;
-  execFileSync: (cmd: string, args: string[], opts: { cwd: string; stdio: 'inherit' }) => void;
   log: Log['save'];
 }
 
+export interface PluginEntry {
+  package: string;
+  version: string;
+  isEnabled: boolean;
+}
+
+export interface PluginsConfig {
+  plugins?: PluginEntry[];
+  registry?: string;
+  allowInstallScripts?: boolean;
+}
+
 export async function installPlugins(options: InstallOptions, deps: InstallDependencies): Promise<void> {
-  if (!deps.existsSync(options.configDir)) {
+  if (!existsSync(options.configDir)) {
     deps.log('plugin-installer-no-config-dir', { configDir: options.configDir });
     return;
   }
 
   const config = deps.loadConfig(options.configDir, options.envConfigPrefix);
-  const pluginsConfig = config.plugins as { plugins?: { package: string; version: string; isEnabled: boolean }[] } | undefined;
+  const pluginsConfig = config.plugins as PluginsConfig | undefined;
 
   if (!pluginsConfig) {
     deps.log('plugin-installer-no-plugins-config', { configDir: options.configDir });
@@ -38,19 +48,47 @@ export async function installPlugins(options: InstallOptions, deps: InstallDepen
     return;
   }
 
-  deps.mkdirSync(options.installDir);
-  deps.writeFileSync(
+  // installDir is a persistent volume shared across pod restarts - wipe it before
+  // reinstalling so a leftover node_modules from a previous run can't collide with
+  // npm's rename-based package swap (which fails with ENOTEMPTY on some volume types).
+  rmSync(options.installDir, { recursive: true, force: true });
+  mkdirSync(options.installDir, { recursive: true });
+  writeFileSync(
     path.join(options.installDir, 'package.json'),
     JSON.stringify({ name: 'installed-plugins', version: '0.0.0', private: true }, null, 2),
   );
 
   const specs = plugins.map((p) => `${p.package}@${p.version}`);
-  deps.log('plugin-installer-installing', { plugins: specs });
+  const registry = pluginsConfig.registry || options.registry;
+  const allowInstallScripts = pluginsConfig.allowInstallScripts ?? false;
+  deps.log('plugin-installer-installing', { plugins: specs, registry, allowInstallScripts });
 
-  deps.execFileSync('npm', ['install', '--omit=dev', '--registry', options.registry, ...specs], {
+  const npmArgs = ['install', '--omit=dev', '--registry', registry];
+  if (!allowInstallScripts) {
+    // Plugin packages are arbitrary third-party code - don't let their
+    // preinstall/install/postinstall scripts run unless explicitly opted in.
+    npmArgs.push('--ignore-scripts');
+  }
+  npmArgs.push(...specs);
+
+  const result = spawnSync('npm', npmArgs, {
     cwd: options.installDir,
-    stdio: 'inherit',
+    encoding: 'utf8',
   });
+
+  if (result.stdout) {
+    deps.log('plugin-installer-npm-stdout', { output: result.stdout });
+  }
+  if (result.stderr) {
+    deps.log('plugin-installer-npm-stderr', { output: result.stderr }, result.status === 0 ? 'warning' : 'error');
+  }
+
+  if (result.error) {
+    throw result.error;
+  }
+  if (result.status !== 0) {
+    throw new Error(`npm install exited with status ${result.status}`);
+  }
 
   deps.log('plugin-installer-done', { plugins: specs });
 }

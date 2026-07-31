@@ -1,6 +1,5 @@
 #!/usr/bin/env node
 import fs from 'node:fs';
-import { execFileSync } from 'node:child_process';
 import Multiconf from 'multiconf';
 import { ConsoleLogProvider, Log } from '@liquio/back-core';
 import { installPlugins } from './install';
@@ -19,11 +18,7 @@ installPlugins(
     registry: process.env.NPM_REGISTRY || 'https://registry.npmjs.org',
   },
   {
-    existsSync: fs.existsSync,
     loadConfig: (dir, prefix) => Multiconf.get([dir, ...(secretPath && fs.existsSync(secretPath) ? [secretPath] : [])], prefix),
-    mkdirSync: (p) => fs.mkdirSync(p, { recursive: true }),
-    writeFileSync: fs.writeFileSync,
-    execFileSync,
     log: log.save.bind(log),
   },
 ).catch((err) => {
