@@ -199,9 +199,7 @@ describe('installPlugins', () => {
   });
 
   it('logs npm stdout/stderr via deps.log instead of leaking them to the process stdio', async () => {
-    mockedChildProcess.spawnSync.mockReturnValue(
-      mockSpawnResult({ stdout: 'added 1 package', stderr: 'npm warn deprecated foo@1.0.0' }),
-    );
+    mockedChildProcess.spawnSync.mockReturnValue(mockSpawnResult({ stdout: 'added 1 package', stderr: 'npm warn deprecated foo@1.0.0' }));
     const deps = createDeps({
       loadConfig: jest.fn().mockReturnValue({
         plugins: { plugins: [{ package: 'foo', version: '1.0.0', isEnabled: true }] },
@@ -211,11 +209,7 @@ describe('installPlugins', () => {
     await installPlugins(options, deps);
 
     expect(deps.log).toHaveBeenCalledWith('plugin-installer-npm-stdout', { output: 'added 1 package' });
-    expect(deps.log).toHaveBeenCalledWith(
-      'plugin-installer-npm-stderr',
-      { output: 'npm warn deprecated foo@1.0.0' },
-      'warning',
-    );
+    expect(deps.log).toHaveBeenCalledWith('plugin-installer-npm-stderr', { output: 'npm warn deprecated foo@1.0.0' }, 'warning');
   });
 
   it('throws when npm exits with a non-zero status and logs stderr as an error', async () => {
@@ -228,11 +222,7 @@ describe('installPlugins', () => {
 
     await expect(installPlugins(options, deps)).rejects.toThrow('npm install exited with status 1');
 
-    expect(deps.log).toHaveBeenCalledWith(
-      'plugin-installer-npm-stderr',
-      { output: 'ENOTEMPTY: directory not empty' },
-      'error',
-    );
+    expect(deps.log).toHaveBeenCalledWith('plugin-installer-npm-stderr', { output: 'ENOTEMPTY: directory not empty' }, 'error');
   });
 
   it('propagates a spawn-level error (e.g. npm binary not found)', async () => {
