@@ -130,7 +130,7 @@ Usage: {{ include "liquio.initContainer.pluginInstaller" (dict "component" "task
   securityContext:
     {{- toYaml .Values.securityContext | nindent 4 }}
   resources:
-    {{- toYaml .Values.initContainerResources | nindent 4 }}
+    {{- toYaml .Values.pluginInstallerResources | nindent 4 }}
   env:
     - name: CONFIG_PATH
       value: "/var/www/config"
