@@ -48,10 +48,12 @@ export async function installPlugins(options: InstallOptions, deps: InstallDepen
     return;
   }
 
-  // installDir is a persistent volume shared across pod restarts - wipe it before
-  // reinstalling so a leftover node_modules from a previous run can't collide with
-  // npm's rename-based package swap (which fails with ENOTEMPTY on some volume types).
-  rmSync(options.installDir, { recursive: true, force: true });
+  // installDir is a persistent volume mount shared across pod restarts - the mount
+  // point itself can't be removed (and the root fs is typically read-only), so only
+  // clear its contents. This avoids a leftover node_modules from a previous run
+  // colliding with npm's rename-based package swap (ENOTEMPTY on some volume types).
+  rmSync(path.join(options.installDir, 'node_modules'), { recursive: true, force: true });
+  rmSync(path.join(options.installDir, 'package-lock.json'), { force: true });
   mkdirSync(options.installDir, { recursive: true });
   writeFileSync(
     path.join(options.installDir, 'package.json'),

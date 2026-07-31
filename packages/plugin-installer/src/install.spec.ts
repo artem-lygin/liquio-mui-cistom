@@ -167,7 +167,7 @@ describe('installPlugins', () => {
     expect(args).toContain(options.registry);
   });
 
-  it('calls rmSync, mkdirSync and writeFileSync with installDir before spawnSync', async () => {
+  it('clears node_modules/package-lock.json (not the installDir mount point itself), then mkdirSync/writeFileSync, before spawnSync', async () => {
     const callOrder: string[] = [];
     const deps = createDeps({
       loadConfig: jest.fn().mockReturnValue({
@@ -192,10 +192,18 @@ describe('installPlugins', () => {
 
     await installPlugins(options, deps);
 
-    expect(mockedFs.rmSync).toHaveBeenCalledWith(options.installDir, { recursive: true, force: true });
+    expect(mockedFs.rmSync).not.toHaveBeenCalledWith(options.installDir, expect.anything());
+    expect(mockedFs.rmSync).toHaveBeenCalledWith(
+      expect.stringContaining('node_modules'),
+      { recursive: true, force: true },
+    );
+    expect(mockedFs.rmSync).toHaveBeenCalledWith(
+      expect.stringContaining('package-lock.json'),
+      { force: true },
+    );
     expect(mockedFs.mkdirSync).toHaveBeenCalledWith(options.installDir, { recursive: true });
     expect(mockedFs.writeFileSync).toHaveBeenCalledWith(expect.stringContaining(options.installDir), expect.any(String));
-    expect(callOrder).toEqual(['rmSync', 'mkdirSync', 'writeFileSync', 'spawnSync']);
+    expect(callOrder).toEqual(['rmSync', 'rmSync', 'mkdirSync', 'writeFileSync', 'spawnSync']);
   });
 
   it('logs npm stdout/stderr via deps.log instead of leaking them to the process stdio', async () => {
