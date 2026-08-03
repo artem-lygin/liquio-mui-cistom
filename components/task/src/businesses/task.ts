@@ -177,6 +177,16 @@ export class TaskBusiness extends Business {
       onlyForHeads: false,
     };
 
+    global.log.save('task-permissions-debug-input', {
+      creatorId,
+      workflowId,
+      workflowCreatedBy: workflow?.createdBy,
+      taskTemplateId: taskTemplate?.id,
+      taskTemplateName: taskTemplate?.name,
+      taskTemplateJsonSchemaKeys: Object.keys(taskTemplate?.jsonSchema || {}),
+      permissionsDescription,
+    });
+
     // Define documents and events from current workflow if need it.
     let documents;
     let events;
@@ -362,6 +372,18 @@ export class TaskBusiness extends Business {
           throw error;
         }
       }
+
+      global.log.save('task-permissions-debug-calculated-users', {
+        creatorId,
+        workflowId,
+        workflowCreatedBy: workflow?.createdBy,
+        taskTemplateId: taskTemplate?.id,
+        permissionDescription,
+        calculatedPerformerUsers,
+        calculatedPerformerUsersIpn,
+        calculatedPerformerUsersEmail,
+        calculatedPerformerUsersName,
+      });
 
       // Handle current permission description.
       taskPermissions.onlyForHeads = taskPermissions.onlyForHeads || onlyForHeads;
@@ -3775,4 +3797,3 @@ export class TaskBusiness extends Business {
     return draftExpiredAt;
   }
 }
-
