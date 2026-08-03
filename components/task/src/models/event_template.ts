@@ -1,5 +1,5 @@
 import Sequelize from 'sequelize';
-import jsoncParser from 'jsonc-parser';
+import * as jsoncParser from 'jsonc-parser';
 
 import { Model } from './model';
 import { EventTemplateEntity } from '../entities/event_template';
@@ -150,4 +150,3 @@ export class EventTemplateModel extends Model {
     }
   }
 }
-
