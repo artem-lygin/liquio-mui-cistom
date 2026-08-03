@@ -73,13 +73,24 @@ export class TaskTemplateModel extends Model {
    * @returns {Promise<TaskTemplateEntity>}
    */
   async findById(id) {
-    const { data: taskTemplate } = await RedisClient.getOrSet(
+    const { data: taskTemplate, isFromCache } = await RedisClient.getOrSet(
       RedisClient.createKey('task_template', 'findById', id),
       () => this.model.findByPk(id),
       this.cacheTtl.findById
     );
 
-    return this.prepareEntity(taskTemplate);
+    const taskTemplateEntity = this.prepareEntity(taskTemplate);
+
+    global.log.save('task-template-find-by-id-debug', {
+      id,
+      isFromCache,
+      hasJsonSchemaField: Object.prototype.hasOwnProperty.call(taskTemplate || {}, 'json_schema'),
+      jsonSchemaRawType: typeof taskTemplate?.json_schema,
+      jsonSchemaRawLength: typeof taskTemplate?.json_schema === 'string' ? taskTemplate.json_schema.length : null,
+      parsedJsonSchemaKeys: Object.keys(taskTemplateEntity?.jsonSchema || {}),
+    });
+
+    return taskTemplateEntity;
   }
 
   /**
@@ -95,7 +106,14 @@ export class TaskTemplateModel extends Model {
     let jsonSchema;
     try {
       jsonSchema = jsoncParser.parse(item.json_schema);
-    } catch {
+    } catch (error) {
+      global.log.save('task-template-json-schema-parse-error', {
+        id: item.id,
+        error: error && error.message,
+        jsonSchemaRawType: typeof item.json_schema,
+        jsonSchemaRawLength: typeof item.json_schema === 'string' ? item.json_schema.length : null,
+      }, 'warn');
+
       jsonSchema = {};
     }
 
@@ -127,4 +145,3 @@ export class TaskTemplateModel extends Model {
     }
   }
 }
-
