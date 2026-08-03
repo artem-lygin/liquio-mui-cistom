@@ -1,5 +1,5 @@
 import Sequelize from 'sequelize';
-import jsoncParser from 'jsonc-parser';
+import * as jsoncParser from 'jsonc-parser';
 
 import { Model } from './model';
 import { DocumentTemplateEntity } from '../entities/document_template';
@@ -247,4 +247,3 @@ export class DocumentTemplateModel extends Model {
     }
   }
 }
-
