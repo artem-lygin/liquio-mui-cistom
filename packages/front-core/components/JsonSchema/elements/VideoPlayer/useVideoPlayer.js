@@ -371,10 +371,24 @@ const useVideoPlayer = ({
         persistPlayback(nextStatus, nextProgress);
         setAnnouncement(labels.paused);
       } else if (nextStatus === 'completed') {
+        watchedRangesRef.current = normalizeWatchedRanges(
+          watchedRangesRef.current.concat({
+            start: nextProgress.currentTime,
+            end: nextProgress.duration,
+          }),
+          nextProgress.duration,
+        );
+
+        const watchedDuration = getWatchedDuration(watchedRangesRef.current);
+        const percentWatched = nextProgress.duration
+          ? Math.min(100, (watchedDuration / nextProgress.duration) * 100)
+          : nextProgress.percentWatched;
+
         const completedProgress = {
           ...nextProgress,
+          percentWatched,
           completed: true,
-          thresholdReached: nextProgress.percentWatched >= completePercent,
+          thresholdReached: percentWatched >= completePercent,
         };
 
         clearProgressTimer();

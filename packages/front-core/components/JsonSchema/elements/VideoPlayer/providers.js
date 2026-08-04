@@ -1,6 +1,10 @@
 import React from 'react';
 import YouTube from 'react-youtube';
 
+const YOUTUBE_ID_PATTERN = /^[a-zA-Z0-9_-]{11}$/;
+
+const asValidId = (id) => (YOUTUBE_ID_PATTERN.test(id || '') ? id : '');
+
 export const extractYoutubeId = (source) => {
   if (!source) {
     return '';
@@ -8,7 +12,7 @@ export const extractYoutubeId = (source) => {
 
   const rawSource = String(source).trim();
 
-  if (/^[a-zA-Z0-9_-]{11}$/.test(rawSource)) {
+  if (YOUTUBE_ID_PATTERN.test(rawSource)) {
     return rawSource;
   }
 
@@ -16,15 +20,15 @@ export const extractYoutubeId = (source) => {
     const url = new URL(rawSource);
 
     if (url.hostname.includes('youtu.be')) {
-      return url.pathname.split('/').filter(Boolean)[0] || '';
+      return asValidId(url.pathname.split('/').filter(Boolean)[0]);
     }
 
     if (url.hostname.includes('youtube.com')) {
       if (url.pathname.startsWith('/embed/') || url.pathname.startsWith('/shorts/')) {
-        return url.pathname.split('/').filter(Boolean)[1] || '';
+        return asValidId(url.pathname.split('/').filter(Boolean)[1]);
       }
 
-      return url.searchParams.get('v') || '';
+      return asValidId(url.searchParams.get('v'));
     }
   } catch (error) {
     return '';
