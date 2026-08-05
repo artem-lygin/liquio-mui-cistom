@@ -357,8 +357,10 @@ const useVideoPlayer = ({
       setStatus(nextStatus);
 
       if (nextStatus === 'play') {
+        const isFirstPlaySample = lastPlaybackSampleRef.current === null;
+
         lastPlaybackSampleRef.current = {
-          currentTime: nextProgress.currentTime,
+          currentTime: isFirstPlaySample ? 0 : nextProgress.currentTime,
           checkedAt: Date.now(),
         };
         logPlaybackEvent('play', nextProgress);
