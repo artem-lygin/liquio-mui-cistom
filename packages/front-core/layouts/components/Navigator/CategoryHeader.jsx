@@ -92,6 +92,7 @@ const CategoryHeader = ({
   classes,
   pathname,
   id,
+  name,
   title,
   icon,
   badge,
@@ -103,6 +104,8 @@ const CategoryHeader = ({
   tabIndex,
   onRedirectCallback,
 }) => {
+  const label = name || t(title || id);
+
   return (
     <div
       className={classNames({
@@ -113,7 +116,7 @@ const CategoryHeader = ({
         <ListItem
           tabIndex={tabIndex && !isParent ? tabIndex : 0}
           component={'div'}
-          aria-label={t(id)}
+          aria-label={label}
           className={classNames({
             [classes.categoryHeader]: true,
             [classes.active]: highlight(pathname, id) && !isParent,
@@ -136,7 +139,7 @@ const CategoryHeader = ({
               primary: classes.categoryHeaderPrimary,
             }}
           >
-            <RenderOneLine title={t(title || id)} initDelay={true} />
+            <RenderOneLine title={label} initDelay={true} />
 
             {isParent ? (
               <>
@@ -205,6 +208,7 @@ const isExternal = (url) => {
 
 const CategoryHeaderContainer = (props) => {
   const { classes, path, handleDrawerToggle, id, t } = props;
+  const label = props.name || t(props.title || id);
 
   const categoryHeader = <CategoryHeader {...props} tabIndex={-1} />;
 
@@ -229,8 +233,8 @@ const CategoryHeaderContainer = (props) => {
       onClick={handleDrawerToggle}
       activeClassName="active"
       className={classes.navLink}
-      aria-label={t(id)}
-      id={t(id)}
+      aria-label={label}
+      id={label}
     >
       {categoryHeader}
     </NavLink>

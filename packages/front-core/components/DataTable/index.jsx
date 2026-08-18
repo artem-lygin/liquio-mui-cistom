@@ -3,6 +3,18 @@ import { translate } from 'react-translate';
 import PropTypes from 'prop-types';
 import classNames from 'classnames';
 import {
+  closestCenter,
+  DndContext,
+  PointerSensor,
+  useSensor,
+  useSensors
+} from '@dnd-kit/core';
+import { restrictToVerticalAxis } from '@dnd-kit/modifiers';
+import {
+  SortableContext,
+  verticalListSortingStrategy
+} from '@dnd-kit/sortable';
+import {
   Table,
   TableBody,
   TableContainer,
@@ -24,6 +36,29 @@ import DataTablePagination from 'components/DataTable/DataTablePagination';
 import FullScreenDialog from 'components/FullScreenDialog';
 import Preloader from 'components/Preloader';
 import arrayUnique from 'helpers/arrayUnique';
+
+const SortableTableBody = ({ items, onDragEnd, children }) => {
+  const sensors = useSensors(
+    useSensor(PointerSensor, {
+      activationConstraint: {
+        distance: 5
+      }
+    })
+  );
+
+  return (
+    <DndContext
+      sensors={sensors}
+      collisionDetection={closestCenter}
+      modifiers={[restrictToVerticalAxis]}
+      onDragEnd={onDragEnd}
+    >
+      <SortableContext items={items} strategy={verticalListSortingStrategy}>
+        <TableBody>{children}</TableBody>
+      </SortableContext>
+    </DndContext>
+  );
+};
 
 const styles = (theme) => ({
   fixedTable: {
@@ -185,6 +220,45 @@ class DataTable extends React.Component {
     onRowClick && onRowClick(item);
   };
 
+  getRowSortId = (row, index) => {
+    const { getRowSortId } = this.props;
+
+    if (typeof getRowSortId === 'function') {
+      return getRowSortId(row, index);
+    }
+
+    return row?.id ?? row?.value ?? index;
+  };
+
+  handleRowSortEnd = ({ active, over }) => {
+    if (!active?.id || !over?.id || active.id === over.id) {
+      return;
+    }
+
+    const { onRowSortEnd, actions, data } = this.props;
+    const handler = onRowSortEnd || actions?.onRowSortEnd;
+
+    if (!handler || !Array.isArray(data)) {
+      return;
+    }
+
+    const activeIndex = data.findIndex((row, index) => this.getRowSortId(row, index) === active.id);
+    const overIndex = data.findIndex((row, index) => this.getRowSortId(row, index) === over.id);
+
+    if (activeIndex === -1 || overIndex === -1 || activeIndex === overIndex) {
+      return;
+    }
+
+    handler({
+      activeId: active.id,
+      overId: over.id,
+      activeIndex,
+      overIndex,
+      activeRow: data[activeIndex],
+      overRow: data[overIndex]
+    });
+  };
+
   renderPreloading = () => {
     const { columns, checkable } = this.props;
     return (
@@ -242,7 +316,8 @@ class DataTable extends React.Component {
       errors,
       warningRows,
       errorRows,
-      multiple
+      multiple,
+      controls
     } = this.props;
     const { grouping, fullscreen } = this.state;
 
@@ -300,6 +375,9 @@ class DataTable extends React.Component {
           darkTheme={darkTheme}
           maxTextRows={maxTextRows}
           disabled={disabled}
+          sortableId={this.getRowSortId(row, key)}
+          sortableEnabled={Boolean(controls?.sortableRows)}
+          dragHandleColumnId={controls?.rowDragHandleColumnId}
         />
       );
     };
@@ -329,7 +407,20 @@ class DataTable extends React.Component {
       );
     }
 
-    return <TableBody>{data.filter(Boolean).map(renderRow)}</TableBody>;
+    const rowItems = data.filter(Boolean);
+
+    if (controls?.sortableRows) {
+      return (
+        <SortableTableBody
+          items={rowItems.map((row, index) => this.getRowSortId(row, index))}
+          onDragEnd={this.handleRowSortEnd}
+        >
+          {rowItems.map(renderRow)}
+        </SortableTableBody>
+      );
+    }
+
+    return <TableBody>{rowItems.map(renderRow)}</TableBody>;
   };
 
   renderCards = () => {

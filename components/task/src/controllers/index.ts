@@ -30,6 +30,7 @@ import { LocalizationLanguageController } from './localization_language';
 import { LocalizationTextController } from './localization_text';
 import { ProtectedFileController } from './protected_file';
 import { KycController } from './kyc';
+import { CabinetMenuController } from './cabinet_menu';
 
 // Constants.
 const CONTROLLERS_CLASSES_LIST = {
@@ -61,6 +62,7 @@ const CONTROLLERS_CLASSES_LIST = {
   CustomInterfaceController,
   FavoritesController,
   KycController,
+  CabinetMenuController,
 };
 
 export class Controllers {
@@ -127,6 +129,7 @@ export class Controllers {
       localizationText: LocalizationTextController,
       protectedFile: ProtectedFileController,
       kyc: KycController,
+      cabinetMenu: CabinetMenuController,
     };
 
     // Init controllers.
@@ -180,4 +183,3 @@ export class Controllers {
     return handler;
   }
 }
-

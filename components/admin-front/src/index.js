@@ -26,6 +26,10 @@ const APP_DEFAULTS = {
   },
   useUIFilters: false,
   customInterfaces: false,
+  features: {
+    cabinetMenuPageEnabled: false,
+    navigationTreePreloading: false
+  },
   plugins: [],
   backendUrl: 'http://admin-api.liquio.local',
   authLink: 'http://admin-api.liquio.local/redirect/auth',

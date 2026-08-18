@@ -3,6 +3,7 @@ import AddPhotoAlternateIcon from '@mui/icons-material/AddPhotoAlternate';
 
 import InterfacesListPage from 'application/modules/customInterfaces/pages/InterfacesList';
 import { getConfig } from 'core/helpers/configLoader';
+import CabinetMenuPage from './pages/CabinetMenu';
 
 export default function getCustomInterfaces() {
   const config = getConfig();
@@ -10,6 +11,8 @@ export default function getCustomInterfaces() {
   const access = {
     userHasUnit: [1000002, 1000000042]
   };
+  const cabinetMenuAccess = { userHasUnit: [1000002, 1000000042] };
+  const cabinetMenuPageEnabled = config?.features?.cabinetMenuPageEnabled === true;
 
   let customInterfaces = {
     routes: [
@@ -19,13 +22,41 @@ export default function getCustomInterfaces() {
         title: 'CustomInterfaces',
         access
       }
-    ],
+    ].concat(
+      cabinetMenuPageEnabled
+        ? [
+            {
+              id: 'CabinetMenu',
+              component: CabinetMenuPage,
+              path: '/cabinet-menu',
+              access: cabinetMenuAccess
+            }
+          ]
+        : []
+    ),
     navigation: [
       {
-        id: 'CustomInterfaces',
+        id: 'CustomInterfacesGroup',
+        title: 'CustomInterfaces',
         icon: <AddPhotoAlternateIcon />,
-        path: '/customInterfaces',
-        access
+        access,
+        children: [
+          {
+            title: 'CustomInterfaces',
+            path: '/customInterfaces',
+            access
+          }
+        ].concat(
+          cabinetMenuPageEnabled
+            ? [
+                {
+                  title: 'CabinetMenu',
+                  path: '/cabinet-menu',
+                  access: cabinetMenuAccess
+                }
+              ]
+            : []
+        )
       }
     ]
   };

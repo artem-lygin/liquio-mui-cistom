@@ -12,7 +12,8 @@ export default {
     TranslationsPageTitle: 'Переклади',
     ProcessIndexElastic: 'Індексація процесів',
     MonitoringElastic: 'Моніторинг',
-    FileLibrary: 'Бібліотека файлів'
+    FileLibrary: 'Бібліотека файлів',
+    CabinetMenu: 'Меню кабінету'
   },
   PageTitles: {
     ...ua.PageTitles,

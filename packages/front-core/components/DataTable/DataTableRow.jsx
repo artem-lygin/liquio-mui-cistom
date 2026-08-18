@@ -5,6 +5,8 @@ import objectPath from 'object-path';
 import CheckBoxOutlinedIcon from '@mui/icons-material/CheckBoxOutlined';
 import { TableCell, TableRow, Checkbox, Popover } from '@mui/material';
 import withStyles from '@mui/styles/withStyles';
+import { useSortable } from '@dnd-kit/sortable';
+import { CSS } from '@dnd-kit/utilities';
 
 import RenderOneLine from 'helpers/renderOneLine';
 
@@ -97,6 +99,9 @@ const Cell = ({
   minWidthCustom,
   errors,
   path,
+  sortableListeners,
+  sortableAttributes,
+  isDragHandle,
   ...rest
 }) => {
   const [open, setOpen] = useState(false);
@@ -146,13 +151,20 @@ const Cell = ({
         {...(columnKey === 0 ? firstItemProps : {})}
         onClick={disableClick ? null : handleClick ? handleClick(item).bind(this) : onClickAction}
       >
-        <RenderOneLine
-          id={id}
-          title={cellValue}
-          disableTooltip={disableTooltip}
-          maxTextRows={maxTextRows}
-          minWidthCustom={minWidthCustom}
-        />
+        <div
+          {...(isDragHandle ? sortableListeners : {})}
+          {...(isDragHandle ? sortableAttributes : {})}
+          style={isDragHandle ? { cursor: 'grab' } : undefined}
+          onClick={isDragHandle ? (event) => event.stopPropagation() : undefined}
+        >
+          <RenderOneLine
+            id={id}
+            title={cellValue}
+            disableTooltip={disableTooltip}
+            maxTextRows={maxTextRows}
+            minWidthCustom={minWidthCustom}
+          />
+        </div>
       </TableCell>
       {editPopupMode && !disableEditPopup ? (
         <Popover
@@ -204,93 +216,122 @@ const DataTableRow = ({
   errors,
   warningRows,
   errorRows,
-  disabled
-}) => (
-  <TableRow
-    hover={hover}
-    selected={selected}
-    classes={{
-      hover: classNames({
-        [classes.hover]: true
-      }),
-      selected: classes.selected
-    }}
-    className={classNames({
-      [classes.clickable]: !!onClick,
-      [classes.hightlight]: hightlight,
-      [classes.rowDark]: darkTheme,
-      [classes.warning]: warningRows?.includes(rowIndex),
-      [classes.error]: errorRows?.includes(rowIndex),
-      [classes.disabledRow]: disabled
-    })}
-  >
-    {checkable ? (
-      <TableCell
-        style={{
-          ...cellStyle,
-          textAlign: 'left'
-        }}
-        align="center"
-        padding="checkbox"
-        className={classNames({
-          [classes.cellDark]: darkTheme
-        })}
-      >
-        <Checkbox
-          checkedIcon={<CheckBoxOutlinedIcon />}
-          checked={selected}
-          disabled={disabled}
-          onChange={onSelect}
-          disableRipple={true}
-          classes={{
-            root: classNames({
-              [classes.checkBoxRootDark]: darkTheme
-            }),
-            checked: classNames({
-              [classes.checkBoxRootDarkChecked]: darkTheme
-            })
+  disabled,
+  sortableId,
+  sortableEnabled,
+  dragHandleColumnId
+}) => {
+  const {
+    setNodeRef,
+    attributes,
+    listeners,
+    transform,
+    isDragging
+  } = useSortable({
+    id: sortableId || item?.id || item?.value || rowIndex,
+    disabled: !sortableEnabled
+  });
+
+  const style = sortableEnabled
+    ? {
+        transform: CSS.Transform.toString(transform),
+        transition: 'none',
+        opacity: isDragging ? 0.75 : 1
+      }
+    : undefined;
+
+  return (
+    <TableRow
+      ref={sortableEnabled ? setNodeRef : undefined}
+      style={style}
+      hover={hover}
+      selected={selected}
+      classes={{
+        hover: classNames({
+          [classes.hover]: true
+        }),
+        selected: classes.selected
+      }}
+      className={classNames({
+        [classes.clickable]: !!onClick,
+        [classes.hightlight]: hightlight,
+        [classes.rowDark]: darkTheme,
+        [classes.warning]: warningRows?.includes(rowIndex),
+        [classes.error]: errorRows?.includes(rowIndex),
+        [classes.disabledRow]: disabled
+      })}
+    >
+      {checkable ? (
+        <TableCell
+          style={{
+            ...cellStyle,
+            textAlign: 'left'
           }}
-          onKeyDown={(e) => {
-            if (e.key === 'Enter' || e.key === ' ') {
-              e.stopPropagation();
-              e.preventDefault();
-              onSelect(e);
-            }
-          }}
-          inputProps={{
-            'aria-label': t('CheckboxButton')
-          }}
-        />
-      </TableCell>
-    ) : null}
-    {columns
-      .filter((column) => !(hiddenColumns || []).includes(column.id))
-      .map(({ id, render, handleClick, disableClick, path, ...rest }, columnKey) => (
-        <Cell
-          key={columnKey}
-          cellColor={cellColor}
-          id={id}
-          item={item}
-          rowIndex={rowIndex}
-          render={render}
-          onClick={onClick}
-          errors={errors}
-          path={path}
-          cellStyle={cellStyle}
-          handleClick={handleClick}
-          disableClick={disableClick}
-          columnKey={columnKey}
-          classes={classes}
-          editPopupMode={editPopupMode}
-          disableEditPopup={disableEditPopup}
-          fullscreen={fullscreen}
-          darkTheme={darkTheme}
-          maxTextRows={maxTextRows}
-          {...rest}
-        />
-      ))}
-  </TableRow>
-);
+          align="center"
+          padding="checkbox"
+          className={classNames({
+            [classes.cellDark]: darkTheme
+          })}
+        >
+          <Checkbox
+            checkedIcon={<CheckBoxOutlinedIcon />}
+            checked={selected}
+            disabled={disabled}
+            onChange={onSelect}
+            disableRipple={true}
+            classes={{
+              root: classNames({
+                [classes.checkBoxRootDark]: darkTheme
+              }),
+              checked: classNames({
+                [classes.checkBoxRootDarkChecked]: darkTheme
+              })
+            }}
+            onKeyDown={(e) => {
+              if (e.key === 'Enter' || e.key === ' ') {
+                e.stopPropagation();
+                e.preventDefault();
+                onSelect(e);
+              }
+            }}
+            inputProps={{
+              'aria-label': t('CheckboxButton')
+            }}
+          />
+        </TableCell>
+      ) : null}
+      {columns
+        .filter((column) => !(hiddenColumns || []).includes(column.id))
+        .map(({ id, render, handleClick, disableClick, path, ...rest }, columnKey) => (
+          <Cell
+            key={columnKey}
+            cellColor={cellColor}
+            id={id}
+            item={item}
+            rowIndex={rowIndex}
+            render={render}
+            onClick={onClick}
+            errors={errors}
+            path={path}
+            cellStyle={cellStyle}
+            handleClick={handleClick}
+            disableClick={disableClick}
+            columnKey={columnKey}
+            classes={classes}
+            editPopupMode={editPopupMode}
+            disableEditPopup={disableEditPopup}
+            fullscreen={fullscreen}
+            darkTheme={darkTheme}
+            maxTextRows={maxTextRows}
+            sortableListeners={listeners}
+            sortableAttributes={attributes}
+            isDragHandle={sortableEnabled && id === dragHandleColumnId}
+            {...rest}
+          />
+        ))}
+    </TableRow>
+  );
+};
 
 DataTableRow.propTypes = {
   classes: PropTypes.object.isRequired,
@@ -302,7 +343,10 @@ DataTableRow.propTypes = {
   editPopupMode: PropTypes.bool,
   disableEditPopup: PropTypes.bool,
   hover: PropTypes.bool,
-  warningRows: PropTypes.array
+  warningRows: PropTypes.array,
+  sortableId: PropTypes.oneOfType([PropTypes.string, PropTypes.number]),
+  sortableEnabled: PropTypes.bool,
+  dragHandleColumnId: PropTypes.string
 };
 
 DataTableRow.defaultProps = {
@@ -314,7 +358,10 @@ DataTableRow.defaultProps = {
   editPopupMode: false,
   disableEditPopup: false,
   hover: true,
-  warningRows: []
+  warningRows: [],
+  sortableId: undefined,
+  sortableEnabled: false,
+  dragHandleColumnId: undefined
 };
 
 export default withStyles(styles)(DataTableRow);

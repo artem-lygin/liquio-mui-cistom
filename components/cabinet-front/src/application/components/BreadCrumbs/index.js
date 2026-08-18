@@ -8,9 +8,11 @@ import classNames from 'classnames';
 import MobileDetect from 'mobile-detect';
 import PropTypes from 'prop-types';
 import * as React from 'react';
-import { useDispatch } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 
 import { setOpenSidebar } from 'actions/app';
+import { getCurrentLanguageCode } from 'helpers/localization';
+import { getNavigationTitleByPath } from 'helpers/navigationTree';
 import { history } from 'store';
 
 const useStyles = makeStyles((theme) => ({
@@ -54,6 +56,8 @@ const useStyles = makeStyles((theme) => ({
 const BasicBreadcrumbs = ({ breadcrumbs }) => {
   const classes = useStyles();
   const dispatch = useDispatch();
+  const navigationTree = useSelector((state) => state?.app?.navigationTree);
+  const languageCode = getCurrentLanguageCode();
 
   const [isMobile] = React.useState(() => {
     const md = new MobileDetect(window.navigator.userAgent);
@@ -70,6 +74,17 @@ const BasicBreadcrumbs = ({ breadcrumbs }) => {
     [dispatch, isMobile]
   );
 
+  const resolvedBreadcrumbs = React.useMemo(
+    () =>
+      breadcrumbs.map((breadcrumb) => ({
+        ...breadcrumb,
+        label:
+          getNavigationTitleByPath(navigationTree, breadcrumb.link, languageCode) ||
+          breadcrumb.label
+      })),
+    [breadcrumbs, languageCode, navigationTree]
+  );
+
   if (breadcrumbs.length === 0) {
     return null;
   }
@@ -80,8 +95,8 @@ const BasicBreadcrumbs = ({ breadcrumbs }) => {
           aria-label="breadcrumb"
           separator={<ChevronRightOutlinedIcon className={classes.separator} />}
         >
-          {breadcrumbs.map((breadcrumb, index) => {
-            const last = index === breadcrumbs.length - 1;
+          {resolvedBreadcrumbs.map((breadcrumb, index) => {
+            const last = index === resolvedBreadcrumbs.length - 1;
 
             return (
               <Link
@@ -119,12 +134,12 @@ const BasicBreadcrumbs = ({ breadcrumbs }) => {
       <Hidden mdUp={true}>
         <Link
           component="button"
-          key={breadcrumbs[0]?.label}
+          key={resolvedBreadcrumbs[0]?.label}
           underline={'none'}
           color="textPrimary"
           variant="breadcrumbs"
           tabIndex={0}
-          arial-label={breadcrumbs[0]?.label}
+          arial-label={resolvedBreadcrumbs[0]?.label}
           className={classNames({
             [classes.cursor]: true,
             [classes.flex]: true
@@ -137,7 +152,7 @@ const BasicBreadcrumbs = ({ breadcrumbs }) => {
           }}
         >
           <KeyboardBackspaceIcon className={classes.icon} />
-          {breadcrumbs[0]?.label}
+          {resolvedBreadcrumbs[0]?.label}
         </Link>
       </Hidden>
     </div>

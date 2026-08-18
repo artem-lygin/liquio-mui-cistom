@@ -132,6 +132,7 @@ export default {
     ReportTemplates: 'Modèles de rapports',
     EnabledMockPage: 'Mocks',
     CustomInterfaces: 'Interfaces',
+    CabinetMenu: 'Menu du cabinet',
     AdminPanel: "Panneau d'administration",
     MessageTemplatesList: 'Modèles de messages',
     QrTemplatesList: 'Extrait QR',
