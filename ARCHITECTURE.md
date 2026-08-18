@@ -120,6 +120,25 @@ proxy differently:
   (`components/admin-api/src/services/router.ts`), and a generic
   configurable reverse proxy (`config-templates/admin-api/proxy.json`).
 
+`register` itself has no ingress and is never called directly by citizens
+or businesses. Its record-management methods are exposed externally
+through `task`: `task` implements its own `/register/...` REST endpoints
+(`components/task/src/controllers/register.ts`) whose handlers call out to
+the internal `register` service (`components/task/src/services/register.ts`,
+`config-templates/task/register.json` → `http://register:3350`). Since
+`cabinet-api` proxies unmatched requests wholesale to `task`, citizens and
+businesses reach register data via the chain
+`cabinet-api → task → register`, not by calling `register` directly. This
+indirection exists so that `task` — which knows the requesting user's
+unit/role and the current BPMN process/workflow context — can resolve and
+enforce user- and process-level access permissions (per-unit
+allow-read/create/update/delete/history rules,
+`config-templates/task/register.json: access`) before the request reaches
+`register`; `task` attaches the resolved `access-info` to every call
+(`components/task/src/services/register.ts`). `register` has no visibility
+into workflow context on its own, so it cannot enforce these permissions
+itself.
+
 ## Cross-service connections
 
 Derived from per-service config templates (`config-templates/*/*.json`) and

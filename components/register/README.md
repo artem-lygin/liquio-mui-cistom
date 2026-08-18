@@ -39,3 +39,16 @@ From the [C4 diagram](../../ARCHITECTURE.md#c4-container-diagram):
 - `event` → `register` (uses)
 - `register` → `sign-tool` (signs)
 - `register` → PostgreSQL (`register` database)
+
+`register` has no ingress and is never called directly by citizens or
+businesses. Its record-management methods are exposed externally only
+through `task`, which implements its own `/register/...` REST endpoints
+(`components/task/src/controllers/register.ts`) that call out to this
+service. Combined with `cabinet-api`'s wholesale proxy to `task`, external
+access follows the chain `cabinet-api → task → register`. This indirection
+exists so `task` can resolve and enforce user- and process-level access
+permissions (per-unit allow-read/create/update/delete/history rules) before
+a request reaches `register` — `register` has no visibility into the
+requesting user or the BPMN workflow context on its own, so it relies on
+`task` to attach that access decision to every call. See
+[ARCHITECTURE.md § `admin-api` / `cabinet-api` as proxies to `task`](../../ARCHITECTURE.md#admin-api--cabinet-api-as-proxies-to-task).
