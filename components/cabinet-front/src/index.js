@@ -21,7 +21,10 @@ const DEFAULT_CONFIG = {
   authLink: 'http://localhost:8101/redirect/auth',
   idAuthLink: 'http://localhost:8080/authorise',
   clientId: 'liquio-portal',
-  defaultLanguage: 'en-GB'
+  defaultLanguage: 'en-GB',
+  features: {
+    navigationTreePreloading: false
+  }
 };
 
 const initializeApp = async () => {

@@ -7,6 +7,7 @@ import { DocumentBusiness } from './document';
 import { RegisterBusiness } from './register';
 import { UserInboxBusiness } from './user_inbox';
 import { ExternalServicesBusiness } from './external_services';
+import { CabinetMenuBusiness } from './cabinet_menu';
 
 // Constants.
 const BUSINESSES_CLASSES_LIST = [
@@ -17,7 +18,8 @@ const BUSINESSES_CLASSES_LIST = [
   DocumentBusiness,
   RegisterBusiness,
   UserInboxBusiness,
-  ExternalServicesBusiness
+  ExternalServicesBusiness,
+  CabinetMenuBusiness
 ];
 
 /**
@@ -64,6 +66,7 @@ export class Businesses {
       register: RegisterBusiness,
       userInbox: UserInboxBusiness,
       externalServices: ExternalServicesBusiness,
+      cabinetMenu: CabinetMenuBusiness,
     };
 
     // Init controllers.
@@ -84,4 +87,3 @@ export class Businesses {
     global.businesses = this.businesses;
   }
 }
-

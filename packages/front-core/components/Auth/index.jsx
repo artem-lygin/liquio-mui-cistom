@@ -24,6 +24,7 @@ import { getLocalizationTexts, getLocalizationLanguages } from 'actions/localiza
 import storage from 'helpers/storage';
 import checkAccess from 'helpers/checkAccess';
 import processList from 'services/processList';
+import * as api from 'services/api';
 import { access, getInitActions } from 'application';
 import ServiceMessage from 'components/Auth/ServiceMessage';
 import checkExpiringDate from 'helpers/checkExpiringDate';
@@ -34,6 +35,37 @@ import ChangePassword from 'components/ChangePassword';
 import { getCurrentLanguageCode } from 'helpers/localization';
 import { requestUserSettings } from '../../actions/auth';
 
+const preloadNavigationTree = async (dispatch) => {
+  const token = storage.getItem('token');
+  const debugUserId = storage.getItem('debug-user-id');
+
+  try {
+    const response = await fetch(`${api.getApiUrl()}navigation-tree`, {
+      method: 'GET',
+      cache: 'reload',
+      headers: {
+        ...(token ? { token } : {}),
+        ...(debugUserId ? { 'debug-user-id': debugUserId } : {})
+      }
+    });
+
+    if (!response.ok) {
+      throw new Error(`NavigationTreeRequestFailed:${response.status}`);
+    }
+
+    const body = await response.json().catch(() => ({}));
+    dispatch({
+      type: 'GET_NAVIGATION_TREE_SUCCESS',
+      payload: Array.isArray(body?.data) ? body.data : null
+    });
+  } catch (error) {
+    dispatch({
+      type: 'GET_NAVIGATION_TREE_FAIL',
+      payload: error
+    });
+  }
+};
+
 class Auth extends React.Component {
   constructor(props) {
     super(props);
@@ -43,13 +75,15 @@ class Auth extends React.Component {
       application,
       application: { type: applicationType = 'manager' } = {},
       nullUnitIds = [],
-      enabledUnitId
+      enabledUnitId,
+      features: { navigationTreePreloading } = {}
     } = getConfig();
 
     this.application = application;
     this.applicationType = applicationType;
     this.nullUnitIds = nullUnitIds;
     this.enabledUnitId = enabledUnitId;
+    this.isNavigationTreePreloadingEnabled = navigationTreePreloading === true;
   }
 
   onFocus = () => {
@@ -158,6 +192,11 @@ class Auth extends React.Component {
     }
 
     await this.getLocalizationTexts();
+
+    if (this.isNavigationTreePreloadingEnabled) {
+      await preloadNavigationTree(this.props.dispatch);
+    }
+
     if (!units) {
       const request =
         await actions[this.application.type === 'manager' ? 'requestUnits' : 'requestAllUnits']();
@@ -202,11 +241,17 @@ class Auth extends React.Component {
 
   isInitialized = () => {
     const {
-      auth: { info, userUnits, settings }
+      auth: { info, userUnits, settings },
+      app: { navigationTree, navigationTreeLoaded }
     } = this.props;
     const { type = 'manager' } = this.application || {};
 
-    const checkObjects = [info, userUnits];
+    const navigationTreeReady =
+      !this.isNavigationTreePreloadingEnabled ||
+      navigationTreeLoaded ||
+      Array.isArray(navigationTree);
+
+    const checkObjects = [info, userUnits, navigationTreeReady];
 
     if (type === 'adminpanel') {
       checkObjects.push(settings);
@@ -358,22 +403,27 @@ Auth.propTypes = {
   actions: PropTypes.object.isRequired,
   initActions: PropTypes.object,
   auth: PropTypes.object,
+  app: PropTypes.object,
+  dispatch: PropTypes.func.isRequired,
   serviceMessage: PropTypes.object
 };
 
 Auth.defaultProps = {
   children: null,
   auth: {},
+  app: {},
   initActions: {},
   serviceMessage: null
 };
 
-const mapStateToProps = ({ auth, errors: { serviceMessage } }) => ({
+const mapStateToProps = ({ auth, app, errors: { serviceMessage } }) => ({
   auth,
+  app,
   serviceMessage
 });
 const appInitActions = getInitActions();
 const mapDispatchToProps = (dispatch) => ({
+  dispatch,
   actions: {
     ping: bindActionCreators(ping, dispatch),
     requestAuth: bindActionCreators(requestAuth, dispatch),

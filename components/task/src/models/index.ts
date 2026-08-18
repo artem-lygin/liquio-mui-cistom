@@ -31,6 +31,7 @@ import { WorkflowHistoryModel } from './workflow_history';
 import { FavoritesModel } from './favorites';
 import { ExternalServicesStatusesModel } from './external_services_statuses';
 import { KycSessionModel } from './kyc_session';
+import { CabinetMenuModel } from './cabinet_menu';
 
 // Constants.
 const MODELS_CLASSES_LIST = {
@@ -66,6 +67,7 @@ const MODELS_CLASSES_LIST = {
   FavoritesModel,
   ExternalServicesStatusesModel,
   KycSessionModel,
+  CabinetMenuModel,
 };
 
 export class Models {
@@ -134,6 +136,7 @@ export class Models {
       favorites: FavoritesModel,
       externalServicesStatuses: ExternalServicesStatusesModel,
       kycSession: KycSessionModel,
+      cabinetMenu: CabinetMenuModel,
       ...customModels
     };
 
@@ -171,4 +174,3 @@ export class Models {
     this.models.document.model.hasOne(this.models.task.model, { foreignKey: 'document_id', targetKey: 'id' });
   }
 }
-

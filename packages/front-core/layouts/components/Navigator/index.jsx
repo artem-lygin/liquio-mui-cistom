@@ -1,5 +1,6 @@
 import AccountCircleOutlinedIcon from '@mui/icons-material/AccountCircleOutlined';
 import KeyboardArrowRightIcon from '@mui/icons-material/KeyboardArrowRight';
+import * as MuiIcons from '@mui/icons-material';
 import List from '@mui/material/List';
 import withStyles from '@mui/styles/withStyles';
 import MobileDetect from 'mobile-detect';
@@ -14,6 +15,7 @@ import { logout } from 'actions/auth';
 import { getModules } from 'application';
 import Scrollbar from 'components/Scrollbar';
 import checkAccessHelper from 'helpers/checkAccess';
+import { getCurrentLanguageCode, getTranslationCandidates } from 'helpers/localization';
 import storage from 'helpers/storage';
 import CategoryHeader from 'layouts/components/Navigator/CategoryHeader';
 import Item from 'layouts/components/Navigator/Item.jsx';
@@ -131,6 +133,115 @@ const prioritySort = (a, b) => {
   return 0;
 };
 
+const getFallbackCategories = () =>
+  []
+    .concat(...getModules().map((module) => module.navigation || []))
+    .sort(prioritySort);
+
+const resolveMenuName = (item, languageCode) => {
+  const translations = item?.translations;
+
+  if (translations && typeof translations === 'object') {
+    for (const candidate of getTranslationCandidates(languageCode)) {
+      if (typeof translations[candidate] === 'string' && translations[candidate].trim()) {
+        return translations[candidate];
+      }
+    }
+  }
+
+  return item?.name || '';
+};
+
+const resolveMenuIcon = (iconValue) => {
+  if (typeof iconValue !== 'string' || !iconValue.trim()) {
+    return null;
+  }
+
+  if (
+    iconValue.startsWith('data:image/') ||
+    iconValue.startsWith('http://') ||
+    iconValue.startsWith('https://') ||
+    iconValue.startsWith('/')
+  ) {
+    return (
+      <img
+        src={iconValue}
+        alt=""
+        style={{ width: 24, height: 24, objectFit: 'contain', display: 'block' }}
+      />
+    );
+  }
+
+  const iconCandidates = [
+    iconValue,
+    iconValue.endsWith('Icon') ? iconValue.slice(0, -4) : `${iconValue}Icon`
+  ];
+
+  for (const candidate of iconCandidates) {
+    const IconComponent = MuiIcons[candidate];
+
+    if (IconComponent) {
+      return <IconComponent />;
+    }
+  }
+
+  return null;
+};
+
+const normalizeNavigationPath = (path) => {
+  if (typeof path !== 'string' || !path.length) {
+    return '';
+  }
+
+  return path.replace(/\/+$/, '') || '/';
+};
+
+const resolveItemPath = (basePath, itemPath) => {
+  if (typeof itemPath !== 'string' || !itemPath.length) {
+    return normalizeNavigationPath(basePath);
+  }
+
+  if (itemPath.startsWith('/')) {
+    return normalizeNavigationPath(itemPath);
+  }
+
+  const normalizedBasePath = normalizeNavigationPath(basePath);
+  return normalizeNavigationPath(
+    `${normalizedBasePath === '/' ? '' : normalizedBasePath}/${itemPath}`
+  );
+};
+
+const resolveMenuId = (item, localizedName) => {
+  if (typeof item?.path === 'string' && item.path.length) {
+    return item.path.replace(/^\//, '');
+  }
+
+  const nameSource = localizedName || item?.name || item?.id || 'menu-item';
+  return String(nameSource)
+    .toLowerCase()
+    .replace(/[^a-z0-9а-яіїєґ/_-]+/gi, '-')
+    .replace(/^-+|-+$/g, '');
+};
+
+const mapNavigationTree = (items, languageCode, parentPath = '') =>
+  (items || []).map((item) => {
+    const path = resolveItemPath(parentPath, item?.path || item?.options?.route || '');
+    const localizedName = resolveMenuName(item, languageCode);
+    const children = Array.isArray(item.children)
+      ? mapNavigationTree(item.children, languageCode, path || parentPath)
+      : [];
+
+    return {
+      id: resolveMenuId({ ...item, path }, localizedName),
+      title: localizedName || item?.name || item?.id,
+      name: localizedName || item?.name,
+      path: path || undefined,
+      icon: resolveMenuIcon(item?.icon),
+      access: item?.access,
+      ...(children.length ? { children } : {})
+    };
+  });
+
 const Navigator = (props) => {
   const {
     classes,
@@ -139,7 +250,8 @@ const Navigator = (props) => {
     handleDrawerToggle,
     breadcrumbs,
     t,
-    actions
+    actions,
+    navigationTree
   } = props;
 
   const [categories, setCategories] = React.useState([]);
@@ -168,11 +280,13 @@ const Navigator = (props) => {
   );
 
   React.useEffect(() => {
-    const categories = []
-      .concat(...getModules().map((module) => module.navigation || []))
-      .sort(prioritySort);
-    setCategories(categories);
-  }, []);
+    if (Array.isArray(navigationTree) && navigationTree.length) {
+      setCategories(mapNavigationTree(navigationTree, getCurrentLanguageCode()));
+      return;
+    }
+
+    setCategories(getFallbackCategories());
+  }, [navigationTree]);
 
   React.useEffect(() => {
     storage.setItem('expandedCategories', expanded);
@@ -294,11 +408,13 @@ Navigator.propTypes = {
   location: PropTypes.object,
   userUnits: PropTypes.object.isRequired,
   userInfo: PropTypes.object.isRequired,
+  navigationTree: PropTypes.array,
   handleDrawerToggle: PropTypes.func.isRequired
 };
 
 Navigator.defaultProps = {
-  location: { pathname: '' }
+  location: { pathname: '' },
+  navigationTree: null
 };
 
 const mapDispatchToProps = (dispatch) => ({
@@ -307,9 +423,10 @@ const mapDispatchToProps = (dispatch) => ({
   }
 });
 
-const mapStateToProps = ({ auth: { userUnits, info } }) => ({
+const mapStateToProps = ({ auth: { userUnits, info }, app: { navigationTree } }) => ({
   userUnits,
-  userInfo: info
+  userInfo: info,
+  navigationTree
 });
 
 const translated = translate('Navigator')(Navigator);

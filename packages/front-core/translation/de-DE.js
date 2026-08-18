@@ -189,6 +189,7 @@ export default {
     ReportTemplates: 'Berichtsvorlagen',
     EnabledMockPage: 'Mocks',
     CustomInterfaces: 'Schnittstellen',
+    CabinetMenu: 'Kabinettsmenü',
     Assistant: 'Assistent',
     AssistantContexts: 'Kontexte',
     AdminPanel: 'Admin-Panel',
