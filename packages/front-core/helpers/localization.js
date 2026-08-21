@@ -96,3 +96,59 @@ export const pickLocalizedTexts = (localizationTexts = [], preferredCandidates =
 
   return Array.from(byKey.values()).map(({ key, value }) => ({ key, value }));
 };
+
+export const isLocalizationKey = (value) => {
+  if (typeof value !== 'string') return false;
+  return /^[A-Z0-9_]+$/.test(value) && value.includes('_');
+};
+
+export const isMissingTranslationValue = (translatedValue, key) => {
+  if (typeof translatedValue !== 'string') return true;
+
+  const normalized = translatedValue.trim();
+
+  if (!normalized) return true;
+  if (normalized === key) return true;
+  if (normalized.endsWith(`.${key}`)) return true;
+
+  return false;
+};
+
+export const resolveLocalizationText = (
+  value,
+  {
+    localizationTexts = [],
+    t = null,
+    defaultLanguage = config?.defaultLanguage,
+    fallbackLanguage = 'uk',
+  } = {},
+) => {
+  if (typeof value !== 'string') return value;
+
+  const selectedLanguageCode = getCurrentLanguageCode({
+    defaultLanguage,
+    fallbackLanguage,
+  });
+  const preparedTexts = pickLocalizedTexts(
+    localizationTexts,
+    getTranslationCandidates(selectedLanguageCode),
+  );
+  const textsByKey = preparedTexts.reduce((acc, item) => {
+    if (item?.key && typeof item?.value === 'string') {
+      acc[item.key] = item.value;
+    }
+    return acc;
+  }, {});
+
+  return value.replace(/[A-Z0-9]+(?:_[A-Z0-9]+)+/g, (key) => {
+    if (!isLocalizationKey(key)) return key;
+
+    const translatedByStatic = typeof t === 'function' ? t(key) : null;
+
+    if (!isMissingTranslationValue(translatedByStatic, key)) {
+      return translatedByStatic;
+    }
+
+    return textsByKey[key] || key;
+  });
+};
