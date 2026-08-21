@@ -26,7 +26,7 @@
     "@liquio/back-core": "^0.1.0",
     "adm-zip": "^0.5.10",
     "aws-sdk": "^2.1693.0",
-    "axios": "^1.18.1",
+    "axios": "^1.19.0",
     "body-parser": "^2.3.0",
     "express": "^5.2.1",
     "inquirer": "^8.2.6",
