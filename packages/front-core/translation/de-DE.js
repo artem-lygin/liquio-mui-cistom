@@ -119,6 +119,7 @@ export default {
     VariableHint: 'Variable "{{variableName}}"'
   },
   Navigator: {
+    StyleGuide: 'Styleguide',
     StartLearning: 'Lerne los',
     MyCertificates: 'Meine Zertifikate',
     StatisticsPageTitle: 'Statistiken',

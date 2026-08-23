@@ -63,6 +63,7 @@ export default {
     'NoEnableUnit subtitle': "Veuillez contacter l'administrateur système",
   },
   Navigator: {
+    StyleGuide: 'Guide de style',
     Elastic: 'Paramètres Elastic',
     StatisticsPageTitle: 'Statistiques des processus',
     DebugLogs: 'Débogage et journalisation',

@@ -26,6 +26,24 @@ export default {
         },
       },
     },
+    MuiTypography: {
+      defaultProps: {
+        // Without this, these custom variants (defined below under `typography`) render
+        // as inline <span> by default — MUI's documented behavior for any variant that
+        // isn't mapped to a real HTML element. `label`/`label1`/`breadcrumbs` are used in
+        // components/JsonSchema/SchemaStepper.jsx (shared by both apps), so this affects
+        // real rendered UI, not just the style-guide preview.
+        variantMapping: {
+          title: 'div',
+          subheading: 'div',
+          subheading2: 'div',
+          label: 'div',
+          label1: 'div',
+          label2: 'div',
+          breadcrumbs: 'div',
+        },
+      },
+    },
   },
   overrides: {
     MuiStepButton: {

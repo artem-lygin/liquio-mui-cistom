@@ -26,8 +26,10 @@ a {
     color: #BB86FC;
 }
 
+/* Kept in sync with palette.background.default in src/application/theme.js by hand —
+   this is a static file, so it can't read the JS theme directly. */
 body, #root {
-    background: #4E4E4E!important;
+    background: #0c0c0c!important;
 }
 
 .rst__rowContents {

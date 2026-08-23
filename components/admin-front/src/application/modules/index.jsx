@@ -1,4 +1,5 @@
 import profileModule from 'core/modules/profile';
+import styleGuideModule from 'core/modules/styleGuide';
 import homeModule from './home';
 import settingsModule from './settings';
 import getWorkflowModule from './workflow';
@@ -23,6 +24,7 @@ const getModules = () => {
   return [
     favorites,
     profileModule,
+    styleGuideModule,
     settingsModule,
     getWorkflowModule(),
     getUsersModule(),

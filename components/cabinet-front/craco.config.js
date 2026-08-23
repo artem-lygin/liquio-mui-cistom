@@ -22,6 +22,15 @@ module.exports = {
         'node_modules'
       ];
 
+      // `core` is a symlinked local package (packages/front-core), edited constantly during
+      // development — unlike real third-party deps, it must NOT be treated as immutable.
+      // Without this, webpack's persistent filesystem cache silently serves stale bundles
+      // for edits under packages/front-core until node_modules/.cache is cleared by hand.
+      webpackConfig.snapshot = {
+        ...webpackConfig.snapshot,
+        managedPaths: [/^(.+?[\\/]node_modules[\\/](?!core[\\/]))/]
+      };
+
       webpackConfig.plugins.push(
         new webpack.ProvidePlugin({
           process: 'process/browser.js'

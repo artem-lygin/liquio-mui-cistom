@@ -189,6 +189,7 @@ export default {
     RequiredField: 'Fill in all fields'
   },
   Navigator: {
+    StyleGuide: 'Style guide',
     StatisticsPageTitle: 'Statistics',
     WorkflowDynamicsPageTitle: 'Workflow Dynamics',
     DebugLogs: 'Debug Logs',

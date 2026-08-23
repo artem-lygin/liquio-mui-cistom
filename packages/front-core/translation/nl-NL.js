@@ -145,6 +145,7 @@ export default {
     RequiredField: 'Vul alle velden in'
   },
   Navigator: {
+    StyleGuide: 'Stijlgids',
     StartLearning: 'Start leren',
     MyCertificates: 'Mijn certificaten',
     StatisticsPageTitle: 'Statistieken',

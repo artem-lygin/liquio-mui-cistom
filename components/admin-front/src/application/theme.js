@@ -1,4 +1,8 @@
-export default {
+import merge from 'lodash/merge';
+
+import overrides from './theme.overrides.json';
+
+const baseTheme = {
   breakpoints: {
     keys: ['xs', 'sm', 'md', 'lg', 'xl'],
     values: {
@@ -16,14 +20,6 @@ export default {
     }
   },
   overrides: {
-    MuiAlert: {
-      standardInfo: {
-        backgroundColor: '#c6e0f5'
-      },
-      standardWarning: {
-        backgroundColor: '#fceda1'
-      }
-    },
     PageSizeSelector: {
       label: {
         paddingRight: 8,
@@ -62,11 +58,6 @@ export default {
         textOverflow: 'ellipsis',
         overflow: 'hidden',
         maxWidth: '100%'
-      }
-    },
-    MuiDrawer: {
-      paper: {
-        backgroundColor: '#232f3d'
       }
     },
     MuiSvgIcon: {
@@ -271,9 +262,9 @@ export default {
     },
     MuiPaper: {
       root: {
-        fontFamily: '"Roboto", "Helvetica", "Arial", sans-serif',
-        backgroundColor: '#404040',
-        color: '#fff'
+        fontFamily: '"Inter", "Helvetica", "Arial", sans-serif'
+        // backgroundColor/color removed: Paper already defaults to
+        // palette.background.paper / palette.text.primary — see palette.background below.
       }
     },
     MuiDialog: {
@@ -468,14 +459,14 @@ export default {
     tonalOffset: 0.2,
     text: {
       primary: '#fff',
-      secondary: 'rgba(0, 0, 0, 0.54)',
+      secondary: 'rgba(255, 255, 255, 0.7)',
       disabled: 'rgba(255, 255, 255, 0.38)',
       hint: 'rgba(255, 255, 255, 0.38)'
     },
     divider: 'rgba(0, 0, 0, 0.12)',
     background: {
-      paper: '#fff',
-      default: '#404040'
+      paper: '#0c0c0c',
+      default: '#0c0c0c'
     },
     action: {
       active: 'rgba(0, 0, 0, 0.54)',
@@ -519,68 +510,68 @@ export default {
     '0px 11px 15px -7px rgba(0,0,0,0.2),0px 24px 38px 3px rgba(0,0,0,0.14),0px 9px 46px 8px rgba(0,0,0,0.12)'
   ],
   typography: {
-    fontFamily: '"Roboto", "Helvetica", "Arial", sans-serif',
+    fontFamily: '"Inter", "Helvetica", "Arial", sans-serif',
     fontSize: 14,
     fontWeightLight: 300,
     fontWeightRegular: 400,
     fontWeightMedium: 500,
     display4: {
+      color: '#fff',
       fontSize: '7rem',
       fontWeight: 300,
-      fontFamily: '"Roboto", "Helvetica", "Arial", sans-serif',
+      fontFamily: '"Inter", "Helvetica", "Arial", sans-serif',
       letterSpacing: '-.04em',
       lineHeight: '1.14286em',
       marginLeft: '-.04em',
-      color: 'rgba(0, 0, 0, 0.54)'
     },
     display3: {
+      color: '#fff',
       fontSize: '3.5rem',
       fontWeight: 400,
-      fontFamily: '"Roboto", "Helvetica", "Arial", sans-serif',
+      fontFamily: '"Inter", "Helvetica", "Arial", sans-serif',
       letterSpacing: '-.02em',
       lineHeight: '1.30357em',
       marginLeft: '-.02em',
-      color: 'rgba(0, 0, 0, 0.54)'
     },
     display2: {
+      color: '#fff',
       fontSize: '2.8125rem',
       fontWeight: 400,
-      fontFamily: '"Roboto", "Helvetica", "Arial", sans-serif',
+      fontFamily: '"Inter", "Helvetica", "Arial", sans-serif',
       lineHeight: '1.13333em',
       marginLeft: '-.02em',
-      color: 'rgba(0, 0, 0, 0.54)'
     },
     display1: {
+      color: '#fff',
       fontSize: '2.125rem',
       fontWeight: 400,
-      fontFamily: '"Roboto", "Helvetica", "Arial", sans-serif',
+      fontFamily: '"Inter", "Helvetica", "Arial", sans-serif',
       lineHeight: '1.20588em',
-      color: 'rgba(0, 0, 0, 0.54)'
     },
     headline: {
+      color: '#fff',
       fontSize: '1.5rem',
       fontWeight: 400,
-      fontFamily: '"Roboto", "Helvetica", "Arial", sans-serif',
+      fontFamily: '"Inter", "Helvetica", "Arial", sans-serif',
       lineHeight: '1.35417em',
-      color: 'rgba(0, 0, 0, 0.87)'
     },
     title: {
+      color: '#fff',
       fontSize: '1.3125rem',
       fontWeight: 500,
-      fontFamily: '"Roboto", "Helvetica", "Arial", sans-serif',
+      fontFamily: '"Inter", "Helvetica", "Arial", sans-serif',
       lineHeight: '1.16667em',
-      color: 'rgba(0, 0, 0, 0.87)'
     },
     subheading: {
+      color: '#fff',
       fontSize: '1rem',
       fontWeight: 400,
-      fontFamily: '"Roboto", "Helvetica", "Arial", sans-serif',
+      fontFamily: '"Inter", "Helvetica", "Arial", sans-serif',
       lineHeight: '1.5em',
-      color: 'rgba(0, 0, 0, 0.87)'
     },
     body2: {
       color: '#fff',
-      fontFamily: '"Roboto", "Helvetica", "Arial", sans-serif',
+      fontFamily: '"Inter", "Helvetica", "Arial", sans-serif',
       fontWeight: 400,
       fontSize: '0.875rem',
       lineHeight: 1.5,
@@ -588,22 +579,23 @@ export default {
     },
     body1: {
       color: '#fff',
-      fontFamily: '"Roboto", "Helvetica", "Arial", sans-serif',
+      fontFamily: '"Inter", "Helvetica", "Arial", sans-serif',
       fontWeight: 400,
       fontSize: '1rem',
       lineHeight: 1.5,
       letterSpacing: '0.00938em'
     },
     caption: {
-      fontFamily: '"Roboto", "Helvetica", "Arial", sans-serif',
+      color: '#fff',
+      fontFamily: '"Inter", "Helvetica", "Arial", sans-serif',
       fontWeight: 400,
       fontSize: '0.75rem',
       lineHeight: 1.66,
       letterSpacing: '0.03333em'
     },
     button: {
-      color: 'rgba(0, 0, 0, 0.87)',
-      fontFamily: '"Roboto", "Helvetica", "Arial", sans-serif',
+      color: '#fff',
+      fontFamily: '"Inter", "Helvetica", "Arial", sans-serif',
       fontWeight: 500,
       fontSize: '0.875rem',
       lineHeight: 1.75,
@@ -611,56 +603,56 @@ export default {
       textTransform: 'uppercase'
     },
     h1: {
-      color: 'rgba(0, 0, 0, 0.87)',
-      fontFamily: '"Roboto", "Helvetica", "Arial", sans-serif',
+      color: '#fff',
+      fontFamily: '"Inter", "Helvetica", "Arial", sans-serif',
       fontWeight: 300,
-      fontSize: '6rem',
+      fontSize: '3rem',
       lineHeight: 1,
       letterSpacing: '-0.01562em'
     },
     h2: {
-      color: 'rgba(0, 0, 0, 0.87)',
-      fontFamily: '"Roboto", "Helvetica", "Arial", sans-serif',
+      color: '#fff',
+      fontFamily: '"Inter", "Helvetica", "Arial", sans-serif',
       fontWeight: 300,
-      fontSize: '3.75rem',
+      fontSize: '2.375rem',
       lineHeight: 1,
       letterSpacing: '-0.00833em'
     },
     h3: {
-      color: 'rgba(0, 0, 0, 0.87)',
-      fontFamily: '"Roboto", "Helvetica", "Arial", sans-serif',
+      color: '#fff',
+      fontFamily: '"Inter", "Helvetica", "Arial", sans-serif',
       fontWeight: 400,
-      fontSize: '3rem',
+      fontSize: '2.125rem',
       lineHeight: 1.04,
       letterSpacing: '0em'
     },
     h4: {
       color: '#fff',
-      fontFamily: '"Roboto", "Helvetica", "Arial", sans-serif',
+      fontFamily: '"Inter", "Helvetica", "Arial", sans-serif',
       fontWeight: 400,
-      fontSize: 30,
+      fontSize: '1.5rem',
       lineHeight: 1.17,
       letterSpacing: '0.00735em'
     },
     h5: {
       color: '#fff',
-      fontFamily: '"Roboto", "Helvetica", "Arial", sans-serif',
+      fontFamily: '"Inter", "Helvetica", "Arial", sans-serif',
       fontWeight: 500,
-      fontSize: 26,
+      fontSize: '1.25rem',
       lineHeight: 1.33,
       letterSpacing: 0.5
     },
     h6: {
       color: '#fff',
-      fontFamily: '"Roboto", "Helvetica", "Arial", sans-serif',
+      fontFamily: '"Inter", "Helvetica", "Arial", sans-serif',
       fontWeight: 500,
-      fontSize: '1.25rem',
+      fontSize: '1.125rem',
       lineHeight: 1.6,
       letterSpacing: '0.0075em'
     },
     subtitle1: {
       color: '#fff',
-      fontFamily: '"Roboto", "Helvetica", "Arial", sans-serif',
+      fontFamily: '"Inter", "Helvetica", "Arial", sans-serif',
       fontWeight: 400,
       fontSize: '1rem',
       lineHeight: 1.75,
@@ -668,31 +660,31 @@ export default {
     },
     subtitle2: {
       color: '#fff',
-      fontFamily: '"Roboto", "Helvetica", "Arial", sans-serif',
+      fontFamily: '"Inter", "Helvetica", "Arial", sans-serif',
       fontWeight: 500,
       fontSize: '0.875rem',
       lineHeight: 1.57,
       letterSpacing: '0.00714em'
     },
     body1Next: {
-      color: 'rgba(0, 0, 0, 0.87)',
-      fontFamily: '"Roboto", "Helvetica", "Arial", sans-serif',
+      color: '#fff',
+      fontFamily: '"Inter", "Helvetica", "Arial", sans-serif',
       fontWeight: 400,
       fontSize: '1rem',
       lineHeight: 1.5,
       letterSpacing: '0.00938em'
     },
     body2Next: {
-      color: 'rgba(0, 0, 0, 0.87)',
-      fontFamily: '"Roboto", "Helvetica", "Arial", sans-serif',
+      color: '#fff',
+      fontFamily: '"Inter", "Helvetica", "Arial", sans-serif',
       fontWeight: 400,
       fontSize: '0.875rem',
       lineHeight: 1.5,
       letterSpacing: '0.01071em'
     },
     buttonNext: {
-      color: 'rgba(0, 0, 0, 0.87)',
-      fontFamily: '"Roboto", "Helvetica", "Arial", sans-serif',
+      color: '#fff',
+      fontFamily: '"Inter", "Helvetica", "Arial", sans-serif',
       fontWeight: 500,
       fontSize: '0.875rem',
       lineHeight: 1.75,
@@ -700,16 +692,16 @@ export default {
       textTransform: 'uppercase'
     },
     captionNext: {
-      color: 'rgba(0, 0, 0, 0.87)',
-      fontFamily: '"Roboto", "Helvetica", "Arial", sans-serif',
+      color: '#fff',
+      fontFamily: '"Inter", "Helvetica", "Arial", sans-serif',
       fontWeight: 400,
       fontSize: '0.75rem',
       lineHeight: 1.66,
       letterSpacing: '0.03333em'
     },
     overline: {
-      color: 'rgba(0, 0, 0, 0.87)',
-      fontFamily: '"Roboto", "Helvetica", "Arial", sans-serif',
+      color: '#fff',
+      fontFamily: '"Inter", "Helvetica", "Arial", sans-serif',
       fontWeight: 400,
       fontSize: '0.75rem',
       lineHeight: 2.66,
@@ -856,3 +848,7 @@ export default {
     padding: '6px 16px'
   }
 };
+
+// theme.overrides.json is written by the Style Guide's "Bake" action (dev-only) —
+// treat it as the persisted result of designer-tuned colors/typography, not scratch state.
+export default merge({}, baseTheme, overrides);

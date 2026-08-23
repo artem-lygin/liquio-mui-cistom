@@ -1,10 +1,48 @@
+const fs = require('fs');
 const path = require('path');
 const webpack = require('webpack');
+const merge = require('lodash/merge');
 const ModuleScopePlugin = require('react-dev-utils/ModuleScopePlugin');
+
+const THEME_OVERRIDES_PATH = path.resolve(__dirname, 'src/application/theme.overrides.json');
+
+// Dev-only endpoint backing the Style Guide's "Bake" action: persists a theme-shaped diff
+// (colors/typography) into theme.overrides.json, which theme.js merges over its base object.
+// This only exists under `npm start` — it's never part of the production build.
+const registerBakeThemeEndpoint = (app) => {
+  app.post('/__dev/bake-theme', (req, res) => {
+    let body = '';
+    req.on('data', (chunk) => {
+      body += chunk;
+    });
+    req.on('end', () => {
+      try {
+        const incoming = JSON.parse(body || '{}');
+        const current = JSON.parse(fs.readFileSync(THEME_OVERRIDES_PATH, 'utf8') || '{}');
+        const merged = merge({}, current, incoming);
+        fs.writeFileSync(THEME_OVERRIDES_PATH, `${JSON.stringify(merged, null, 2)}\n`);
+        res.setHeader('Content-Type', 'application/json');
+        res.end(JSON.stringify({ ok: true }));
+      } catch (error) {
+        res.statusCode = 500;
+        res.setHeader('Content-Type', 'application/json');
+        res.end(JSON.stringify({ ok: false, error: error.message }));
+      }
+    });
+  });
+};
 
 module.exports = {
   eslint: {
     enable: false
+  },
+  devServer: (devServerConfig) => {
+    const previousSetupMiddlewares = devServerConfig.setupMiddlewares;
+    devServerConfig.setupMiddlewares = (middlewares, devServer) => {
+      registerBakeThemeEndpoint(devServer.app);
+      return previousSetupMiddlewares ? previousSetupMiddlewares(middlewares, devServer) : middlewares;
+    };
+    return devServerConfig;
   },
   webpack: {
     configure: (webpackConfig, { env, paths }) => {
@@ -21,6 +59,15 @@ module.exports = {
         path.resolve(__dirname, 'src'),
         'node_modules'
       ];
+
+      // `core` is a symlinked local package (packages/front-core), edited constantly during
+      // development — unlike real third-party deps, it must NOT be treated as immutable.
+      // Without this, webpack's persistent filesystem cache silently serves stale bundles
+      // for edits under packages/front-core until node_modules/.cache is cleared by hand.
+      webpackConfig.snapshot = {
+        ...webpackConfig.snapshot,
+        managedPaths: [/^(.+?[\\/]node_modules[\\/](?!core[\\/]))/]
+      };
 
       webpackConfig.plugins.push(
         new webpack.ProvidePlugin({

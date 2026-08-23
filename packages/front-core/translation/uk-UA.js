@@ -62,6 +62,7 @@ export default {
     'NoEnableUnit subtitle': 'Зверніться до системного адміністратора',
   },
   Navigator: {
+    StyleGuide: 'Стиль-гід',
     StartLearning: 'Розпочати навчання',
     MyCertificates: 'Мої сертифікати',
     SkipToMainContent: 'Перейти до основного вмісту',

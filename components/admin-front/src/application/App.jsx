@@ -5,6 +5,7 @@ import {
   adaptV4Theme,
   createTheme
 } from '@mui/material/styles';
+import CssBaseline from '@mui/material/CssBaseline';
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
 import 'dayjs/locale/de';
@@ -68,6 +69,7 @@ const App = () => {
     >
       <StyledEngineProvider injectFirst>
         <ThemeProvider theme={createTheme(adaptV4Theme(theme))}>
+          <CssBaseline />
           <Provider store={store}>
             <DndContext
               sensors={sensors}
