@@ -1131,12 +1131,17 @@ const getButtonSizeFontSize = (size, previewTheme) => {
   return override?.fontSize !== undefined ? override.fontSize : previewTheme.typography.button.fontSize;
 };
 
-const getButtonFontSizePx = (size, previewTheme, rootFontSize) => {
-  const fontSize = getButtonSizeFontSize(size, previewTheme);
-  // MUI/JSS convention: a bare number is px. Otherwise it's a 'Nrem' or 'Npx' string.
+// Converts a CSS fontSize value — a bare number (MUI/JSS convention: px) or a 'Nrem'/'Npx'
+// string — to an actual pixel number, given the currently active root font-size. Shared by
+// every fontSize-to-px calculation in this file (Button sizing below, and the Typography
+// section's per-variant notes) so the conversion itself lives in exactly one place rather
+// than being reimplemented, and stays correct if the root font-size is ever edited live.
+const fontSizeToPx = (fontSize, rootFontSize) => {
   if (typeof fontSize === 'number') return fontSize;
   return fontSize.endsWith('px') ? parseFloat(fontSize) : parseFloat(fontSize) * rootFontSize;
 };
+
+const getButtonFontSizePx = (size, previewTheme, rootFontSize) => fontSizeToPx(getButtonSizeFontSize(size, previewTheme), rootFontSize);
 
 // MUI doesn't publish a button height anywhere — this is vertical padding (×2) + the
 // taller of the label's line-height or the icon's fontSize (an icon is often taller than
@@ -1950,7 +1955,7 @@ const getTabsTokenItems = (previewTheme) => {
 // from theme.typography.<variant>.<key>. Unlike the component sections, there's no known
 // per-variant component-level override anywhere in this app's theme.js, so these are all
 // plain "theme" reads rather than "overridden"/"other".
-const getTypographyTokenItems = (variant, previewTheme) => {
+const getTypographyTokenItems = (variant, previewTheme, rootFontSize) => {
   const definition = previewTheme.typography?.[variant];
   if (!definition) {
     return [
@@ -1966,10 +1971,14 @@ const getTypographyTokenItems = (variant, previewTheme) => {
       }
     ];
   }
-  const tokens = TYPOGRAPHY_PROPERTY_KEYS.filter((key) => definition[key] !== undefined).map((key) => ({
-    path: `theme.typography.${variant}.${key}`,
-    note: String(definition[key])
-  }));
+  const tokens = TYPOGRAPHY_PROPERTY_KEYS.filter((key) => definition[key] !== undefined).map((key) => {
+    const value = definition[key];
+    // fontSize is near-always authored as rem — pair it with its actual computed pixel
+    // value (calculated from the live root font-size, not a hardcoded assumption) so the
+    // px equivalent updates correctly if the root font-size is ever edited or changed.
+    const note = key === 'fontSize' ? `${value} (${fontSizeToPx(value, rootFontSize).toFixed(2)}px)` : String(value);
+    return { path: `theme.typography.${variant}.${key}`, note };
+  });
   return [{ category: 'Typography', tokens }];
 };
 
@@ -1990,7 +1999,7 @@ const describeTypographyVariant = (variant) => {
   return `${originText} ${usageText}`;
 };
 
-const TypographyVariantSection = ({ variant, previewTheme, editMode, showProperties, measureEnabled, onChange, onNavigate }) => {
+const TypographyVariantSection = ({ variant, previewTheme, rootFontSize, editMode, showProperties, measureEnabled, onChange, onNavigate }) => {
   const definition = previewTheme.typography?.[variant];
   const description = describeTypographyVariant(variant);
 
@@ -1999,7 +2008,7 @@ const TypographyVariantSection = ({ variant, previewTheme, editMode, showPropert
       id={`typography-${variant}`}
       title={TYPOGRAPHY_LABELS[variant] || variant}
       titleVariant="h3"
-      properties={showProperties ? <TokenLegend onNavigate={onNavigate} items={getTypographyTokenItems(variant, previewTheme)} /> : null}
+      properties={showProperties ? <TokenLegend onNavigate={onNavigate} items={getTypographyTokenItems(variant, previewTheme, rootFontSize)} /> : null}
       description={description}
     >
       <MeasureOverlay enabled={measureEnabled}>
@@ -2246,6 +2255,7 @@ const StyleGuidePage = () => {
                   key={variant}
                   variant={variant}
                   previewTheme={previewTheme}
+                  rootFontSize={rootFontSize}
                   editMode={editMode}
                   showProperties={showProperties}
                   measureEnabled={measureEnabled}
