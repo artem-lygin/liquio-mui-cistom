@@ -157,11 +157,12 @@ const baseTheme = {
       // (13px/15px for small/large via pxToRem, overriding the token) — medium is the only
       // size MUI leaves alone. Reading theme.typography.button.fontSize here (rather than
       // duplicating its current value as a literal) keeps small/large permanently in sync
-      // with the token instead of silently drifting if it's ever changed. The `.small`/
-      // `.large` lookups are unused today — small/medium/large intentionally share one
-      // typography right now — but let a future, deliberately different size be added later
-      // by just setting theme.typography.button.small/.large; nothing here would need to
-      // change.
+      // with the token instead of silently drifting if it's ever changed. `small` now has
+      // its own distinct value via theme.typography.button.small (1rem base for medium/
+      // large, 0.875rem for small — a deliberate design decision, not the default MUI
+      // spacing). `large` still falls back to the shared base since it has no `.large`
+      // override of its own — add theme.typography.button.large the same way if that ever
+      // needs to differ too.
       sizeSmall: ({ theme }) => ({
         fontSize: theme.typography.button.small?.fontSize ?? theme.typography.button.fontSize
       }),
@@ -528,6 +529,12 @@ const baseTheme = {
   typography: {
     fontFamily: '"Inter", "Helvetica", "Arial", sans-serif',
     fontSize: 14,
+    // Deliberate design decision (not MUI's default of 16): the real DOM root font-size is
+    // set to match via `html { font-size: 14px }` in public/css/style.css (a plain CSS file
+    // can't read this value, so it's kept in sync there by hand — see the comment on that
+    // rule). Without that CSS rule this would only feed MUI's internal px→rem math with no
+    // visible effect — see CHANGES.md's "Worth addressing" history on this exact token.
+    htmlFontSize: 14,
     fontWeightLight: 300,
     fontWeightRegular: 400,
     fontWeightMedium: 500,
@@ -613,7 +620,13 @@ const baseTheme = {
       color: '#fff',
       fontFamily: '"Inter", "Helvetica", "Arial", sans-serif',
       fontWeight: 500,
-      fontSize: '0.875rem',
+      // fontSize here is what medium and large render at (see MuiButton.sizeSmall/
+      // sizeLarge overrides below, which read this live). `small` intentionally has its own
+      // distinct value via the nested token below, rather than sharing this one.
+      fontSize: '1rem',
+      small: {
+        fontSize: '0.875rem'
+      },
       lineHeight: 1.75,
       letterSpacing: '0.02857em',
       textTransform: 'uppercase'

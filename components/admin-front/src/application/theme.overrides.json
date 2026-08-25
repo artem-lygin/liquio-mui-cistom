@@ -1,6 +1,5 @@
 {
   "typography": {
-    "htmlFontSize": 14,
     "h5": {
       "fontWeight": "600"
     },

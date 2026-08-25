@@ -94,12 +94,33 @@ uses `packages/front-core/theme.js`, which has only one change so far (see Typog
   mirror for `sizeLarge`/`.large`). Confirmed `adaptV4Theme()` forwards function values
   through the legacy `overrides.MuiButton` shape unchanged (it's a plain object copy into
   `components.MuiButton.styleOverrides`), so this works through the bridge with no other
-  changes. The `.small`/`.large` lookups are unused today (all three sizes intentionally
-  share one typography, per product-designer direction) but let a future, deliberately
-  different size be added later by just setting `theme.typography.button.small`/`.large` —
-  no change needed in `MuiButton` itself. Verified via the Style Guide's Buttons section:
-  all three sizes still report the same fontSize in the properties table, and the demo
-  buttons' rendered text size still doesn't step between sizes. _(2026-08-25 → 2026-08-26)_
+  changes. The `.small`/`.large` lookups made it trivial to give a size its own genuinely
+  distinct value once that was actually wanted (see below) — no change needed in `MuiButton`
+  itself. Verified via the Style Guide's Buttons section: the properties table correctly
+  shows which token each size resolved from. _(2026-08-25 → 2026-08-26)_
+- **`small` now has its own distinct value: `theme.typography.button.fontSize` is `1rem`**
+  (what `medium`/`large` render at — `large` has no `.large` override of its own, so it
+  falls back to this shared base), **`theme.typography.button.small.fontSize` is
+  `0.875rem`.** Previously `0.875rem` was the shared value for everything; product-designer
+  direction changed it to `1rem` as the base with `small` deliberately a step down, using
+  the `.small`/`.large` room-to-grow mechanism from the fix above. _(2026-08-26)_
+- **Root font-size (`typography.htmlFontSize`) is now `14` and actually takes effect.**
+  Previously "worth addressing" (below): the theme option only fed MUI's internal px→rem
+  math, with no `html { font-size }` rule anywhere to make the DOM match — so `1rem` in code
+  didn't actually render as the declared size. Fixed the same way as the background-color
+  static-CSS sync: added `html { font-size: 14px }` to
+  `components/admin-front/public/css/style.css`, kept in sync with `theme.js` by hand (a
+  plain CSS file can't read the JS theme) with a comment explaining why. **How this was
+  found**: the Style Guide's "Edit mode" → "Bake into theme.overrides.json" flow had, in an
+  earlier session, baked `typography.htmlFontSize: 14` *and* `typography.button.fontSize:
+  '1rem'` into that file on one machine — undocumented, uncommitted, invisible from `theme.js`
+  alone, and silently making the live app render differently than the checked-in source
+  implied. Traced the discrepancy, confirmed the bake endpoint itself is correct (a proper
+  `merge(current, incoming)` write, not the bug), then promoted both baked values into
+  `theme.js` as real, deliberate, documented decisions and removed them from
+  `theme.overrides.json`. This file has no "remove one baked field" UI yet (only a full
+  reset) — see "Worth addressing" for the other stray/undocumented values still sitting in
+  it, not yet audited. _(2026-08-26)_
 
 ## Typography (cabinet-front / `packages/front-core/theme.js`)
 
@@ -192,15 +213,20 @@ uses `packages/front-core/theme.js`, which has only one change so far (see Typog
 
 ## Worth addressing (known issues found, not yet fixed)
 
+- **`theme.overrides.json` still has other un-audited baked values, not yet reconciled into
+  `theme.js` or discarded.** The committed file (as of this writing) has `h5`/`h6`/
+  `subtitle1`/`subtitle2` `fontWeight`, `h1.textTransform`, and `button.textTransform`/
+  `fontWeight`/`letterSpacing`/`lineHeight` — none of it documented here despite having
+  been live since the Style Guide's own first commit. Separately, the Windows-PC checkout's
+  *local, uncommitted* copy of this file has even more: `caption.fontSize`/`lineHeight`,
+  `overline.lineHeight`/`fontWeight`, and `palette.primary.light`/`dark` — none of that has
+  reached this Mac checkout or git at all, since the file was never re-committed after
+  c85a27f. Each one is either a real design decision that belongs in `theme.js` (and this
+  log) or leftover experimentation that should just be deleted — needs going through
+  key-by-key, the same way `htmlFontSize`/`button.fontSize` just were, above. _(2026-08-26)_
 - **`palette.divider` (`rgba(0, 0, 0, 0.12)`) looks like the same class of leftover
   light-theme value** as the ones already fixed above — not yet checked against how
   dividers actually render on this dark theme. _(2026-08-23)_
-- **Root font-size (`1rem`) has no app-wide effect yet.** The design-review tool can
-  preview and bake a `typography.htmlFontSize` value into `theme.overrides.json`, but per
-  MUI's docs that property only feeds MUI's internal px→rem math — it does not itself
-  change the DOM. Making a baked value actually apply app-wide would need an
-  `html { font-size: Npx }` rule added somewhere that loads globally, the same category of
-  fix as the static-CSS page-background sync above. Not yet done. _(2026-08-23)_
 - **`theme.js` still uses the legacy v4 theme shape** (`overrides`, `props` top-level
   keys), adapted at runtime via `adaptV4Theme()` in `App.jsx`, rather than v5's native
   `components.<Name>.styleOverrides`. Not urgent — `adaptV4Theme` still works — but it's a

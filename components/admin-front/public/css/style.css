@@ -32,6 +32,14 @@ body, #root {
     background: #0c0c0c!important;
 }
 
+/* Kept in sync with typography.htmlFontSize in src/application/theme.js by hand (same
+   reason as above). MUI's htmlFontSize theme option only feeds its own internal px->rem
+   math — it doesn't touch the DOM by itself, so this rule is what actually makes 1rem
+   equal 14px everywhere. */
+html {
+    font-size: 14px;
+}
+
 .rst__rowContents {
     background-color: rgba(0, 0, 0, 0.1)!important;
 }
