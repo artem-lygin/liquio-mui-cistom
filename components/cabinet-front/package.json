@@ -53,6 +53,7 @@
     "@fullcalendar/react": "6.1.8",
     "@fullcalendar/timegrid": "6.1.8",
     "@lupus-ai/mui-currency-textfield": "1.0.3",
+    "@material-symbols-svg/react": "0.13.0",
     "@monaco-editor/react": "^4.7.0",
     "@mui/icons-material": "5.10.14",
     "@mui/material": "5.10.14",

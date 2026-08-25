@@ -53,6 +53,7 @@
     "mobile-detect": "*",
     "moment": "2.29.4",
     "moment-timezone": "0.5.45",
+    "@material-symbols-svg/react": "*",
     "@monaco-editor/react": "*",
     "@mui/icons-material": "*",
     "@mui/material": "5.10.14",

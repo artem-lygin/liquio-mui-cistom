@@ -152,6 +152,16 @@ const baseTheme = {
             fill: 'currentColor'
           }
       },
+      // MUI's own Button.js hardcodes a different fontSize per size (13px/15px for
+      // small/large via pxToRem), overriding typography.button.fontSize — only medium
+      // was ever left alone. Pinning small/large back to the same value unifies all
+      // three sizes on the theme's "Buttons" typography.
+      sizeSmall: {
+        fontSize: '0.875rem'
+      },
+      sizeLarge: {
+        fontSize: '0.875rem'
+      },
       containedPrimary: {
         marginRight: 4,
         color: '#232f3d',

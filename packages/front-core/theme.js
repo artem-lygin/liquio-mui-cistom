@@ -128,6 +128,16 @@ export default {
           backgroundColor: '#F7E7EB',
         },
       },
+      // MUI's own Button.js hardcodes a different fontSize per size (13px/15px for
+      // small/large via pxToRem), overriding root's fontSize: 14 above — only medium
+      // was ever left alone. Pinning small/large back to the same value unifies all
+      // three sizes on the theme's "Buttons" typography.
+      sizeSmall: {
+        fontSize: 14,
+      },
+      sizeLarge: {
+        fontSize: 14,
+      },
       containedPrimary: {
         borderRadius: 8,
         fontWeight: 500,

@@ -79,6 +79,18 @@ uses `packages/front-core/theme.js`, which has only one change so far (see Typog
   `body1`/`body2`/`subtitle1`/`subtitle2`/`overline`/`caption` already matched the target
   scale, so left untouched. _(2026-08-22)_
 
+- **Unified Button font-size across all three sizes (`small`/`medium`/`large`).** MUI's own
+  `Button.js` hardcodes a different `pxToRem()` fontSize per size by default (13px/15px for
+  small/large), which silently overrode `theme.typography.button.fontSize` — `medium` was
+  the only size that ever actually rendered with this app's "Buttons" typography (`0.875rem`
+  / `14px`); small and large rendered one step smaller/larger than every other button on the
+  page, and had done so unnoticed since neither size carried an explicit override to catch
+  it. Added `overrides.MuiButton.sizeSmall`/`sizeLarge` (each set to `fontSize: '0.875rem'`,
+  matching `typography.button.fontSize`) to cancel MUI's default back out. Verified via the
+  Style Guide's Buttons section: all three sizes now report the same fontSize in the
+  properties table, and the demo buttons' rendered text size no longer visibly steps between
+  sizes. _(2026-08-25)_
+
 ## Typography (cabinet-front / `packages/front-core/theme.js`)
 
 - **Registered `variantMapping` for the custom typography variants.** `title`,
@@ -94,6 +106,12 @@ uses `packages/front-core/theme.js`, which has only one change so far (see Typog
   but `admin-front` has its own separate, non-merging `theme.js` that doesn't define these
   variants at all (confirmed dormant/unused there), so this fix only affects
   `cabinet-front`. _(2026-08-23)_
+- **Unified Button font-size across all three sizes**, same underlying MUI default-override
+  issue as `admin-front` (see Typography above): added `overrides.MuiButton.sizeSmall`/
+  `sizeLarge` (each `fontSize: 14`, matching this file's own `MuiButton.root.fontSize: 14`,
+  which equals `typography.button.fontSize` at `0.875rem`) to stop `small`/`large` buttons
+  from rendering one step smaller/larger than `medium`. Verified in cabinet-front's
+  `/style-guide` page. _(2026-08-25)_
 
 ## Infrastructure
 
@@ -126,6 +144,37 @@ uses `packages/front-core/theme.js`, which has only one change so far (see Typog
   Register" modal) for layout regressions — all rendered correctly, nothing overlapping or
   misaligned. Not exhaustive (the BPMN workflow designer canvas and most other dialogs
   weren't checked) — worth a broader pass before shipping. _(2026-08-23)_
+
+## Icons
+
+- **Added `@material-symbols-svg/react` as a second icon source, alongside the existing
+  `@mui/icons-material`.** Not a migration — no existing `<XIcon />` usage was touched;
+  this makes Material Symbols *available* for new icon usage going forward. Installed in
+  both `components/admin-front/package.json` and `components/cabinet-front/package.json`
+  (plus a `"*"` peer declaration in `packages/front-core/package.json`, matching how
+  `@mui/icons-material` is already declared there). Settled on **Rounded style, weight
+  400, filled** (`DeleteFill` from `@material-symbols-svg/react/rounded/w400` in the PoC) —
+  style/weight/fill are each a separate named export chosen at import time, not a runtime
+  prop, so switching any of them means importing a different component.
+- **Usage pattern**: the package renders a plain `<svg>`, so it wraps in MUI's own
+  `SvgIcon` via the `component` prop — `<SvgIcon component={DeleteFill} inheritViewBox
+  color="primary" fontSize="small" />` — picking up this app's existing `color`/`fontSize`
+  theming conventions with no new theming layer. **`inheritViewBox` is required**:
+  Material Symbols' SVGs use a `viewBox="0 -960 960 960"` coordinate space, not the
+  classic 24×24 grid MUI's own `SvgIcon` defaults to — without it, the icon renders
+  squished. Verified: both icon sets resolve to identical computed colors per `color`
+  value (confirmed via `getComputedStyle` — `inherit`/`primary`/`error` all matched
+  between `@mui/icons-material`'s `DeleteIcon` and the wrapped `DeleteFill`).
+- **Where to see it**: the Style Guide's "Icon library" section (`packages/front-core/
+  modules/styleGuide/pages/StyleGuide.jsx`, id `icon-library`) — a side-by-side
+  comparison of both icon sources, not yet used in any production page. _(2026-08-25)_
+- **Switched the Style Guide's own Buttons/Icon Buttons demos over to Material Symbols**,
+  so every interactive-component demo in the guide is now consistent on one icon source.
+  The Buttons demo already used it (`SymbolDelete`/`SymbolArrowForward` for
+  `startIcon`/`endIcon`); Icon Buttons still rendered classic `@mui/icons-material`'s
+  `DeleteIcon` — swapped for `<SvgIcon component={SymbolDelete} inheritViewBox
+  fontSize="inherit" />`, the same wrapping pattern documented above. Purely a demo change
+  (no production `<IconButton>` usage was touched). _(2026-08-25)_
 
 ## Worth addressing (known issues found, not yet fixed)
 
