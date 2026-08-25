@@ -1118,11 +1118,16 @@ const BUTTON_ICON_METRICS = {
 };
 
 // Reads the fontSize a given size actually renders with, live from the theme: an explicit
-// MuiButton.size{Small,Large} override if the app defines one (both app themes now pin this
-// to match typography.button.fontSize — see CHANGES.md), otherwise typography.button.fontSize
-// itself (what medium always uses, having no size-specific override).
+// MuiButton.size{Small,Large} override if the app defines one (both app themes now derive
+// this from theme.typography.button.fontSize via a function-valued style override — see
+// CHANGES.md), otherwise typography.button.fontSize itself (what medium always uses, having
+// no size-specific override). getMuiStyleOverride can return either a plain object or that
+// function, hence resolveMuiStyleOverride before reading .fontSize off it.
 const getButtonSizeFontSize = (size, previewTheme) => {
-  const override = getMuiStyleOverride(previewTheme, 'MuiButton', `size${size[0].toUpperCase()}${size.slice(1)}`);
+  const override = resolveMuiStyleOverride(
+    getMuiStyleOverride(previewTheme, 'MuiButton', `size${size[0].toUpperCase()}${size.slice(1)}`),
+    previewTheme
+  );
   return override?.fontSize !== undefined ? override.fontSize : previewTheme.typography.button.fontSize;
 };
 
@@ -1177,6 +1182,13 @@ const capitalize = (s) => s.charAt(0).toUpperCase() + s.slice(1);
 // override shape (e.g. admin's per-color `containedPrimary`/`outlinedPrimary`/`textPrimary`/
 // `textSecondary` slots) applies universally.
 const getMuiStyleOverride = (previewTheme, component, slot) => previewTheme.components?.[component]?.styleOverrides?.[slot] || null;
+
+// A styleOverrides slot can be a plain object or a function `({ theme, ownerState }) =>
+// object` — MUI v5's documented shape for a style override that reads the live theme
+// instead of duplicating a value as a literal (see MuiButton.sizeSmall/sizeLarge in both
+// theme.js files, and CHANGES.md's Typography section). Resolve either shape to a plain
+// object before reading properties off it.
+const resolveMuiStyleOverride = (override, previewTheme) => (typeof override === 'function' ? override({ theme: previewTheme }) : override);
 
 const readBackground = (styleObj) => (styleObj ? (styleObj.background !== undefined ? styleObj.background : styleObj.backgroundColor) : undefined);
 
@@ -1420,23 +1432,26 @@ const getButtonTokenItems = (variant, color, size, state, previewTheme, showStar
     }
   ];
   const sizeSlot = `size${size[0].toUpperCase()}${size.slice(1)}`;
-  const sizeOverride = getMuiStyleOverride(previewTheme, 'MuiButton', sizeSlot);
+  const sizeOverride = resolveMuiStyleOverride(getMuiStyleOverride(previewTheme, 'MuiButton', sizeSlot), previewTheme);
   if (sizeOverride?.fontSize !== undefined) {
     // MUI's Button.js hardcodes a *different* pxToRem() fontSize per size by default
     // (13px/15px for small/large, overriding typography.button.fontSize — medium was
     // always the one size left alone). Both app themes now add this explicit
-    // sizeSmall/sizeLarge override specifically to cancel that default back out, so
-    // font-size is one consistent "Buttons" typography across every size instead of
-    // three different ones.
-    const normalizedOverride = typeof sizeOverride.fontSize === 'number' ? previewTheme.typography.pxToRem(sizeOverride.fontSize) : sizeOverride.fontSize;
+    // sizeSmall/sizeLarge override — a function reading the theme live, not a duplicated
+    // literal — specifically to cancel that default back out, so font-size is one
+    // consistent "Buttons" typography across every size instead of three different ones.
+    // Once resolved (see resolveMuiStyleOverride), figure out which token it actually read:
+    // theme.typography.button.small/.large if that app has since opted a size into its own
+    // distinct value, otherwise the shared theme.typography.button.fontSize every size
+    // defaults to today.
+    const perSizeKey = size === 'small' || size === 'large' ? size : null;
+    const perSizeFontSize = perSizeKey ? previewTheme.typography.button[perSizeKey]?.fontSize : undefined;
+    const sourcePath = perSizeFontSize !== undefined ? `theme.typography.button.${perSizeKey}.fontSize` : 'theme.typography.button.fontSize';
     typographyTokens.push({
       path: `MuiButton.${sizeSlot}`,
       status: 'overridden',
       inheritsFrom: notResting,
-      note:
-        normalizedOverride === previewTheme.typography.button.fontSize
-          ? `fontSize — pinned to ${sizeOverride.fontSize} here, matching typography.button.fontSize, to cancel out MUI's default per-size override for size="${size}"`
-          : `fontSize — overridden to ${sizeOverride.fontSize} for size="${size}", diverging from typography.button.fontSize (${previewTheme.typography.button.fontSize})`
+      note: `fontSize — function-valued override, reads ${sourcePath} live (currently ${sizeOverride.fontSize}) instead of duplicating it as a literal, so this size stays in sync automatically if the token changes`
     });
   } else {
     typographyTokens.push({

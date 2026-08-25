@@ -85,11 +85,21 @@ uses `packages/front-core/theme.js`, which has only one change so far (see Typog
   the only size that ever actually rendered with this app's "Buttons" typography (`0.875rem`
   / `14px`); small and large rendered one step smaller/larger than every other button on the
   page, and had done so unnoticed since neither size carried an explicit override to catch
-  it. Added `overrides.MuiButton.sizeSmall`/`sizeLarge` (each set to `fontSize: '0.875rem'`,
-  matching `typography.button.fontSize`) to cancel MUI's default back out. Verified via the
-  Style Guide's Buttons section: all three sizes now report the same fontSize in the
-  properties table, and the demo buttons' rendered text size no longer visibly steps between
-  sizes. _(2026-08-25)_
+  it. First pass added `overrides.MuiButton.sizeSmall`/`sizeLarge` with a hardcoded
+  `fontSize: '0.875rem'` — visually correct but a **second literal duplicating**
+  `typography.button.fontSize`, not a reference to it (the exact anti-pattern this project
+  is trying to avoid — see `CLAUDE.md`). Revised to a function-valued style override that
+  reads the token live instead: `sizeSmall: ({ theme }) => ({ fontSize:
+  theme.typography.button.small?.fontSize ?? theme.typography.button.fontSize })` (and the
+  mirror for `sizeLarge`/`.large`). Confirmed `adaptV4Theme()` forwards function values
+  through the legacy `overrides.MuiButton` shape unchanged (it's a plain object copy into
+  `components.MuiButton.styleOverrides`), so this works through the bridge with no other
+  changes. The `.small`/`.large` lookups are unused today (all three sizes intentionally
+  share one typography, per product-designer direction) but let a future, deliberately
+  different size be added later by just setting `theme.typography.button.small`/`.large` —
+  no change needed in `MuiButton` itself. Verified via the Style Guide's Buttons section:
+  all three sizes still report the same fontSize in the properties table, and the demo
+  buttons' rendered text size still doesn't step between sizes. _(2026-08-25 → 2026-08-26)_
 
 ## Typography (cabinet-front / `packages/front-core/theme.js`)
 
@@ -107,11 +117,15 @@ uses `packages/front-core/theme.js`, which has only one change so far (see Typog
   variants at all (confirmed dormant/unused there), so this fix only affects
   `cabinet-front`. _(2026-08-23)_
 - **Unified Button font-size across all three sizes**, same underlying MUI default-override
-  issue as `admin-front` (see Typography above): added `overrides.MuiButton.sizeSmall`/
-  `sizeLarge` (each `fontSize: 14`, matching this file's own `MuiButton.root.fontSize: 14`,
-  which equals `typography.button.fontSize` at `0.875rem`) to stop `small`/`large` buttons
-  from rendering one step smaller/larger than `medium`. Verified in cabinet-front's
-  `/style-guide` page. _(2026-08-25)_
+  issue as `admin-front` (see Typography above). Also caught a second, app-specific
+  duplicate here: `MuiButton.root` hardcoded its own `fontSize: 14`, numerically equal to
+  `typography.button.fontSize` (`0.875rem` = 14px) but not actually derived from it — Button
+  already spreads `...theme.typography.button` onto root by default, so the literal was
+  pure redundancy. Removed it, and added `sizeSmall`/`sizeLarge` as function-valued style
+  overrides reading `theme.typography.button.fontSize` live (mirroring the admin-front fix
+  — see Typography above for the exact shape and the `.small`/`.large` room-to-grow lookup).
+  All three sizes now trace back to the one token with zero duplicated literals. Verified in
+  cabinet-front's `/style-guide` page. _(2026-08-25 → 2026-08-26)_
 
 ## Infrastructure
 

@@ -152,16 +152,22 @@ const baseTheme = {
             fill: 'currentColor'
           }
       },
-      // MUI's own Button.js hardcodes a different fontSize per size (13px/15px for
-      // small/large via pxToRem), overriding typography.button.fontSize — only medium
-      // was ever left alone. Pinning small/large back to the same value unifies all
-      // three sizes on the theme's "Buttons" typography.
-      sizeSmall: {
-        fontSize: '0.875rem'
-      },
-      sizeLarge: {
-        fontSize: '0.875rem'
-      },
+      // theme.typography.button is the single source of truth for the Buttons label
+      // typography. MUI's own Button.js hardcodes a different fontSize per size by default
+      // (13px/15px for small/large via pxToRem, overriding the token) — medium is the only
+      // size MUI leaves alone. Reading theme.typography.button.fontSize here (rather than
+      // duplicating its current value as a literal) keeps small/large permanently in sync
+      // with the token instead of silently drifting if it's ever changed. The `.small`/
+      // `.large` lookups are unused today — small/medium/large intentionally share one
+      // typography right now — but let a future, deliberately different size be added later
+      // by just setting theme.typography.button.small/.large; nothing here would need to
+      // change.
+      sizeSmall: ({ theme }) => ({
+        fontSize: theme.typography.button.small?.fontSize ?? theme.typography.button.fontSize
+      }),
+      sizeLarge: ({ theme }) => ({
+        fontSize: theme.typography.button.large?.fontSize ?? theme.typography.button.fontSize
+      }),
       containedPrimary: {
         marginRight: 4,
         color: '#232f3d',

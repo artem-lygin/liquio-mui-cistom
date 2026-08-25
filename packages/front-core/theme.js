@@ -107,10 +107,13 @@ export default {
     },
     MuiButton: {
       root: {
+        // fontSize intentionally not set here: Button.js already spreads
+        // ...theme.typography.button (fontSize 0.875rem = 14px) onto root by default, so a
+        // literal here would just be a second copy of that same value — see the sizeSmall/
+        // sizeLarge comment below for why that's worth avoiding.
         padding: '10px 12px',
         borderRadius: 8,
         background: '#F2F7FF',
-        fontSize: 14,
         fontStyle: 'normal',
         fontWeight: 500,
         lineHeight: '20px',
@@ -128,16 +131,22 @@ export default {
           backgroundColor: '#F7E7EB',
         },
       },
-      // MUI's own Button.js hardcodes a different fontSize per size (13px/15px for
-      // small/large via pxToRem), overriding root's fontSize: 14 above — only medium
-      // was ever left alone. Pinning small/large back to the same value unifies all
-      // three sizes on the theme's "Buttons" typography.
-      sizeSmall: {
-        fontSize: 14,
-      },
-      sizeLarge: {
-        fontSize: 14,
-      },
+      // theme.typography.button is the single source of truth for the Buttons label
+      // typography. MUI's own Button.js hardcodes a different fontSize per size by default
+      // (13px/15px for small/large via pxToRem, overriding the token) — medium is the only
+      // size MUI leaves alone. Reading theme.typography.button.fontSize here (rather than
+      // duplicating its current value as a literal) keeps small/large permanently in sync
+      // with the token instead of silently drifting if it's ever changed. The `.small`/
+      // `.large` lookups are unused today — small/medium/large intentionally share one
+      // typography right now — but let a future, deliberately different size be added later
+      // by just setting theme.typography.button.small/.large; nothing here would need to
+      // change.
+      sizeSmall: ({ theme }) => ({
+        fontSize: theme.typography.button.small?.fontSize ?? theme.typography.button.fontSize
+      }),
+      sizeLarge: ({ theme }) => ({
+        fontSize: theme.typography.button.large?.fontSize ?? theme.typography.button.fontSize
+      }),
       containedPrimary: {
         borderRadius: 8,
         fontWeight: 500,
