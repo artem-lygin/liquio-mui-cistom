@@ -39,11 +39,12 @@ import {
   ThemeProvider,
   useTheme
 } from '@mui/material';
-// react-colorful's alpha-aware picker — added specifically because the native
-// <input type="color"> used everywhere else in this file (still fine for opaque colors)
-// has no alpha channel at all per the HTML spec, and several real theme tokens
-// (palette.text.secondary, palette.divider, etc.) are rgba() values. ~2.8kb, zero deps.
-import { HexAlphaColorPicker } from 'react-colorful';
+// @uiw/react-color-chrome's alpha-aware, Chrome/Sketch-style picker (RGBA + HSLA input
+// modes built in) — added specifically because the native <input type="color"> used
+// everywhere else in this file (still fine for opaque colors) has no alpha channel at all
+// per the HTML spec, and several real theme tokens (palette.text.secondary,
+// palette.divider, etc.) are rgba() values.
+import Chrome from '@uiw/react-color-chrome';
 // Material Symbols, added as a second icon source alongside @mui/icons-material (classic
 // Material Icons, SVG) — see CHANGES.md and the "Icon library" section below. Each renders a
 // plain <svg>, so it drops straight into MUI's SvgIcon via the `component` prop rather than
@@ -876,16 +877,26 @@ const cssColorToRgba = (colorStr) => {
   return { r, g, b, a: Math.round((a / 255) * 1000) / 1000 };
 };
 
-const componentToHex2 = (n) => n.toString(16).padStart(2, '0');
-
-// react-colorful's HexAlphaColorPicker works in #rrggbbaa strings.
-const rgbaToHex8 = ({ r, g, b, a }) => `#${componentToHex2(r)}${componentToHex2(g)}${componentToHex2(b)}${componentToHex2(Math.round(a * 255))}`;
-
-// Chooses what actually gets written back into the theme draft: plain 6-digit hex when
-// fully opaque (matching how this codebase already writes opaque colors, e.g. '#0c0c0c'),
-// rgba() only when alpha genuinely matters — so editing an opaque color's hue doesn't
-// rewrite it into a noisier, functionally-identical rgba(x, y, z, 1) form.
-const formatColorForTheme = ({ r, g, b, a }) => (a >= 0.999 ? `#${componentToHex2(r)}${componentToHex2(g)}${componentToHex2(b)}` : `rgba(${r}, ${g}, ${b}, ${a})`);
+// Standard RGB -> HSV conversion (h: 0-360, s/v: 0-100) — @uiw/react-color-chrome's `color`
+// prop takes an HSVA object, not a hex/rgba string, so this bridges from cssColorToRgba's
+// output. Plain math, no extra dependency for something this small.
+const rgbToHsva = ({ r, g, b, a }) => {
+  const rNorm = r / 255;
+  const gNorm = g / 255;
+  const bNorm = b / 255;
+  const max = Math.max(rNorm, gNorm, bNorm);
+  const min = Math.min(rNorm, gNorm, bNorm);
+  const delta = max - min;
+  let h = 0;
+  if (delta !== 0) {
+    if (max === rNorm) h = ((gNorm - bNorm) / delta) % 6;
+    else if (max === gNorm) h = (bNorm - rNorm) / delta + 2;
+    else h = (rNorm - gNorm) / delta + 4;
+    h *= 60;
+    if (h < 0) h += 360;
+  }
+  return { h, s: max === 0 ? 0 : (delta / max) * 100, v: max * 100, a };
+};
 
 const CHECKERBOARD_BG = {
   backgroundImage:
@@ -894,19 +905,23 @@ const CHECKERBOARD_BG = {
   backgroundPosition: '0 0, 0 4px, 4px -4px, -4px 0px'
 };
 
-// Alpha-aware color swatch: click to open a popover with react-colorful's
-// HexAlphaColorPicker, plus a raw-value text field for pasting/typing any valid CSS color
-// directly. Replaces the native <input type="color"> everywhere in edit mode — that input
-// has no alpha channel at all per the HTML spec, and several real theme tokens
-// (palette.text.secondary, palette.divider, ...) are rgba() values it couldn't represent.
-// The swatch itself shows a checkerboard behind the color so partial transparency is
-// actually visible, not just implied.
+// Alpha-aware color swatch: click to open a popover with @uiw/react-color-chrome's Chrome
+// picker (Chrome/Sketch-style UI — saturation panel, hue/alpha sliders, and a built-in
+// editable input that toggles between hex/RGBA/HSLA). Replaces the native
+// <input type="color"> everywhere in edit mode — that input has no alpha channel at all per
+// the HTML spec, and several real theme tokens (palette.text.secondary, palette.divider,
+// ...) are rgba() values it couldn't represent. The swatch itself shows a checkerboard
+// behind the color so partial transparency is actually visible, not just implied.
 const AlphaColorSwatch = ({ color, onChange, size = 32 }) => {
   const [anchorEl, setAnchorEl] = React.useState(null);
-  const rgba = React.useMemo(() => cssColorToRgba(color), [color]);
-  const hex8 = rgbaToHex8(rgba);
+  const hsva = React.useMemo(() => rgbToHsva(cssColorToRgba(color)), [color]);
 
-  const handlePickerChange = (nextHex8) => onChange(formatColorForTheme(cssColorToRgba(nextHex8)));
+  // Chrome's onChange gives back every representation already computed (hex, hexa, rgba
+  // string, hsva, ...) — no need to build strings ourselves. Plain hex when fully opaque
+  // (matching how this codebase already writes opaque colors, e.g. '#0c0c0c'), the ready
+  // rgba() string only when alpha genuinely matters, so editing an opaque color's hue
+  // doesn't rewrite it into a noisier, functionally-identical rgba(x, y, z, 1) form.
+  const handlePickerChange = (nextColor) => onChange(nextColor.hsva.a >= 0.999 ? nextColor.hex : nextColor.rgba);
 
   return (
     <>
@@ -927,18 +942,7 @@ const AlphaColorSwatch = ({ color, onChange, size = 32 }) => {
         <div style={{ position: 'absolute', inset: 0, background: color || 'transparent' }} />
       </div>
       <Popover open={Boolean(anchorEl)} anchorEl={anchorEl} onClose={() => setAnchorEl(null)} anchorOrigin={{ vertical: 'bottom', horizontal: 'left' }}>
-        <div style={{ padding: 12 }}>
-          <HexAlphaColorPicker color={hex8} onChange={handlePickerChange} />
-          <TextField
-            size="small"
-            variant="outlined"
-            value={color || ''}
-            onChange={(event) => onChange(event.target.value)}
-            placeholder="#rrggbb or rgba(r, g, b, a)"
-            style={{ marginTop: 8, width: 220 }}
-            inputProps={{ style: { fontFamily: 'monospace', fontSize: 12 } }}
-          />
-        </div>
+        <Chrome color={hsva} onChange={handlePickerChange} showEditableInput={true} />
       </Popover>
     </>
   );
