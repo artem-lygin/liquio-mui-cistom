@@ -18,7 +18,7 @@
     "button": {
       "textTransform": "none",
       "fontWeight": "600",
-      "letterSpacing": "0.02857em",
+      "letterSpacing": "0em",
       "lineHeight": "1.2"
     }
   }
