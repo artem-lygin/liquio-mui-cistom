@@ -1058,6 +1058,58 @@ const ColorTokenTable = ({ rows }) => (
   </Table>
 );
 
+// One row per color-bearing property on a component — used by the Colors section's
+// "Components" breakdown (see getButtonColorRows and friends below) so the same palette
+// shown in the Palette tables above can be cross-checked against where each component
+// actually gets its color from: read live from theme.palette (status 'theme'), replaced
+// with a literal by this app (status 'overridden' — even when that literal currently
+// matches the palette, since it's still an independent value, not a reference), or
+// hardcoded by MUI itself with no palette token involved at all (status 'other'). Unlike
+// TokenLegend, Value is its own column (the resolved literal, always shown with a swatch)
+// rather than folded into free-text Notes.
+const COMPONENT_COLOR_CELL_STYLE = { padding: '4px 8px', verticalAlign: 'top' };
+
+const ComponentColorTable = ({ rows }) => (
+  <Table size="small" style={{ tableLayout: 'fixed', marginBottom: 8 }}>
+    <TableHead>
+      <TableRow>
+        <TableCell style={{ ...COMPONENT_COLOR_CELL_STYLE, width: 260 }}>Theme color token</TableCell>
+        <TableCell style={{ ...COMPONENT_COLOR_CELL_STYLE, width: 200 }}>Value</TableCell>
+        <TableCell style={{ ...COMPONENT_COLOR_CELL_STYLE, width: 60, textAlign: 'center' }}>Status</TableCell>
+        <TableCell style={COMPONENT_COLOR_CELL_STYLE}>Notes</TableCell>
+      </TableRow>
+    </TableHead>
+    <TableBody>
+      {rows.length ? (
+        rows.map((row, index) => (
+          <TableRow key={`${row.token}-${index}`}>
+            <TableCell style={{ ...COMPONENT_COLOR_CELL_STYLE, fontFamily: 'monospace', fontSize: 12 }}>{row.token}</TableCell>
+            <TableCell style={{ ...COMPONENT_COLOR_CELL_STYLE, fontFamily: 'monospace', fontSize: 12 }}>
+              {row.value ? withColorSwatches(row.value) : '(not set)'}
+            </TableCell>
+            <TableCell style={{ ...COMPONENT_COLOR_CELL_STYLE, textAlign: 'center' }}>
+              <StatusBadge status={row.status} />
+            </TableCell>
+            <TableCell style={COMPONENT_COLOR_CELL_STYLE}>
+              <Typography variant="caption" color="textSecondary">
+                {row.note}
+              </Typography>
+            </TableCell>
+          </TableRow>
+        ))
+      ) : (
+        <TableRow>
+          <TableCell colSpan={4} style={COMPONENT_COLOR_CELL_STYLE}>
+            <Typography variant="caption" color="textSecondary">
+              No color-bearing overrides found for this component in the active theme.
+            </Typography>
+          </TableCell>
+        </TableRow>
+      )}
+    </TableBody>
+  </Table>
+);
+
 // A token's `status` (defaults to 'theme' when omitted, since that's the common case) says
 // whether the value shown actually comes from the live theme, or whether it's a fact about
 // the app/MUI overriding or ignoring the theme entirely. Only tokens that deviate need to set
@@ -1315,6 +1367,205 @@ const describeOverridden = (kind, overrideVal, themeVal, themePath) =>
   overrideVal === themeVal
     ? `${kind} — hardcodes ${overrideVal} here too, duplicating ${themePath}'s own current value; no visual difference today, but the two are independent literals that would silently diverge if either changed alone`
     : `${kind} — overridden to ${overrideVal} in this app; theme value is ${themeVal}`;
+
+// Builds one ComponentColorTable row for a single color-bearing property, given the same
+// three places every contextual color legend in this file already checks in order: this
+// app's own override on the specific slot, then a hardcoded fallback on a shared root slot
+// that would apply regardless of what's being asked for, then the live palette value.
+// Returns null when none of the three actually apply (nothing to show).
+const resolveComponentColorRow = ({ label, overrideValue, overridePath, rootValue, rootPath, paletteValue, palettePath }) => {
+  if (overrideValue !== undefined) {
+    return {
+      token: overridePath,
+      value: overrideValue,
+      status: 'overridden',
+      note:
+        paletteValue !== undefined
+          ? overrideValue === paletteValue
+            ? `${label} — duplicates ${palettePath}'s current value as a literal; would silently diverge if either changes alone.`
+            : `${label} — overridden here; ${palettePath} is ${paletteValue}.`
+          : `${label} — hardcoded in this app, no matching palette token.`
+    };
+  }
+  if (rootValue !== undefined) {
+    return {
+      token: rootPath,
+      value: rootValue,
+      status: 'other',
+      note: `${label} — hardcoded on ${rootPath}, applies to every instance regardless of color/variant${palettePath ? `; ${palettePath} (${paletteValue}) is never reached` : ''}.`
+    };
+  }
+  if (paletteValue !== undefined) {
+    return { token: palettePath, value: paletteValue, status: 'theme', note: `${label} — read live, no override.` };
+  }
+  return null;
+};
+
+// Buttons tokens: background + label color for each contained/outlined/text × primary/
+// secondary combination (resting state — hover/focus/disabled color facts live in the
+// Buttons demo's own contextual properties panel, not duplicated here), plus IconButton's
+// icon color since it's part of the same component family in the demo nav.
+const getButtonColorRows = (previewTheme) => {
+  const rows = [];
+  const rootSlot = getMuiStyleOverride(previewTheme, 'MuiButton', 'root');
+  const rootBg = readBackground(rootSlot);
+  const rootColor = rootSlot?.color;
+
+  ['primary', 'secondary'].forEach((color) => {
+    const paletteMain = previewTheme.palette[color].main;
+    const paletteContrastText = previewTheme.palette[color].contrastText;
+    ['contained', 'outlined', 'text'].forEach((variant) => {
+      const slotKey = `${variant}${capitalize(color)}`;
+      const overrideSlot = getMuiStyleOverride(previewTheme, 'MuiButton', slotKey);
+      const overrideBg = readBackground(overrideSlot);
+      const overrideColor = overrideSlot?.color;
+      const label = `Button ${variant}/${color}`;
+
+      if (variant === 'contained') {
+        const bgRow = resolveComponentColorRow({
+          label: `${label} background`,
+          overrideValue: overrideBg,
+          overridePath: `MuiButton.${slotKey}`,
+          rootValue: rootBg,
+          rootPath: 'MuiButton.root',
+          paletteValue: paletteMain,
+          palettePath: `palette.${color}.main`
+        });
+        if (bgRow) rows.push(bgRow);
+      } else if (overrideBg !== undefined) {
+        // MUI's own default for text/outlined is a transparent background — this app
+        // painting one in isn't "replacing a palette value" (there isn't one to begin
+        // with), so this doesn't go through resolveComponentColorRow's palette-compare path.
+        rows.push({
+          token: `MuiButton.${slotKey}`,
+          value: overrideBg,
+          status: 'overridden',
+          note: `${label} background — MUI's own default is transparent for ${variant}; this app paints one in.`
+        });
+      }
+
+      const colorRow = resolveComponentColorRow({
+        label: `${label} label`,
+        overrideValue: overrideColor,
+        overridePath: `MuiButton.${slotKey}`,
+        rootValue: rootColor,
+        rootPath: 'MuiButton.root',
+        paletteValue: variant === 'contained' ? paletteContrastText : paletteMain,
+        palettePath: variant === 'contained' ? `palette.${color}.contrastText` : `palette.${color}.main`
+      });
+      if (colorRow) rows.push(colorRow);
+    });
+  });
+
+  const iconRow = resolveComponentColorRow({
+    label: 'IconButton icon',
+    overrideValue: getMuiStyleOverride(previewTheme, 'MuiIconButton', 'root')?.color,
+    overridePath: 'MuiIconButton.root',
+    rootValue: undefined,
+    rootPath: undefined,
+    paletteValue: previewTheme.palette.action.active,
+    palettePath: 'palette.action.active'
+  });
+  if (iconRow) rows.push(iconRow);
+
+  return rows;
+};
+
+// Input tokens: just the value text color at rest — the one color fact resting state
+// actually establishes (see getInputTokenItems above); focus/error/disabled colors live in
+// the Inputs demo's own contextual properties panel.
+const getInputColorRows = (previewTheme) => {
+  const row = resolveComponentColorRow({
+    label: 'Input value text',
+    overrideValue: getMuiStyleOverride(previewTheme, 'MuiInputBase', 'input')?.color,
+    overridePath: 'MuiInputBase.input',
+    rootValue: undefined,
+    rootPath: undefined,
+    paletteValue: previewTheme.palette.text.primary,
+    palettePath: 'palette.text.primary'
+  });
+  return row ? [row] : [];
+};
+
+// Tabs tokens: unselected label color, plus whatever the selected state actually changes
+// (label color, or just background if the app leaves the label alone) — mirrors
+// getTabsTokenItems' own resting-state logic above.
+const getTabsColorRows = (previewTheme) => {
+  const rows = [];
+  const tabRoot = getMuiStyleOverride(previewTheme, 'MuiTab', 'root') || {};
+  const tabTextColorInherit = getMuiStyleOverride(previewTheme, 'MuiTab', 'textColorInherit');
+  const unselectedColor = tabTextColorInherit?.color ?? tabRoot.color;
+  const unselectedPath = tabTextColorInherit?.color !== undefined ? 'MuiTab.textColorInherit' : 'MuiTab.root';
+  const unselectedRow = resolveComponentColorRow({
+    label: 'Tab label (unselected)',
+    overrideValue: unselectedColor,
+    overridePath: unselectedPath,
+    rootValue: undefined,
+    rootPath: undefined,
+    paletteValue: previewTheme.palette.text.secondary,
+    palettePath: 'palette.text.secondary'
+  });
+  if (unselectedRow) rows.push(unselectedRow);
+
+  const selectedFromTextColorInherit = tabTextColorInherit?.['&.Mui-selected'];
+  const selectedFromRoot = tabRoot['&.Mui-selected'];
+  const selectedSlot = selectedFromTextColorInherit || selectedFromRoot;
+  const selectedSlotPath = selectedFromTextColorInherit ? 'MuiTab.textColorInherit "&.Mui-selected"' : 'MuiTab.root "&.Mui-selected"';
+  if (selectedSlot?.color !== undefined) {
+    rows.push({
+      token: selectedSlotPath,
+      value: selectedSlot.color,
+      status: 'overridden',
+      note: 'Tab label (selected) — hardcoded in this app, no matching palette token.'
+    });
+  } else {
+    const selectedBg = readBackground(selectedSlot);
+    if (selectedBg !== undefined) {
+      rows.push({
+        token: selectedSlotPath,
+        value: selectedBg,
+        status: 'overridden',
+        note: 'Tab background (selected) — hardcoded in this app; label color stays the same as unselected.'
+      });
+    }
+  }
+
+  return rows;
+};
+
+// Custom tokens: the bespoke top-level theme keys from CUSTOM_TOKEN_KEYS (leftSidebarBg,
+// buttonBg, ...) — these live outside theme.palette entirely by definition, so every row is
+// 'other' status *unless* its current value happens to coincide with a real palette color,
+// which is worth surfacing as the same "duplicate literal" risk as everywhere else in this
+// file: two values that agree today only by accident, with nothing keeping them in sync.
+const getCustomColorRows = (previewTheme) => {
+  const paletteRefs = [
+    ['palette.primary.main', previewTheme.palette.primary?.main],
+    ['palette.secondary.main', previewTheme.palette.secondary?.main],
+    ['palette.error.main', previewTheme.palette.error?.main],
+    ['palette.background.default', previewTheme.palette.background?.default],
+    ['palette.background.paper', previewTheme.palette.background?.paper],
+    ['palette.text.primary', previewTheme.palette.text?.primary],
+    ['palette.text.secondary', previewTheme.palette.text?.secondary]
+  ];
+  return CUSTOM_TOKEN_KEYS.map((entry) => {
+    const nested = typeof entry === 'object';
+    const key = nested ? entry.key : entry;
+    const value = nested ? previewTheme[key]?.[entry.path] : previewTheme[key];
+    if (typeof value !== 'string') {
+      return null;
+    }
+    const match = paletteRefs.find(([, paletteValue]) => paletteValue === value);
+    return {
+      token: `theme.${key}${nested ? `.${entry.path}` : ''}`,
+      value,
+      status: match ? 'overridden' : 'other',
+      note: match
+        ? `Coincides with ${match[0]}'s current value (${value}) — an independent literal, not an actual reference; would silently diverge if either changes alone.`
+        : 'A bespoke top-level token, outside theme.palette entirely — not derived from any palette value.'
+    };
+  }).filter(Boolean);
+};
 
 // Builds TokenLegend items for one specific button instance (variant + color) in one
 // specific interaction state. Every color fact below is read live from
@@ -2377,6 +2628,14 @@ const StyleGuidePage = () => {
               ))}
 
           <Section id="colors" title="Colors">
+            <Typography variant="subtitle1" gutterBottom={true}>
+              Palette
+            </Typography>
+            <Typography variant="caption" color="textSecondary" component="div" style={{ marginBottom: 8 }}>
+              The raw color/tint layer — theme.palette. Every UI component is meant to resolve
+              its color through one of these tokens, live, rather than a hardcoded literal —
+              see Components below for where that's actually true today.
+            </Typography>
             <ColorTokenTable
               rows={PALETTE_GROUPS.flatMap(([colorName, ...shades]) =>
                 shades.map((shade) => ({
@@ -2404,29 +2663,45 @@ const StyleGuidePage = () => {
               }))}
             />
 
-            <Divider style={{ margin: '16px 0' }} />
+            <Divider style={{ margin: '32px 0 16px' }} />
+
+            <Typography variant="subtitle1" gutterBottom={true}>
+              Components
+            </Typography>
+            <Typography variant="caption" color="textSecondary" component="div" style={{ marginBottom: 16 }}>
+              The same palette, broken down by where each component actually gets its color
+              from: <b>Theme</b> reads a palette token live, no override; <b>Overridden</b>{' '}
+              replaces it with a literal in this app (even when that literal currently matches
+              the palette — it's still an independent value, not a reference, and would
+              silently diverge if either changed alone); <b>Other</b> is hardcoded by MUI
+              itself, no palette token involved at all.
+            </Typography>
 
             <Typography variant="subtitle2" gutterBottom={true}>
-              Custom theme tokens
+              Buttons tokens
+            </Typography>
+            <ComponentColorTable rows={getButtonColorRows(previewTheme)} />
+
+            <Typography variant="subtitle2" gutterBottom={true} style={{ marginTop: 16 }}>
+              Input tokens
+            </Typography>
+            <ComponentColorTable rows={getInputColorRows(previewTheme)} />
+
+            <Typography variant="subtitle2" gutterBottom={true} style={{ marginTop: 16 }}>
+              Tabs tokens
+            </Typography>
+            <ComponentColorTable rows={getTabsColorRows(previewTheme)} />
+
+            <Typography variant="subtitle2" gutterBottom={true} style={{ marginTop: 16 }}>
+              Custom tokens
             </Typography>
             <Typography variant="caption" color="textSecondary" component="div" style={{ marginBottom: 8 }}>
-              Read-only in the playground for now — several of these use rgba()/gradient values
-              a plain color picker can't represent, and they live outside theme.palette. This
-              list is a union across every app this guide can run under — admin-front's
-              theme.js is fully independent of front-core's (cabinet-front's base), so their
-              custom keys only partially overlap. Only the keys that actually resolve in the
-              theme currently active are shown below.
+              Bespoke top-level theme tokens outside theme.palette entirely (leftSidebarBg,
+              buttonBg, ...) — this list is a union across every app this guide can run under,
+              filtered to whichever keys actually resolve to a string in the theme currently
+              active. Several others use rgba()/gradient values not shown here.
             </Typography>
-            <ColorTokenTable
-              rows={CUSTOM_TOKEN_KEYS.map((entry) => {
-                const nested = typeof entry === 'object';
-                const key = nested ? entry.key : entry;
-                const value = nested ? previewTheme[key]?.[entry.path] : previewTheme[key];
-                return typeof value === 'string'
-                  ? { token: `theme.${key}${nested ? `.${entry.path}` : ''}`, color: value, editMode: false, editable: false }
-                  : null;
-              }).filter(Boolean)}
-            />
+            <ComponentColorTable rows={getCustomColorRows(previewTheme)} />
           </Section>
 
           <Section
