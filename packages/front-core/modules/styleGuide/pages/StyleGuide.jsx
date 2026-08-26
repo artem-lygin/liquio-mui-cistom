@@ -34,10 +34,16 @@ import {
   TableCell,
   Tooltip,
   SvgIcon,
+  Popover,
   createTheme,
   ThemeProvider,
   useTheme
 } from '@mui/material';
+// react-colorful's alpha-aware picker — added specifically because the native
+// <input type="color"> used everywhere else in this file (still fine for opaque colors)
+// has no alpha channel at all per the HTML spec, and several real theme tokens
+// (palette.text.secondary, palette.divider, etc.) are rgba() values. ~2.8kb, zero deps.
+import { HexAlphaColorPicker } from 'react-colorful';
 // Material Symbols, added as a second icon source alongside @mui/icons-material (classic
 // Material Icons, SVG) — see CHANGES.md and the "Icon library" section below. Each renders a
 // plain <svg>, so it drops straight into MUI's SvgIcon via the `component` prop rather than
@@ -849,7 +855,94 @@ const SubNav = ({ heading, items, activeSubId, onSelect }) => {
   );
 };
 
-const toHex = (color) => (typeof color === 'string' && /^#[0-9a-f]{6}$/i.test(color) ? color : '#000000');
+// Robust CSS color -> {r,g,b,a} parser: works for any valid CSS color syntax (hex,
+// rgb()/rgba(), hsl()/hsla(), named colors, ...) by letting the browser's own canvas
+// implementation do the parsing, rather than hand-rolling format-specific regexes. An
+// invalid/empty colorStr degrades to black — same fallback the old hex-only toHex() used.
+let colorParseCanvasCtx = null;
+const cssColorToRgba = (colorStr) => {
+  if (!colorParseCanvasCtx) {
+    const canvas = document.createElement('canvas');
+    canvas.width = 1;
+    canvas.height = 1;
+    colorParseCanvasCtx = canvas.getContext('2d', { willReadFrequently: true });
+  }
+  const ctx = colorParseCanvasCtx;
+  ctx.fillStyle = '#000000'; // reset — an invalid assignment below is silently ignored by canvas, not thrown
+  ctx.fillStyle = typeof colorStr === 'string' ? colorStr : '';
+  ctx.clearRect(0, 0, 1, 1);
+  ctx.fillRect(0, 0, 1, 1);
+  const [r, g, b, a] = ctx.getImageData(0, 0, 1, 1).data;
+  return { r, g, b, a: Math.round((a / 255) * 1000) / 1000 };
+};
+
+const componentToHex2 = (n) => n.toString(16).padStart(2, '0');
+
+// react-colorful's HexAlphaColorPicker works in #rrggbbaa strings.
+const rgbaToHex8 = ({ r, g, b, a }) => `#${componentToHex2(r)}${componentToHex2(g)}${componentToHex2(b)}${componentToHex2(Math.round(a * 255))}`;
+
+// Chooses what actually gets written back into the theme draft: plain 6-digit hex when
+// fully opaque (matching how this codebase already writes opaque colors, e.g. '#0c0c0c'),
+// rgba() only when alpha genuinely matters — so editing an opaque color's hue doesn't
+// rewrite it into a noisier, functionally-identical rgba(x, y, z, 1) form.
+const formatColorForTheme = ({ r, g, b, a }) => (a >= 0.999 ? `#${componentToHex2(r)}${componentToHex2(g)}${componentToHex2(b)}` : `rgba(${r}, ${g}, ${b}, ${a})`);
+
+const CHECKERBOARD_BG = {
+  backgroundImage:
+    'linear-gradient(45deg, #808080 25%, transparent 25%), linear-gradient(-45deg, #808080 25%, transparent 25%), linear-gradient(45deg, transparent 75%, #808080 75%), linear-gradient(-45deg, transparent 75%, #808080 75%)',
+  backgroundSize: '8px 8px',
+  backgroundPosition: '0 0, 0 4px, 4px -4px, -4px 0px'
+};
+
+// Alpha-aware color swatch: click to open a popover with react-colorful's
+// HexAlphaColorPicker, plus a raw-value text field for pasting/typing any valid CSS color
+// directly. Replaces the native <input type="color"> everywhere in edit mode — that input
+// has no alpha channel at all per the HTML spec, and several real theme tokens
+// (palette.text.secondary, palette.divider, ...) are rgba() values it couldn't represent.
+// The swatch itself shows a checkerboard behind the color so partial transparency is
+// actually visible, not just implied.
+const AlphaColorSwatch = ({ color, onChange, size = 32 }) => {
+  const [anchorEl, setAnchorEl] = React.useState(null);
+  const rgba = React.useMemo(() => cssColorToRgba(color), [color]);
+  const hex8 = rgbaToHex8(rgba);
+
+  const handlePickerChange = (nextHex8) => onChange(formatColorForTheme(cssColorToRgba(nextHex8)));
+
+  return (
+    <>
+      <div
+        onClick={(event) => setAnchorEl(event.currentTarget)}
+        style={{
+          width: size,
+          height: size,
+          borderRadius: size > 28 ? 6 : 4,
+          border: '1px solid rgba(0,0,0,0.15)',
+          cursor: 'pointer',
+          flexShrink: 0,
+          position: 'relative',
+          overflow: 'hidden',
+          ...CHECKERBOARD_BG
+        }}
+      >
+        <div style={{ position: 'absolute', inset: 0, background: color || 'transparent' }} />
+      </div>
+      <Popover open={Boolean(anchorEl)} anchorEl={anchorEl} onClose={() => setAnchorEl(null)} anchorOrigin={{ vertical: 'bottom', horizontal: 'left' }}>
+        <div style={{ padding: 12 }}>
+          <HexAlphaColorPicker color={hex8} onChange={handlePickerChange} />
+          <TextField
+            size="small"
+            variant="outlined"
+            value={color || ''}
+            onChange={(event) => onChange(event.target.value)}
+            placeholder="#rrggbb or rgba(r, g, b, a)"
+            style={{ marginTop: 8, width: 220 }}
+            inputProps={{ style: { fontFamily: 'monospace', fontSize: 12 } }}
+          />
+        </div>
+      </Popover>
+    </>
+  );
+};
 
 // Notes and values (TokenLegend, ColorTokenTable) are free-text that often contains a raw
 // color literal (e.g. "overridden to #BB86FC in this app", or a whole gradient() value with
@@ -898,12 +991,7 @@ const withColorSwatches = (text) => {
 const Swatch = ({ label, color, editMode, editable, onChange }) => (
   <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 8 }}>
     {editMode && editable ? (
-      <input
-        type="color"
-        value={toHex(color)}
-        onChange={(event) => onChange(event.target.value)}
-        style={{ width: 32, height: 32, borderRadius: 6, border: '1px solid rgba(0,0,0,0.15)', padding: 0, flexShrink: 0 }}
-      />
+      <AlphaColorSwatch color={color} onChange={onChange} size={32} />
     ) : (
       <div
         style={{
@@ -941,12 +1029,7 @@ const ColorTokenTable = ({ rows }) => (
         <TableRow key={row.token}>
           <TableCell style={COLOR_TABLE_CELL_STYLE}>
             {row.editMode && row.editable ? (
-              <input
-                type="color"
-                value={toHex(row.color)}
-                onChange={(event) => row.onChange(event.target.value)}
-                style={{ width: 24, height: 24, borderRadius: 4, border: '1px solid rgba(0,0,0,0.15)', padding: 0 }}
-              />
+              <AlphaColorSwatch color={row.color} onChange={row.onChange} size={24} />
             ) : (
               <div
                 style={{

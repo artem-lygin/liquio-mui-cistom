@@ -70,6 +70,7 @@
     "quill-toggle-fullscreen-button": "*",
     "radioactive-state": "1.4.0",
     "react": "18.3.1",
+    "react-colorful": "*",
     "react-copy-to-clipboard": "5.0.2",
     "react-datasheet": "1.4.12",
     "react-datasheet-grid": "4.11.4",
