@@ -75,7 +75,13 @@ To get a local change into the real running app:
    so `ci` will fail) in whichever app(s) changed, then restart that app's dev server
    (`PORT=8082 npm start` for admin-front, `PORT=8081 npm start` for cabinet-front, both run
    with `BROWSER=none`).
-4. When sending it multi-sentence instructions over `orca terminal send`, send them as a few
+4. **A `packages/front-core` change always needs that restart — it will never hot-reload.**
+   `front-core` is symlinked into each app's `node_modules/core`, and webpack's default file
+   watcher ignores everything under `node_modules`, symlinks included. A change under an
+   app's own `src/` (e.g. `admin-front/src/application/theme.js`) hot-reloads fine; a change
+   under `packages/front-core` (e.g. `StyleGuide.jsx`) silently doesn't, even though the pull
+   itself succeeds — don't assume it's live without restarting.
+5. When sending it multi-sentence instructions over `orca terminal send`, send them as a few
    short separate messages rather than one long one — long single messages have been observed
    arriving garbled/truncated in that terminal.
 
