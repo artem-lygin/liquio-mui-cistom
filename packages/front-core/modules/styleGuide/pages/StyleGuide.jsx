@@ -1263,10 +1263,7 @@ const BUTTON_ICON_METRICS = {
 // no size-specific override). getMuiStyleOverride can return either a plain object or that
 // function, hence resolveMuiStyleOverride before reading .fontSize off it.
 const getButtonSizeFontSize = (size, previewTheme) => {
-  const override = resolveMuiStyleOverride(
-    getMuiStyleOverride(previewTheme, 'MuiButton', `size${size[0].toUpperCase()}${size.slice(1)}`),
-    previewTheme
-  );
+  const override = getResolvedMuiStyleOverride(previewTheme, 'MuiButton', `size${size[0].toUpperCase()}${size.slice(1)}`);
   return override?.fontSize !== undefined ? override.fontSize : previewTheme.typography.button.fontSize;
 };
 
@@ -1286,10 +1283,7 @@ const getButtonFontSizePx = (size, previewTheme, rootFontSize) => fontSizeToPx(g
 // plain-label button doesn't render shorter than an icon+label button of the same size —
 // read it live the same way the fontSize override is read, rather than assuming it exists.
 const getButtonMinHeightPx = (size, previewTheme) => {
-  const override = resolveMuiStyleOverride(
-    getMuiStyleOverride(previewTheme, 'MuiButton', `size${size[0].toUpperCase()}${size.slice(1)}`),
-    previewTheme
-  );
+  const override = getResolvedMuiStyleOverride(previewTheme, 'MuiButton', `size${size[0].toUpperCase()}${size.slice(1)}`);
   return override?.minHeight;
 };
 
@@ -1350,6 +1344,14 @@ const getMuiStyleOverride = (previewTheme, component, slot) => previewTheme.comp
 // object before reading properties off it.
 const resolveMuiStyleOverride = (override, previewTheme) => (typeof override === 'function' ? override({ theme: previewTheme }) : override);
 
+// getMuiStyleOverride + resolveMuiStyleOverride, combined — the two were almost always
+// called together anyway. Every color-bearing read in this file should go through this
+// (not the bare getMuiStyleOverride) so a slot that gets converted to a function-valued
+// override later — the "properly tokenized" fix, e.g. reading theme.palette.primary.main
+// live instead of duplicating it as a literal — keeps reading correctly here instead of
+// silently misreporting it as unset.
+const getResolvedMuiStyleOverride = (previewTheme, component, slot) => resolveMuiStyleOverride(getMuiStyleOverride(previewTheme, component, slot), previewTheme);
+
 const readBackground = (styleObj) => (styleObj ? (styleObj.background !== undefined ? styleObj.background : styleObj.backgroundColor) : undefined);
 
 const readPseudoSlot = (styleObj, ...keys) => {
@@ -1407,7 +1409,7 @@ const resolveComponentColorRow = ({ label, overrideValue, overridePath, rootValu
 // icon color since it's part of the same component family in the demo nav.
 const getButtonColorRows = (previewTheme) => {
   const rows = [];
-  const rootSlot = getMuiStyleOverride(previewTheme, 'MuiButton', 'root');
+  const rootSlot = getResolvedMuiStyleOverride(previewTheme, 'MuiButton', 'root');
   const rootBg = readBackground(rootSlot);
   const rootColor = rootSlot?.color;
 
@@ -1416,7 +1418,7 @@ const getButtonColorRows = (previewTheme) => {
     const paletteContrastText = previewTheme.palette[color].contrastText;
     ['contained', 'outlined', 'text'].forEach((variant) => {
       const slotKey = `${variant}${capitalize(color)}`;
-      const overrideSlot = getMuiStyleOverride(previewTheme, 'MuiButton', slotKey);
+      const overrideSlot = getResolvedMuiStyleOverride(previewTheme, 'MuiButton', slotKey);
       const overrideBg = readBackground(overrideSlot);
       const overrideColor = overrideSlot?.color;
       const label = `Button ${variant}/${color}`;
@@ -1459,7 +1461,7 @@ const getButtonColorRows = (previewTheme) => {
 
   const iconRow = resolveComponentColorRow({
     label: 'IconButton icon',
-    overrideValue: getMuiStyleOverride(previewTheme, 'MuiIconButton', 'root')?.color,
+    overrideValue: getResolvedMuiStyleOverride(previewTheme, 'MuiIconButton', 'root')?.color,
     overridePath: 'MuiIconButton.root',
     rootValue: undefined,
     rootPath: undefined,
@@ -1477,7 +1479,7 @@ const getButtonColorRows = (previewTheme) => {
 const getInputColorRows = (previewTheme) => {
   const row = resolveComponentColorRow({
     label: 'Input value text',
-    overrideValue: getMuiStyleOverride(previewTheme, 'MuiInputBase', 'input')?.color,
+    overrideValue: getResolvedMuiStyleOverride(previewTheme, 'MuiInputBase', 'input')?.color,
     overridePath: 'MuiInputBase.input',
     rootValue: undefined,
     rootPath: undefined,
@@ -1492,8 +1494,8 @@ const getInputColorRows = (previewTheme) => {
 // getTabsTokenItems' own resting-state logic above.
 const getTabsColorRows = (previewTheme) => {
   const rows = [];
-  const tabRoot = getMuiStyleOverride(previewTheme, 'MuiTab', 'root') || {};
-  const tabTextColorInherit = getMuiStyleOverride(previewTheme, 'MuiTab', 'textColorInherit');
+  const tabRoot = getResolvedMuiStyleOverride(previewTheme, 'MuiTab', 'root') || {};
+  const tabTextColorInherit = getResolvedMuiStyleOverride(previewTheme, 'MuiTab', 'textColorInherit');
   const unselectedColor = tabTextColorInherit?.color ?? tabRoot.color;
   const unselectedPath = tabTextColorInherit?.color !== undefined ? 'MuiTab.textColorInherit' : 'MuiTab.root';
   const unselectedRow = resolveComponentColorRow({
@@ -1587,8 +1589,8 @@ const getButtonTokenItems = (variant, color, size, state, previewTheme, showStar
   const colorTokens = [];
   const elevationTokens = [];
   const slotKey = `${variant}${capitalize(color)}`;
-  const overrideSlot = getMuiStyleOverride(previewTheme, 'MuiButton', slotKey);
-  const rootSlot = getMuiStyleOverride(previewTheme, 'MuiButton', 'root');
+  const overrideSlot = getResolvedMuiStyleOverride(previewTheme, 'MuiButton', slotKey);
+  const rootSlot = getResolvedMuiStyleOverride(previewTheme, 'MuiButton', 'root');
   const overrideBg = readBackground(overrideSlot);
   const overrideColor = overrideSlot?.color;
   const rootBg = readBackground(rootSlot);
@@ -1601,7 +1603,7 @@ const getButtonTokenItems = (variant, color, size, state, previewTheme, showStar
   if (state === 'disabled') {
     const disabledOverride = readPseudoSlot(overrideSlot, '&:disabled', '&.Mui-disabled');
     const buttonBaseDisabled = readPseudoSlot(
-      getMuiStyleOverride(previewTheme, 'MuiButtonBase', 'root'),
+      getResolvedMuiStyleOverride(previewTheme, 'MuiButtonBase', 'root'),
       '&.MuiButton-root.Mui-disabled',
       '&.Mui-disabled'
     );
@@ -1791,7 +1793,7 @@ const getButtonTokenItems = (variant, color, size, state, previewTheme, showStar
     }
   ];
   const sizeSlot = `size${size[0].toUpperCase()}${size.slice(1)}`;
-  const sizeOverride = resolveMuiStyleOverride(getMuiStyleOverride(previewTheme, 'MuiButton', sizeSlot), previewTheme);
+  const sizeOverride = getResolvedMuiStyleOverride(previewTheme, 'MuiButton', sizeSlot);
   if (sizeOverride?.fontSize !== undefined) {
     // MUI's Button.js hardcodes a *different* pxToRem() fontSize per size by default
     // (13px/15px for small/large, overriding typography.button.fontSize — medium was
@@ -1846,7 +1848,7 @@ const getButtonTokenItems = (variant, color, size, state, previewTheme, showStar
     // omitted entirely when running under cabinet-front instead of asserting a fact that
     // isn't true there.
     const siblingColor = color === 'primary' ? 'secondary' : 'primary';
-    const siblingSlot = getMuiStyleOverride(previewTheme, 'MuiButton', `contained${capitalize(siblingColor)}`);
+    const siblingSlot = getResolvedMuiStyleOverride(previewTheme, 'MuiButton', `contained${capitalize(siblingColor)}`);
     const marginRight = overrideSlot?.marginRight;
     const siblingMarginRight = siblingSlot?.marginRight;
     if (marginRight !== undefined) {
@@ -1936,8 +1938,8 @@ const ICON_BUTTON_USAGE_NOTES = {
 // touch it at all), same reasoning as the Buttons section above.
 const getIconButtonTokenItems = (size, state, previewTheme) => {
   const metrics = ICON_BUTTON_SIZE_METRICS[size];
-  const iconButtonRoot = getMuiStyleOverride(previewTheme, 'MuiIconButton', 'root');
-  const buttonBaseRoot = getMuiStyleOverride(previewTheme, 'MuiButtonBase', 'root');
+  const iconButtonRoot = getResolvedMuiStyleOverride(previewTheme, 'MuiIconButton', 'root');
+  const buttonBaseRoot = getResolvedMuiStyleOverride(previewTheme, 'MuiButtonBase', 'root');
   const hoverOverride = readPseudoSlot(buttonBaseRoot, '&.MuiIconButton-root:hover');
   const disabledOverride = readPseudoSlot(iconButtonRoot, '&.Mui-disabled');
   const hoverBg = readBackground(hoverOverride);
@@ -2033,9 +2035,9 @@ const getIconButtonTokenItems = (size, state, previewTheme) => {
 // the CSS `color` property instead and so ignores this override entirely — Material Symbols
 // icons here fall through to inherited text color regardless of `root.fill`.
 const getIconLibraryTokenItems = (color, size, previewTheme) => {
-  const svgIconRoot = getMuiStyleOverride(previewTheme, 'MuiSvgIcon', 'root');
+  const svgIconRoot = getResolvedMuiStyleOverride(previewTheme, 'MuiSvgIcon', 'root');
   const colorSlot = color === 'primary' ? 'colorPrimary' : color === 'error' ? 'colorError' : null;
-  const colorOverride = colorSlot ? getMuiStyleOverride(previewTheme, 'MuiSvgIcon', colorSlot) : null;
+  const colorOverride = colorSlot ? getResolvedMuiStyleOverride(previewTheme, 'MuiSvgIcon', colorSlot) : null;
 
   const colorTokens = [];
   if (color === 'inherit') {
@@ -2126,7 +2128,7 @@ const getInputTokenItems = (state, previewTheme) => {
   const colorTokens = [];
 
   if (state === 'resting') {
-    const restingOverride = getMuiStyleOverride(previewTheme, 'MuiInputBase', 'input')?.color;
+    const restingOverride = getResolvedMuiStyleOverride(previewTheme, 'MuiInputBase', 'input')?.color;
     if (restingOverride !== undefined) {
       colorTokens.push({
         path: 'MuiInputBase.input',
@@ -2141,8 +2143,8 @@ const getInputTokenItems = (state, previewTheme) => {
   } else if (state === 'error') {
     colorTokens.push({ path: 'palette.error.main', note: "label + underline/outline + helper text — MUI's default, not overridden by this app" });
   } else if (state === 'disabled') {
-    const inputDisabled = readDisabledOverride(getMuiStyleOverride(previewTheme, 'MuiInputBase', 'input'));
-    const labelDisabled = readDisabledOverride(getMuiStyleOverride(previewTheme, 'MuiFormLabel', 'root'));
+    const inputDisabled = readDisabledOverride(getResolvedMuiStyleOverride(previewTheme, 'MuiInputBase', 'input'));
+    const labelDisabled = readDisabledOverride(getResolvedMuiStyleOverride(previewTheme, 'MuiFormLabel', 'root'));
 
     if (inputDisabled.applies && inputDisabled.value?.color !== undefined) {
       colorTokens.push({
@@ -2203,7 +2205,7 @@ const getInputTokenItems = (state, previewTheme) => {
 // MUI's own untouched 32px/13px defaults. Read live rather than asserting one app's facts (or
 // MUI's own defaults) as if they held for both — confirmed live via the mounted theme object.
 const getChipTokenItems = (previewTheme) => {
-  const chipRoot = getMuiStyleOverride(previewTheme, 'MuiChip', 'root');
+  const chipRoot = getResolvedMuiStyleOverride(previewTheme, 'MuiChip', 'root');
   const overrideColor = chipRoot?.color;
   const overrideFontSize = chipRoot?.fontSize;
   const overrideHeight = chipRoot?.height;
@@ -2261,8 +2263,8 @@ const getChipTokenItems = (previewTheme) => {
 // background changes there). Read live rather than assuming one app's override slot/shape
 // applies to the other.
 const getTabsTokenItems = (previewTheme) => {
-  const tabRoot = getMuiStyleOverride(previewTheme, 'MuiTab', 'root') || {};
-  const tabTextColorInherit = getMuiStyleOverride(previewTheme, 'MuiTab', 'textColorInherit');
+  const tabRoot = getResolvedMuiStyleOverride(previewTheme, 'MuiTab', 'root') || {};
+  const tabTextColorInherit = getResolvedMuiStyleOverride(previewTheme, 'MuiTab', 'textColorInherit');
   const unselectedColor = tabTextColorInherit?.color ?? tabRoot.color;
   const unselectedPath = tabTextColorInherit?.color !== undefined ? 'MuiTab.textColorInherit' : 'MuiTab.root';
   const selectedFromTextColorInherit = tabTextColorInherit?.['&.Mui-selected'];
@@ -3391,7 +3393,7 @@ const StyleGuidePage = () => {
               // &:disabled sub-overrides at all (front-core's disabled styling instead comes
               // from a separate MuiButtonBase.root override — see Buttons above). Read live
               // rather than asserting one app's shape as if it were universal.
-              const containedPrimary = getMuiStyleOverride(previewTheme, 'MuiButton', 'containedPrimary') || {};
+              const containedPrimary = getResolvedMuiStyleOverride(previewTheme, 'MuiButton', 'containedPrimary') || {};
               const bg = readBackground(containedPrimary);
               const bgKey = containedPrimary.background !== undefined ? 'background' : 'backgroundColor';
               const paletteMain = previewTheme.palette.primary.main;
