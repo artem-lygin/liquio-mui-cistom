@@ -164,11 +164,38 @@ const baseTheme = {
       // override of its own — add theme.typography.button.large the same way if that ever
       // needs to differ too.
       sizeSmall: ({ theme }) => ({
-        fontSize: theme.typography.button.small?.fontSize ?? theme.typography.button.fontSize
+        fontSize: theme.typography.button.small?.fontSize ?? theme.typography.button.fontSize,
+        minHeight: 26
       }),
+      // MUI has no size-specific style for medium at all (it's the one size MUI itself
+      // never touches), but `MuiButton-sizeMedium` is still a real class every medium
+      // Button carries — this override slot works exactly like sizeSmall/sizeLarge.
+      sizeMedium: {
+        minHeight: 32
+      },
       sizeLarge: ({ theme }) => ({
-        fontSize: theme.typography.button.large?.fontSize ?? theme.typography.button.fontSize
+        fontSize: theme.typography.button.large?.fontSize ?? theme.typography.button.fontSize,
+        minHeight: 38
       }),
+      // Fixed per-size height, independent of whether the button shows an icon. Without
+      // this, height comes from content: padding + max(label line-height, icon size) —
+      // and MUI's own icon glyph size (18/20/22px for small/medium/large, hardcoded, not
+      // theme-derived) is taller than this app's Button label line-height, so a plain-label
+      // button renders shorter than an icon+label button of the same size.
+      //
+      // These three numbers come from MUI's own fixed padding + icon-size constants
+      // (padding: MuiButton.js's per-variant/size styles; icon size: commonIconStyles in
+      // the same file) — not from anything in this theme, since MUI hardcodes both. Every
+      // variant converges on the same total height once box-sizing is border-box (this app
+      // mounts CssBaseline, which sets that globally) and an icon is shown, because
+      // `outlined`'s padding is already 1px/side smaller than text/contained specifically
+      // to offset its 2px border — both decisions baked into MUI itself:
+      //   small:  contained/text 4px*2 + 18px icon        = 26  |  outlined 3px*2 + 18 + 2px border = 26
+      //   medium: contained/text 6px*2 + 20px icon        = 32  |  outlined 5px*2 + 20 + 2px border = 32
+      //   large:  contained/text 8px*2 + 22px icon        = 38  |  outlined 7px*2 + 22 + 2px border = 38
+      // Set to the icon-present figure (rather than the shorter label-only one) so a
+      // plain-label button grows to match an icon button, instead of the icon overflowing
+      // a shorter box.
       containedPrimary: {
         marginRight: 4,
         color: '#232f3d',

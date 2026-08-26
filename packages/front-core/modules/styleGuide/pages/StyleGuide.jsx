@@ -1143,13 +1143,27 @@ const fontSizeToPx = (fontSize, rootFontSize) => {
 
 const getButtonFontSizePx = (size, previewTheme, rootFontSize) => fontSizeToPx(getButtonSizeFontSize(size, previewTheme), rootFontSize);
 
-// MUI doesn't publish a button height anywhere — this is vertical padding (×2) + the
-// taller of the label's line-height or the icon's fontSize (an icon is often taller than
-// the text line-height it sits next to — e.g. medium's 20px icon vs. a 16.8px text line —
-// so it, not the label, ends up setting the button's height) + a 1px top/bottom border for
-// outlined only (its padding is 1px shorter per side than contained/text specifically to
-// cancel that border out). Verified against the real DOM (getBoundingClientRect) for every
-// variant/size/icon combo.
+// MuiButton.size{Small,Medium,Large} now carries an explicit minHeight (see theme.js) so a
+// plain-label button doesn't render shorter than an icon+label button of the same size —
+// read it live the same way the fontSize override is read, rather than assuming it exists.
+const getButtonMinHeightPx = (size, previewTheme) => {
+  const override = resolveMuiStyleOverride(
+    getMuiStyleOverride(previewTheme, 'MuiButton', `size${size[0].toUpperCase()}${size.slice(1)}`),
+    previewTheme
+  );
+  return override?.minHeight;
+};
+
+// MUI doesn't publish a button height anywhere — content-driven height is vertical padding
+// (×2) + the taller of the label's line-height or the icon's fontSize (an icon is often
+// taller than the text line-height it sits next to — e.g. medium's 20px icon vs. a 16.8px
+// text line — so it, not the label, ends up setting the button's height) + a 1px top/bottom
+// border for outlined only (its padding is 1px shorter per side than contained/text
+// specifically to cancel that border out). Verified against the real DOM
+// (getBoundingClientRect) for every variant/size/icon combo. The real rendered height is
+// then whichever is larger of that and the theme's own minHeight (CSS min-height
+// semantics) — with minHeight set (see theme.js), this is what actually keeps height
+// constant across icon/no-icon for the same size.
 const getButtonHeightPx = (variant, size, previewTheme, rootFontSize, showIcon) => {
   const metrics = BUTTON_METRICS[variant][size];
   const paddingVertical = parseFloat(metrics.padding);
@@ -1157,7 +1171,9 @@ const getButtonHeightPx = (variant, size, previewTheme, rootFontSize, showIcon) 
   const lineHeightPx = fontSizePx * previewTheme.typography.button.lineHeight;
   const contentHeightPx = showIcon ? Math.max(lineHeightPx, BUTTON_ICON_METRICS[size].fontSize) : lineHeightPx;
   const borderPx = variant === 'outlined' ? 2 : 0;
-  return paddingVertical * 2 + contentHeightPx + borderPx;
+  const contentDrivenHeightPx = paddingVertical * 2 + contentHeightPx + borderPx;
+  const minHeightPx = getButtonMinHeightPx(size, previewTheme);
+  return minHeightPx !== undefined ? Math.max(contentDrivenHeightPx, minHeightPx) : contentDrivenHeightPx;
 };
 
 // Interaction states shown as tabs above each interactive component's token table, so a
@@ -1476,6 +1492,15 @@ const getButtonTokenItems = (variant, color, size, state, previewTheme, showStar
       note: `hardcoded '${metrics.padding}' in MUI's Button.js for size="${size}" — not derived from theme.spacing()`
     }
   ];
+  const minHeightPx = getButtonMinHeightPx(size, previewTheme);
+  if (minHeightPx !== undefined) {
+    spacingTokens.push({
+      path: `MuiButton.size${size[0].toUpperCase()}${size.slice(1)}`,
+      status: 'overridden',
+      inheritsFrom: notResting,
+      note: `minHeight: ${minHeightPx}px — keeps this size's height constant whether or not the button shows an icon (see theme.js for the derivation); without it, height is content-driven and icon buttons render taller`
+    });
+  }
 
   if (variant === 'contained') {
     // Read live rather than assumed: front-core's containedPrimary/containedSecondary have

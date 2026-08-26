@@ -121,6 +121,23 @@ uses `packages/front-core/theme.js`, which has only one change so far (see Typog
   `theme.overrides.json`. This file has no "remove one baked field" UI yet (only a full
   reset) — see "Worth addressing" for the other stray/undocumented values still sitting in
   it, not yet audited. _(2026-08-26)_
+- **Button height is now fixed per size, independent of whether it shows an icon.**
+  Previously height was purely content-driven: `padding×2 + max(label line-height, icon
+  size)`. MUI's own icon glyph size (18/20/22px for small/medium/large — hardcoded in
+  `Button.js`, not theme-derived) is taller than this app's Button label line-height, so a
+  plain-label button rendered shorter than an icon+label button of the same size. Added an
+  explicit `minHeight` to `MuiButton.sizeSmall`/`sizeMedium`/`sizeLarge` — `26`/`32`/`38`px
+  — computed from MUI's own fixed padding + icon-size constants for the icon-present case
+  (not an arbitrary number): every variant already converges on the same total height once
+  an icon is shown, since `outlined`'s padding is 1px/side smaller than `text`/`contained`
+  specifically to offset its 2px border (both MUI decisions), and this app mounts
+  `CssBaseline` so `box-sizing: border-box` applies globally — e.g. small:
+  `4px×2 + 18px icon = 26` (contained/text) = `3px×2 + 18 + 2px border = 26` (outlined). Set
+  to the icon-present figure rather than the shorter label-only one, so plain-label buttons
+  grow to match rather than icons ever needing to shrink. Style Guide's `getButtonHeightPx`
+  updated to take `Math.max(contentDrivenHeight, minHeight)`, matching real CSS
+  `min-height` semantics, and its properties table now shows the `minHeight` token.
+  _(2026-08-26)_
 
 ## Typography (cabinet-front / `packages/front-core/theme.js`)
 
