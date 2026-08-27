@@ -4,6 +4,7 @@ import {
   Paper,
   Card,
   CardContent,
+  Collapse,
   Divider,
   Drawer,
   List,
@@ -1163,59 +1164,100 @@ const InheritsChip = ({ from }) => (
 // caveat) stays plain text, in its own column so long notes don't run into the next token.
 // `anchor`, when set on the category, links every path in it to the section that owns that
 // token category. One row per token; the category cell spans every row it owns.
-const TokenLegend = ({ items, onNavigate }) => (
-  <Table size="small" style={{ marginTop: 8 }}>
-    <TableHead>
-      <TableRow>
-        <TableCell style={{ width: 110 }}>Category</TableCell>
-        <TableCell style={{ width: 260 }}>Token</TableCell>
-        <TableCell style={{ width: 36 }}>Status</TableCell>
-        <TableCell>Note</TableCell>
-      </TableRow>
-    </TableHead>
-    <TableBody>
-      {items.flatMap((item) =>
-        item.tokens.map((token, tokenIndex) => (
-          <TableRow key={`${item.category}-${tokenIndex}`}>
-            {tokenIndex === 0 ? (
-              <TableCell rowSpan={item.tokens.length} style={{ verticalAlign: 'top', fontWeight: 700 }}>
-                {item.category}
-              </TableCell>
-            ) : null}
-            <TableCell style={{ fontFamily: 'monospace', fontSize: 12, verticalAlign: 'top' }}>
-              {item.anchor ? (
-                <a
-                  href={`#${item.anchor}`}
-                  onClick={(event) => {
-                    event.preventDefault();
-                    onNavigate(item.anchor);
-                  }}
-                  style={{ color: 'inherit', textDecoration: 'underline', cursor: 'pointer' }}
-                >
-                  {token.path}
-                </a>
-              ) : (
-                token.path
-              )}
-            </TableCell>
-            <TableCell style={{ verticalAlign: 'top', textAlign: 'center' }}>
-              <StatusBadge status={token.status} />
-            </TableCell>
-            <TableCell style={{ fontFamily: 'monospace', fontSize: 12, color: 'inherit', verticalAlign: 'top' }}>
-              {token.inheritsFrom ? <InheritsChip from={token.inheritsFrom} /> : null}
-              <Typography
-                variant="caption"
-                color="textSecondary"
-                style={{ fontFamily: 'inherit', fontSize: 'inherit', display: token.inheritsFrom ? 'inline' : undefined }}
-              >
-                {withColorSwatches(token.note || '')}
-              </Typography>
-            </TableCell>
-          </TableRow>
-        ))
-      )}
-    </TableBody>
-  </Table>
+// One collapsible card per token category — replaces the old single flat table (Category
+// grouped via rowSpan) so a properties region with many categories (Color/Typography/
+// Spacing/Shape/Icon) reads as independent, individually-expandable cards instead of one
+// long table. Falls back to a Token/Status/Notes shape (no Value column) for categories
+// whose tokens don't carry an explicit `value` field — see getButtonColorRows and friends
+// below for the ones that do. A token with `active: true` — the row matching whatever's
+// currently selected in the demo above (e.g. the current variant+color) — gets a ▸ marker,
+// since these tables are otherwise static and always show every combination at once.
+const PROPERTY_CARD_CELL_STYLE = { padding: '4px 8px', verticalAlign: 'top' };
+
+const PropertyCategoryCard = ({ category, anchor, tokens, onNavigate }) => {
+  const [open, setOpen] = React.useState(true);
+  const hasValue = tokens.some((token) => token.value !== undefined);
+
+  return (
+    <Card variant="outlined" style={{ marginBottom: 8 }}>
+      <div
+        onClick={() => setOpen((prev) => !prev)}
+        style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '8px 12px', cursor: 'pointer' }}
+      >
+        <Typography variant="subtitle2">{category}</Typography>
+        <SvgIcon
+          component={SymbolKeyboardArrowDown}
+          inheritViewBox={true}
+          style={{ fontSize: 18, transform: open ? 'rotate(180deg)' : 'none', transition: 'transform 0.15s' }}
+        />
+      </div>
+      <Collapse in={open}>
+        <Table size="small" style={{ tableLayout: 'fixed' }}>
+          <TableHead>
+            <TableRow>
+              <TableCell style={{ ...PROPERTY_CARD_CELL_STYLE, width: hasValue ? 220 : 280 }}>Token</TableCell>
+              {hasValue ? <TableCell style={{ ...PROPERTY_CARD_CELL_STYLE, width: 190 }}>Value</TableCell> : null}
+              <TableCell style={{ ...PROPERTY_CARD_CELL_STYLE, width: 60, textAlign: 'center' }}>Status</TableCell>
+              <TableCell style={PROPERTY_CARD_CELL_STYLE}>Notes</TableCell>
+            </TableRow>
+          </TableHead>
+          <TableBody>
+            {tokens.map((token, index) => (
+              <TableRow key={`${category}-${index}`}>
+                <TableCell style={{ ...PROPERTY_CARD_CELL_STYLE, fontFamily: 'monospace', fontSize: 12 }}>
+                  {token.active ? (
+                    <span title="Matches the currently selected demo above" style={{ marginRight: 4 }}>
+                      ▸
+                    </span>
+                  ) : null}
+                  {anchor ? (
+                    <a
+                      href={`#${anchor}`}
+                      onClick={(event) => {
+                        event.preventDefault();
+                        onNavigate(anchor);
+                      }}
+                      style={{ color: 'inherit', textDecoration: 'underline', cursor: 'pointer' }}
+                    >
+                      {token.path}
+                    </a>
+                  ) : (
+                    token.path
+                  )}
+                </TableCell>
+                {hasValue ? (
+                  <TableCell style={{ ...PROPERTY_CARD_CELL_STYLE, fontFamily: 'monospace', fontSize: 12 }}>
+                    {token.value === undefined ? '' : token.value ? withColorSwatches(token.value) : '(not set)'}
+                  </TableCell>
+                ) : null}
+                <TableCell style={{ ...PROPERTY_CARD_CELL_STYLE, textAlign: 'center' }}>
+                  <StatusBadge status={token.status} />
+                </TableCell>
+                <TableCell style={PROPERTY_CARD_CELL_STYLE}>
+                  {token.inheritsFrom ? <InheritsChip from={token.inheritsFrom} /> : null}
+                  <Typography
+                    variant="caption"
+                    color="textSecondary"
+                    style={{ display: token.inheritsFrom ? 'inline' : undefined }}
+                  >
+                    {withColorSwatches(token.note || '')}
+                  </Typography>
+                </TableCell>
+              </TableRow>
+            ))}
+          </TableBody>
+        </Table>
+      </Collapse>
+    </Card>
+  );
+};
+
+const PropertiesCardGroup = ({ items, onNavigate }) => (
+  <div>
+    {items.map((item) => (
+      <PropertyCategoryCard key={item.category} category={item.category} anchor={item.anchor} tokens={item.tokens} onNavigate={onNavigate} />
+    ))}
+  </div>
 );
 
 // Button.js hardcodes its own padding per variant+size rather than calling
@@ -1407,7 +1449,11 @@ const resolveComponentColorRow = ({ label, overrideValue, overridePath, rootValu
 // secondary combination (resting state — hover/focus/disabled color facts live in the
 // Buttons demo's own contextual properties panel, not duplicated here), plus IconButton's
 // icon color since it's part of the same component family in the demo nav.
-const getButtonColorRows = (previewTheme) => {
+// activeVariant/activeColor (the demo's own current selection) don't filter this table —
+// it's meant to be a complete, always-static reference — they just mark which row(s)
+// match what's actually showing above right now, via `active: true` (see
+// PropertyCategoryCard's ▸ marker).
+const getButtonColorRows = (previewTheme, activeVariant, activeColor) => {
   const rows = [];
   const rootSlot = getResolvedMuiStyleOverride(previewTheme, 'MuiButton', 'root');
   const rootBg = readBackground(rootSlot);
@@ -1422,6 +1468,7 @@ const getButtonColorRows = (previewTheme) => {
       const overrideBg = readBackground(overrideSlot);
       const overrideColor = overrideSlot?.color;
       const label = `Button ${variant}/${color}`;
+      const isActive = variant === activeVariant && color === activeColor;
 
       if (variant === 'contained') {
         const bgRow = resolveComponentColorRow({
@@ -1433,7 +1480,7 @@ const getButtonColorRows = (previewTheme) => {
           paletteValue: paletteMain,
           palettePath: `palette.${color}.main`
         });
-        if (bgRow) rows.push(bgRow);
+        if (bgRow) rows.push({ ...bgRow, active: isActive });
       } else if (overrideBg !== undefined) {
         // MUI's own default for text/outlined is a transparent background — this app
         // painting one in isn't "replacing a palette value" (there isn't one to begin
@@ -1442,6 +1489,7 @@ const getButtonColorRows = (previewTheme) => {
           token: `MuiButton.${slotKey}`,
           value: overrideBg,
           status: 'overridden',
+          active: isActive,
           note: `${label} background — MUI's own default is transparent for ${variant}; this app paints one in.`
         });
       }
@@ -1455,7 +1503,7 @@ const getButtonColorRows = (previewTheme) => {
         paletteValue: variant === 'contained' ? paletteContrastText : paletteMain,
         palettePath: variant === 'contained' ? `palette.${color}.contrastText` : `palette.${color}.main`
       });
-      if (colorRow) rows.push(colorRow);
+      if (colorRow) rows.push({ ...colorRow, active: isActive });
     });
   });
 
@@ -1476,9 +1524,14 @@ const getButtonColorRows = (previewTheme) => {
 // Input tokens: just the value text color at rest — the one color fact resting state
 // actually establishes (see getInputTokenItems above); focus/error/disabled colors live in
 // the Inputs demo's own contextual properties panel.
-const getInputColorRows = (previewTheme) => {
-  const row = resolveComponentColorRow({
-    label: 'Input value text',
+// Every state's color facts (resting/focus/error/disabled) as static rows, independent of
+// the state tabs above — the ▸ marker on the row(s) matching activeState is what ties this
+// back to what's actually showing in the demo. Uses readDisabledOverride, defined below.
+const getInputColorRows = (previewTheme, activeState) => {
+  const rows = [];
+
+  const restingRow = resolveComponentColorRow({
+    label: 'Input value text (resting)',
     overrideValue: getResolvedMuiStyleOverride(previewTheme, 'MuiInputBase', 'input')?.color,
     overridePath: 'MuiInputBase.input',
     rootValue: undefined,
@@ -1486,7 +1539,71 @@ const getInputColorRows = (previewTheme) => {
     paletteValue: previewTheme.palette.text.primary,
     palettePath: 'palette.text.primary'
   });
-  return row ? [row] : [];
+  if (restingRow) rows.push({ ...restingRow, active: activeState === 'resting' });
+
+  rows.push({
+    token: 'palette.primary.main',
+    value: previewTheme.palette.primary.main,
+    status: 'theme',
+    active: activeState === 'focus',
+    note: "Label + underline/outline on focus — MUI's default, not overridden by this app."
+  });
+
+  rows.push({
+    token: 'palette.error.main',
+    value: previewTheme.palette.error.main,
+    status: 'theme',
+    active: activeState === 'error',
+    note: "Label + underline/outline + helper text on error — MUI's default, not overridden by this app."
+  });
+
+  const inputDisabled = readDisabledOverride(getResolvedMuiStyleOverride(previewTheme, 'MuiInputBase', 'input'));
+  if (inputDisabled.applies && inputDisabled.value?.color !== undefined) {
+    rows.push({
+      token: 'MuiInputBase.input "&.Mui-disabled"',
+      value: inputDisabled.value.color,
+      status: 'overridden',
+      active: activeState === 'disabled',
+      note: 'Value text on disabled — hardcoded in this app, not palette.text.disabled.'
+    });
+  } else if (inputDisabled.scopedKey) {
+    rows.push({
+      token: `MuiInputBase.input "${inputDisabled.scopedKey}"`,
+      value: previewTheme.palette.text.disabled,
+      status: 'other',
+      active: activeState === 'disabled',
+      note: "Value text on disabled — this override only targets the Standard/underline variant's class, not the Outlined variant this app's TextField actually uses, so it never applies — falls through to palette.text.disabled instead."
+    });
+  } else {
+    rows.push({
+      token: 'palette.text.disabled',
+      value: previewTheme.palette.text.disabled,
+      status: 'theme',
+      active: activeState === 'disabled',
+      note: "Value text on disabled — MUI's own default, not overridden by this app."
+    });
+  }
+
+  const labelDisabled = readDisabledOverride(getResolvedMuiStyleOverride(previewTheme, 'MuiFormLabel', 'root'));
+  if (labelDisabled.applies && labelDisabled.value?.color !== undefined) {
+    rows.push({
+      token: 'MuiFormLabel.root "&.Mui-disabled"',
+      value: labelDisabled.value.color,
+      status: 'overridden',
+      active: activeState === 'disabled',
+      note: 'Label on disabled — hardcoded in this app, independently of the input value color above.'
+    });
+  } else {
+    rows.push({
+      token: 'palette.text.disabled',
+      value: previewTheme.palette.text.disabled,
+      status: 'theme',
+      active: activeState === 'disabled',
+      note: "Label on disabled — MUI's own default, not overridden by this app."
+    });
+  }
+
+  return rows;
 };
 
 // Tabs tokens: unselected label color, plus whatever the selected state actually changes
@@ -1584,193 +1701,32 @@ const getCustomColorRows = (previewTheme) => {
 //    color-agnostic `MuiButtonBase.root "&.MuiButton-root.Mui-disabled"` override.
 // All of this was verified against the real running app (getComputedStyle + matched CSS
 // rules), not assumed from theme.js alone — see CHANGES.md.
+// Color is a static, always-complete reference (every variant/color combo at once — see
+// getButtonColorRows), independent of the state tabs above; the ▸ marker on the row(s)
+// matching the current variant+color is what ties it back to whatever's actually showing in
+// the demo. Elevation is the one category that genuinely still changes per interaction
+// state (and only for `contained` — text/outlined never cast a shadow), so it stays
+// state-dependent below.
 const getButtonTokenItems = (variant, color, size, state, previewTheme, showStartIcon, showEndIcon) => {
   const items = [];
-  const colorTokens = [];
   const elevationTokens = [];
   const slotKey = `${variant}${capitalize(color)}`;
   const overrideSlot = getResolvedMuiStyleOverride(previewTheme, 'MuiButton', slotKey);
-  const rootSlot = getResolvedMuiStyleOverride(previewTheme, 'MuiButton', 'root');
-  const overrideBg = readBackground(overrideSlot);
-  const overrideColor = overrideSlot?.color;
-  const rootBg = readBackground(rootSlot);
-  const rootColor = rootSlot?.color;
-  const paletteMain = previewTheme.palette[color].main;
-  const paletteContrastText = previewTheme.palette[color].contrastText;
-  const bgSuffix = variant === 'outlined' ? ' + border' : '';
-  const isDark = previewTheme.palette.mode === 'dark';
 
-  if (state === 'disabled') {
-    const disabledOverride = readPseudoSlot(overrideSlot, '&:disabled', '&.Mui-disabled');
-    const buttonBaseDisabled = readPseudoSlot(
-      getResolvedMuiStyleOverride(previewTheme, 'MuiButtonBase', 'root'),
-      '&.MuiButton-root.Mui-disabled',
-      '&.Mui-disabled'
-    );
+  items.push({ category: 'Color', anchor: 'colors', tokens: getButtonColorRows(previewTheme, variant, color) });
 
-    if (disabledOverride && (disabledOverride.color !== undefined || readBackground(disabledOverride) !== undefined)) {
-      const disabledBg = readBackground(disabledOverride);
-      if (disabledBg !== undefined) {
-        colorTokens.push({ path: `MuiButton.${slotKey} "&:disabled"`, status: 'overridden', note: `background — hardcoded to ${disabledBg} in this app` });
-      }
-      if (disabledOverride.color !== undefined) {
-        const borderNote = variant === 'outlined' && disabledOverride.borderColor ? ` / border ${disabledOverride.borderColor}` : '';
-        colorTokens.push({
-          path: `MuiButton.${slotKey} "&:disabled"`,
-          status: 'overridden',
-          note: `label${borderNote} — hardcoded to ${disabledOverride.color}${borderNote}, overriding palette.action.disabled`
-        });
-      }
-      if (variant === 'contained' && disabledBg === undefined) {
-        colorTokens.push({ path: 'palette.action.disabledBackground', note: `background — ${previewTheme.palette.action.disabledBackground}; not overridden for this color` });
-        elevationTokens.push({ path: 'shadows[0]', note: 'flat — no shadow while disabled' });
-      }
-    } else if (buttonBaseDisabled) {
-      const baseBg = readBackground(buttonBaseDisabled);
-      if (baseBg !== undefined) {
-        colorTokens.push({
-          path: 'MuiButtonBase.root "&.MuiButton-root.Mui-disabled"',
-          status: 'other',
-          note: `background — hardcoded to ${baseBg} for every disabled button in this app, any variant/color — palette.action.disabledBackground is never applied here`
-        });
-      }
-      if (buttonBaseDisabled.color !== undefined) {
-        colorTokens.push({
-          path: 'MuiButtonBase.root "&.MuiButton-root.Mui-disabled"',
-          status: 'other',
-          note: `label — hardcoded to ${buttonBaseDisabled.color} for every disabled button in this app, any variant/color — palette.action.disabled is never applied here`
-        });
-      }
-      if (variant === 'contained') {
-        elevationTokens.push({ path: 'shadows[0]', note: 'flat — no shadow while disabled' });
-      }
-    } else {
-      colorTokens.push({
-        path: 'palette.action.disabled',
-        note: `label${bgSuffix} — ${previewTheme.palette.action.disabled}; MUI's own default, not overridden by this app${
-          isDark ? ' — still a light-theme-style rgba value, not tuned for dark mode, so this reads faint here' : ''
-        }`
-      });
-      if (variant === 'contained') {
-        colorTokens.push({ path: 'palette.action.disabledBackground', note: `background — ${previewTheme.palette.action.disabledBackground}` });
-        elevationTokens.push({ path: 'shadows[0]', note: 'flat — no shadow while disabled' });
-      }
-    }
-  } else if (variant === 'contained') {
-    if (state === 'resting') {
-      if (overrideBg !== undefined) {
-        colorTokens.push({ path: `MuiButton.${slotKey}`, status: 'overridden', note: describeOverridden('background', overrideBg, paletteMain, `palette.${color}.main`) });
-      } else if (rootBg !== undefined) {
-        colorTokens.push({
-          path: 'MuiButton.root',
-          status: 'other',
-          note: `background — hardcoded to ${rootBg} for every button in this app (no MuiButton.${slotKey} override exists) — palette.${color}.main (${paletteMain}) is never applied here`
-        });
-      } else {
-        colorTokens.push({ path: `palette.${color}.main`, note: `background — ${paletteMain}` });
-      }
-      if (overrideColor !== undefined) {
-        colorTokens.push({ path: `MuiButton.${slotKey}`, status: 'overridden', note: describeOverridden('label', overrideColor, paletteContrastText, `palette.${color}.contrastText`) });
-      } else if (rootColor !== undefined) {
-        colorTokens.push({
-          path: 'MuiButton.root',
-          status: 'other',
-          note: `label — hardcoded to ${rootColor} for every button in this app (no MuiButton.${slotKey} override exists) — palette.${color}.contrastText (${paletteContrastText}) is never applied here`
-        });
-      } else {
-        colorTokens.push({ path: `palette.${color}.contrastText`, note: `label — ${paletteContrastText}` });
-      }
+  if (variant === 'contained') {
+    if (state === 'disabled') {
+      elevationTokens.push({ path: 'shadows[0]', note: 'flat — no shadow while disabled' });
+    } else if (state === 'resting') {
       elevationTokens.push({ path: 'shadows[4]', note: 'resting' });
     } else if (state === 'hover') {
-      const hoverBg = readBackground(readPseudoSlot(overrideSlot, '&:hover', ':hover'));
-      if (hoverBg !== undefined) {
-        const restingBg = overrideBg ?? rootBg ?? paletteMain;
-        colorTokens.push({
-          path: `MuiButton.${slotKey} "&:hover"`,
-          status: 'overridden',
-          note: hoverBg === restingBg ? `background — frozen to the same ${hoverBg}; no darken-on-hover in this app` : `background — overridden to ${hoverBg} on hover`
-        });
-      } else {
-        const restingSource = overrideBg !== undefined ? `MuiButton.${slotKey}` : rootBg !== undefined ? 'MuiButton.root' : `palette.${color}.main`;
-        colorTokens.push({
-          path: `palette.${color}.dark`,
-          note: `background — ${previewTheme.palette[color].dark}; MUI's own default darken-on-hover, not intercepted by this app's ${restingSource} resting style`
-        });
-      }
-      colorTokens.push({ path: `palette.${color}.contrastText`, inheritsFrom: 'Resting', note: 'label' });
       elevationTokens.push({ path: 'shadows[4]', inheritsFrom: 'Resting', note: 'hover only swaps the background, not the shadow' });
     } else if (state === 'focus') {
-      colorTokens.push({ path: `palette.${color}.main`, inheritsFrom: 'Resting', note: 'background' });
-      colorTokens.push({ path: `palette.${color}.contrastText`, inheritsFrom: 'Resting', note: 'label' });
       elevationTokens.push({ path: 'shadows[6]', note: 'focus-visible ring' });
     } else if (state === 'pressed') {
-      colorTokens.push({ path: `palette.${color}.main`, inheritsFrom: 'Resting', note: 'background' });
-      colorTokens.push({ path: `palette.${color}.contrastText`, inheritsFrom: 'Resting', note: 'label' });
       elevationTokens.push({ path: 'shadows[8]', note: 'pressed/active' });
     }
-  } else {
-    // text or outlined — real MUI defaults to these being transparent; only worth a
-    // background row when this app's theme actually paints one in over that.
-    if (state === 'resting') {
-      if (overrideBg !== undefined) {
-        colorTokens.push({ path: `MuiButton.${slotKey}`, status: 'overridden', note: `background${bgSuffix} — hardcoded to ${overrideBg} in this app, replacing MUI's normal transparent ${variant} background` });
-      } else if (rootBg !== undefined) {
-        colorTokens.push({
-          path: 'MuiButton.root',
-          status: 'other',
-          note: `background${bgSuffix} — hardcoded to ${rootBg} for every button in this app (no MuiButton.${slotKey} override exists), replacing MUI's normal transparent ${variant} background`
-        });
-      }
-      if (overrideColor !== undefined) {
-        colorTokens.push({ path: `MuiButton.${slotKey}`, status: 'overridden', note: describeOverridden(`label${bgSuffix}`, overrideColor, paletteMain, `palette.${color}.main`) });
-      } else if (rootColor !== undefined) {
-        colorTokens.push({
-          path: 'MuiButton.root',
-          status: 'other',
-          note: `label${bgSuffix} — hardcoded to ${rootColor} for every button in this app (no MuiButton.${slotKey} override exists) — palette.${color}.main (${paletteMain}) is never applied here`
-        });
-      } else {
-        colorTokens.push({ path: `palette.${color}.main`, note: `label${bgSuffix} — ${paletteMain}` });
-      }
-    } else if (state === 'hover') {
-      colorTokens.push({
-        path: overrideColor !== undefined ? `MuiButton.${slotKey}` : rootColor !== undefined ? 'MuiButton.root' : `palette.${color}.main`,
-        status: overrideColor !== undefined ? 'overridden' : rootColor !== undefined ? 'other' : 'theme',
-        inheritsFrom: 'Resting',
-        note: `label${bgSuffix}`
-      });
-      colorTokens.push({
-        path: 'palette.action.hoverOpacity',
-        note: `${previewTheme.palette.action.hoverOpacity} — a background tint layered on top of whatever the resting background is; the label${bgSuffix} color itself doesn't change`
-      });
-    } else if (state === 'focus') {
-      colorTokens.push({
-        path: overrideColor !== undefined ? `MuiButton.${slotKey}` : rootColor !== undefined ? 'MuiButton.root' : `palette.${color}.main`,
-        status: overrideColor !== undefined ? 'overridden' : rootColor !== undefined ? 'other' : 'theme',
-        inheritsFrom: 'Resting',
-        note: `label${bgSuffix}`
-      });
-      colorTokens.push({
-        path: 'palette.action.focusOpacity',
-        note: `${previewTheme.palette.action.focusOpacity} — MUI's default keyboard focus-visible ring, not overridden by this app`
-      });
-    } else if (state === 'pressed') {
-      colorTokens.push({
-        path: overrideColor !== undefined ? `MuiButton.${slotKey}` : rootColor !== undefined ? 'MuiButton.root' : `palette.${color}.main`,
-        status: overrideColor !== undefined ? 'overridden' : rootColor !== undefined ? 'other' : 'theme',
-        inheritsFrom: 'Resting',
-        note: `label${bgSuffix}`
-      });
-      colorTokens.push({
-        path: 'TouchRipple',
-        status: 'other',
-        note: 'a transient ripple animation on press, not a static color token'
-      });
-    }
-  }
-
-  if (colorTokens.length) {
-    items.push({ category: 'Color', anchor: 'colors', tokens: colorTokens });
   }
   if (elevationTokens.length) {
     items.push({ category: 'Elevation', tokens: elevationTokens });
@@ -2125,61 +2081,10 @@ const readDisabledOverride = (styleObj) => {
 };
 
 const getInputTokenItems = (state, previewTheme) => {
-  const colorTokens = [];
-
-  if (state === 'resting') {
-    const restingOverride = getResolvedMuiStyleOverride(previewTheme, 'MuiInputBase', 'input')?.color;
-    if (restingOverride !== undefined) {
-      colorTokens.push({
-        path: 'MuiInputBase.input',
-        status: 'overridden',
-        note: describeOverridden('value', restingOverride, previewTheme.palette.text.primary, 'palette.text.primary')
-      });
-    } else {
-      colorTokens.push({ path: 'palette.text.primary', note: `value — ${previewTheme.palette.text.primary}` });
-    }
-  } else if (state === 'focus') {
-    colorTokens.push({ path: 'palette.primary.main', note: "label + underline/outline — MUI's default, not overridden by this app" });
-  } else if (state === 'error') {
-    colorTokens.push({ path: 'palette.error.main', note: "label + underline/outline + helper text — MUI's default, not overridden by this app" });
-  } else if (state === 'disabled') {
-    const inputDisabled = readDisabledOverride(getResolvedMuiStyleOverride(previewTheme, 'MuiInputBase', 'input'));
-    const labelDisabled = readDisabledOverride(getResolvedMuiStyleOverride(previewTheme, 'MuiFormLabel', 'root'));
-
-    if (inputDisabled.applies && inputDisabled.value?.color !== undefined) {
-      colorTokens.push({
-        path: 'MuiInputBase.input "&.Mui-disabled"',
-        status: 'overridden',
-        note: `value text — hardcoded to ${inputDisabled.value.color} in this app, not palette.text.disabled`
-      });
-    } else if (inputDisabled.scopedKey) {
-      colorTokens.push({
-        path: `MuiInputBase.input "${inputDisabled.scopedKey}"`,
-        status: 'other',
-        note: `value text — this override only targets the Standard/underline variant's class, not the Outlined variant shown here (TextField defaults to variant="outlined"), so it never actually applies to this field — falls through to palette.text.disabled (${previewTheme.palette.text.disabled}) instead`
-      });
-    } else {
-      colorTokens.push({ path: 'palette.text.disabled', note: `value text — ${previewTheme.palette.text.disabled}; MUI's own default, not overridden by this app` });
-    }
-
-    if (labelDisabled.applies && labelDisabled.value?.color !== undefined) {
-      const sameAsInput = inputDisabled.applies && inputDisabled.value?.color === labelDisabled.value.color;
-      colorTokens.push({
-        path: 'MuiFormLabel.root "&.Mui-disabled"',
-        status: 'overridden',
-        note: `label — hardcoded to ${labelDisabled.value.color} in this app${
-          sameAsInput ? ', the same literal as the input override above (independent literals, not derived from one another)' : ', independently of the input value color above'
-        }`
-      });
-    } else {
-      colorTokens.push({ path: 'palette.text.disabled', note: `label — ${previewTheme.palette.text.disabled}; MUI's own default, not overridden by this app` });
-    }
-  }
-
   const notResting = state !== 'resting' ? 'Resting' : undefined;
 
   return [
-    { category: 'Color', anchor: 'colors', tokens: colorTokens },
+    { category: 'Color', anchor: 'colors', tokens: getInputColorRows(previewTheme, state) },
     {
       category: 'Typography',
       anchor: 'typography',
@@ -2264,36 +2169,6 @@ const getChipTokenItems = (previewTheme) => {
 // applies to the other.
 const getTabsTokenItems = (previewTheme) => {
   const tabRoot = getResolvedMuiStyleOverride(previewTheme, 'MuiTab', 'root') || {};
-  const tabTextColorInherit = getResolvedMuiStyleOverride(previewTheme, 'MuiTab', 'textColorInherit');
-  const unselectedColor = tabTextColorInherit?.color ?? tabRoot.color;
-  const unselectedPath = tabTextColorInherit?.color !== undefined ? 'MuiTab.textColorInherit' : 'MuiTab.root';
-  const selectedFromTextColorInherit = tabTextColorInherit?.['&.Mui-selected'];
-  const selectedFromRoot = tabRoot['&.Mui-selected'];
-  const selectedSlot = selectedFromTextColorInherit || selectedFromRoot;
-  const selectedSlotPath = selectedFromTextColorInherit ? 'MuiTab.textColorInherit "&.Mui-selected"' : 'MuiTab.root "&.Mui-selected"';
-  const selectedColor = selectedSlot?.color;
-  const selectedBg = readBackground(selectedSlot);
-
-  const colorTokens = [];
-  if (unselectedColor !== undefined) {
-    colorTokens.push({
-      path: unselectedPath,
-      status: 'overridden',
-      note: describeOverridden('label (unselected)', unselectedColor, previewTheme.palette.text.secondary, 'palette.text.secondary')
-    });
-  } else {
-    colorTokens.push({ path: 'palette.text.secondary', note: `label (unselected) — ${previewTheme.palette.text.secondary}` });
-  }
-  if (selectedColor !== undefined) {
-    colorTokens.push({ path: selectedSlotPath, status: 'overridden', note: `label (selected) — hardcoded to ${selectedColor} in this app` });
-  } else if (selectedBg !== undefined) {
-    colorTokens.push({
-      path: selectedSlotPath,
-      status: 'overridden',
-      note: `background (selected) — hardcoded to ${selectedBg} in this app; label color is unchanged from unselected`
-    });
-  }
-
   const textTransformOverride = tabRoot.textTransform;
   const typographyTokens = [
     {
@@ -2310,7 +2185,7 @@ const getTabsTokenItems = (previewTheme) => {
   }
 
   return [
-    { category: 'Color', anchor: 'colors', tokens: colorTokens },
+    { category: 'Color', anchor: 'colors', tokens: getTabsColorRows(previewTheme) },
     { category: 'Typography', anchor: 'typography', tokens: typographyTokens },
     { category: 'Spacing', anchor: 'spacing', tokens: [{ path: 'theme.spacing', note: `unit: ${previewTheme.spacing(1)}, indicator height/padding` }] }
   ];
@@ -2373,7 +2248,7 @@ const TypographyVariantSection = ({ variant, previewTheme, rootFontSize, editMod
       id={`typography-${variant}`}
       title={TYPOGRAPHY_LABELS[variant] || variant}
       titleVariant="h3"
-      properties={showProperties ? <TokenLegend onNavigate={onNavigate} items={getTypographyTokenItems(variant, previewTheme, rootFontSize)} /> : null}
+      properties={showProperties ? <PropertiesCardGroup onNavigate={onNavigate} items={getTypographyTokenItems(variant, previewTheme, rootFontSize)} /> : null}
       description={description}
     >
       <MeasureOverlay enabled={measureEnabled}>
@@ -2636,7 +2511,8 @@ const StyleGuidePage = () => {
             <Typography variant="caption" color="textSecondary" component="div" style={{ marginBottom: 8 }}>
               The raw color/tint layer — theme.palette. Every UI component is meant to resolve
               its color through one of these tokens, live, rather than a hardcoded literal —
-              see Components below for where that's actually true today.
+              see each component's own Color card (in its Buttons/Inputs/Tabs section below)
+              for where that's actually true today.
             </Typography>
             <ColorTokenTable
               rows={PALETTE_GROUPS.flatMap(([colorName, ...shades]) =>
@@ -2668,40 +2544,15 @@ const StyleGuidePage = () => {
             <Divider style={{ margin: '32px 0 16px' }} />
 
             <Typography variant="subtitle1" gutterBottom={true}>
-              Components
-            </Typography>
-            <Typography variant="caption" color="textSecondary" component="div" style={{ marginBottom: 16 }}>
-              The same palette, broken down by where each component actually gets its color
-              from: <b>Theme</b> reads a palette token live, no override; <b>Overridden</b>{' '}
-              replaces it with a literal in this app (even when that literal currently matches
-              the palette — it's still an independent value, not a reference, and would
-              silently diverge if either changed alone); <b>Other</b> is hardcoded by MUI
-              itself, no palette token involved at all.
-            </Typography>
-
-            <Typography variant="subtitle2" gutterBottom={true}>
-              Buttons tokens
-            </Typography>
-            <ComponentColorTable rows={getButtonColorRows(previewTheme)} />
-
-            <Typography variant="subtitle2" gutterBottom={true} style={{ marginTop: 16 }}>
-              Input tokens
-            </Typography>
-            <ComponentColorTable rows={getInputColorRows(previewTheme)} />
-
-            <Typography variant="subtitle2" gutterBottom={true} style={{ marginTop: 16 }}>
-              Tabs tokens
-            </Typography>
-            <ComponentColorTable rows={getTabsColorRows(previewTheme)} />
-
-            <Typography variant="subtitle2" gutterBottom={true} style={{ marginTop: 16 }}>
               Custom tokens
             </Typography>
             <Typography variant="caption" color="textSecondary" component="div" style={{ marginBottom: 8 }}>
               Bespoke top-level theme tokens outside theme.palette entirely (leftSidebarBg,
-              buttonBg, ...) — this list is a union across every app this guide can run under,
-              filtered to whichever keys actually resolve to a string in the theme currently
-              active. Several others use rgba()/gradient values not shown here.
+              buttonBg, ...) — kept here rather than in a component's properties since none of
+              these belong to any one interactive component. This list is a union across every
+              app this guide can run under, filtered to whichever keys actually resolve to a
+              string in the theme currently active. Several others use rgba()/gradient values
+              not shown here.
             </Typography>
             <ComponentColorTable rows={getCustomColorRows(previewTheme)} />
           </Section>
@@ -2855,7 +2706,7 @@ const StyleGuidePage = () => {
             id="icon-library"
             title="Icon library"
             propertiesHeading={`Theme tokens for ${iconLibraryColor} color, ${iconLibrarySize} size`}
-            properties={showProperties ? <TokenLegend onNavigate={scrollToSection} items={getIconLibraryTokenItems(iconLibraryColor, iconLibrarySize, previewTheme)} /> : null}
+            properties={showProperties ? <PropertiesCardGroup onNavigate={scrollToSection} items={getIconLibraryTokenItems(iconLibraryColor, iconLibrarySize, previewTheme)} /> : null}
             description={
               <>
                 <span style={{ fontFamily: 'monospace' }}>@material-symbols-svg/react</span> (Material Symbols)
@@ -2948,7 +2799,7 @@ const StyleGuidePage = () => {
             title="Surfaces"
             properties={
               showProperties ? (
-                <TokenLegend
+                <PropertiesCardGroup
                   onNavigate={scrollToSection}
                   items={[
                     {
@@ -3022,7 +2873,7 @@ const StyleGuidePage = () => {
                       />
                     ))}
                   </Tabs>
-                  <TokenLegend
+                  <PropertiesCardGroup
                     onNavigate={scrollToSection}
                     items={getButtonTokenItems(buttonVariant, buttonColor, buttonSize, buttonState, previewTheme, buttonShowIcon, buttonShowEndIcon)}
                   />
@@ -3152,7 +3003,7 @@ const StyleGuidePage = () => {
                       />
                     ))}
                   </Tabs>
-                  <TokenLegend onNavigate={scrollToSection} items={getIconButtonTokenItems(iconButtonSize, iconButtonState, previewTheme)} />
+                  <PropertiesCardGroup onNavigate={scrollToSection} items={getIconButtonTokenItems(iconButtonSize, iconButtonState, previewTheme)} />
                 </>
               ) : null
             }
@@ -3205,7 +3056,7 @@ const StyleGuidePage = () => {
                       />
                     ))}
                   </Tabs>
-                  <TokenLegend onNavigate={scrollToSection} items={getInputTokenItems(inputState, previewTheme)} />
+                  <PropertiesCardGroup onNavigate={scrollToSection} items={getInputTokenItems(inputState, previewTheme)} />
                 </>
               ) : null
             }
@@ -3238,7 +3089,7 @@ const StyleGuidePage = () => {
             title="Chips"
             properties={
               showProperties ? (
-                <TokenLegend onNavigate={scrollToSection} items={getChipTokenItems(previewTheme)} />
+                <PropertiesCardGroup onNavigate={scrollToSection} items={getChipTokenItems(previewTheme)} />
               ) : null
             }
           >
@@ -3258,7 +3109,7 @@ const StyleGuidePage = () => {
             title="Tabs"
             properties={
               showProperties ? (
-                <TokenLegend onNavigate={scrollToSection} items={getTabsTokenItems(previewTheme)} />
+                <PropertiesCardGroup onNavigate={scrollToSection} items={getTabsTokenItems(previewTheme)} />
               ) : null
             }
           >
@@ -3276,7 +3127,7 @@ const StyleGuidePage = () => {
             title="Alert"
             properties={
               showProperties ? (
-                <TokenLegend
+                <PropertiesCardGroup
                   onNavigate={scrollToSection}
                   items={[
                     {
