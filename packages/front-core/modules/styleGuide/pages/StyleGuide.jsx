@@ -764,7 +764,7 @@ const Section = ({ id, title, titleVariant = 'h2', actions, description, propert
             >
               {propertiesHeading || 'Theme tokens'}
             </Typography>
-            {properties}
+            <div style={{ padding: '8px 16px 16px' }}>{properties}</div>
           </Card>
         </>
       ) : null}
@@ -1083,8 +1083,8 @@ const ComponentColorTable = ({ rows }) => (
     <TableBody>
       {rows.length ? (
         rows.map((row, index) => (
-          <TableRow key={`${row.token}-${index}`}>
-            <TableCell style={{ ...COMPONENT_COLOR_CELL_STYLE, fontFamily: 'monospace', fontSize: 12 }}>{row.token}</TableCell>
+          <TableRow key={`${row.path}-${index}`}>
+            <TableCell style={{ ...COMPONENT_COLOR_CELL_STYLE, fontFamily: 'monospace', fontSize: 12 }}>{row.path}</TableCell>
             <TableCell style={{ ...COMPONENT_COLOR_CELL_STYLE, fontFamily: 'monospace', fontSize: 12 }}>
               {row.value ? withColorSwatches(row.value) : '(not set)'}
             </TableCell>
@@ -1184,7 +1184,7 @@ const PropertyCategoryCard = ({ category, anchor, tokens, onNavigate }) => {
         onClick={() => setOpen((prev) => !prev)}
         style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '8px 12px', cursor: 'pointer' }}
       >
-        <Typography variant="subtitle2">{category}</Typography>
+        <Typography variant="h5">{category}</Typography>
         <SvgIcon
           component={SymbolKeyboardArrowDown}
           inheritViewBox={true}
@@ -1420,7 +1420,7 @@ const describeOverridden = (kind, overrideVal, themeVal, themePath) =>
 const resolveComponentColorRow = ({ label, overrideValue, overridePath, rootValue, rootPath, paletteValue, palettePath }) => {
   if (overrideValue !== undefined) {
     return {
-      token: overridePath,
+      path: overridePath,
       value: overrideValue,
       status: 'overridden',
       note:
@@ -1433,14 +1433,14 @@ const resolveComponentColorRow = ({ label, overrideValue, overridePath, rootValu
   }
   if (rootValue !== undefined) {
     return {
-      token: rootPath,
+      path: rootPath,
       value: rootValue,
       status: 'other',
       note: `${label} — hardcoded on ${rootPath}, applies to every instance regardless of color/variant${palettePath ? `; ${palettePath} (${paletteValue}) is never reached` : ''}.`
     };
   }
   if (paletteValue !== undefined) {
-    return { token: palettePath, value: paletteValue, status: 'theme', note: `${label} — read live, no override.` };
+    return { path: palettePath, value: paletteValue, status: 'theme', note: `${label} — read live, no override.` };
   }
   return null;
 };
@@ -1486,7 +1486,7 @@ const getButtonColorRows = (previewTheme, activeVariant, activeColor) => {
         // painting one in isn't "replacing a palette value" (there isn't one to begin
         // with), so this doesn't go through resolveComponentColorRow's palette-compare path.
         rows.push({
-          token: `MuiButton.${slotKey}`,
+          path: `MuiButton.${slotKey}`,
           value: overrideBg,
           status: 'overridden',
           active: isActive,
@@ -1542,7 +1542,7 @@ const getInputColorRows = (previewTheme, activeState) => {
   if (restingRow) rows.push({ ...restingRow, active: activeState === 'resting' });
 
   rows.push({
-    token: 'palette.primary.main',
+    path: 'palette.primary.main',
     value: previewTheme.palette.primary.main,
     status: 'theme',
     active: activeState === 'focus',
@@ -1550,7 +1550,7 @@ const getInputColorRows = (previewTheme, activeState) => {
   });
 
   rows.push({
-    token: 'palette.error.main',
+    path: 'palette.error.main',
     value: previewTheme.palette.error.main,
     status: 'theme',
     active: activeState === 'error',
@@ -1560,7 +1560,7 @@ const getInputColorRows = (previewTheme, activeState) => {
   const inputDisabled = readDisabledOverride(getResolvedMuiStyleOverride(previewTheme, 'MuiInputBase', 'input'));
   if (inputDisabled.applies && inputDisabled.value?.color !== undefined) {
     rows.push({
-      token: 'MuiInputBase.input "&.Mui-disabled"',
+      path: 'MuiInputBase.input "&.Mui-disabled"',
       value: inputDisabled.value.color,
       status: 'overridden',
       active: activeState === 'disabled',
@@ -1568,7 +1568,7 @@ const getInputColorRows = (previewTheme, activeState) => {
     });
   } else if (inputDisabled.scopedKey) {
     rows.push({
-      token: `MuiInputBase.input "${inputDisabled.scopedKey}"`,
+      path: `MuiInputBase.input "${inputDisabled.scopedKey}"`,
       value: previewTheme.palette.text.disabled,
       status: 'other',
       active: activeState === 'disabled',
@@ -1576,7 +1576,7 @@ const getInputColorRows = (previewTheme, activeState) => {
     });
   } else {
     rows.push({
-      token: 'palette.text.disabled',
+      path: 'palette.text.disabled',
       value: previewTheme.palette.text.disabled,
       status: 'theme',
       active: activeState === 'disabled',
@@ -1587,7 +1587,7 @@ const getInputColorRows = (previewTheme, activeState) => {
   const labelDisabled = readDisabledOverride(getResolvedMuiStyleOverride(previewTheme, 'MuiFormLabel', 'root'));
   if (labelDisabled.applies && labelDisabled.value?.color !== undefined) {
     rows.push({
-      token: 'MuiFormLabel.root "&.Mui-disabled"',
+      path: 'MuiFormLabel.root "&.Mui-disabled"',
       value: labelDisabled.value.color,
       status: 'overridden',
       active: activeState === 'disabled',
@@ -1595,7 +1595,7 @@ const getInputColorRows = (previewTheme, activeState) => {
     });
   } else {
     rows.push({
-      token: 'palette.text.disabled',
+      path: 'palette.text.disabled',
       value: previewTheme.palette.text.disabled,
       status: 'theme',
       active: activeState === 'disabled',
@@ -1632,7 +1632,7 @@ const getTabsColorRows = (previewTheme) => {
   const selectedSlotPath = selectedFromTextColorInherit ? 'MuiTab.textColorInherit "&.Mui-selected"' : 'MuiTab.root "&.Mui-selected"';
   if (selectedSlot?.color !== undefined) {
     rows.push({
-      token: selectedSlotPath,
+      path: selectedSlotPath,
       value: selectedSlot.color,
       status: 'overridden',
       note: 'Tab label (selected) — hardcoded in this app, no matching palette token.'
@@ -1641,7 +1641,7 @@ const getTabsColorRows = (previewTheme) => {
     const selectedBg = readBackground(selectedSlot);
     if (selectedBg !== undefined) {
       rows.push({
-        token: selectedSlotPath,
+        path: selectedSlotPath,
         value: selectedBg,
         status: 'overridden',
         note: 'Tab background (selected) — hardcoded in this app; label color stays the same as unselected.'
@@ -1676,7 +1676,7 @@ const getCustomColorRows = (previewTheme) => {
     }
     const match = paletteRefs.find(([, paletteValue]) => paletteValue === value);
     return {
-      token: `theme.${key}${nested ? `.${entry.path}` : ''}`,
+      path: `theme.${key}${nested ? `.${entry.path}` : ''}`,
       value,
       status: match ? 'overridden' : 'other',
       note: match
