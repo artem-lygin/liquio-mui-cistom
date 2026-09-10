@@ -85,6 +85,27 @@ To get a local change into the real running app:
    short separate messages rather than one long one — long single messages have been observed
    arriving garbled/truncated in that terminal.
 
+### Bringing up the Docker Compose backend on the PC
+
+If the backend (postgres, admin-api, cabinet-api, id-api, gateway, etc.) isn't already up,
+have the Windows-PC agent bring it up itself — it knows its own environment's quirks. Two
+things worth knowing in advance, since they've bitten this before:
+
+- **`docker compose up -d` run from Windows PowerShell/Git-Bash can fail** with a
+  `mkdir /host_mnt/c: read-only file system` error — a Docker Desktop bind-mount bug (seen on
+  4.90.0; unclear how far back/forward it extends). The fix is to run compose from inside WSL
+  instead, which uses a different mount-translation path that isn't affected:
+  `wsl -d Ubuntu -- bash -lc "cd /mnt/c/Users/artem/orca/liquio-mui-cistom && docker compose up -d"`.
+- **`docker-compose.yml` defines its own `admin-front`/`cabinet-front` containers on the same
+  8082/8081 ports as the standalone dev servers** (step 3 above). If both are up, the compose
+  containers win the network-facing path and silently serve stale prebuilt images through the
+  hostnames instead of the live dev build. After bringing the stack up, stop just those two:
+  `docker compose stop admin-front cabinet-front`.
+
+nginx-proxy-manager on that PC (routing `admin.liquio.local` → its own `:8082`,
+`cabinet.liquio.local` → its own `:8081`) and its hosts file are already set up correctly as
+of this writing — that layer shouldn't need touching, just verifying if something seems off.
+
 For running the full stack from scratch (Docker Compose, login, example data), see
 [`HOW-TO.md`](HOW-TO.md) — that doc is generic setup instructions, not specific to the theme
 project or the Windows-PC split described above.
