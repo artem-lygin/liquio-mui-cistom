@@ -1543,9 +1543,68 @@ const getButtonColorRows = (previewTheme, activeVariant, activeColor) => {
 // Every state's color facts (resting/focus/error/disabled) as static rows, independent of
 // the state tabs above — the ▸ marker on the row(s) matching activeState is what ties this
 // back to what's actually showing in the demo. Uses readDisabledOverride, defined below.
+// Covers every color-bearing part of a Text field — Label, Input value text, Border
+// (OutlinedInput's notched outline), and Helper text — not just the input value color. Two
+// non-obvious mechanisms, both confirmed by resolving each app's real theme through
+// adaptV4Theme()+createTheme() rather than reasoning from theme.js source alone:
+// - FormLabel.js/FormHelperText.js (MUI source) both set a sensible resting default
+//   (palette.text.secondary) *then* spread theme.typography.body1/.caption afterwards — so
+//   when a typography variant defines its own `color` (both apps' body1/caption do), that
+//   literal silently wins over the documented default. InputBase.js does the opposite order
+//   (color set *after* the typography spread), which is why the input value text itself
+//   isn't affected by the same thing.
+// - admin-front's MuiFormLabel.root also carries an unconditional `opacity` (every state, not
+//   just one), further dimming whatever color actually applies.
 const getInputColorRows = (previewTheme, activeState) => {
   const rows = [];
+  const formLabelRoot = getResolvedMuiStyleOverride(previewTheme, 'MuiFormLabel', 'root');
+  const formHelperTextRoot = getResolvedMuiStyleOverride(previewTheme, 'MuiFormHelperText', 'root');
+  const labelOpacity = formLabelRoot?.opacity;
 
+  // Label
+  rows.push({
+    path: 'theme.typography.body1',
+    value: previewTheme.typography.body1.color,
+    status: 'other',
+    active: activeState === 'resting',
+    note:
+      "Label at rest — not palette.text.secondary as MUI's FormLabel.js default would suggest: it spreads theme.typography.body1 in *after* that default, so body1's own color (both apps define one) silently wins." +
+      (labelOpacity !== undefined ? ` This app also applies MuiFormLabel.root opacity: ${labelOpacity} unconditionally (every state), further dimming it.` : '')
+  });
+  rows.push({
+    path: 'palette.primary.main',
+    value: previewTheme.palette.primary.main,
+    status: 'theme',
+    active: activeState === 'focus',
+    note: "Label on focus — MUI's own default (&.Mui-focused), not overridden by this app."
+  });
+  rows.push({
+    path: 'palette.error.main',
+    value: previewTheme.palette.error.main,
+    status: 'theme',
+    active: activeState === 'error',
+    note: "Label on error — MUI's own default, not overridden by this app."
+  });
+  const labelDisabled = readDisabledOverride(formLabelRoot);
+  rows.push(
+    labelDisabled.applies && labelDisabled.value?.color !== undefined
+      ? {
+          path: 'MuiFormLabel.root "&.Mui-disabled"',
+          value: labelDisabled.value.color,
+          status: 'overridden',
+          active: activeState === 'disabled',
+          note: 'Label on disabled — hardcoded in this app.'
+        }
+      : {
+          path: 'palette.text.disabled',
+          value: previewTheme.palette.text.disabled,
+          status: 'theme',
+          active: activeState === 'disabled',
+          note: "Label on disabled — MUI's own default, not overridden by this app."
+        }
+  );
+
+  // Input value text
   const restingRow = resolveComponentColorRow({
     label: 'Input value text (resting)',
     overrideValue: getResolvedMuiStyleOverride(previewTheme, 'MuiInputBase', 'input')?.color,
@@ -1556,22 +1615,6 @@ const getInputColorRows = (previewTheme, activeState) => {
     palettePath: 'palette.text.primary'
   });
   if (restingRow) rows.push({ ...restingRow, active: activeState === 'resting' });
-
-  rows.push({
-    path: 'palette.primary.main',
-    value: previewTheme.palette.primary.main,
-    status: 'theme',
-    active: activeState === 'focus',
-    note: "Label + underline/outline on focus — MUI's default, not overridden by this app."
-  });
-
-  rows.push({
-    path: 'palette.error.main',
-    value: previewTheme.palette.error.main,
-    status: 'theme',
-    active: activeState === 'error',
-    note: "Label + underline/outline + helper text on error — MUI's default, not overridden by this app."
-  });
 
   const inputDisabled = readDisabledOverride(getResolvedMuiStyleOverride(previewTheme, 'MuiInputBase', 'input'));
   if (inputDisabled.applies && inputDisabled.value?.color !== undefined) {
@@ -1600,24 +1643,75 @@ const getInputColorRows = (previewTheme, activeState) => {
     });
   }
 
-  const labelDisabled = readDisabledOverride(getResolvedMuiStyleOverride(previewTheme, 'MuiFormLabel', 'root'));
-  if (labelDisabled.applies && labelDisabled.value?.color !== undefined) {
+  // Border (OutlinedInput's notched outline) — neither app overrides any of these; all five
+  // states are MUI's own unmodified defaults (confirmed in OutlinedInput.js).
+  rows.push({
+    path: 'OutlinedInput default (mode-based)',
+    value: previewTheme.palette.mode === 'light' ? 'rgba(0, 0, 0, 0.23)' : 'rgba(255, 255, 255, 0.23)',
+    status: 'theme',
+    active: activeState === 'resting',
+    note: "Border at rest — MUI's own default, derived from palette.mode rather than any single palette color; not overridden by this app."
+  });
+  rows.push({
+    path: 'palette.text.primary',
+    value: previewTheme.palette.text.primary,
+    status: 'theme',
+    note: "Border on hover — MUI's own default, not overridden by this app."
+  });
+  rows.push({
+    path: 'palette.primary.main',
+    value: previewTheme.palette.primary.main,
+    status: 'theme',
+    active: activeState === 'focus',
+    note: 'Border on focus — reads the same palette.primary.main as the label above (two independent reads of the same token, not one shared implementation).'
+  });
+  rows.push({
+    path: 'palette.error.main',
+    value: previewTheme.palette.error.main,
+    status: 'theme',
+    active: activeState === 'error',
+    note: 'Border on error — reads the same palette.error.main as the label above.'
+  });
+  rows.push({
+    path: 'palette.action.disabled',
+    value: previewTheme.palette.action.disabled,
+    status: 'theme',
+    active: activeState === 'disabled',
+    note: "Border on disabled — MUI's own default, not overridden by this app."
+  });
+
+  // Helper text
+  if (formHelperTextRoot?.color !== undefined) {
     rows.push({
-      path: 'MuiFormLabel.root "&.Mui-disabled"',
-      value: labelDisabled.value.color,
+      path: 'MuiFormHelperText.root',
+      value: formHelperTextRoot.color,
       status: 'overridden',
-      active: activeState === 'disabled',
-      note: 'Label on disabled — hardcoded in this app, independently of the input value color above.'
+      active: activeState === 'resting',
+      note: 'Helper text at rest — hardcoded in this app (overrides whatever theme.typography.caption.color would otherwise win, via the same spread-order mechanism as Label above).'
     });
   } else {
     rows.push({
-      path: 'palette.text.disabled',
-      value: previewTheme.palette.text.disabled,
-      status: 'theme',
-      active: activeState === 'disabled',
-      note: "Label on disabled — MUI's own default, not overridden by this app."
+      path: 'theme.typography.caption',
+      value: previewTheme.typography.caption.color,
+      status: 'other',
+      active: activeState === 'resting',
+      note: "Helper text at rest — same mechanism as Label: FormHelperText.js's own palette.text.secondary default is overwritten by theme.typography.caption's own color, since no override exists in this app."
     });
   }
+  rows.push({
+    path: 'palette.error.main',
+    value: previewTheme.palette.error.main,
+    status: 'theme',
+    active: activeState === 'error',
+    note: "Helper text on error — MUI's own default, not overridden by this app."
+  });
+  rows.push({
+    path: 'palette.text.disabled',
+    value: previewTheme.palette.text.disabled,
+    status: 'theme',
+    active: activeState === 'disabled',
+    note: "Helper text on disabled — MUI's own default, not overridden by this app."
+  });
 
   return rows;
 };
@@ -2104,7 +2198,19 @@ const getInputTokenItems = (state, previewTheme) => {
     {
       category: 'Typography',
       anchor: 'typography',
-      tokens: [{ path: 'theme.typography.body1', inheritsFrom: notResting, note: '' }]
+      tokens: [
+        {
+          path: 'theme.typography.body1',
+          inheritsFrom: notResting,
+          note: `Label — shares body1 with the input value text below, but FormLabel.js hardcodes lineHeight: 1.4375em after spreading it (confirmed in source), overriding body1's own lineHeight (${previewTheme.typography.body1.lineHeight} in this app).`
+        },
+        { path: 'theme.typography.body1', inheritsFrom: notResting, note: 'Input value text.' },
+        {
+          path: 'theme.typography.caption',
+          inheritsFrom: notResting,
+          note: "Helper text — a different variant from the label/input text above, not body1 (confirmed in FormHelperText.js)."
+        }
+      ]
     },
     {
       category: 'Spacing',

@@ -243,7 +243,13 @@ uses `packages/front-core/theme.js`, which has only one change so far (see Typog
   key-by-key, the same way `htmlFontSize`/`button.fontSize` just were, above. _(2026-08-26)_
 - **`palette.divider` (`rgba(0, 0, 0, 0.12)`) looks like the same class of leftover
   light-theme value** as the ones already fixed above — not yet checked against how
-  dividers actually render on this dark theme. _(2026-08-23)_
+  dividers actually render on this dark theme. `palette.action` (`active`/`hover`/
+  `selected`/`disabled`/`disabledBackground`) is the same pattern, not just divider: every
+  value is a black-based rgba literal matching MUI's own light-mode defaults verbatim
+  (`action.disabled: rgba(0, 0, 0, 0.26)` etc.) in a theme whose `background.paper` is
+  `#0c0c0c` — confirmed live via Style Guide's Text field (Border on disabled) and
+  Checkboxes/Radio buttons/Switches (Disabled icon) properties panels, all of which read
+  `palette.action.disabled` with no override of their own. _(2026-10-12)_
 - **`theme.js` still uses the legacy v4 theme shape** (`overrides`, `props` top-level
   keys), adapted at runtime via `adaptV4Theme()` in `App.jsx`, rather than v5's native
   `components.<Name>.styleOverrides`. Not urgent — `adaptV4Theme` still works — but it's a
