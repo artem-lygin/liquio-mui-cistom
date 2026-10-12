@@ -19,6 +19,7 @@ import {
   MenuItem,
   FormControl,
   InputLabel,
+  Autocomplete,
   Checkbox,
   Radio,
   RadioGroup,
@@ -269,11 +270,24 @@ const BUTTON_SIZES = [
 // this is its one sub-nav entry under "buttons".
 const BUTTONS_SUB_SECTIONS = [{ id: 'buttons-icon-buttons', label: 'Icon Buttons', parentId: 'buttons' }];
 
+// Inputs splits into one anchor-able Section per data-entry component — same pattern as
+// Typography's per-variant split — each with its own independent properties panel instead
+// of one shared panel describing all six at once.
+const INPUTS_SUB_SECTIONS = [
+  { id: 'inputs-text-field', label: 'Text field', parentId: 'inputs' },
+  { id: 'inputs-autocomplete', label: 'Autocomplete', parentId: 'inputs' },
+  { id: 'inputs-combo-box', label: 'Combo box', parentId: 'inputs' },
+  { id: 'inputs-checkboxes', label: 'Checkboxes', parentId: 'inputs' },
+  { id: 'inputs-radio-buttons', label: 'Radio buttons', parentId: 'inputs' },
+  { id: 'inputs-switches', label: 'Switches', parentId: 'inputs' }
+];
+
 // Keyed by top-level SECTIONS id — which categories currently have their own sub-nav.
 // Empty/absent for every category that isn't split into its own anchor-able sub-items.
 const SUB_SECTIONS_BY_PARENT = {
   typography: TYPOGRAPHY_SUB_SECTIONS,
-  buttons: BUTTONS_SUB_SECTIONS
+  buttons: BUTTONS_SUB_SECTIONS,
+  inputs: INPUTS_SUB_SECTIONS
 };
 
 const TYPOGRAPHY_SAMPLE_TEXT =
@@ -2106,6 +2120,295 @@ const getInputTokenItems = (state, previewTheme) => {
   ];
 };
 
+// adaptV4Theme() only renames v4's overrides/props slot *keys* (e.g. root → styleOverrides.
+// root) — it does NOT translate a nested JSS "$ruleName" class reference inside a slot's own
+// style object. admin-front's MuiFormControlLabel.label still writes the v4 form
+// ("&$disabled"), which survives adaptV4Theme() unchanged and so never matches v5's actual
+// ".Mui-disabled" class — confirmed by resolving admin-front's real theme through
+// adaptV4Theme()+createTheme() and inspecting the result: the key comes out as the literal
+// string "&$disabled", not "&.Mui-disabled". front-core writes the v5 form directly and
+// resolves correctly. This distinguishes that dead-but-present override from no override at
+// all — readDisabledOverride (above) can't do this since its own "Mui-disabled" substring
+// check doesn't match "$disabled" either.
+const readLegacyDisabledOverride = (styleObj) => {
+  if (!styleObj) {
+    return { applies: false };
+  }
+  if (styleObj['&.Mui-disabled']) {
+    return { applies: true, value: styleObj['&.Mui-disabled'] };
+  }
+  if (styleObj['&$disabled']) {
+    return { applies: false, dead: true, value: styleObj['&$disabled'] };
+  }
+  return { applies: false };
+};
+
+// Autocomplete renders a TextField internally (via renderInput), so its input chrome,
+// typography and spacing are identical to Text field's — the one place the two apps
+// actually diverge is MuiAutocomplete itself, which only admin-front defines at all
+// (inputRoot background, popup paper margin, noOptions/loading text color); front-core has
+// no MuiAutocomplete override, so cabinet-front's Autocomplete popup/input are plain MUI
+// defaults.
+const getAutocompleteTokenItems = (previewTheme) => {
+  const inputRoot = getResolvedMuiStyleOverride(previewTheme, 'MuiAutocomplete', 'inputRoot');
+  const noOptions = getResolvedMuiStyleOverride(previewTheme, 'MuiAutocomplete', 'noOptions');
+
+  const colorRows = [
+    inputRoot?.backgroundColor !== undefined
+      ? {
+          path: 'MuiAutocomplete.inputRoot',
+          value: inputRoot.backgroundColor,
+          status: 'overridden',
+          note: 'Input background — hardcoded in this app, no matching palette token.'
+        }
+      : {
+          path: 'palette.background.paper',
+          value: previewTheme.palette.background.paper,
+          status: 'theme',
+          note: 'Input background — no MuiAutocomplete override here, same Outlined chrome as Text field.'
+        },
+    {
+      path: 'palette.background.paper',
+      value: previewTheme.palette.background.paper,
+      status: 'theme',
+      note: "Popup listbox surface — MUI's own Paper default; neither app repaints it."
+    }
+  ];
+  if (noOptions?.color !== undefined) {
+    colorRows.push({
+      path: 'MuiAutocomplete.noOptions',
+      value: noOptions.color,
+      status: 'overridden',
+      note: '"No options" / loading text — hardcoded in this app, not palette.text.secondary.'
+    });
+  }
+
+  return [
+    { category: 'Color', anchor: 'colors', tokens: colorRows },
+    {
+      category: 'Typography',
+      anchor: 'typography',
+      tokens: [{ path: 'theme.typography.body1', note: 'Same input text styling as Text field — Autocomplete renders a TextField internally.' }]
+    },
+    {
+      category: 'Spacing',
+      anchor: 'spacing',
+      tokens: [{ path: 'theme.spacing', note: `unit: ${previewTheme.spacing(1)}, shared with Text field's own field height/margins` }]
+    }
+  ];
+};
+
+// Select defaults to variant="outlined" internally (same as TextField, confirmed in
+// Select.js) — so a Select with no dedicated MuiSelect override falls through to the same
+// MuiOutlinedInput override Text field uses. front-core instead fully reskins Select via its
+// own MuiSelect.root: a flat background plus an explicit, standalone type scale
+// (fontSize/fontWeight/lineHeight/letterSpacing) that references no theme.typography variant
+// at all — the exact "second literal, not a derived value" pattern this project's theme work
+// is meant to catch, just for a whole component's typography rather than one property.
+const getComboBoxTokenItems = (previewTheme) => {
+  const selectRoot = getResolvedMuiStyleOverride(previewTheme, 'MuiSelect', 'root');
+  const outlinedRoot = getResolvedMuiStyleOverride(previewTheme, 'MuiOutlinedInput', 'root');
+  const selectBg = readBackground(selectRoot);
+
+  const colorRows = [];
+  if (selectBg !== undefined) {
+    colorRows.push({
+      path: 'MuiSelect.root',
+      value: selectBg,
+      status: 'overridden',
+      note: 'Closed-state background — hardcoded in this app, no matching palette token.'
+    });
+  } else if (outlinedRoot?.backgroundColor !== undefined) {
+    colorRows.push({
+      path: 'MuiOutlinedInput.root',
+      value: outlinedRoot.backgroundColor,
+      status: 'other',
+      note: 'Closed-state background — no MuiSelect override here, so this falls through to the same MuiOutlinedInput override Text field uses (Select defaults to variant="outlined").'
+    });
+  } else {
+    colorRows.push({
+      path: 'palette.background.paper',
+      value: previewTheme.palette.background.paper,
+      status: 'theme',
+      note: 'Closed-state background — no override on either slot.'
+    });
+  }
+
+  const typographyTokens =
+    selectRoot?.fontSize !== undefined
+      ? [
+          {
+            path: 'MuiSelect.root',
+            status: 'overridden',
+            note: `Hardcoded to ${selectRoot.fontSize}px / weight ${selectRoot.fontWeight} / line-height ${selectRoot.lineHeight} — a standalone type scale, not a reference to theme.typography.body1 or any other named variant.`
+          }
+        ]
+      : [{ path: 'theme.typography.body1', note: 'No MuiSelect typography override here — same as Text field.' }];
+
+  const spacingTokens =
+    selectRoot?.padding !== undefined
+      ? [{ path: 'MuiSelect.root', status: 'overridden', note: `Hardcoded padding (${selectRoot.padding}) and box-sizing, not theme.spacing().` }]
+      : [{ path: 'theme.spacing', note: `unit: ${previewTheme.spacing(1)}` }];
+
+  return [
+    { category: 'Color', anchor: 'colors', tokens: colorRows },
+    { category: 'Typography', anchor: 'typography', tokens: typographyTokens },
+    { category: 'Spacing', anchor: 'spacing', tokens: spacingTokens }
+  ];
+};
+
+// Checked color is MUI's own unmodified default color="primary" in both apps (confirmed in
+// Checkbox.js) — neither overrides it. Disabled and the adjoining FormControlLabel are where
+// the two apps actually diverge, including a dead override: admin-front's
+// MuiFormControlLabel.label disabled color is written in v4's "&$disabled" form, which
+// survives adaptV4Theme() untranslated and so never matches v5's ".Mui-disabled" class (see
+// readLegacyDisabledOverride) — a real, currently-inert override, not merely "no override".
+const getCheckboxRadioColorRows = (previewTheme, component, hoverSelector, disabledLabel) => {
+  const rootDisabled = readDisabledOverride(getResolvedMuiStyleOverride(previewTheme, component, 'root'));
+  const hoverOverride = getResolvedMuiStyleOverride(previewTheme, 'MuiButtonBase', 'root')?.[hoverSelector];
+  const labelDisabled = readLegacyDisabledOverride(getResolvedMuiStyleOverride(previewTheme, 'MuiFormControlLabel', 'label'));
+
+  const rows = [
+    {
+      path: 'palette.primary.main',
+      value: previewTheme.palette.primary.main,
+      status: 'theme',
+      note: `Checked — MUI's own default color="primary" on ${disabledLabel}, not overridden by this app.`
+    }
+  ];
+
+  rows.push(
+    rootDisabled.applies
+      ? {
+          path: `${component}.root "&.Mui-disabled"`,
+          value: rootDisabled.value.color,
+          status: 'overridden',
+          note: 'Disabled icon — hardcoded in this app, not palette.action.disabled.'
+        }
+      : {
+          path: 'palette.action.disabled',
+          value: previewTheme.palette.action.disabled,
+          status: 'theme',
+          note: `Disabled icon — MUI's own default (confirmed in ${component.replace('Mui', '')}.js), not overridden by this app.`
+        }
+  );
+
+  rows.push(
+    hoverOverride?.backgroundColor !== undefined
+      ? {
+          path: `MuiButtonBase.root "${hoverSelector}"`,
+          value: hoverOverride.backgroundColor,
+          status: 'overridden',
+          note: "Hover fill — a flat hardcoded color, replacing MUI's own built-in alpha(color, action.hoverOpacity) tint. The same literal also appears, independently, on Checkbox/Radio/Switch's own hover selectors here — one value duplicated three times rather than derived once."
+        }
+      : {
+          path: 'palette.action.hoverOpacity',
+          value: previewTheme.palette.action.hoverOpacity,
+          status: 'theme',
+          note: "Hover fill — MUI's own built-in tint (alpha of the control's own color against action.hoverOpacity), not overridden by this app."
+        }
+  );
+
+  rows.push(
+    labelDisabled.applies
+      ? {
+          path: 'MuiFormControlLabel.label "&.Mui-disabled"',
+          value: labelDisabled.value.color,
+          status: 'overridden',
+          note: 'Disabled label text — hardcoded here, independent of the control color above.'
+        }
+      : labelDisabled.dead
+        ? {
+            path: 'MuiFormControlLabel.label "&$disabled"',
+            value: previewTheme.palette.text.disabled,
+            status: 'other',
+            note: `Disabled label text — this app writes a v4-style "&$disabled" override (would-be color ${labelDisabled.value.color}), but adaptV4Theme() never translates that selector, so it silently never applies — falls through to palette.text.disabled instead.`
+          }
+        : {
+            path: 'palette.text.disabled',
+            value: previewTheme.palette.text.disabled,
+            status: 'theme',
+            note: "Disabled label text — MUI's own default, not overridden by this app."
+          }
+  );
+
+  return rows;
+};
+
+const getCheckboxTokenItems = (previewTheme) => [
+  { category: 'Color', anchor: 'colors', tokens: getCheckboxRadioColorRows(previewTheme, 'MuiCheckbox', '&.MuiCheckbox-root:hover', 'Checkbox') },
+  { category: 'Typography', anchor: 'typography', tokens: [{ path: 'theme.typography.body1', note: "The adjoining FormControlLabel's own label text." }] },
+  { category: 'Spacing', anchor: 'spacing', tokens: [{ path: 'theme.spacing', note: `unit: ${previewTheme.spacing(1)}` }] }
+];
+
+const getRadioTokenItems = (previewTheme) => [
+  { category: 'Color', anchor: 'colors', tokens: getCheckboxRadioColorRows(previewTheme, 'MuiRadio', '&.MuiRadio-root:hover', 'Radio') },
+  { category: 'Typography', anchor: 'typography', tokens: [{ path: 'theme.typography.body1', note: "The adjoining FormControlLabel's own label text." }] },
+  { category: 'Spacing', anchor: 'spacing', tokens: [{ path: 'theme.spacing', note: `unit: ${previewTheme.spacing(1)}` }] }
+];
+
+// Switch dims its disabled state with opacity (thumb 0.5, track 0.12/0.2 by mode — confirmed
+// in Switch.js) rather than swapping to palette.action.disabled the way Checkbox/Radio do, so
+// it gets its own color-rows function rather than sharing getCheckboxRadioColorRows.
+const getSwitchTokenItems = (previewTheme) => {
+  const hoverOverride = getResolvedMuiStyleOverride(previewTheme, 'MuiButtonBase', 'root')?.['&.MuiSwitch-switchBase.Mui-checked:hover'];
+  const labelDisabled = readLegacyDisabledOverride(getResolvedMuiStyleOverride(previewTheme, 'MuiFormControlLabel', 'label'));
+
+  const colorRows = [
+    {
+      path: 'palette.primary.main',
+      value: previewTheme.palette.primary.main,
+      status: 'theme',
+      note: 'Checked thumb/track — MUI\'s own default color="primary", not overridden by this app.'
+    },
+    {
+      path: 'theme.palette.mode',
+      value: previewTheme.palette.mode,
+      status: 'theme',
+      note: `Disabled — MUI dims via opacity, not a color swap (thumb 0.5; track 0.12 in light mode / 0.2 in dark mode, confirmed in Switch.js) — not overridden by this app.`
+    },
+    hoverOverride?.backgroundColor !== undefined
+      ? {
+          path: 'MuiButtonBase.root "&.MuiSwitch-switchBase.Mui-checked:hover"',
+          value: hoverOverride.backgroundColor,
+          status: 'overridden',
+          note: 'Checked hover fill — the same hardcoded literal also used, independently, for Checkbox/Radio hover above.'
+        }
+      : {
+          path: 'palette.action.hoverOpacity',
+          value: previewTheme.palette.action.hoverOpacity,
+          status: 'theme',
+          note: "Checked hover fill — MUI's own built-in tint, not overridden by this app."
+        },
+    labelDisabled.dead
+      ? {
+          path: 'MuiFormControlLabel.label "&$disabled"',
+          value: previewTheme.palette.text.disabled,
+          status: 'other',
+          note: `Disabled label text — this app's "&$disabled" override (would-be color ${labelDisabled.value.color}) never applies under adaptV4Theme(); falls through to palette.text.disabled.`
+        }
+      : labelDisabled.applies
+        ? {
+            path: 'MuiFormControlLabel.label "&.Mui-disabled"',
+            value: labelDisabled.value.color,
+            status: 'overridden',
+            note: 'Disabled label text — hardcoded here.'
+          }
+        : {
+            path: 'palette.text.disabled',
+            value: previewTheme.palette.text.disabled,
+            status: 'theme',
+            note: "Disabled label text — MUI's own default, not overridden by this app."
+          }
+  ];
+
+  return [
+    { category: 'Color', anchor: 'colors', tokens: colorRows },
+    { category: 'Typography', anchor: 'typography', tokens: [{ path: 'theme.typography.body1', note: "The adjoining FormControlLabel's own label text." }] },
+    { category: 'Spacing', anchor: 'spacing', tokens: [{ path: 'theme.spacing', note: `unit: ${previewTheme.spacing(1)}` }] }
+  ];
+};
+
 // Chip's color/typography facts differ structurally between the two apps: front-core (→
 // cabinet-front) overrides MuiChip.root (height, fontSize, label color, textTransform) and
 // filledError.color; admin-front defines no MuiChip override at all, so its Chip renders with
@@ -3037,9 +3340,17 @@ const StyleGuidePage = () => {
             </MeasureOverlay>
           </Section>
 
+          <div id="inputs" style={{ marginBottom: 8, scrollMarginTop: 24 }}>
+            <Typography variant="h2" gutterBottom={true}>
+              Inputs
+            </Typography>
+            <Divider style={{ marginBottom: 16 }} />
+          </div>
+
           <Section
-            id="inputs"
-            title="Inputs"
+            id="inputs-text-field"
+            title="Text field"
+            titleVariant="h3"
             properties={
               showProperties ? (
                 <>
@@ -3064,12 +3375,45 @@ const StyleGuidePage = () => {
             }
           >
             <MeasureOverlay enabled={measureEnabled}>
-              <div style={{ display: 'flex', gap: 32, flexWrap: 'wrap', marginBottom: 24 }}>
+              <div style={{ display: 'flex', gap: 32, flexWrap: 'wrap' }}>
                 <TextField label="Standard" defaultValue="Value" style={{ minWidth: 220 }} />
                 <TextField label="Error" defaultValue="Value" error={true} helperText="Something went wrong" style={{ minWidth: 220 }} />
                 <TextField label="Disabled" defaultValue="Value" disabled={true} style={{ minWidth: 220 }} />
               </div>
-              <div style={{ display: 'flex', gap: 32, flexWrap: 'wrap', marginBottom: 16 }}>
+            </MeasureOverlay>
+          </Section>
+
+          <Section
+            id="inputs-autocomplete"
+            title="Autocomplete"
+            titleVariant="h3"
+            properties={showProperties ? <PropertiesCardGroup onNavigate={scrollToSection} items={getAutocompleteTokenItems(previewTheme)} /> : null}
+          >
+            <MeasureOverlay enabled={measureEnabled}>
+              <div style={{ display: 'flex', gap: 32, flexWrap: 'wrap' }}>
+                <Autocomplete
+                  options={['Option one', 'Option two', 'Option three']}
+                  style={{ minWidth: 240 }}
+                  renderInput={(params) => <TextField {...params} label="Autocomplete" />}
+                />
+                <Autocomplete
+                  disabled={true}
+                  options={['Option one', 'Option two', 'Option three']}
+                  style={{ minWidth: 240 }}
+                  renderInput={(params) => <TextField {...params} label="Disabled" />}
+                />
+              </div>
+            </MeasureOverlay>
+          </Section>
+
+          <Section
+            id="inputs-combo-box"
+            title="Combo box"
+            titleVariant="h3"
+            properties={showProperties ? <PropertiesCardGroup onNavigate={scrollToSection} items={getComboBoxTokenItems(previewTheme)} /> : null}
+          >
+            <MeasureOverlay enabled={measureEnabled}>
+              <div style={{ display: 'flex', gap: 32, flexWrap: 'wrap' }}>
                 <Select defaultValue={1} style={{ minWidth: 160 }}>
                   <MenuItem value={1}>Option one</MenuItem>
                   <MenuItem value={2}>Option two</MenuItem>
@@ -3083,16 +3427,49 @@ const StyleGuidePage = () => {
                 </FormControl>
               </div>
             </MeasureOverlay>
-            <Divider style={{ margin: '16px 0' }} />
-            <div style={{ display: 'flex', gap: 16, alignItems: 'center', flexWrap: 'wrap' }}>
-              <FormControlLabel control={<Checkbox defaultChecked={true} />} label="Checkbox" />
-              <FormControlLabel control={<Checkbox disabled={true} />} label="Disabled" />
-              <RadioGroup row={true} defaultValue="a" style={{ display: 'flex', flexDirection: 'row' }}>
+          </Section>
+
+          <Section
+            id="inputs-checkboxes"
+            title="Checkboxes"
+            titleVariant="h3"
+            properties={showProperties ? <PropertiesCardGroup onNavigate={scrollToSection} items={getCheckboxTokenItems(previewTheme)} /> : null}
+          >
+            <MeasureOverlay enabled={measureEnabled}>
+              <div style={{ display: 'flex', gap: 16, alignItems: 'center', flexWrap: 'wrap' }}>
+                <FormControlLabel control={<Checkbox defaultChecked={true} />} label="Checkbox" />
+                <FormControlLabel control={<Checkbox disabled={true} />} label="Disabled" />
+              </div>
+            </MeasureOverlay>
+          </Section>
+
+          <Section
+            id="inputs-radio-buttons"
+            title="Radio buttons"
+            titleVariant="h3"
+            properties={showProperties ? <PropertiesCardGroup onNavigate={scrollToSection} items={getRadioTokenItems(previewTheme)} /> : null}
+          >
+            <MeasureOverlay enabled={measureEnabled}>
+              <RadioGroup row={true} defaultValue="a" style={{ display: 'flex', flexDirection: 'row', gap: 16 }}>
                 <FormControlLabel value="a" control={<Radio />} label="Radio A" />
                 <FormControlLabel value="b" control={<Radio />} label="Radio B" />
+                <FormControlLabel value="c" control={<Radio disabled={true} />} label="Disabled" />
               </RadioGroup>
-              <FormControlLabel control={<Switch defaultChecked={true} />} label="Switch" />
-            </div>
+            </MeasureOverlay>
+          </Section>
+
+          <Section
+            id="inputs-switches"
+            title="Switches"
+            titleVariant="h3"
+            properties={showProperties ? <PropertiesCardGroup onNavigate={scrollToSection} items={getSwitchTokenItems(previewTheme)} /> : null}
+          >
+            <MeasureOverlay enabled={measureEnabled}>
+              <div style={{ display: 'flex', gap: 16, alignItems: 'center', flexWrap: 'wrap' }}>
+                <FormControlLabel control={<Switch defaultChecked={true} />} label="Switch" />
+                <FormControlLabel control={<Switch disabled={true} />} label="Disabled" />
+              </div>
+            </MeasureOverlay>
           </Section>
 
           <Section
