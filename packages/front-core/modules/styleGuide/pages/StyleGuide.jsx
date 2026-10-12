@@ -17,6 +17,8 @@ import {
   TextField,
   Select,
   MenuItem,
+  FormControl,
+  InputLabel,
   Checkbox,
   Radio,
   RadioGroup,
@@ -3062,14 +3064,23 @@ const StyleGuidePage = () => {
             }
           >
             <MeasureOverlay enabled={measureEnabled}>
-              <div style={{ display: 'flex', gap: 32, flexWrap: 'wrap', marginBottom: 16 }}>
+              <div style={{ display: 'flex', gap: 32, flexWrap: 'wrap', marginBottom: 24 }}>
                 <TextField label="Standard" defaultValue="Value" style={{ minWidth: 220 }} />
                 <TextField label="Error" defaultValue="Value" error={true} helperText="Something went wrong" style={{ minWidth: 220 }} />
                 <TextField label="Disabled" defaultValue="Value" disabled={true} style={{ minWidth: 220 }} />
+              </div>
+              <div style={{ display: 'flex', gap: 32, flexWrap: 'wrap', marginBottom: 16 }}>
                 <Select defaultValue={1} style={{ minWidth: 160 }}>
                   <MenuItem value={1}>Option one</MenuItem>
                   <MenuItem value={2}>Option two</MenuItem>
                 </Select>
+                <FormControl style={{ minWidth: 160 }}>
+                  <InputLabel id="style-guide-input-combo-label">Combo box</InputLabel>
+                  <Select labelId="style-guide-input-combo-label" label="Combo box" defaultValue={1}>
+                    <MenuItem value={1}>Option one</MenuItem>
+                    <MenuItem value={2}>Option two</MenuItem>
+                  </Select>
+                </FormControl>
               </div>
             </MeasureOverlay>
             <Divider style={{ margin: '16px 0' }} />
