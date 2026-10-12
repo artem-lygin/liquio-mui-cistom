@@ -2721,6 +2721,9 @@ const StyleGuidePage = () => {
   // Which interaction state's tokens the Buttons/Inputs token tables currently show.
   const [buttonState, setButtonState] = React.useState('resting');
   const [inputState, setInputState] = React.useState('resting');
+  // Text field demo stays one real, typeable field — resting lets it behave completely
+  // normally (real focus/typing), while the other tabs force it into that state via props.
+  const [inputDemoValue, setInputDemoValue] = React.useState('Value');
   // Icon Buttons card, nested inside Buttons — same size/state tab pattern as Buttons above.
   const [iconButtonSize, setIconButtonSize] = React.useState('medium');
   const [iconButtonState, setIconButtonState] = React.useState('resting');
@@ -3482,9 +3485,20 @@ const StyleGuidePage = () => {
           >
             <MeasureOverlay enabled={measureEnabled}>
               <div style={{ display: 'flex', gap: 32, flexWrap: 'wrap' }}>
-                <TextField label="Standard" defaultValue="Value" style={{ minWidth: 220 }} />
-                <TextField label="Error" defaultValue="Value" error={true} helperText="Something went wrong" style={{ minWidth: 220 }} />
-                <TextField label="Disabled" defaultValue="Value" disabled={true} style={{ minWidth: 220 }} />
+                <TextField
+                  label="Standard"
+                  value={inputDemoValue}
+                  onChange={(event) => setInputDemoValue(event.target.value)}
+                  // Only forced when a non-resting tab is selected — FormControl falls back
+                  // to real DOM focus tracking whenever `focused` is undefined (confirmed in
+                  // FormControl.js), so resting stays a genuinely interactive field rather
+                  // than one that's merely styled to look normal.
+                  focused={inputState === 'focus' ? true : undefined}
+                  error={inputState === 'error'}
+                  disabled={inputState === 'disabled'}
+                  helperText={inputState === 'error' ? 'Something went wrong' : ' '}
+                  style={{ minWidth: 220 }}
+                />
               </div>
             </MeasureOverlay>
           </Section>
