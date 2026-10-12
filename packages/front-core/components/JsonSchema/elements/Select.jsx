@@ -78,6 +78,8 @@ const SelectComponent = ({
       }
     : {};
 
+  const labelId = description ? `${path.join('-')}-label` : undefined;
+
   return (
     <FormControl
       fullWidth={true}
@@ -89,10 +91,12 @@ const SelectComponent = ({
       variant={variant}
     >
       {description ? (
-        <InputLabel htmlFor={path.join('-')}>{description}</InputLabel>
+        <InputLabel id={labelId} htmlFor={path.join('-')}>{description}</InputLabel>
       ) : null}
 
       <Select
+        labelId={labelId}
+        label={description || undefined}
         aria-label={description}
         variant={variant}
         autoFocus={autoFocus}

@@ -228,8 +228,10 @@ class CheckValidFunction extends React.Component {
 
         {showControls ? (
           <FormControl fullWidth={true} className={classes.formControl}>
-            <InputLabel>{t('SelectElement')}</InputLabel>
+            <InputLabel id="check-valid-function-select-element-label">{t('SelectElement')}</InputLabel>
             <Select
+              labelId="check-valid-function-select-element-label"
+              label={t('SelectElement')}
               variant="outlined"
               value={element || ''}
               classes={{ select: classes.select }}

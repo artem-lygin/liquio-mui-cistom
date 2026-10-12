@@ -167,8 +167,10 @@ const CheckHiddenFunction = ({ t, classes, customInterface }) => {
 
     return (
       <FormControl fullWidth={true} className={classes.formControl}>
-        <InputLabel>{t('SelectElement')}</InputLabel>
+        <InputLabel id="custom-interface-check-select-element-label">{t('SelectElement')}</InputLabel>
         <Select
+          labelId="custom-interface-check-select-element-label"
+          label={t('SelectElement')}
           variant="outlined"
           value={element?.key || ''}
           onChange={handleSelectControl}
