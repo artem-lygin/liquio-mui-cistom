@@ -2724,6 +2724,7 @@ const StyleGuidePage = () => {
   // Text field demo stays one real, typeable field — resting lets it behave completely
   // normally (real focus/typing), while the other tabs force it into that state via props.
   const [inputDemoValue, setInputDemoValue] = React.useState('Value');
+  const [showInputHelperText, setShowInputHelperText] = React.useState(true);
   // Icon Buttons card, nested inside Buttons — same size/state tab pattern as Buttons above.
   const [iconButtonSize, setIconButtonSize] = React.useState('medium');
   const [iconButtonState, setIconButtonState] = React.useState('resting');
@@ -3463,21 +3464,40 @@ const StyleGuidePage = () => {
             properties={
               showProperties ? (
                 <>
-                  <Tabs
-                    value={inputState}
-                    onChange={(event, value) => setInputState(value)}
-                    variant="scrollable"
-                    style={{ minHeight: 36, borderBottom: '1px solid rgba(255, 255, 255, 0.12)' }}
+                  <div
+                    style={{
+                      display: 'flex',
+                      alignItems: 'center',
+                      borderBottom: '1px solid rgba(255, 255, 255, 0.12)'
+                    }}
                   >
-                    {INPUT_STATES.map((state) => (
-                      <Tab
-                        key={state.key}
-                        value={state.key}
-                        label={state.label}
-                        style={{ minHeight: 36, padding: '6px 16px' }}
-                      />
-                    ))}
-                  </Tabs>
+                    <Tabs
+                      value={inputState}
+                      onChange={(event, value) => setInputState(value)}
+                      variant="scrollable"
+                      style={{ minHeight: 36, flex: '1 1 auto' }}
+                    >
+                      {INPUT_STATES.map((state) => (
+                        <Tab
+                          key={state.key}
+                          value={state.key}
+                          label={state.label}
+                          style={{ minHeight: 36, padding: '6px 16px' }}
+                        />
+                      ))}
+                    </Tabs>
+                    <FormControlLabel
+                      style={{ marginRight: 8, whiteSpace: 'nowrap' }}
+                      control={
+                        <Switch
+                          size="small"
+                          checked={showInputHelperText}
+                          onChange={(event) => setShowInputHelperText(event.target.checked)}
+                        />
+                      }
+                      label="Helper text"
+                    />
+                  </div>
                   <PropertiesCardGroup onNavigate={scrollToSection} items={getInputTokenItems(inputState, previewTheme)} />
                 </>
               ) : null
@@ -3496,7 +3516,9 @@ const StyleGuidePage = () => {
                   focused={inputState === 'focus' ? true : undefined}
                   error={inputState === 'error'}
                   disabled={inputState === 'disabled'}
-                  helperText={inputState === 'error' ? 'Something went wrong' : ' '}
+                  helperText={
+                    showInputHelperText ? (inputState === 'error' ? 'Something went wrong' : 'Helper text') : undefined
+                  }
                   style={{ minWidth: 220 }}
                 />
               </div>
