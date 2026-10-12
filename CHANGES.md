@@ -228,6 +228,34 @@ uses `packages/front-core/theme.js`, which has only one change so far (see Typog
   fontSize="inherit" />`, the same wrapping pattern documented above. Purely a demo change
   (no production `<IconButton>` usage was touched). _(2026-08-25)_
 
+## Inputs
+
+- **Fixed outlined `Select`'s label getting crossed out by its own outline on hover**,
+  found while auditing combo box/autocomplete behavior. An outlined `Select` needs a
+  `label`/`labelId` prop synced to its sibling `InputLabel` so MUI can size the "notch" cut
+  into the border for the floating label to sit in — without it, the notch is never sized,
+  so the border runs straight across instead of parting around the label. Usually invisible
+  at rest here because these call sites also hardcode `'& fieldset': { borderColor:
+  'transparent' }` to hide the border for their dark-theme look, but MUI's own built-in
+  hover rule for the notched outline (`&:hover .notchedOutline`) has higher CSS specificity
+  and wins over that flat override, suddenly revealing the un-notched border crossing the
+  label on hover. Confirmed by resolving the actual rendered/served code, not just reasoning
+  from source.
+- **Fixed in one shared component plus two independent one-offs** — all three had the
+  identical pattern (`InputLabel` with no `id`, `Select` with no `labelId`/`label`):
+  - `packages/front-core/components/JsonSchema/elements/Select.jsx` — the generic select
+    field renderer used across schema-driven forms; real call sites include
+    `WorkflowCategorySelect.jsx` and the three selects in admin-front's
+    `WorkflowSettings/index.jsx` (Status Target Template ×2, Workflow Status), all passing
+    `variant="outlined"` + `darkTheme`.
+  - `components/cabinet-front/.../tasks/pages/Task/debugTools/CheckValidFunction.jsx`
+  - `packages/front-core/layouts/components/DebugTools/tools/CustomInterfaceCheck.jsx`
+- **Audited ~40 other raw `<Select>` usages in the repo** for the same pattern: the rest
+  are either `variant="standard"` (no outline/notch mechanism to begin with), have no
+  sibling `InputLabel` at all, or already route through the Autocomplete-based
+  `components/Select` wrapper (which correctly passes `label` into its internal `TextField`
+  already). None of those needed a change. _(2026-10-12)_
+
 ## Worth addressing (known issues found, not yet fixed)
 
 - **`theme.overrides.json` still has other un-audited baked values, not yet reconciled into
