@@ -2605,7 +2605,7 @@ const StyleGuidePage = () => {
   const [showProperties, setShowProperties] = React.useState(true);
   // Global "Measure" toggle in the header — drives every MeasureOverlay-wrapped demo at
   // once, rather than each demo needing its own on/off switch.
-  const [measureEnabled, setMeasureEnabled] = React.useState(true);
+  const [measureEnabled, setMeasureEnabled] = React.useState(false);
   // Which single Buttons demo instance the Buttons token table describes right now.
   const [buttonVariant, setButtonVariant] = React.useState('contained');
   const [buttonColor, setButtonColor] = React.useState('primary');
