@@ -1,6 +1,13 @@
 import merge from 'lodash/merge';
+import { lighten } from '@mui/material/styles';
 
 import overrides from './theme.overrides.json';
+
+// Input background used to be a standalone literal (#2e2e2e) with no relation to any
+// palette value — see MuiOutlinedInput below. 0.14 is tuned to reproduce that exact literal
+// from palette.background.paper (#0c0c0c): lighten() adds (255-channel)*coefficient per
+// channel, so 12 + (255-12)*0.14 ≈ 46 = 0x2e.
+const INPUT_SURFACE_LIGHTEN = 0.14;
 
 const baseTheme = {
   breakpoints: {
@@ -441,22 +448,22 @@ const baseTheme = {
       }
     },
     MuiOutlinedInput: {
-      root: {
-        backgroundColor: '#2e2e2e',
+      root: ({ theme }) => ({
+        backgroundColor: lighten(theme.palette.background.paper, INPUT_SURFACE_LIGHTEN),
         borderBottom: 'none',
         borderRadius: '4px',
         '&.Mui-disabled': {
           color: 'rgba(255, 255, 255, 0.38)',
           cursor: 'not-allowed'
         }
-      },
-      input: {
+      }),
+      input: ({ theme }) => ({
         '&:-webkit-autofill, &:-webkit-autofill:hover, &:-webkit-autofill:focus': {
-          WebkitBoxShadow: '0 0 0 1000px #2e2e2e inset',
+          WebkitBoxShadow: `0 0 0 1000px ${lighten(theme.palette.background.paper, INPUT_SURFACE_LIGHTEN)} inset`,
           WebkitTextFillColor: '#fff',
           caretColor: '#fff'
         }
-      }
+      })
     }
   },
   palette: {

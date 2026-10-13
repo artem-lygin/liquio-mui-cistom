@@ -255,6 +255,20 @@ uses `packages/front-core/theme.js`, which has only one change so far (see Typog
   sibling `InputLabel` at all, or already route through the Autocomplete-based
   `components/Select` wrapper (which correctly passes `label` into its internal `TextField`
   already). None of those needed a change. _(2026-10-12)_
+- **`MuiOutlinedInput`'s background was a standalone literal (`#2e2e2e`) with no relation to
+  any palette value** — found while tracing which token produces the Text field's
+  background. Tokenized instead: `lighten(theme.palette.background.paper,
+  INPUT_SURFACE_LIGHTEN)`, a function-valued style override (same shape as the
+  `MuiButton.sizeSmall`/`sizeLarge` fix above) so it reads `background.paper` live rather
+  than duplicating a color. `INPUT_SURFACE_LIGHTEN` is `0.14` — not an arbitrary round
+  number but tuned so `lighten()`'s own formula (`channel + (255 - channel) * coefficient`)
+  reproduces the previous literal from `background.paper` (`#0c0c0c`) almost exactly:
+  `12 + (255 - 12) * 0.14 ≈ 46 = 0x2e`. Confirmed by resolving the actual theme through
+  `adaptV4Theme()` + `createTheme()` — resolves to `rgb(46, 46, 46)`, i.e. `#2e2e2e`, so this
+  is a pure tokenization with **no visual change**. The matching autofill-background literal
+  on `MuiOutlinedInput.input` (`WebkitBoxShadow`'s inset color) was the same flat `#2e2e2e`
+  duplicated a second time — now reads the same computed value instead of its own copy.
+  _(2026-10-13)_
 
 ## Worth addressing (known issues found, not yet fixed)
 
