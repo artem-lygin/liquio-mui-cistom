@@ -3,10 +3,11 @@ import { lighten } from '@mui/material/styles';
 
 import overrides from './theme.overrides.json';
 
-// Input background used to be a standalone literal (#2e2e2e) with no relation to any
-// palette value — see MuiOutlinedInput below. 0.14 is tuned to reproduce that exact literal
-// from palette.background.paper (#0c0c0c): lighten() adds (255-channel)*coefficient per
-// channel, so 12 + (255-12)*0.14 ≈ 46 = 0x2e.
+// Input background used to be a standalone literal (#2e2e2e) duplicated across
+// MuiOutlinedInput (Text field/Select) and MuiAutocomplete (Autocomplete) independently,
+// with no relation to any palette value. 0.14 is tuned to reproduce that exact literal from
+// palette.background.paper (#0c0c0c): lighten() adds (255-channel)*coefficient per channel,
+// so 12 + (255-12)*0.14 ≈ 46 = 0x2e.
 const INPUT_SURFACE_LIGHTEN = 0.14;
 
 const baseTheme = {
@@ -414,10 +415,15 @@ const baseTheme = {
       }
     },
     MuiAutocomplete: {
-      inputRoot: {
+      inputRoot: ({ theme }) => ({
         borderRadius: '4px',
-        backgroundColor: '#2e2e2e'
-      },
+        // Same computation as MuiOutlinedInput.root below — this slot is a separate CSS
+        // class applied to the same rendered surface (Autocomplete wraps a real
+        // variant="outlined" TextField), so it needs the same value, but isn't literally
+        // the same style rule. Kept in sync via one shared constant rather than one shared
+        // literal.
+        backgroundColor: lighten(theme.palette.background.paper, INPUT_SURFACE_LIGHTEN)
+      }),
       paper: {
         margin: '10px -14px'
       },

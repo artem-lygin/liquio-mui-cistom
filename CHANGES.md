@@ -268,6 +268,16 @@ uses `packages/front-core/theme.js`, which has only one change so far (see Typog
   is a pure tokenization with **no visual change**. The matching autofill-background literal
   on `MuiOutlinedInput.input` (`WebkitBoxShadow`'s inset color) was the same flat `#2e2e2e`
   duplicated a second time — now reads the same computed value instead of its own copy.
+  **A third, independent copy of the same literal was found afterwards**:
+  `MuiAutocomplete.inputRoot.backgroundColor` — a separate override slot that applies to the
+  same rendered surface (Autocomplete wraps a real `variant="outlined"` TextField) but isn't
+  derived from `MuiOutlinedInput.root` at all, so the first pass missed it. Also converted to
+  a function-valued override reading the same `INPUT_SURFACE_LIGHTEN` constant — kept in sync
+  through one shared constant rather than one shared CSS rule, since the two are genuinely
+  separate style slots. Also added a "Background" row to the Style Guide's Text field Color
+  panel (previously missing entirely) and updated Autocomplete's existing one to describe the
+  new tokenized value instead of "hardcoded, no matching palette token". Combo box's panel
+  already correctly described the `MuiOutlinedInput.root` fallback and needed no change.
   _(2026-10-13)_
 
 ## Worth addressing (known issues found, not yet fixed)

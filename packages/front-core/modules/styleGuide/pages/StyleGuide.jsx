@@ -1643,6 +1643,24 @@ const getInputColorRows = (previewTheme, activeState) => {
     });
   }
 
+  // Background (the field's own fill, not the page behind it)
+  const outlinedInputRoot = getResolvedMuiStyleOverride(previewTheme, 'MuiOutlinedInput', 'root');
+  rows.push(
+    outlinedInputRoot?.backgroundColor !== undefined
+      ? {
+          path: 'MuiOutlinedInput.root',
+          value: outlinedInputRoot.backgroundColor,
+          status: 'overridden',
+          note: 'Fill — derived from palette.background.paper (lighten(), see INPUT_SURFACE_LIGHTEN in theme.js), not a standalone literal.'
+        }
+      : {
+          path: 'palette.background.paper',
+          value: previewTheme.palette.background.paper,
+          status: 'theme',
+          note: "Fill — MUI's own default is transparent, so this is whichever surface sits behind the field; not overridden by this app."
+        }
+  );
+
   // Border (OutlinedInput's notched outline) — neither app overrides any of these; all five
   // states are MUI's own unmodified defaults (confirmed in OutlinedInput.js).
   rows.push({
@@ -2254,7 +2272,10 @@ const readLegacyDisabledOverride = (styleObj) => {
 // actually diverge is MuiAutocomplete itself, which only admin-front defines at all
 // (inputRoot background, popup paper margin, noOptions/loading text color); front-core has
 // no MuiAutocomplete override, so cabinet-front's Autocomplete popup/input are plain MUI
-// defaults.
+// defaults. admin-front's inputRoot background is a *separate* slot from Text field's
+// MuiOutlinedInput.root (both apply to the same rendered surface, since Autocomplete wraps
+// a real variant="outlined" TextField) — kept in sync via the same INPUT_SURFACE_LIGHTEN
+// constant in theme.js, not one shared CSS rule.
 const getAutocompleteTokenItems = (previewTheme) => {
   const inputRoot = getResolvedMuiStyleOverride(previewTheme, 'MuiAutocomplete', 'inputRoot');
   const noOptions = getResolvedMuiStyleOverride(previewTheme, 'MuiAutocomplete', 'noOptions');
@@ -2265,7 +2286,7 @@ const getAutocompleteTokenItems = (previewTheme) => {
           path: 'MuiAutocomplete.inputRoot',
           value: inputRoot.backgroundColor,
           status: 'overridden',
-          note: 'Input background — hardcoded in this app, no matching palette token.'
+          note: 'Input background — derived from palette.background.paper (lighten(), same computation as Text field\'s MuiOutlinedInput.root, see INPUT_SURFACE_LIGHTEN in theme.js), not a standalone literal.'
         }
       : {
           path: 'palette.background.paper',
