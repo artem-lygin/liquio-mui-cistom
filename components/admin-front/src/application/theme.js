@@ -75,13 +75,44 @@ const baseTheme = {
         }
       }
     },
+    // "Reddit style" label: vertically centered + red (palette.error.main, not a new color)
+    // while the field is empty; on focus/filled it shrinks to the standard notch position and
+    // reads normally (palette.text.primary). Content text itself needs no change — it already
+    // shares theme.typography.body1 with the label (see Style Guide's Text field Typography
+    // panel), so the resting (scale(1), unshrunk) label is already the same size as the input
+    // text, by construction.
+    //
+    // root/shrink must be function-valued AND use the '&&' self-referencing selector to
+    // reliably win: InputLabel.js's own styled() callback bakes a hardcoded, variant-specific
+    // transform (translate(14px, 16px) scale(1) resting / translate(14px, -9px) scale(0.75)
+    // shrunk, for variant="outlined" specifically) as part of the SAME generated class, applied
+    // after styleOverrides.root/.shrink in the component's own internal array — a plain
+    // (non-&&) override of the same specificity loses to it. Scoped to variant === "outlined"
+    // since that's what TextField/Select default to here; leaves "filled"/"standard" (if ever
+    // used) untouched.
     MuiInputLabel: {
-      root: {
+      root: ({ theme, ownerState }) => ({
         whiteSpace: 'nowrap',
         textOverflow: 'ellipsis',
         overflow: 'hidden',
-        maxWidth: '100%'
-      }
+        maxWidth: '100%',
+        ...(ownerState.variant === 'outlined' && {
+          '&&': {
+            top: '50%',
+            transform: 'translate(14px, -50%) scale(1)',
+            color: theme.palette.error.main
+          }
+        })
+      }),
+      shrink: ({ theme, ownerState }) => ({
+        ...(ownerState.variant === 'outlined' && {
+          '&&': {
+            top: 0,
+            transform: 'translate(14px, -9px) scale(0.75)',
+            color: theme.palette.text.primary
+          }
+        })
+      })
     },
     MuiSvgIcon: {
       root: {

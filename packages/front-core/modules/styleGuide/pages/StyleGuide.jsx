@@ -1562,28 +1562,55 @@ const getInputColorRows = (previewTheme, activeState) => {
   const labelOpacity = formLabelRoot?.opacity;
 
   // Label
-  rows.push({
-    path: 'theme.typography.body1',
-    value: previewTheme.typography.body1.color,
-    status: 'other',
-    active: activeState === 'resting',
-    note:
-      "Label at rest — not palette.text.secondary as MUI's FormLabel.js default would suggest: it spreads theme.typography.body1 in *after* that default, so body1's own color (both apps define one) silently wins." +
-      (labelOpacity !== undefined ? ` This app also applies MuiFormLabel.root opacity: ${labelOpacity} unconditionally (every state), further dimming it.` : '')
-  });
-  rows.push({
-    path: 'palette.primary.main',
-    value: previewTheme.palette.primary.main,
-    status: 'theme',
-    active: activeState === 'focus',
-    note: "Label on focus — MUI's own default (&.Mui-focused), not overridden by this app."
-  });
+  const inputLabelRoot = getResolvedMuiStyleOverride(previewTheme, 'MuiInputLabel', 'root');
+  const inputLabelShrink = getResolvedMuiStyleOverride(previewTheme, 'MuiInputLabel', 'shrink');
+  const hasRedditStyleLabel = inputLabelRoot?.['&&']?.color !== undefined;
+  rows.push(
+    hasRedditStyleLabel
+      ? {
+          path: 'MuiInputLabel.root "&&"',
+          value: inputLabelRoot['&&'].color,
+          status: 'overridden',
+          active: activeState === 'resting',
+          note:
+            'Label while empty and unfocused — a deliberate, new "&&"-boosted override (replaces the old body1-color-clobber default below), vertically centered via top/transform in the same rule. "&&" (self-referencing selector) is needed because InputLabel.js bakes its own outlined-variant transform into the same generated class, applied after a plain override of equal specificity would lose.'
+        }
+      : {
+          path: 'theme.typography.body1',
+          value: previewTheme.typography.body1.color,
+          status: 'other',
+          active: activeState === 'resting',
+          note:
+            "Label at rest — not palette.text.secondary as MUI's FormLabel.js default would suggest: it spreads theme.typography.body1 in *after* that default, so body1's own color (both apps define one) silently wins." +
+            (labelOpacity !== undefined ? ` This app also applies MuiFormLabel.root opacity: ${labelOpacity} unconditionally (every state), further dimming it.` : '')
+        }
+  );
+  rows.push(
+    hasRedditStyleLabel
+      ? {
+          path: 'MuiInputLabel.shrink "&&"',
+          value: inputLabelShrink['&&'].color,
+          status: 'overridden',
+          active: activeState === 'focus',
+          note:
+            'Label once shrunk (focus or filled, whichever happens first) — same "&&" mechanism, on MuiInputLabel.shrink. This also supersedes MUI\'s own default focus color (palette.primary.main) whenever the label is shrunk, since both overrides use "&&" for equal, order-independent specificity — not yet confirmed via getComputedStyle on the real page.'
+        }
+      : {
+          path: 'palette.primary.main',
+          value: previewTheme.palette.primary.main,
+          status: 'theme',
+          active: activeState === 'focus',
+          note: "Label on focus — MUI's own default (&.Mui-focused), not overridden by this app."
+        }
+  );
   rows.push({
     path: 'palette.error.main',
     value: previewTheme.palette.error.main,
     status: 'theme',
     active: activeState === 'error',
-    note: "Label on error — MUI's own default, not overridden by this app."
+    note: hasRedditStyleLabel
+      ? "Label on error (MUI's own &.Mui-error default) — if the label is ALSO shrunk (filled but still invalid), this may compete with the new MuiInputLabel.shrink color override above; which one wins hasn't been confirmed live. If only resting (empty and invalid), this coincides with the new empty-state red anyway."
+      : "Label on error — MUI's own default, not overridden by this app."
   });
   const labelDisabled = readDisabledOverride(formLabelRoot);
   rows.push(

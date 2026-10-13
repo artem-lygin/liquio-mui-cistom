@@ -302,6 +302,23 @@ uses `packages/front-core/theme.js`, which has only one change so far (see Typog
   and `background.default` now share one literal (`BACKGROUND_PAPER`) instead of two
   independent `#0c0c0c` copies — correct if they're meant to always match, but either would
   need its own value again if they're ever meant to diverge. _(2026-10-13)_
+- **"Reddit style" label for outlined Text field/Select/Autocomplete**: while empty and
+  unfocused, the label now sits vertically centered inside the field (not pinned near the
+  top) and reads in `palette.error.main` — a visible "needs input" cue, not a new color.
+  Once focused or filled, it shrinks to the standard notch position (same
+  `translate(14px, -9px) scale(0.75)` MUI already used) and reads in `palette.text.primary`.
+  The input's own typed text was never touched — it already shares `theme.typography.body1`
+  with the label (see the Style Guide's Text field Typography panel), so the resting
+  (unshrunk, `scale(1)`) label was already the same size as the typed text by construction.
+  **Implementation note**: `MuiInputLabel.root`/`.shrink` had to become function-valued
+  overrides using the `&&` self-referencing-selector trick, scoped to `variant === 'outlined'`
+  — a plain (non-`&&`) override of the same specificity loses to the transform/color
+  `InputLabel.js` bakes into its own generated class for the outlined variant, confirmed by
+  resolving the override function against a mock `ownerState` in Node (not yet confirmed via
+  `getComputedStyle` on the real rendered page). One open question, not yet resolved: this
+  override may also supersede MUI's own `&.Mui-focused`/`&.Mui-error` colors whenever the
+  label is also shrunk, since those and this override are both two-class-selector
+  specificity — which one wins in that overlap hasn't been checked live. _(2026-10-13)_
 
 ## Layout
 
