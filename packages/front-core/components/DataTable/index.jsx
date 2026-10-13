@@ -635,10 +635,10 @@ class DataTable extends React.Component {
             {this.renderTable()}
           </FullScreenDialog>
         ) : panel ? (
-          // elevation 4 lands the dark-mode overlay alpha at ~0.092 (MUI's own
-          // getOverlayAlpha(4) ≈ 0.0924) — default elevation 1 is only ~0.05, too subtle
+          // elevation 2 lands the dark-mode overlay alpha at ~0.069 (MUI's own
+          // getOverlayAlpha(2) ≈ 0.0694) — default elevation 1 is only ~0.05, too subtle
           // against the now-flush sidebar/page.
-          <Paper elevation={4} className={classes.panel}>
+          <Paper elevation={2} className={classes.panel}>
             {this.renderTable()}
           </Paper>
         ) : (
