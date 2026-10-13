@@ -351,9 +351,10 @@ uses `packages/front-core/theme.js`, which has only one change so far (see Typog
   alpha gradient over `background.paper`, confirmed active since this theme has
   `palette.mode: 'dark'` and no `theme.vars`) is what makes the panel read as raised now that
   the sidebar is flush with the same base color — no hand-picked panel color needed.
-  **Elevation bumped from the default `1` (≈0.05 overlay alpha, too subtle) to `5`**
-  (`getOverlayAlpha(5) ≈ 0.1006` — confirmed via MUI's own formula) for clearer contrast
-  against the now-flush sidebar/page. Enabled so far only on `WorkflowList`
+  **Elevation bumped from the default `1` (≈0.05 overlay alpha, too subtle) to `4`**
+  (`getOverlayAlpha(4) ≈ 0.0924` — confirmed via MUI's own formula; `5` ≈ 0.1006 was tried
+  first, dialed back to `4`) for clearer contrast against the now-flush sidebar/page. Enabled
+  so far only on `WorkflowList`
   (`components/admin-front/.../workflow/pages/WorkflowList/index.jsx`), which covers both
   "Workflows" and "Test Processes" (same component, `isTestProcesses` flag) — matches the
   screenshot that prompted this change. Other list pages (Processes, Journals, Users,
