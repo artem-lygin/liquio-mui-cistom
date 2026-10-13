@@ -279,19 +279,29 @@ uses `packages/front-core/theme.js`, which has only one change so far (see Typog
   new tokenized value instead of "hardcoded, no matching palette token". Combo box's panel
   already correctly described the `MuiOutlinedInput.root` fallback and needed no change.
   **A fourth copy surfaced in a custom (non-MUI) theme key**: `buttonHoverBg`, also
-  `#2e2e2e`, used directly as a `backgroundColor` in ~10 places across admin pages (Metrics,
-  ProcessStatistics, Users/Unit, several Workflow sidebar/settings/dialog styles) — sitting
-  alongside other custom keys like `buttonBg`/`searchInputBg`/`chipColor`. Confirmed
-  deliberate (same surface tone as the input background, not a coincidence) and tokenized:
-  since custom theme keys are read as plain strings by component stylesheets rather than
-  through MUI's function-valued `styleOverrides` slots, it can't read `theme.palette.*` live
-  the way `MuiOutlinedInput`/`MuiAutocomplete` do above — instead, `palette.background.paper`
-  itself was pulled into a new `BACKGROUND_PAPER` constant (was *also* independently
-  duplicated across `background.paper`/`background.default`), and `buttonHoverBg` now reads
-  a `INPUT_SURFACE_BG = lighten(BACKGROUND_PAPER, INPUT_SURFACE_LIGHTEN)` computed once at
-  module load — a static snapshot, unlike the two live-reading overrides, since that's the
-  most a plain custom key can do. Resolves to the same `rgb(46, 46, 46)` — no visual change.
-  _(2026-10-13)_
+  `#2e2e2e`, used directly as a `backgroundColor` in ~20 places across admin pages (Metrics,
+  ProcessStatistics, Users/Unit, several Workflow sidebar/settings/dialog styles, plus shared
+  front-core components rendered inside admin — DataTable pagination, SelectFilterHandler,
+  JsonSchema Tags, the profile `LanguageSelector`) — sitting alongside other custom keys like
+  `buttonBg`/`searchInputBg`/`chipColor`. **cabinet-front is unaffected**: front-core's own
+  `theme.js` and the VisualEditor theme set `buttonHoverBg` to a different value (`#ffe565`)
+  entirely. Confirmed deliberate (same surface tone as the input background, not a
+  coincidence) and tokenized: since custom theme keys are read as plain strings by component
+  stylesheets rather than through MUI's function-valued `styleOverrides` slots, it can't read
+  `theme.palette.*` live the way `MuiOutlinedInput`/`MuiAutocomplete` do above — instead,
+  `palette.background.paper` itself was pulled into a new `BACKGROUND_PAPER` constant (was
+  *also* independently duplicated across `background.paper`/`background.default`), and
+  `buttonHoverBg` now reads `INPUT_SURFACE_BG = lighten(BACKGROUND_PAPER,
+  INPUT_SURFACE_LIGHTEN)` computed once at module load — a static snapshot, unlike the two
+  live-reading overrides, since that's the most a plain custom key can do. Format changed
+  from a hex string to `lighten()`'s own `rgb(46, 46, 46)` output — checked every usage for
+  anything that appends hex alpha (e.g. `` `${color}80` ``, which would silently break on an
+  `rgb()` string); none do, all consume it as a plain CSS color (including one
+  `${theme.buttonHoverBg}!important`, still valid with the new format). Resolves to the same
+  color either way — no visual change. **New side effect worth noting**: `background.paper`
+  and `background.default` now share one literal (`BACKGROUND_PAPER`) instead of two
+  independent `#0c0c0c` copies — correct if they're meant to always match, but either would
+  need its own value again if they're ever meant to diverge. _(2026-10-13)_
 
 ## Worth addressing (known issues found, not yet fixed)
 
