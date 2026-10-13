@@ -548,7 +548,7 @@ const baseTheme = {
       default: BACKGROUND_PAPER
     },
     action: {
-      active: 'rgba(0, 0, 0, 0.54)',
+      active: '#fff',
       hover: 'rgba(0, 0, 0, 0.1)',
       hoverOpacity: 0.08,
       selected: 'rgba(0, 0, 0, 0.14)',
