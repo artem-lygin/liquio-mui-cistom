@@ -30,7 +30,9 @@ const styles = (theme) => ({
     zIndex: 10,
   },
   drawerPaper: {
-    backgroundColor: theme.navigator.sidebarBg,
+    // Dedicated to the actual left nav sidebar — theme.navigator.sidebarBg is a separate,
+    // deliberately-unchanged token also shared by several Workflow editor dialogs/panels.
+    backgroundColor: theme.leftSidebarBg,
     borderRight: theme.navigator.drawerPaper.borderRight,
     position: 'inherit',
   },

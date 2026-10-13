@@ -313,9 +313,16 @@ uses `packages/front-core/theme.js`, which has only one change so far (see Typog
   front-core one via webpack module resolution and reads a *different* token,
   `theme.navigator.sidebarBg`, completely untouched by the first fix. First pass changed only
   `leftSidebarBg`, so admin's actual rendered sidebar kept its old `#404040` and the fix had
-  no visible effect — found when the sidebar still looked wrong after the first push. Now
-  both tokens are set to `BACKGROUND_PAPER`, so the sidebar sits flush with the page
-  regardless of which `Layout` a given app resolves to.
+  no visible effect — found when the sidebar still looked wrong after the first push.
+  **Second pass initially set `navigator.sidebarBg` to `BACKGROUND_PAPER` too — wrong move,
+  caught before shipping further**: that token turns out to be reused well beyond the actual
+  sidebar, for backgrounds on five Workflow editor dialogs (Workflow page, Versions, New
+  version, Workflow settings, Task element), the Right sidebar panel, and Version timeline
+  cards (all under `modules/workflow/pages/Workflow/`) — none of which were meant to flatten
+  to match the page. Reverted `navigator.sidebarBg` to its original `#404040`, and pointed
+  admin's local `layouts/LeftSidebar.jsx` at the dedicated top-level `leftSidebarBg` instead
+  (already set to `BACKGROUND_PAPER`) — now the one token used solely by the actual nav
+  sidebar, in both apps' `Layout`, with the seven other reused surfaces unaffected.
 - **Content area gets outer padding**: admin's local `LeftSidebar.jsx` `appContent` class
   (the container wrapping every page's content, to the right of the sidebar) had no padding
   at all — content sat flush against the viewport edges. Added `padding: 24` (plus

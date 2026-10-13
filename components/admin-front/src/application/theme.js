@@ -817,7 +817,9 @@ const baseTheme = {
     tooltip: 1500
   },
   // Elevation zero: matches palette.background.paper exactly (no lighten), so the sidebar
-  // sits flush with the page instead of reading as its own raised surface.
+  // sits flush with the page instead of reading as its own raised surface. Read by both
+  // front-core's shared Layout (cabinet-front) and admin-front's own local
+  // layouts/LeftSidebar.jsx — the one token dedicated solely to the actual nav sidebar.
   leftSidebarBg: BACKGROUND_PAPER,
   buttonBg: '#BB86FC',
   buttonHoverBg: INPUT_SURFACE_BG,
@@ -878,11 +880,14 @@ const baseTheme = {
   /* Navigator */
   navigator: {
     width: 250,
-    // This is the one admin-front's own layouts/LeftSidebar.jsx actually reads (NOT the
-    // top-level leftSidebarBg above — that only feeds front-core's shared Layout, which
-    // admin-front shadows with its own local copy). Same elevation-zero intent: flush with
-    // palette.background.paper.
-    sidebarBg: BACKGROUND_PAPER,
+    // Left deliberately unchanged at #404040 — this key is reused well beyond the actual left
+    // nav sidebar: Workflow page/Versions/New version/Workflow settings/Task element dialogs,
+    // the Right sidebar panel, and Version timeline cards (all under modules/workflow/pages/
+    // Workflow/) all read this same token for their own background. Flattening it to match
+    // palette.background.paper would make all of those blend invisibly into the page too —
+    // not something asked for. The actual left nav sidebar now reads the dedicated
+    // theme.leftSidebarBg (below) instead, in its own local layouts/LeftSidebar.jsx.
+    sidebarBg: '#404040',
     fillIcon: 'rgba(255, 255, 255, 0.6)',
     borderBottom: '1px solid #4E4E4F',
     drawerPaper: {
