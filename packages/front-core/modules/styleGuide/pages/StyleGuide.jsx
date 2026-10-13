@@ -786,6 +786,11 @@ const RedditTextField = styled(TextField)(({ theme }) => ({
       backgroundColor: 'transparent',
       boxShadow: `${alpha(theme.palette.primary.main, 0.25)} 0 0 0 2px`,
       borderColor: theme.palette.primary.main
+    },
+    // Declared after &.Mui-focused so it wins on equal specificity when both apply — an
+    // invalid field should read as red even while focused, not fall back to the primary ring.
+    '&.Mui-error': {
+      borderColor: theme.palette.error.main
     }
   }
 }));

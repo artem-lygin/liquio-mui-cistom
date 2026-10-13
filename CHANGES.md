@@ -347,7 +347,13 @@ uses `packages/front-core/theme.js`, which has only one change so far (see Typog
   `InputAdornment` + `IconButton` in `InputProps.endAdornment`), not a hand-rolled overlay —
   reuses the same `SymbolClose` (Material Symbols) icon already imported for the Style
   Guide's own Icon library/Buttons demos, shown only once the field has a value, hidden
-  while disabled. _(2026-10-13)_
+  while disabled. **The error state's border color was then found missing entirely**: the
+  `&.Mui-focused` rule flips `borderColor` to `palette.primary.main`, but there was no
+  matching `&.Mui-error` rule, so an invalid field never turned its border red — only the
+  label/helper text did, via MUI's own native defaults. Added `&.Mui-error { borderColor:
+  theme.palette.error.main }`, declared after `&.Mui-focused` so it wins on equal specificity
+  when a field is both focused and invalid (an invalid field should read red even while
+  focused, not fall back to the primary ring). _(2026-10-13)_
 
 ## Layout
 
