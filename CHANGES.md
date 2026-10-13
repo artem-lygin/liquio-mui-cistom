@@ -313,12 +313,24 @@ uses `packages/front-core/theme.js`, which has only one change so far (see Typog
   **Implementation note**: `MuiInputLabel.root`/`.shrink` had to become function-valued
   overrides using the `&&` self-referencing-selector trick, scoped to `variant === 'outlined'`
   — a plain (non-`&&`) override of the same specificity loses to the transform/color
-  `InputLabel.js` bakes into its own generated class for the outlined variant, confirmed by
-  resolving the override function against a mock `ownerState` in Node (not yet confirmed via
-  `getComputedStyle` on the real rendered page). One open question, not yet resolved: this
-  override may also supersede MUI's own `&.Mui-focused`/`&.Mui-error` colors whenever the
-  label is also shrunk, since those and this override are both two-class-selector
-  specificity — which one wins in that overlap hasn't been checked live. _(2026-10-13)_
+  `InputLabel.js` bakes into its own generated class for the outlined variant.
+  **Precedence against MUI's own `&.Mui-focused`/`&.Mui-error` label colors, resolved**: SSR-
+  rendered real outlined `TextField`s through this theme and read the actual emotion-generated
+  CSS, in source order, across five states. Confirmed: empty/unfocused → red, centered;
+  filled/unfocused → `text.primary`, shrunk; focused+empty → `text.primary`, shrunk (expected
+  trade-off — this intentionally supersedes MUI's own purple focus-color on the label, since
+  focus alone now reads the same as "has content" for shrink purposes); empty+error → red
+  (both rules happen to agree). **Filled+error initially broke**: the unconditional shrink
+  color beat `FormLabel`'s own `&.Mui-error` red at equal (two-class) specificity, so an
+  invalid-but-filled field's label silently went white, leaving only the border/helper text
+  red. Fixed by scoping the shrink override's `color` to `&&:not(.Mui-error)` instead of
+  unconditional `&&` — position still always shrinks, but color now backs off whenever
+  `.Mui-error` is present, letting `FormLabel`'s own rule apply instead. (`InputLabel`'s own
+  `ownerState` doesn't reliably carry an `error` flag the way `FormLabel`'s does, so excluding
+  via the state class rather than `ownerState.error` is the robust path.) The fix itself still
+  needs the same SSR re-check (and, ideally, `getComputedStyle` in an actual browser) to
+  confirm filled+error now stays red without breaking any of the other four states.
+  _(2026-10-13)_
 
 ## Layout
 

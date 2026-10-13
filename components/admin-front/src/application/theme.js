@@ -108,7 +108,15 @@ const baseTheme = {
         ...(ownerState.variant === 'outlined' && {
           '&&': {
             top: 0,
-            transform: 'translate(14px, -9px) scale(0.75)',
+            transform: 'translate(14px, -9px) scale(0.75)'
+          },
+          // Position always shrinks regardless of error, but color is scoped to
+          // ":not(.Mui-error)" rather than set unconditionally — confirmed via SSR that an
+          // unconditional color here beats FormLabel's own "&.Mui-error" rule at equal (two-
+          // class) specificity, silently turning a filled-but-invalid field's label white
+          // instead of staying red. InputLabel's own ownerState doesn't reliably carry
+          // `error` (unlike FormLabel's), so excluding via the state class is the robust path.
+          '&&:not(.Mui-error)': {
             color: theme.palette.text.primary
           }
         })
