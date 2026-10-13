@@ -319,10 +319,22 @@ uses `packages/front-core/theme.js`, which has only one change so far (see Typog
   sidebar, for backgrounds on five Workflow editor dialogs (Workflow page, Versions, New
   version, Workflow settings, Task element), the Right sidebar panel, and Version timeline
   cards (all under `modules/workflow/pages/Workflow/`) — none of which were meant to flatten
-  to match the page. Reverted `navigator.sidebarBg` to its original `#404040`, and pointed
-  admin's local `layouts/LeftSidebar.jsx` at the dedicated top-level `leftSidebarBg` instead
-  (already set to `BACKGROUND_PAPER`) — now the one token used solely by the actual nav
-  sidebar, in both apps' `Layout`, with the seven other reused surfaces unaffected.
+  to match the page. Reverted `navigator.sidebarBg` to its original `#404040`.
+  **Third pass: `leftSidebarBg` turned out to have the exact same problem.** Despite the
+  "dedicated solely to the actual nav sidebar" claim in the second pass, it's also read by
+  front-core's shared `SchemaStepper.jsx` and `TreeListItem.jsx` — rendered inside admin's
+  own schema-driven forms (28 admin files use front-core's JsonSchema) — which had been
+  silently flattening to the page background since the *first* pass (not introduced by the
+  second), just not noticed until this was checked specifically. `cabinet-front` was never
+  at risk here — it reads `leftSidebarBg` from front-core's own `theme.js` (`#F2F7FF`),
+  entirely separate from admin's. Resolution: stopped reusing any custom key for this at all.
+  Reverted `leftSidebarBg` to its original `#404040` too, and admin's local
+  `layouts/LeftSidebar.jsx` now reads `theme.palette.background.paper` **directly** — the
+  actual MUI palette token for exactly this purpose, with no other hidden consumers to
+  collide with. Net result unchanged from intent (sidebar flush with the page), reached by a
+  more direct, lower-risk path after two reuse attempts both turned out to have the same
+  class of problem. If `SchemaStepper`/`TreeListItem`/the seven Workflow surfaces should
+  *also* go elevation-zero eventually, that's separate, not-yet-decided scope.
 - **Content area gets outer padding**: admin's local `LeftSidebar.jsx` `appContent` class
   (the container wrapping every page's content, to the right of the sidebar) had no padding
   at all — content sat flush against the viewport edges. Added `padding: 24` (plus

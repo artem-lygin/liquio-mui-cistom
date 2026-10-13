@@ -30,9 +30,12 @@ const styles = (theme) => ({
     zIndex: 10,
   },
   drawerPaper: {
-    // Dedicated to the actual left nav sidebar — theme.navigator.sidebarBg is a separate,
-    // deliberately-unchanged token also shared by several Workflow editor dialogs/panels.
-    backgroundColor: theme.leftSidebarBg,
+    // theme.palette.background.paper directly, not a custom key — both theme.navigator.
+    // sidebarBg and the top-level theme.leftSidebarBg turned out to be shared by several
+    // other, unrelated surfaces (Workflow editor dialogs/panels; SchemaStepper/
+    // TreeListItem), so reusing either here risked flattening those too. palette.background.
+    // paper has no such hidden consumers for this purpose.
+    backgroundColor: theme.palette.background.paper,
     borderRight: theme.navigator.drawerPaper.borderRight,
     position: 'inherit',
   },

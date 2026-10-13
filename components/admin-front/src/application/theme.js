@@ -816,11 +816,14 @@ const baseTheme = {
     snackbar: 1400,
     tooltip: 1500
   },
-  // Elevation zero: matches palette.background.paper exactly (no lighten), so the sidebar
-  // sits flush with the page instead of reading as its own raised surface. Read by both
-  // front-core's shared Layout (cabinet-front) and admin-front's own local
-  // layouts/LeftSidebar.jsx — the one token dedicated solely to the actual nav sidebar.
-  leftSidebarBg: BACKGROUND_PAPER,
+  // Reverted to its original value — turns out this key isn't safely reusable for "flush
+  // sidebar": it's also read by front-core's shared SchemaStepper.jsx and TreeListItem.jsx
+  // (rendered inside admin's own schema-driven forms, 28 admin files use front-core
+  // JsonSchema), which were never meant to flatten against the page either. The actual left
+  // nav sidebar reads theme.palette.background.paper directly instead (see
+  // layouts/LeftSidebar.jsx) — no custom key needed, since that's exactly the intent and
+  // carries no other hidden consumers.
+  leftSidebarBg: '#404040',
   buttonBg: '#BB86FC',
   buttonHoverBg: INPUT_SURFACE_BG,
   textColorDark: '#232f3d',
