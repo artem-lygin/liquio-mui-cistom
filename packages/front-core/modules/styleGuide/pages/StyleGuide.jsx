@@ -758,22 +758,31 @@ const ExpandableDescription = ({ children }) => {
 // used (currently just the Text field demo below).
 //
 // Colors reuse existing cross-app theme keys, not new literals or this file's own magic
-// numbers — theme.buttonHoverBg (the same surface tone this app already uses for button/
-// sidebar hover fills — a different literal per app, but a real token either way) and
-// theme.borderColor (the same line color the sidebar/header separators use). No light/dark
-// split (the reference's theme.applyStyles) — no app this guide runs under has a light mode
-// to switch between.
+// numbers — theme.buttonHoverBg (the same key this app already uses for button/sidebar hover
+// fills) and theme.borderColor (the same line color the sidebar/header separators use).
+// Admin-focused exploration, not yet checked under cabinet-front specifically: cabinet's own
+// buttonHoverBg is a bright yellow (#ffe565, a genuinely different design concept there, not
+// just a different shade of the same idea admin uses it for), so this demo likely looks
+// broken rather than merely "differently themed" when the Style Guide runs under cabinet. No
+// light/dark split (the reference's theme.applyStyles) — no app this guide runs under has a
+// light mode to switch between.
 //
-// Label color still needs the "&&" self-referencing-selector trick, nested one level under
-// this wrapper's own scoping class: FormLabel's own base styles set "&.Mui-focused"/
-// "&.Mui-error" colors at the same two-class specificity a plain nested rule would have, so a
-// plain version loses to them — confirmed via SSR-rendering real TextFields and reading the
-// generated CSS across five states (empty, filled, focused+empty, filled+error, empty+error).
-// shrink's color is further scoped to ":not(.Mui-error)" rather than unconditional, so an
-// invalid-but-filled field keeps its red label instead of going white (InputLabel's own
-// ownerState doesn't reliably carry an `error` flag the way FormLabel's does, so excluding via
-// the state class is the robust path). Position/transform needs no override at all — "filled"
-// already centers the resting label and shrinks it to the notch position natively.
+// Label color needs the "&&" self-referencing-selector trick — but doubling the wrapper's
+// OWN class, not nested inside the descendant selector. "& .MuiInputLabel-root": { "&&": {} }
+// (tried first) compiles to ".wrap .label.wrap .label" — the same class chained directly onto
+// itself with no combinator, requiring one element that's simultaneously ".label" (from the
+// first descendant chain) and ".wrap" at the same time, which nothing is — so it silently
+// matches nothing at all, and the label falls back to plain MUI defaults. Doubling the
+// *wrapper* class instead ("&& .MuiInputLabel-root") compiles to ".wrap.wrap .label", a valid,
+// higher-specificity descendant selector. Found via SSR-rendering real TextFields through
+// this exact styled-component and reading the generated CSS across five states (empty,
+// filled, focused+empty, filled+error, empty+error) — the nested form produced none of the
+// intended colors; the top-level form produces all five correctly. shrink's color is further
+// scoped to ":not(.Mui-error)" rather than unconditional, so an invalid-but-filled field keeps
+// its red label instead of going white (InputLabel's own ownerState doesn't reliably carry an
+// `error` flag the way FormLabel's does, so excluding via the state class is the robust path).
+// Position/transform needs no override at all — "filled" already centers the resting label
+// and shrinks it to the notch position natively.
 const RedditTextField = styled(TextField)(({ theme }) => ({
   '& .MuiFilledInput-root': {
     overflow: 'hidden',
@@ -790,15 +799,11 @@ const RedditTextField = styled(TextField)(({ theme }) => ({
       borderColor: theme.palette.primary.main
     }
   },
-  '& .MuiInputLabel-root': {
-    '&&': {
-      color: theme.palette.error.main
-    }
+  '&& .MuiInputLabel-root': {
+    color: theme.palette.error.main
   },
-  '& .MuiInputLabel-root.MuiInputLabel-shrink': {
-    '&&:not(.Mui-error)': {
-      color: theme.palette.text.primary
-    }
+  '&& .MuiInputLabel-root.MuiInputLabel-shrink:not(.Mui-error)': {
+    color: theme.palette.text.primary
   }
 }));
 
@@ -1717,7 +1722,7 @@ const getInputColorRows = (previewTheme, activeState) => {
     value: previewTheme.buttonHoverBg,
     status: 'overridden',
     active: activeState === 'resting',
-    note: "Fill at rest — theme.buttonHoverBg, the same surface tone this app already uses for button/sidebar hover fills, not a new literal. (A different real value per app — cabinet-front's own buttonHoverBg is unrelated to this one — but tokenized either way.)"
+    note: "Fill at rest — theme.buttonHoverBg, the same key this app already uses for button/sidebar hover fills, not a new literal. Not a universally safe reuse, though: cabinet-front's own buttonHoverBg is a bright yellow (#ffe565) serving a different purpose there, not just a different shade of the same idea — this demo likely looks broken, not just differently themed, under cabinet."
   });
   rows.push({
     path: 'RedditTextField "& .MuiFilledInput-root"',

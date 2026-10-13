@@ -315,7 +315,18 @@ uses `packages/front-core/theme.js`, which has only one change so far (see Typog
   this file's scope per the note at the top (theme changes only, not the review tooling
   itself) — so see that component's own comments for the current implementation, reusing
   `theme.buttonHoverBg`/`theme.borderColor`/`palette.primary.main`/`palette.error.main`.
-  _(2026-10-13)_
+  **A second, more severe bug surfaced on the move**: the scoped version's label-color rule
+  initially nested the `&&` trick one level inside a descendant selector
+  (`'& .MuiInputLabel-root': { '&&': {...} }`), which compiles to `.wrap .label.wrap .label` —
+  the wrapper's own class chained directly onto itself with no combinator, requiring one
+  element that is simultaneously `.label` (from the descendant part) and `.wrap` (chained),
+  which nothing is. The rule silently matched nothing at all — not a precedence loss, no rule
+  applied — so the label quietly fell back to plain MUI defaults (white at rest, purple on
+  focus, red only via real validation), with no visible error to signal the mistake. Caught by
+  SSR-rendering the actual component and reading the generated CSS, same as before. Fixed by
+  doubling the *wrapper's* class at the top level instead
+  (`'&& .MuiInputLabel-root': {...}`), re-verified correct across all five states the same
+  way. _(2026-10-13)_
 
 ## Layout
 
