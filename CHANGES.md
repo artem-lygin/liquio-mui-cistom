@@ -326,7 +326,16 @@ uses `packages/front-core/theme.js`, which has only one change so far (see Typog
   SSR-rendering the actual component and reading the generated CSS, same as before. Fixed by
   doubling the *wrapper's* class at the top level instead
   (`'&& .MuiInputLabel-root': {...}`), re-verified correct across all five states the same
-  way. _(2026-10-13)_
+  way.
+  **The red-while-empty label color was then removed entirely, at the product designer's
+  direction**: clearing a field's content shouldn't read as a validation error, so `shrink`/
+  the label no longer carry any color override at all — `RedditTextField` now matches MUI's
+  reference exactly (surface styling only; label behavior is 100% "filled" variant defaults).
+  **Added a clear ("×") button**, MUI's own documented pattern (Input Adornments →
+  `InputAdornment` + `IconButton` in `InputProps.endAdornment`), not a hand-rolled overlay —
+  reuses the same `SymbolClose` (Material Symbols) icon already imported for the Style
+  Guide's own Icon library/Buttons demos, shown only once the field has a value, hidden
+  while disabled. _(2026-10-13)_
 
 ## Layout
 
