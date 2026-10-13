@@ -302,35 +302,45 @@ uses `packages/front-core/theme.js`, which has only one change so far (see Typog
   and `background.default` now share one literal (`BACKGROUND_PAPER`) instead of two
   independent `#0c0c0c` copies — correct if they're meant to always match, but either would
   need its own value again if they're ever meant to diverge. _(2026-10-13)_
-- **"Reddit style" label for outlined Text field/Select/Autocomplete**: while empty and
-  unfocused, the label now sits vertically centered inside the field (not pinned near the
-  top) and reads in `palette.error.main` — a visible "needs input" cue, not a new color.
-  Once focused or filled, it shrinks to the standard notch position (same
-  `translate(14px, -9px) scale(0.75)` MUI already used) and reads in `palette.text.primary`.
-  The input's own typed text was never touched — it already shares `theme.typography.body1`
-  with the label (see the Style Guide's Text field Typography panel), so the resting
-  (unshrunk, `scale(1)`) label was already the same size as the typed text by construction.
-  **Implementation note**: `MuiInputLabel.root`/`.shrink` had to become function-valued
-  overrides using the `&&` self-referencing-selector trick, scoped to `variant === 'outlined'`
-  — a plain (non-`&&`) override of the same specificity loses to the transform/color
-  `InputLabel.js` bakes into its own generated class for the outlined variant.
-  **Precedence against MUI's own `&.Mui-focused`/`&.Mui-error` label colors, resolved**: SSR-
-  rendered real outlined `TextField`s through this theme and read the actual emotion-generated
-  CSS, in source order, across five states. Confirmed: empty/unfocused → red, centered;
-  filled/unfocused → `text.primary`, shrunk; focused+empty → `text.primary`, shrunk (expected
-  trade-off — this intentionally supersedes MUI's own purple focus-color on the label, since
-  focus alone now reads the same as "has content" for shrink purposes); empty+error → red
-  (both rules happen to agree). **Filled+error initially broke**: the unconditional shrink
-  color beat `FormLabel`'s own `&.Mui-error` red at equal (two-class) specificity, so an
-  invalid-but-filled field's label silently went white, leaving only the border/helper text
-  red. Fixed by scoping the shrink override's `color` to `&&:not(.Mui-error)` instead of
-  unconditional `&&` — position still always shrinks, but color now backs off whenever
-  `.Mui-error` is present, letting `FormLabel`'s own rule apply instead. (`InputLabel`'s own
-  `ownerState` doesn't reliably carry an `error` flag the way `FormLabel`'s does, so excluding
-  via the state class rather than `ownerState.error` is the robust path.) The fix itself still
-  needs the same SSR re-check (and, ideally, `getComputedStyle` in an actual browser) to
-  confirm filled+error now stays red without breaking any of the other four states.
-  _(2026-10-13)_
+- **"Reddit style" input, adapted from MUI's own docs reference** (mui.com/material-ui/
+  react-text-field → "Customized inputs" → `RedditTextField`), which is `variant="filled"`,
+  **not** `"outlined"` — an earlier pass on this entry tried to hand-roll the same look on
+  top of outlined via custom label-position CSS; revised in place once the actual reference
+  surfaced, since "filled" already does most of this natively. Currently applied to the Style
+  Guide's Text field demo only (`InputProps={{ disableUnderline: true }}`, label "Reddit
+  style") — Select/Autocomplete and the rest of the app still default to `"outlined"`,
+  untouched.
+  - **`MuiFilledInput.root`**: background/border/focus-ring, using this app's own existing
+    tokens rather than the reference's light-theme placeholders (`#F3F6F9`/`#E0E3E7`) or any
+    new ones — `INPUT_SURFACE_BG` (the same fill Text field's old outlined background and
+    Autocomplete already use) and `BORDER_COLOR` (the same line color the sidebar/header
+    separators use). Fill goes transparent on hover/focus (revealing `background.paper`
+    behind it, a darken cue) and on focus also gets a `2px alpha(primary.main, 0.25)` ring
+    plus a `primary.main` border. No light/dark split (the reference's
+    `theme.applyStyles('dark', …)`) — this app has no light mode to switch between. Error and
+    disabled states aren't handled here (matching the reference, which doesn't address
+    validation either) — an invalid or disabled field's border/fill currently look identical
+    to resting; only the label and helper text show red on error.
+  - **`MuiInputLabel.root`/`.shrink`** (scoped to `variant === 'filled'`): red
+    (`palette.error.main`) while empty and unfocused — a visible "needs input" cue, not a new
+    color — and `palette.text.primary` once focused or filled. No position/transform override
+    needed: "filled" already centers the resting label and shrinks it to the notch position
+    natively. The input's own typed text was never touched — it already shares
+    `theme.typography.body1` with the label, so sizing parity falls out of the existing
+    architecture. Both slots need the `&&` self-referencing-selector trick: `FormLabel`'s own
+    base styles set `&.Mui-focused`/`&.Mui-error` colors at the same two-class specificity a
+    plain override would have. `shrink`'s color is further scoped to `&&:not(.Mui-error)`
+    rather than unconditional `&&` — an unconditional version was tried first and confirmed
+    (via SSR-rendering real `TextField`s through this theme and reading the generated CSS
+    across five states) to beat `FormLabel`'s own error-red, silently turning an invalid-but-
+    filled field's label white. The fix re-passed the same SSR check across all five states;
+    not yet confirmed via `getComputedStyle` in an actual browser.
+  - **Crash found and fixed along the way**: the Style Guide's own `resolveMuiStyleOverride`
+    helper never passed `ownerState` to function-valued overrides (only `theme`) — harmless
+    for every override that existed before this one, but this override reads
+    `ownerState.variant` directly, so the whole Style Guide page threw on load the moment this
+    shipped. Both helpers now take an optional `ownerState` parameter (default `{}`), and the
+    Text field's token panel passes `{ variant: 'filled' }` explicitly. _(2026-10-13)_
 
 ## Layout
 

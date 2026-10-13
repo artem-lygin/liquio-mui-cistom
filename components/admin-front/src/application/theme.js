@@ -1,5 +1,5 @@
 import merge from 'lodash/merge';
-import { lighten } from '@mui/material/styles';
+import { alpha, lighten } from '@mui/material/styles';
 
 import overrides from './theme.overrides.json';
 
@@ -75,47 +75,66 @@ const baseTheme = {
         }
       }
     },
-    // "Reddit style" label: vertically centered + red (palette.error.main, not a new color)
-    // while the field is empty; on focus/filled it shrinks to the standard notch position and
-    // reads normally (palette.text.primary). Content text itself needs no change — it already
-    // shares theme.typography.body1 with the label (see Style Guide's Text field Typography
-    // panel), so the resting (scale(1), unshrunk) label is already the same size as the input
-    // text, by construction.
+    // "Reddit style" input — named after and adapted from MUI's own docs reference
+    // (mui.com/material-ui/react-text-field, the "Customized inputs" demo's
+    // RedditTextField), which is variant="filled", not "outlined": background/border/focus-
+    // ring on MuiFilledInput, no custom label CSS at all, since "filled"'s own native label
+    // positioning (resting centered-ish, shrinks to top-left on focus/fill) already does what
+    // the reference wants. Colors here are this app's own existing tokens, not the
+    // reference's light-theme placeholders (#F3F6F9/#E0E3E7) — INPUT_SURFACE_BG (the same
+    // fill Text field/Autocomplete already use) and BORDER_COLOR (the same line color the
+    // sidebar/header use), not new ones. No light/dark split (theme.applyStyles in the
+    // reference) — this app has no light mode to switch between.
+    MuiFilledInput: {
+      root: ({ theme }) => ({
+        overflow: 'hidden',
+        borderRadius: 4,
+        border: '1px solid',
+        backgroundColor: INPUT_SURFACE_BG,
+        borderColor: BORDER_COLOR,
+        '&:hover': {
+          backgroundColor: 'transparent'
+        },
+        '&.Mui-focused': {
+          backgroundColor: 'transparent',
+          boxShadow: `${alpha(theme.palette.primary.main, 0.25)} 0 0 0 2px`,
+          borderColor: theme.palette.primary.main
+        }
+      })
+    },
+    // Red (palette.error.main, not a new color) while empty; shrinks to normal
+    // (palette.text.primary) on focus/fill — layered on top of "filled"'s own native label
+    // position/scale behavior, which needs no override. Content text needs no size change
+    // either — it already shares theme.typography.body1 with the label (see Style Guide's
+    // Text field Typography panel), so the resting (scale(1)) label was always the input
+    // text's size by construction.
     //
-    // root/shrink must be function-valued AND use the '&&' self-referencing selector to
-    // reliably win: InputLabel.js's own styled() callback bakes a hardcoded, variant-specific
-    // transform (translate(14px, 16px) scale(1) resting / translate(14px, -9px) scale(0.75)
-    // shrunk, for variant="outlined" specifically) as part of the SAME generated class, applied
-    // after styleOverrides.root/.shrink in the component's own internal array — a plain
-    // (non-&&) override of the same specificity loses to it. Scoped to variant === "outlined"
-    // since that's what TextField/Select default to here; leaves "filled"/"standard" (if ever
-    // used) untouched.
+    // root/shrink must be function-valued AND use the '&&' self-referencing selector:
+    // FormLabel's own base styles set "&.Mui-focused" (palette.primary.main) unconditionally,
+    // at the same two-class specificity a plain override would have, so a plain rule loses to
+    // it. Verified via SSR-rendering real TextFields through this theme and reading the
+    // generated CSS directly (not just reasoning from source) across five states — empty,
+    // filled, focused+empty, filled+error, empty+error — confirming both this and the
+    // ":not(.Mui-error)" exclusion below (shrink's color must NOT apply when
+    // "&.Mui-error" is present, or a filled-but-invalid field's label goes white instead of
+    // staying red; InputLabel's own ownerState doesn't reliably carry an `error` flag the way
+    // FormLabel's does, so excluding via the state class is the robust path). Scoped to
+    // variant === "filled" since that's what the Reddit-style input uses; leaves
+    // "outlined"/"standard" untouched.
     MuiInputLabel: {
       root: ({ theme, ownerState }) => ({
         whiteSpace: 'nowrap',
         textOverflow: 'ellipsis',
         overflow: 'hidden',
         maxWidth: '100%',
-        ...(ownerState.variant === 'outlined' && {
+        ...(ownerState.variant === 'filled' && {
           '&&': {
-            top: '50%',
-            transform: 'translate(14px, -50%) scale(1)',
             color: theme.palette.error.main
           }
         })
       }),
       shrink: ({ theme, ownerState }) => ({
-        ...(ownerState.variant === 'outlined' && {
-          '&&': {
-            top: 0,
-            transform: 'translate(14px, -9px) scale(0.75)'
-          },
-          // Position always shrinks regardless of error, but color is scoped to
-          // ":not(.Mui-error)" rather than set unconditionally — confirmed via SSR that an
-          // unconditional color here beats FormLabel's own "&.Mui-error" rule at equal (two-
-          // class) specificity, silently turning a filled-but-invalid field's label white
-          // instead of staying red. InputLabel's own ownerState doesn't reliably carry
-          // `error` (unlike FormLabel's), so excluding via the state class is the robust path.
+        ...(ownerState.variant === 'filled' && {
           '&&:not(.Mui-error)': {
             color: theme.palette.text.primary
           }
