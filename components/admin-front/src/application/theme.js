@@ -18,6 +18,13 @@ const INPUT_SURFACE_LIGHTEN = 0.14;
 // it's computed once here, from the same BACKGROUND_PAPER literal, instead.
 const INPUT_SURFACE_BG = lighten(BACKGROUND_PAPER, INPUT_SURFACE_LIGHTEN);
 
+// The system's one subtle-separator-line color — already named as such via the top-level
+// borderColor key below, but header.borderBottom and navigator.borderBottom/
+// drawerPaper.borderRight each independently hardcoded their own copy instead of reading it,
+// and one had silently drifted to '#4E4E4F' (one hex digit off). Consolidated onto this one
+// constant so there's a single source again.
+const BORDER_COLOR = '#4E4E4E';
+
 const baseTheme = {
   breakpoints: {
     keys: ['xs', 'sm', 'md', 'lg', 'xl'],
@@ -829,7 +836,7 @@ const baseTheme = {
   textColorDark: '#232f3d',
   headerBg: '#eeeeee',
   checkboxBg: '#000000',
-  borderColor: '#4E4E4E',
+  borderColor: BORDER_COLOR,
   dataTableHoverColor: '#BB86FC',
   dataTableHoverBg: 'rgba(0, 0, 0, 0.16)',
   navLinkActive: 'rgba(255, 255, 255, .1)',
@@ -857,7 +864,7 @@ const baseTheme = {
     padding: 0,
     textColor: 'rgba(255, 255, 255, 0.87)',
     background: '#212121',
-    borderBottom: '1px solid #4E4E4E',
+    borderBottom: `1px solid ${BORDER_COLOR}`,
     leftTitle: {
       color: 'rgba(255, 255, 255, 0.87)'
     },
@@ -892,9 +899,11 @@ const baseTheme = {
     // theme.leftSidebarBg (below) instead, in its own local layouts/LeftSidebar.jsx.
     sidebarBg: '#404040',
     fillIcon: 'rgba(255, 255, 255, 0.6)',
-    borderBottom: '1px solid #4E4E4F',
+    // Was '#4E4E4F' — one hex digit off from the other three copies of this same line color,
+    // a silent drift now resolved by sharing BORDER_COLOR instead of its own literal.
+    borderBottom: `1px solid ${BORDER_COLOR}`,
     drawerPaper: {
-      borderRight: '1px solid #4E4E4E'
+      borderRight: `1px solid ${BORDER_COLOR}`
     },
     navItem: {
       linkActiveBg: 'rgba(187, 134, 252, 0.08)',

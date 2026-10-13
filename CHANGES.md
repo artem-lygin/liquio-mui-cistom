@@ -351,12 +351,23 @@ uses `packages/front-core/theme.js`, which has only one change so far (see Typog
   alpha gradient over `background.paper`, confirmed active since this theme has
   `palette.mode: 'dark'` and no `theme.vars`) is what makes the panel read as raised now that
   the sidebar is flush with the same base color — no hand-picked panel color needed.
-  Enabled so far only on `WorkflowList` (`components/admin-front/.../workflow/pages/
-  WorkflowList/index.jsx`), which covers both "Workflows" and "Test Processes" (same
-  component, `isTestProcesses` flag) — matches the screenshot that prompted this change.
-  Other list pages (Processes, Journals, Users, Registers, etc.) still render flat until
-  `panel={true}` is added to each, a deliberate choice to verify this looks right before
-  rolling it out further. _(2026-10-13)_
+  **Elevation bumped from the default `1` (≈0.05 overlay alpha, too subtle) to `5`**
+  (`getOverlayAlpha(5) ≈ 0.1006` — confirmed via MUI's own formula) for clearer contrast
+  against the now-flush sidebar/page. Enabled so far only on `WorkflowList`
+  (`components/admin-front/.../workflow/pages/WorkflowList/index.jsx`), which covers both
+  "Workflows" and "Test Processes" (same component, `isTestProcesses` flag) — matches the
+  screenshot that prompted this change. Other list pages (Processes, Journals, Users,
+  Registers, etc.) still render flat until `panel={true}` is added to each, a deliberate
+  choice to verify this looks right before rolling it out further.
+- **Consolidated the sidebar/header separator-line color onto the one existing system token
+  instead of inventing anything new.** `header.borderBottom`, `navigator.borderBottom`, and
+  `navigator.drawerPaper.borderRight` (the sidebar's nav-item dividers, and its border against
+  the content panel) each independently hardcoded their own copy of the same line color —
+  despite a top-level `borderColor: '#4E4E4E'` key already existing as, presumably, the
+  intended system token for exactly this. None of the three actually read it. One copy had
+  also silently drifted to `#4E4E4F` (one hex digit off) on `navigator.borderBottom`. All
+  three now read a single `BORDER_COLOR` constant (same value as `borderColor`, `#4E4E4E`) —
+  the drift is gone and there's one source instead of four. _(2026-10-13)_
 
 ## Worth addressing (known issues found, not yet fixed)
 
