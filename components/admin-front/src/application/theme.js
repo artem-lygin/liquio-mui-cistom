@@ -4,11 +4,19 @@ import { lighten } from '@mui/material/styles';
 import overrides from './theme.overrides.json';
 
 // Input background used to be a standalone literal (#2e2e2e) duplicated across
-// MuiOutlinedInput (Text field/Select) and MuiAutocomplete (Autocomplete) independently,
-// with no relation to any palette value. 0.14 is tuned to reproduce that exact literal from
-// palette.background.paper (#0c0c0c): lighten() adds (255-channel)*coefficient per channel,
-// so 12 + (255-12)*0.14 ≈ 46 = 0x2e.
+// MuiOutlinedInput (Text field/Select), MuiAutocomplete (Autocomplete), and the custom
+// buttonHoverBg key (button/sidebar hover fills, ~10 usages across admin pages) — three
+// independent copies of the same color, none derived from any palette value. 0.14 is tuned
+// to reproduce that exact literal from palette.background.paper (BACKGROUND_PAPER below):
+// lighten() adds (255-channel)*coefficient per channel, so 12 + (255-12)*0.14 ≈ 46 = 0x2e.
+const BACKGROUND_PAPER = '#0c0c0c';
 const INPUT_SURFACE_LIGHTEN = 0.14;
+// MuiOutlinedInput/MuiAutocomplete below read theme.palette.background.paper live (via a
+// function-valued style override), so they stay in sync with the Style Guide's live
+// draft/bake preview. buttonHoverBg can't do that — it's a plain custom theme key read
+// directly as a string by component stylesheets, not one of MUI's styleOverrides slots — so
+// it's computed once here, from the same BACKGROUND_PAPER literal, instead.
+const INPUT_SURFACE_BG = lighten(BACKGROUND_PAPER, INPUT_SURFACE_LIGHTEN);
 
 const baseTheme = {
   breakpoints: {
@@ -522,8 +530,8 @@ const baseTheme = {
     },
     divider: 'rgba(0, 0, 0, 0.12)',
     background: {
-      paper: '#0c0c0c',
-      default: '#0c0c0c'
+      paper: BACKGROUND_PAPER,
+      default: BACKGROUND_PAPER
     },
     action: {
       active: 'rgba(0, 0, 0, 0.54)',
@@ -810,7 +818,7 @@ const baseTheme = {
   },
   leftSidebarBg: '#404040',
   buttonBg: '#BB86FC',
-  buttonHoverBg: '#2e2e2e',
+  buttonHoverBg: INPUT_SURFACE_BG,
   textColorDark: '#232f3d',
   headerBg: '#eeeeee',
   checkboxBg: '#000000',
