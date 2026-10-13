@@ -1399,8 +1399,13 @@ const getMuiStyleOverride = (previewTheme, component, slot) => previewTheme.comp
 // object` — MUI v5's documented shape for a style override that reads the live theme
 // instead of duplicating a value as a literal (see MuiButton.sizeSmall/sizeLarge in both
 // theme.js files, and CHANGES.md's Typography section). Resolve either shape to a plain
-// object before reading properties off it.
-const resolveMuiStyleOverride = (override, previewTheme) => (typeof override === 'function' ? override({ theme: previewTheme }) : override);
+// object before reading properties off it. `ownerState` defaults to `{}` — fine for an
+// override that only reads `theme`, but one that branches on e.g. `ownerState.variant`
+// (MuiInputLabel's "Reddit style" override) needs the real shape passed in explicitly, or
+// every property read off it is `undefined` and any direct access (not optional-chained)
+// throws instead of just resolving to "no override here".
+const resolveMuiStyleOverride = (override, previewTheme, ownerState = {}) =>
+  typeof override === 'function' ? override({ theme: previewTheme, ownerState }) : override;
 
 // getMuiStyleOverride + resolveMuiStyleOverride, combined — the two were almost always
 // called together anyway. Every color-bearing read in this file should go through this
@@ -1408,7 +1413,8 @@ const resolveMuiStyleOverride = (override, previewTheme) => (typeof override ===
 // override later — the "properly tokenized" fix, e.g. reading theme.palette.primary.main
 // live instead of duplicating it as a literal — keeps reading correctly here instead of
 // silently misreporting it as unset.
-const getResolvedMuiStyleOverride = (previewTheme, component, slot) => resolveMuiStyleOverride(getMuiStyleOverride(previewTheme, component, slot), previewTheme);
+const getResolvedMuiStyleOverride = (previewTheme, component, slot, ownerState) =>
+  resolveMuiStyleOverride(getMuiStyleOverride(previewTheme, component, slot), previewTheme, ownerState);
 
 const readBackground = (styleObj) => (styleObj ? (styleObj.background !== undefined ? styleObj.background : styleObj.backgroundColor) : undefined);
 
@@ -1562,8 +1568,11 @@ const getInputColorRows = (previewTheme, activeState) => {
   const labelOpacity = formLabelRoot?.opacity;
 
   // Label
-  const inputLabelRoot = getResolvedMuiStyleOverride(previewTheme, 'MuiInputLabel', 'root');
-  const inputLabelShrink = getResolvedMuiStyleOverride(previewTheme, 'MuiInputLabel', 'shrink');
+  // Text field's label is always variant="outlined" here (TextField's own default) — passing
+  // that explicitly is required now that MuiInputLabel's override branches on ownerState.variant.
+  const inputLabelOwnerState = { variant: 'outlined' };
+  const inputLabelRoot = getResolvedMuiStyleOverride(previewTheme, 'MuiInputLabel', 'root', inputLabelOwnerState);
+  const inputLabelShrink = getResolvedMuiStyleOverride(previewTheme, 'MuiInputLabel', 'shrink', inputLabelOwnerState);
   const hasRedditStyleLabel = inputLabelRoot?.['&&']?.color !== undefined;
   rows.push(
     hasRedditStyleLabel
