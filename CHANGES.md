@@ -302,45 +302,20 @@ uses `packages/front-core/theme.js`, which has only one change so far (see Typog
   and `background.default` now share one literal (`BACKGROUND_PAPER`) instead of two
   independent `#0c0c0c` copies — correct if they're meant to always match, but either would
   need its own value again if they're ever meant to diverge. _(2026-10-13)_
-- **"Reddit style" input, adapted from MUI's own docs reference** (mui.com/material-ui/
-  react-text-field → "Customized inputs" → `RedditTextField`), which is `variant="filled"`,
-  **not** `"outlined"` — an earlier pass on this entry tried to hand-roll the same look on
-  top of outlined via custom label-position CSS; revised in place once the actual reference
-  surfaced, since "filled" already does most of this natively. Currently applied to the Style
-  Guide's Text field demo only (`InputProps={{ disableUnderline: true }}`, label "Reddit
-  style") — Select/Autocomplete and the rest of the app still default to `"outlined"`,
-  untouched.
-  - **`MuiFilledInput.root`**: background/border/focus-ring, using this app's own existing
-    tokens rather than the reference's light-theme placeholders (`#F3F6F9`/`#E0E3E7`) or any
-    new ones — `INPUT_SURFACE_BG` (the same fill Text field's old outlined background and
-    Autocomplete already use) and `BORDER_COLOR` (the same line color the sidebar/header
-    separators use). Fill goes transparent on hover/focus (revealing `background.paper`
-    behind it, a darken cue) and on focus also gets a `2px alpha(primary.main, 0.25)` ring
-    plus a `primary.main` border. No light/dark split (the reference's
-    `theme.applyStyles('dark', …)`) — this app has no light mode to switch between. Error and
-    disabled states aren't handled here (matching the reference, which doesn't address
-    validation either) — an invalid or disabled field's border/fill currently look identical
-    to resting; only the label and helper text show red on error.
-  - **`MuiInputLabel.root`/`.shrink`** (scoped to `variant === 'filled'`): red
-    (`palette.error.main`) while empty and unfocused — a visible "needs input" cue, not a new
-    color — and `palette.text.primary` once focused or filled. No position/transform override
-    needed: "filled" already centers the resting label and shrinks it to the notch position
-    natively. The input's own typed text was never touched — it already shares
-    `theme.typography.body1` with the label, so sizing parity falls out of the existing
-    architecture. Both slots need the `&&` self-referencing-selector trick: `FormLabel`'s own
-    base styles set `&.Mui-focused`/`&.Mui-error` colors at the same two-class specificity a
-    plain override would have. `shrink`'s color is further scoped to `&&:not(.Mui-error)`
-    rather than unconditional `&&` — an unconditional version was tried first and confirmed
-    (via SSR-rendering real `TextField`s through this theme and reading the generated CSS
-    across five states) to beat `FormLabel`'s own error-red, silently turning an invalid-but-
-    filled field's label white. The fix re-passed the same SSR check across all five states;
-    not yet confirmed via `getComputedStyle` in an actual browser.
-  - **Crash found and fixed along the way**: the Style Guide's own `resolveMuiStyleOverride`
-    helper never passed `ownerState` to function-valued overrides (only `theme`) — harmless
-    for every override that existed before this one, but this override reads
-    `ownerState.variant` directly, so the whole Style Guide page threw on load the moment this
-    shipped. Both helpers now take an optional `ownerState` parameter (default `{}`), and the
-    Text field's token panel passes `{ variant: 'filled' }` explicitly. _(2026-10-13)_
+- **A "Reddit style" input (`variant="filled"`, adapted from MUI's own docs reference at
+  mui.com/material-ui/react-text-field → "Customized inputs" → `RedditTextField`) was tried
+  as a global `MuiFilledInput`/`MuiInputLabel` theme override, then reverted** —
+  `MuiInputLabel` is back to its original plain object, and the `MuiFilledInput` override is
+  gone entirely. A global override affects every `variant="filled"` input app-wide, and
+  admin-front already has one in production: the Header's search field
+  (`layouts/components/Header.jsx`, its own custom background/radius/underline handling),
+  which silently picked up an unwanted border and a redundant second focus ring once the
+  global override shipped. The exploration now lives as a one-off `styled(TextField)`
+  wrapper local to the Style Guide (`RedditTextField` in `StyleGuide.jsx`) instead — out of
+  this file's scope per the note at the top (theme changes only, not the review tooling
+  itself) — so see that component's own comments for the current implementation, reusing
+  `theme.buttonHoverBg`/`theme.borderColor`/`palette.primary.main`/`palette.error.main`.
+  _(2026-10-13)_
 
 ## Layout
 

@@ -1,5 +1,5 @@
 import merge from 'lodash/merge';
-import { alpha, lighten } from '@mui/material/styles';
+import { lighten } from '@mui/material/styles';
 
 import overrides from './theme.overrides.json';
 
@@ -75,71 +75,20 @@ const baseTheme = {
         }
       }
     },
-    // "Reddit style" input — named after and adapted from MUI's own docs reference
-    // (mui.com/material-ui/react-text-field, the "Customized inputs" demo's
-    // RedditTextField), which is variant="filled", not "outlined": background/border/focus-
-    // ring on MuiFilledInput, no custom label CSS at all, since "filled"'s own native label
-    // positioning (resting centered-ish, shrinks to top-left on focus/fill) already does what
-    // the reference wants. Colors here are this app's own existing tokens, not the
-    // reference's light-theme placeholders (#F3F6F9/#E0E3E7) — INPUT_SURFACE_BG (the same
-    // fill Text field/Autocomplete already use) and BORDER_COLOR (the same line color the
-    // sidebar/header use), not new ones. No light/dark split (theme.applyStyles in the
-    // reference) — this app has no light mode to switch between.
-    MuiFilledInput: {
-      root: ({ theme }) => ({
-        overflow: 'hidden',
-        borderRadius: 4,
-        border: '1px solid',
-        backgroundColor: INPUT_SURFACE_BG,
-        borderColor: BORDER_COLOR,
-        '&:hover': {
-          backgroundColor: 'transparent'
-        },
-        '&.Mui-focused': {
-          backgroundColor: 'transparent',
-          boxShadow: `${alpha(theme.palette.primary.main, 0.25)} 0 0 0 2px`,
-          borderColor: theme.palette.primary.main
-        }
-      })
-    },
-    // Red (palette.error.main, not a new color) while empty; shrinks to normal
-    // (palette.text.primary) on focus/fill — layered on top of "filled"'s own native label
-    // position/scale behavior, which needs no override. Content text needs no size change
-    // either — it already shares theme.typography.body1 with the label (see Style Guide's
-    // Text field Typography panel), so the resting (scale(1)) label was always the input
-    // text's size by construction.
-    //
-    // root/shrink must be function-valued AND use the '&&' self-referencing selector:
-    // FormLabel's own base styles set "&.Mui-focused" (palette.primary.main) unconditionally,
-    // at the same two-class specificity a plain override would have, so a plain rule loses to
-    // it. Verified via SSR-rendering real TextFields through this theme and reading the
-    // generated CSS directly (not just reasoning from source) across five states — empty,
-    // filled, focused+empty, filled+error, empty+error — confirming both this and the
-    // ":not(.Mui-error)" exclusion below (shrink's color must NOT apply when
-    // "&.Mui-error" is present, or a filled-but-invalid field's label goes white instead of
-    // staying red; InputLabel's own ownerState doesn't reliably carry an `error` flag the way
-    // FormLabel's does, so excluding via the state class is the robust path). Scoped to
-    // variant === "filled" since that's what the Reddit-style input uses; leaves
-    // "outlined"/"standard" untouched.
+    // "Reddit style" input exploration (see packages/front-core/modules/styleGuide) lives as
+    // a one-off styled(TextField) wrapper local to that file, not a global MuiFilledInput/
+    // MuiInputLabel override — a global override here affected every variant="filled" input
+    // app-wide, including the Header's own existing search field (its own custom background/
+    // radius/underline handling, components/admin-front/.../layouts/components/Header.jsx),
+    // adding an unintended border and a redundant second focus ring on top of it. Reverted;
+    // see StyleGuide.jsx's RedditTextField for the current approach.
     MuiInputLabel: {
-      root: ({ theme, ownerState }) => ({
+      root: {
         whiteSpace: 'nowrap',
         textOverflow: 'ellipsis',
         overflow: 'hidden',
-        maxWidth: '100%',
-        ...(ownerState.variant === 'filled' && {
-          '&&': {
-            color: theme.palette.error.main
-          }
-        })
-      }),
-      shrink: ({ theme, ownerState }) => ({
-        ...(ownerState.variant === 'filled' && {
-          '&&:not(.Mui-error)': {
-            color: theme.palette.text.primary
-          }
-        })
-      })
+        maxWidth: '100%'
+      }
     },
     MuiSvgIcon: {
       root: {

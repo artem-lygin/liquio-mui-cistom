@@ -43,6 +43,7 @@ import {
   ThemeProvider,
   useTheme
 } from '@mui/material';
+import { styled, alpha } from '@mui/material/styles';
 // @uiw/react-color-chrome's alpha-aware, Chrome/Sketch-style picker (RGBA + HSLA input
 // modes built in) — added specifically because the native <input type="color"> used
 // everywhere else in this file (still fine for opaque colors) has no alpha channel at all
@@ -745,6 +746,61 @@ const ExpandableDescription = ({ children }) => {
     </div>
   );
 };
+
+// "Reddit style" input, adapted from MUI's own docs reference (mui.com/material-ui/
+// react-text-field → "Customized inputs" → RedditTextField). A ONE-OFF styled(TextField)
+// wrapper — deliberately NOT a global MuiFilledInput/MuiInputLabel theme override. A global
+// override was tried first and reverted: it affects every variant="filled" input app-wide,
+// and admin-front already has one in production (the Header's search field, its own custom
+// background/radius/underline handling) — the override silently added an unwanted border and
+// a second, redundant focus ring on top of it. Scoping via nested selectors on this wrapper's
+// own generated class instead means it only ever applies where this component is explicitly
+// used (currently just the Text field demo below).
+//
+// Colors reuse existing cross-app theme keys, not new literals or this file's own magic
+// numbers — theme.buttonHoverBg (the same surface tone this app already uses for button/
+// sidebar hover fills — a different literal per app, but a real token either way) and
+// theme.borderColor (the same line color the sidebar/header separators use). No light/dark
+// split (the reference's theme.applyStyles) — no app this guide runs under has a light mode
+// to switch between.
+//
+// Label color still needs the "&&" self-referencing-selector trick, nested one level under
+// this wrapper's own scoping class: FormLabel's own base styles set "&.Mui-focused"/
+// "&.Mui-error" colors at the same two-class specificity a plain nested rule would have, so a
+// plain version loses to them — confirmed via SSR-rendering real TextFields and reading the
+// generated CSS across five states (empty, filled, focused+empty, filled+error, empty+error).
+// shrink's color is further scoped to ":not(.Mui-error)" rather than unconditional, so an
+// invalid-but-filled field keeps its red label instead of going white (InputLabel's own
+// ownerState doesn't reliably carry an `error` flag the way FormLabel's does, so excluding via
+// the state class is the robust path). Position/transform needs no override at all — "filled"
+// already centers the resting label and shrinks it to the notch position natively.
+const RedditTextField = styled(TextField)(({ theme }) => ({
+  '& .MuiFilledInput-root': {
+    overflow: 'hidden',
+    borderRadius: 4,
+    border: '1px solid',
+    backgroundColor: theme.buttonHoverBg,
+    borderColor: theme.borderColor,
+    '&:hover': {
+      backgroundColor: 'transparent'
+    },
+    '&.Mui-focused': {
+      backgroundColor: 'transparent',
+      boxShadow: `${alpha(theme.palette.primary.main, 0.25)} 0 0 0 2px`,
+      borderColor: theme.palette.primary.main
+    }
+  },
+  '& .MuiInputLabel-root': {
+    '&&': {
+      color: theme.palette.error.main
+    }
+  },
+  '& .MuiInputLabel-root.MuiInputLabel-shrink': {
+    '&&:not(.Mui-error)': {
+      color: theme.palette.text.primary
+    }
+  }
+}));
 
 // Layout is always: demo (`children`), a splitter, `description`, then — when `properties`
 // is provided (i.e. "Show properties" is on) — a stronger splitter and the theme-tokens
@@ -1567,60 +1623,32 @@ const getInputColorRows = (previewTheme, activeState) => {
   const formHelperTextRoot = getResolvedMuiStyleOverride(previewTheme, 'MuiFormHelperText', 'root');
   const labelOpacity = formLabelRoot?.opacity;
 
-  // Label
-  // Text field is variant="filled" (the "Reddit style" input, see MuiFilledInput/MuiInputLabel
-  // in theme.js) — passing that explicitly is required now that MuiInputLabel's override
-  // branches on ownerState.variant.
-  const inputLabelOwnerState = { variant: 'filled' };
-  const inputLabelRoot = getResolvedMuiStyleOverride(previewTheme, 'MuiInputLabel', 'root', inputLabelOwnerState);
-  const inputLabelShrink = getResolvedMuiStyleOverride(previewTheme, 'MuiInputLabel', 'shrink', inputLabelOwnerState);
-  const hasRedditStyleLabel = inputLabelRoot?.['&&']?.color !== undefined;
-  rows.push(
-    hasRedditStyleLabel
-      ? {
-          path: 'MuiInputLabel.root "&&"',
-          value: inputLabelRoot['&&'].color,
-          status: 'overridden',
-          active: activeState === 'resting',
-          note:
-            'Label while empty and unfocused — a deliberate override (replaces the old body1-color-clobber default below). No transform/position override needed: "filled" variant already centers the resting label natively (InputLabel.js). "&&" (self-referencing selector) is needed for color specifically, since FormLabel\'s own base styles set colors at the same two-class specificity a plain override would have.'
-        }
-      : {
-          path: 'theme.typography.body1',
-          value: previewTheme.typography.body1.color,
-          status: 'other',
-          active: activeState === 'resting',
-          note:
-            "Label at rest — not palette.text.secondary as MUI's FormLabel.js default would suggest: it spreads theme.typography.body1 in *after* that default, so body1's own color (both apps define one) silently wins." +
-            (labelOpacity !== undefined ? ` This app also applies MuiFormLabel.root opacity: ${labelOpacity} unconditionally (every state), further dimming it.` : '')
-        }
-  );
-  rows.push(
-    hasRedditStyleLabel
-      ? {
-          path: 'MuiInputLabel.shrink "&&"',
-          value: inputLabelShrink['&&'].color,
-          status: 'overridden',
-          active: activeState === 'focus',
-          note:
-            'Label once shrunk (focus or filled, whichever happens first) — same "&&" mechanism, on MuiInputLabel.shrink, scoped to ":not(.Mui-error)" so an invalid-but-filled field keeps its red label instead of going white. This also supersedes MUI\'s own default focus color (palette.primary.main) whenever the label is shrunk. Mechanism confirmed by SSR-rendering real TextFields through this theme and reading the generated CSS across five states; not yet confirmed via getComputedStyle in an actual browser.'
-        }
-      : {
-          path: 'palette.primary.main',
-          value: previewTheme.palette.primary.main,
-          status: 'theme',
-          active: activeState === 'focus',
-          note: "Label on focus — MUI's own default (&.Mui-focused), not overridden by this app."
-        }
-  );
+  // Label — this demo is RedditTextField (see the component definition above), a one-off
+  // styled(TextField) wrapper, not a theme override, so these facts come directly from
+  // theme.palette.*/theme.buttonHoverBg etc. rather than from theme.components.
+  rows.push({
+    path: 'RedditTextField "&& .MuiInputLabel-root"',
+    value: previewTheme.palette.error.main,
+    status: 'overridden',
+    active: activeState === 'resting',
+    note:
+      "Label while empty and unfocused — a deliberate override (supersedes the old body1-color-clobber default outlined Text field had). No transform/position override needed: \"filled\" variant already centers the resting label natively (InputLabel.js). \"&&\" is needed for color specifically, since FormLabel's own base styles set colors at the same two-class specificity a plain nested rule would have." +
+      (labelOpacity !== undefined ? ` This app also applies MuiFormLabel.root opacity: ${labelOpacity} unconditionally (every state), further dimming it.` : '')
+  });
+  rows.push({
+    path: 'RedditTextField "&& .MuiInputLabel-root.MuiInputLabel-shrink:not(.Mui-error)"',
+    value: previewTheme.palette.text.primary,
+    status: 'overridden',
+    active: activeState === 'focus',
+    note:
+      'Label once shrunk (focus or filled, whichever happens first) — scoped to ":not(.Mui-error)" so an invalid-but-filled field keeps its red label instead of going white. This also supersedes MUI\'s own default focus color (palette.primary.main) whenever the label is shrunk. Mechanism confirmed by SSR-rendering real TextFields through this theme and reading the generated CSS across five states; not yet confirmed via getComputedStyle in an actual browser.'
+  });
   rows.push({
     path: 'palette.error.main',
     value: previewTheme.palette.error.main,
     status: 'theme',
     active: activeState === 'error',
-    note: hasRedditStyleLabel
-      ? "Label on error (MUI's own &.Mui-error default) — stays red even when the label is also shrunk (filled but invalid), since MuiInputLabel.shrink's color is scoped to \":not(.Mui-error)\" specifically so it backs off here. If only resting (empty and invalid), this coincides with the new empty-state red anyway."
-      : "Label on error — MUI's own default, not overridden by this app."
+    note: "Label on error (MUI's own &.Mui-error default) — stays red even when the label is also shrunk (filled but invalid), since the shrink color override above is scoped to \":not(.Mui-error)\" specifically so it backs off here. If only resting (empty and invalid), this coincides with the new empty-state red anyway."
   });
   const labelDisabled = readDisabledOverride(formLabelRoot);
   rows.push(
@@ -1680,31 +1708,32 @@ const getInputColorRows = (previewTheme, activeState) => {
     });
   }
 
-  // Fill + border — MuiFilledInput (the "Reddit style" input has no notched outline, unlike
-  // the old OutlinedInput-based facts this replaces).
-  const filledInputRoot = getResolvedMuiStyleOverride(previewTheme, 'MuiFilledInput', 'root');
+  // Fill + border — RedditTextField's own scoped "& .MuiFilledInput-root" rule (no notched
+  // outline, unlike the old OutlinedInput-based facts this replaces). Not a theme.components
+  // override, so these read straight off theme.buttonHoverBg/theme.borderColor/palette.* —
+  // the same tokens RedditTextField's own styled() callback uses.
   rows.push({
-    path: 'MuiFilledInput.root',
-    value: filledInputRoot?.backgroundColor,
+    path: 'RedditTextField "& .MuiFilledInput-root"',
+    value: previewTheme.buttonHoverBg,
     status: 'overridden',
     active: activeState === 'resting',
-    note: "Fill at rest — the same INPUT_SURFACE_BG Text field's old outlined background and Autocomplete's own fill already use (see theme.js), not a separate literal."
+    note: "Fill at rest — theme.buttonHoverBg, the same surface tone this app already uses for button/sidebar hover fills, not a new literal. (A different real value per app — cabinet-front's own buttonHoverBg is unrelated to this one — but tokenized either way.)"
   });
   rows.push({
-    path: 'MuiFilledInput.root',
-    value: filledInputRoot?.borderColor,
+    path: 'RedditTextField "& .MuiFilledInput-root"',
+    value: previewTheme.borderColor,
     status: 'overridden',
     active: activeState === 'resting',
-    note: 'Border at rest — the same BORDER_COLOR the sidebar/header separator lines use (see Layout section above), not a separate literal.'
+    note: 'Border at rest — theme.borderColor, the same line color the sidebar/header separators use (see Layout section above), not a new literal.'
   });
   rows.push({
-    path: 'MuiFilledInput.root "&:hover"',
+    path: 'RedditTextField "& .MuiFilledInput-root:hover"',
     value: previewTheme.palette.background.paper,
     status: 'overridden',
     note: "Fill on hover — goes transparent, revealing palette.background.paper (the page behind it) as a darken-on-hover cue; border color doesn't change on hover (matching MUI's own Reddit-input reference)."
   });
   rows.push({
-    path: 'MuiFilledInput.root "&.Mui-focused"',
+    path: 'RedditTextField "& .MuiFilledInput-root.Mui-focused"',
     value: previewTheme.palette.primary.main,
     status: 'overridden',
     active: activeState === 'focus',
@@ -3543,7 +3572,7 @@ const StyleGuidePage = () => {
           >
             <MeasureOverlay enabled={measureEnabled}>
               <div style={{ display: 'flex', gap: 32, flexWrap: 'wrap' }}>
-                <TextField
+                <RedditTextField
                   label="Reddit style"
                   variant="filled"
                   InputProps={{ disableUnderline: true }}
