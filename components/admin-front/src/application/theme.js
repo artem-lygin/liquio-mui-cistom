@@ -816,7 +816,9 @@ const baseTheme = {
     snackbar: 1400,
     tooltip: 1500
   },
-  leftSidebarBg: '#404040',
+  // Elevation zero: matches palette.background.paper exactly (no lighten), so the sidebar
+  // sits flush with the page instead of reading as its own raised surface.
+  leftSidebarBg: BACKGROUND_PAPER,
   buttonBg: '#BB86FC',
   buttonHoverBg: INPUT_SURFACE_BG,
   textColorDark: '#232f3d',

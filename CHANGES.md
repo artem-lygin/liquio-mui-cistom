@@ -303,6 +303,30 @@ uses `packages/front-core/theme.js`, which has only one change so far (see Typog
   independent `#0c0c0c` copies — correct if they're meant to always match, but either would
   need its own value again if they're ever meant to diverge. _(2026-10-13)_
 
+## Layout
+
+- **Left sidebar is now elevation zero** — `leftSidebarBg` was its own standalone literal
+  (`#404040`); now set to `BACKGROUND_PAPER`, the same value as `palette.background.paper`,
+  so the sidebar sits flush with the page instead of reading as its own raised surface.
+  Affects every page via the shared `Layout` component (`packages/front-core/layouts/
+  LeftSidebar.jsx`) — both the drawer and its toolbar read this one token.
+- **List pages get an opt-in "panel" treatment**: `DataTable` (`packages/front-core/
+  components/DataTable/index.jsx`) gained a `panel` prop (default `false`) that wraps its
+  toolbar (search/buttons) + table + pagination — everything but a fullscreen dialog — in a
+  single `<Paper>`. Deliberately opt-in, not a default-on change to the shared component:
+  `DataTable` is also reused in embedded/nested contexts (schema editors, filter pickers,
+  dialog content) where a raised panel would look wrong, and those weren't individually
+  reviewed. `<Paper>`'s own elevation overlay (MUI's built-in dark-mode behavior — a white-
+  alpha gradient over `background.paper`, confirmed active since this theme has
+  `palette.mode: 'dark'` and no `theme.vars`) is what makes the panel read as raised now that
+  the sidebar is flush with the same base color — no hand-picked panel color needed.
+  Enabled so far only on `WorkflowList` (`components/admin-front/.../workflow/pages/
+  WorkflowList/index.jsx`), which covers both "Workflows" and "Test Processes" (same
+  component, `isTestProcesses` flag) — matches the screenshot that prompted this change.
+  Other list pages (Processes, Journals, Users, Registers, etc.) still render flat until
+  `panel={true}` is added to each, a deliberate choice to verify this looks right before
+  rolling it out further. _(2026-10-13)_
+
 ## Worth addressing (known issues found, not yet fixed)
 
 - **`theme.overrides.json` still has other un-audited baked values, not yet reconciled into

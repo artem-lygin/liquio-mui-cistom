@@ -21,7 +21,8 @@ import {
   TableCell,
   TableRow,
   ImageList,
-  Divider
+  Divider,
+  Paper
 } from '@mui/material';
 import withStyles from '@mui/styles/withStyles';
 
@@ -141,6 +142,9 @@ const styles = (theme) => ({
     borderBottomRightRadius: 2,
     border: '#aaa 2px dashed',
     borderTop: 'none'
+  },
+  panel: {
+    padding: 16
   }
 });
 
@@ -617,7 +621,7 @@ class DataTable extends React.Component {
   };
 
   render = () => {
-    const { dragEvents, tableProps = {}, tableTitle, fieldBorder, classes } = this.props;
+    const { dragEvents, tableProps = {}, tableTitle, fieldBorder, panel, classes } = this.props;
     const { fullscreen } = this.state;
 
     return (
@@ -630,6 +634,8 @@ class DataTable extends React.Component {
           <FullScreenDialog open={true} title={tableTitle} onClose={this.toggleFullscreen}>
             {this.renderTable()}
           </FullScreenDialog>
+        ) : panel ? (
+          <Paper className={classes.panel}>{this.renderTable()}</Paper>
         ) : (
           this.renderTable()
         )}
@@ -649,7 +655,8 @@ DataTable.propTypes = {
   stickyHeader: PropTypes.bool,
   maxHeight: PropTypes.number,
   hiddenRows: PropTypes.array,
-  multiple: PropTypes.bool
+  multiple: PropTypes.bool,
+  panel: PropTypes.bool
 };
 
 DataTable.defaultProps = {
@@ -659,6 +666,10 @@ DataTable.defaultProps = {
   components: {},
   fixedTable: false,
   stickyHeader: true,
+  // Opt-in: DataTable is reused in many embedded/nested contexts (schema editors, filter
+  // pickers, dialog content) where a raised Paper panel would be wrong. Only set true on
+  // top-level list pages that want the panel treatment.
+  panel: false,
   controls: {
     pagination: false,
     toolbar: true,

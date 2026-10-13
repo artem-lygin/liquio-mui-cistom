@@ -252,6 +252,7 @@ const WorkflowListPage = ({
       <DataTable
         {...settings}
         {...tableData}
+        panel={true}
         rowsSelected={rowsSelected}
         actions={{
           ...tableData.actions,
