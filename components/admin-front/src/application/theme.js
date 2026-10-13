@@ -878,7 +878,11 @@ const baseTheme = {
   /* Navigator */
   navigator: {
     width: 250,
-    sidebarBg: '#404040',
+    // This is the one admin-front's own layouts/LeftSidebar.jsx actually reads (NOT the
+    // top-level leftSidebarBg above — that only feeds front-core's shared Layout, which
+    // admin-front shadows with its own local copy). Same elevation-zero intent: flush with
+    // palette.background.paper.
+    sidebarBg: BACKGROUND_PAPER,
     fillIcon: 'rgba(255, 255, 255, 0.6)',
     borderBottom: '1px solid #4E4E4F',
     drawerPaper: {

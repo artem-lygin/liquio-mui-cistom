@@ -305,11 +305,23 @@ uses `packages/front-core/theme.js`, which has only one change so far (see Typog
 
 ## Layout
 
-- **Left sidebar is now elevation zero** — `leftSidebarBg` was its own standalone literal
-  (`#404040`); now set to `BACKGROUND_PAPER`, the same value as `palette.background.paper`,
-  so the sidebar sits flush with the page instead of reading as its own raised surface.
-  Affects every page via the shared `Layout` component (`packages/front-core/layouts/
-  LeftSidebar.jsx`) — both the drawer and its toolbar read this one token.
+- **Left sidebar is now elevation zero** — two separate tokens needed fixing, not one.
+  `leftSidebarBg` (top-level, `#404040` → `BACKGROUND_PAPER`) only feeds front-core's shared
+  `Layout` (`packages/front-core/layouts/LeftSidebar.jsx`), used by cabinet-front. **admin-
+  front has its own, entirely separate local copy** —
+  `components/admin-front/src/application/layouts/LeftSidebar.jsx` — which shadows the
+  front-core one via webpack module resolution and reads a *different* token,
+  `theme.navigator.sidebarBg`, completely untouched by the first fix. First pass changed only
+  `leftSidebarBg`, so admin's actual rendered sidebar kept its old `#404040` and the fix had
+  no visible effect — found when the sidebar still looked wrong after the first push. Now
+  both tokens are set to `BACKGROUND_PAPER`, so the sidebar sits flush with the page
+  regardless of which `Layout` a given app resolves to.
+- **Content area gets outer padding**: admin's local `LeftSidebar.jsx` `appContent` class
+  (the container wrapping every page's content, to the right of the sidebar) had no padding
+  at all — content sat flush against the viewport edges. Added `padding: 24` (plus
+  `boxSizing: border-box` so it doesn't push content outside its flex basis), giving every
+  page's content a gutter on all sides. Admin-only for now — front-core's shared `Layout`
+  (cabinet-front) has the equivalent `appContent` class but wasn't touched.
 - **List pages get an opt-in "panel" treatment**: `DataTable` (`packages/front-core/
   components/DataTable/index.jsx`) gained a `panel` prop (default `false`) that wraps its
   toolbar (search/buttons) + table + pagination — everything but a fullscreen dialog — in a
