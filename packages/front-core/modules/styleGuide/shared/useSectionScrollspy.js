@@ -8,10 +8,30 @@ import React from 'react';
 //
 // A short final section can never scroll into that band if the page doesn't have enough room
 // below it — the page simply runs out of scroll before the section reaches the band. So once
-// whichever element actually scrolled has reached its own bottom, the last id in `ids` wins
-// regardless of the observer. The scrolling element here is StyleGuideChrome's content column
-// (an overflow:auto div), not the window — a 'scroll' event on it doesn't bubble, but a
-// capture-phase listener on the document still sees it on the way down to that element.
+// the actual scroll container (StyleGuideChrome's content column, an overflow:auto div — found
+// by walking up from the first observed element, not assumed to be the window) has reached its
+// own scroll-bottom, the last id in `ids` wins regardless of the observer.
+//
+// Both the scroll listener and the IntersectionObserver callback independently re-check
+// "are we at the bottom right now" before deciding what to report, rather than one unconditionally
+// overwriting the other — an instant jump to the bottom (e.g. clicking the last sub-nav item)
+// fires both the scroll listener and, asynchronously, the observer for whichever section briefly
+// passed through the band on the way down; if the observer's callback happened to run after the
+// scroll listener's, it would silently overwrite the correct last-item result with that stale
+// section. Re-checking the bottom condition at call time, in both places, is what keeps "at the
+// bottom" authoritative regardless of which callback happens to fire last.
+const findScrollContainer = (element) => {
+  let node = element?.parentElement;
+  while (node) {
+    const style = getComputedStyle(node);
+    if (/(auto|scroll)/.test(style.overflowY) && node.scrollHeight > node.clientHeight) {
+      return node;
+    }
+    node = node.parentElement;
+  }
+  return document.documentElement;
+};
+
 export const useSectionScrollspy = (ids) => {
   const [activeId, setActiveId] = React.useState(null);
 
@@ -21,8 +41,17 @@ export const useSectionScrollspy = (ids) => {
       return undefined;
     }
 
+    const lastId = ids[ids.length - 1];
+    const scrollContainer = findScrollContainer(elements[0]);
+    const isAtBottom = () =>
+      scrollContainer.scrollTop + scrollContainer.clientHeight >= scrollContainer.scrollHeight - 2;
+
     const observer = new IntersectionObserver(
       (entries) => {
+        if (isAtBottom()) {
+          setActiveId(lastId);
+          return;
+        }
         entries.forEach((entry) => {
           if (!entry.isIntersecting) return;
           setActiveId(entry.target.id);
@@ -32,18 +61,17 @@ export const useSectionScrollspy = (ids) => {
     );
     elements.forEach((element) => observer.observe(element));
 
-    const lastId = ids[ids.length - 1];
-    const handleScroll = (event) => {
-      const target = event.target === document ? document.documentElement : event.target;
-      if (target.scrollTop + target.clientHeight >= target.scrollHeight - 2) {
+    const handleScroll = () => {
+      if (isAtBottom()) {
         setActiveId(lastId);
       }
     };
-    document.addEventListener('scroll', handleScroll, true);
+    scrollContainer.addEventListener('scroll', handleScroll, { passive: true });
+    handleScroll();
 
     return () => {
       observer.disconnect();
-      document.removeEventListener('scroll', handleScroll, true);
+      scrollContainer.removeEventListener('scroll', handleScroll);
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [ids.join('|')]);
