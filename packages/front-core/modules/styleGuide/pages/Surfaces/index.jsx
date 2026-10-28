@@ -7,12 +7,15 @@ import SubNav from '../../components/SubNav';
 import MeasureOverlay from '../../components/MeasureOverlay';
 import { PropertiesCardGroup } from '../../components/PropertiesPanel';
 import { navigateToSection } from '../../shared/navigation';
+import { useSectionScrollspy } from '../../shared/useSectionScrollspy';
 
 const SURFACES_SUB_SECTIONS = [
   { id: 'surfaces', label: 'Surfaces' },
   { id: 'spacing', label: 'Spacing' },
   { id: 'shape', label: 'Shape' }
 ];
+
+const SCROLLSPY_IDS = SURFACES_SUB_SECTIONS.map((section) => section.id);
 
 const SPACING_MULTIPLIERS = [0, 1, 2, 3, 4, 5, 6, 8, 10];
 
@@ -31,23 +34,7 @@ const navigate = (id) => {
 
 const SurfacesPageContent = () => {
   const { previewTheme, editMode, showProperties, measureEnabled, updateDraft } = useStyleGuideState();
-  const [activeSubId, setActiveSubId] = React.useState(null);
-
-  // Small, page-local scrollspy — just this page's own three sub-items.
-  React.useEffect(() => {
-    const elements = SURFACES_SUB_SECTIONS.map((section) => document.getElementById(section.id)).filter(Boolean);
-    const observer = new IntersectionObserver(
-      (entries) => {
-        entries.forEach((entry) => {
-          if (!entry.isIntersecting) return;
-          setActiveSubId(entry.target.id);
-        });
-      },
-      { rootMargin: '-10% 0px -80% 0px' }
-    );
-    elements.forEach((element) => observer.observe(element));
-    return () => observer.disconnect();
-  }, []);
+  const activeSubId = useSectionScrollspy(SCROLLSPY_IDS);
 
   return (
     <StyleGuideChrome

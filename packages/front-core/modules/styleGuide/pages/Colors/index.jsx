@@ -7,6 +7,7 @@ import SubNav from '../../components/SubNav';
 import ColorTokenTable, { Swatch } from '../../components/ColorTokenTable';
 import ComponentColorTable from './ComponentColorTable';
 import { resolvePath } from '../../shared/utils';
+import { useSectionScrollspy } from '../../shared/useSectionScrollspy';
 import { PALETTE_GROUPS, GREY_KEYS } from './constants';
 import { getCustomColorRows } from './tokenItems';
 
@@ -14,6 +15,8 @@ const COLORS_SUB_SECTIONS = [
   { id: 'colors', label: 'Colors' },
   { id: 'status', label: 'Status colors' }
 ];
+
+const SCROLLSPY_IDS = COLORS_SUB_SECTIONS.map((section) => section.id);
 
 // theme.js defines no palette.warning/success/info — these four concepts are drawn
 // instead from two separate, hardcoded, disagreeing places in the codebase. `snackbar`
@@ -56,23 +59,7 @@ const STATUS_COLOR_ROWS = [
 
 const ColorsPageContent = () => {
   const { previewTheme, editMode, updateDraft } = useStyleGuideState();
-  const [activeSubId, setActiveSubId] = React.useState(null);
-
-  // Small, page-local scrollspy — just this page's own two sub-items.
-  React.useEffect(() => {
-    const elements = COLORS_SUB_SECTIONS.map((section) => document.getElementById(section.id)).filter(Boolean);
-    const observer = new IntersectionObserver(
-      (entries) => {
-        entries.forEach((entry) => {
-          if (!entry.isIntersecting) return;
-          setActiveSubId(entry.target.id);
-        });
-      },
-      { rootMargin: '-10% 0px -80% 0px' }
-    );
-    elements.forEach((element) => observer.observe(element));
-    return () => observer.disconnect();
-  }, []);
+  const activeSubId = useSectionScrollspy(SCROLLSPY_IDS);
 
   return (
     <StyleGuideChrome

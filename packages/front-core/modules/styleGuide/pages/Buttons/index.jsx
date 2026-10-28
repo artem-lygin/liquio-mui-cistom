@@ -8,6 +8,7 @@ import SubNav from '../../components/SubNav';
 import MeasureOverlay from '../../components/MeasureOverlay';
 import { PropertiesCardGroup } from '../../components/PropertiesPanel';
 import { navigateToSection } from '../../shared/navigation';
+import { useSectionScrollspy } from '../../shared/useSectionScrollspy';
 import { BUTTON_SIZES } from '../../shared/constants';
 import { BUTTON_STATES, ICON_BUTTON_USAGE_NOTES } from './constants';
 import { getButtonHeightPx } from './metrics';
@@ -16,6 +17,8 @@ import { getButtonTokenItems, getIconButtonTokenItems } from './tokenItems';
 // Icon Buttons lives inside the Buttons page (one card, switched by its own size/state
 // tabs) rather than as its own top-level page — this is its one sub-nav entry.
 const BUTTONS_SUB_SECTIONS = [{ id: 'buttons-icon-buttons', label: 'Icon Buttons' }];
+
+const SCROLLSPY_IDS = ['buttons', ...BUTTONS_SUB_SECTIONS.map((section) => section.id)];
 
 const ButtonsPageContent = () => {
   const { previewTheme, rootFontSize, showProperties, measureEnabled } = useStyleGuideState();
@@ -27,25 +30,7 @@ const ButtonsPageContent = () => {
   const [buttonState, setButtonState] = React.useState('resting');
   const [iconButtonSize, setIconButtonSize] = React.useState('medium');
   const [iconButtonState, setIconButtonState] = React.useState('resting');
-  const [activeSubId, setActiveSubId] = React.useState(null);
-
-  // Small, page-local scrollspy — just this page's own one sub-item, no cross-page concern.
-  React.useEffect(() => {
-    const elements = ['buttons', ...BUTTONS_SUB_SECTIONS.map((section) => section.id)]
-      .map((id) => document.getElementById(id))
-      .filter(Boolean);
-    const observer = new IntersectionObserver(
-      (entries) => {
-        entries.forEach((entry) => {
-          if (!entry.isIntersecting) return;
-          setActiveSubId(entry.target.id === 'buttons' ? null : entry.target.id);
-        });
-      },
-      { rootMargin: '-10% 0px -80% 0px' }
-    );
-    elements.forEach((element) => observer.observe(element));
-    return () => observer.disconnect();
-  }, []);
+  const activeSubId = useSectionScrollspy(SCROLLSPY_IDS);
 
   return (
     <StyleGuideChrome

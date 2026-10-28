@@ -5,6 +5,7 @@ import StyleGuideChrome from '../../components/StyleGuideChrome';
 import SubNav from '../../components/SubNav';
 import TypographyVariantSection from './TypographyVariantSection';
 import { navigateToSection } from '../../shared/navigation';
+import { useSectionScrollspy } from '../../shared/useSectionScrollspy';
 import { TYPOGRAPHY_VARIANTS, TYPOGRAPHY_LABELS } from './constants';
 
 const TYPOGRAPHY_SUB_SECTIONS = TYPOGRAPHY_VARIANTS.map((variant) => ({
@@ -12,28 +13,11 @@ const TYPOGRAPHY_SUB_SECTIONS = TYPOGRAPHY_VARIANTS.map((variant) => ({
   label: TYPOGRAPHY_LABELS[variant] || variant
 }));
 
+const SCROLLSPY_IDS = ['typography', ...TYPOGRAPHY_SUB_SECTIONS.map((section) => section.id)];
+
 const TypographyPageContent = () => {
   const { previewTheme, rootFontSize, editMode, showProperties, measureEnabled, updateDraft } = useStyleGuideState();
-  const [activeSubId, setActiveSubId] = React.useState(null);
-
-  // Small, page-local scrollspy — just this page's own per-variant sub-items, no cross-page
-  // concern (unlike the old single-page guide, which tracked every page's anchors at once).
-  React.useEffect(() => {
-    const elements = ['typography', ...TYPOGRAPHY_SUB_SECTIONS.map((section) => section.id)]
-      .map((id) => document.getElementById(id))
-      .filter(Boolean);
-    const observer = new IntersectionObserver(
-      (entries) => {
-        entries.forEach((entry) => {
-          if (!entry.isIntersecting) return;
-          setActiveSubId(entry.target.id === 'typography' ? null : entry.target.id);
-        });
-      },
-      { rootMargin: '-10% 0px -80% 0px' }
-    );
-    elements.forEach((element) => observer.observe(element));
-    return () => observer.disconnect();
-  }, []);
+  const activeSubId = useSectionScrollspy(SCROLLSPY_IDS);
 
   return (
     <StyleGuideChrome

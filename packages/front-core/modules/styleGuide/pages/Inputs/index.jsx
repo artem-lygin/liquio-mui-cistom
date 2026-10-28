@@ -27,6 +27,7 @@ import SubNav from '../../components/SubNav';
 import MeasureOverlay from '../../components/MeasureOverlay';
 import { PropertiesCardGroup } from '../../components/PropertiesPanel';
 import { navigateToSection } from '../../shared/navigation';
+import { useSectionScrollspy } from '../../shared/useSectionScrollspy';
 import RedditTextField from './RedditTextField';
 import { INPUT_STATES } from './constants';
 import {
@@ -50,30 +51,14 @@ const INPUTS_SUB_SECTIONS = [
   { id: 'inputs-switches', label: 'Switches' }
 ];
 
+const SCROLLSPY_IDS = ['inputs', ...INPUTS_SUB_SECTIONS.map((section) => section.id)];
+
 const InputsPageContent = () => {
   const { previewTheme, showProperties, measureEnabled } = useStyleGuideState();
   const [inputState, setInputState] = React.useState('resting');
   const [inputDemoValue, setInputDemoValue] = React.useState('Value');
   const [showInputHelperText, setShowInputHelperText] = React.useState(true);
-  const [activeSubId, setActiveSubId] = React.useState(null);
-
-  // Small, page-local scrollspy — just this page's own six sub-items, no cross-page concern.
-  React.useEffect(() => {
-    const elements = ['inputs', ...INPUTS_SUB_SECTIONS.map((section) => section.id)]
-      .map((id) => document.getElementById(id))
-      .filter(Boolean);
-    const observer = new IntersectionObserver(
-      (entries) => {
-        entries.forEach((entry) => {
-          if (!entry.isIntersecting) return;
-          setActiveSubId(entry.target.id === 'inputs' ? null : entry.target.id);
-        });
-      },
-      { rootMargin: '-10% 0px -80% 0px' }
-    );
-    elements.forEach((element) => observer.observe(element));
-    return () => observer.disconnect();
-  }, []);
+  const activeSubId = useSectionScrollspy(SCROLLSPY_IDS);
 
   return (
     <StyleGuideChrome
