@@ -3,9 +3,6 @@
 export const SECTIONS = [
   { id: 'typography', label: 'Typography' },
   { id: 'colors', label: 'Colors' },
-  { id: 'status', label: 'Status colors' },
-  { id: 'spacing', label: 'Spacing' },
-  { id: 'shape', label: 'Shape' },
   { id: 'icon-library', label: 'Icon library' },
   { id: 'surfaces', label: 'Surfaces' },
   { id: 'buttons', label: 'Buttons' },

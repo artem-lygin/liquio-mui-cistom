@@ -3,9 +3,6 @@ import PaletteIcon from '@mui/icons-material/Palette';
 
 const TypographyPage = React.lazy(() => import('./pages/Typography'));
 const ColorsPage = React.lazy(() => import('./pages/Colors'));
-const StatusPage = React.lazy(() => import('./pages/Status'));
-const SpacingPage = React.lazy(() => import('./pages/Spacing'));
-const ShapePage = React.lazy(() => import('./pages/Shape'));
 const IconLibraryPage = React.lazy(() => import('./pages/IconLibrary'));
 const SurfacesPage = React.lazy(() => import('./pages/Surfaces'));
 const ButtonsPage = React.lazy(() => import('./pages/Buttons'));
@@ -34,18 +31,8 @@ export default {
     },
     {
       path: '/style-guide/status',
-      component: StatusPage,
-      title: 'StyleGuideStatus'
-    },
-    {
-      path: '/style-guide/spacing',
-      component: SpacingPage,
-      title: 'StyleGuideSpacing'
-    },
-    {
-      path: '/style-guide/shape',
-      component: ShapePage,
-      title: 'StyleGuideShape'
+      redirect: true,
+      to: '/style-guide/colors'
     },
     {
       path: '/style-guide/icon-library',
@@ -56,6 +43,16 @@ export default {
       path: '/style-guide/surfaces',
       component: SurfacesPage,
       title: 'StyleGuideSurfaces'
+    },
+    {
+      path: '/style-guide/spacing',
+      redirect: true,
+      to: '/style-guide/surfaces'
+    },
+    {
+      path: '/style-guide/shape',
+      redirect: true,
+      to: '/style-guide/surfaces'
     },
     {
       path: '/style-guide/buttons',
