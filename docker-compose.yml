@@ -309,8 +309,16 @@ services:
       - persist-link-migrations
       - postgres
 
+  # postgres/rabbitmq/redis use `unless-stopped`, not the `on-failure` the rest of this file
+  # uses — the recurring failure here is a full Docker Desktop restart stopping these three
+  # (exit 255) with no process actually crashing while the daemon stays up, which
+  # `on-failure` doesn't reliably recover from. `unless-stopped` relaunches a container
+  # whenever the daemon starts, unless it was explicitly `docker stop`-ed before that —
+  # exactly the case that was leaving every dependent service crash-looping until someone
+  # manually ran `docker start` on these three.
   postgres:
     image: postgres:17
+    restart: unless-stopped
     ports:
       - "${POSTGRES_PUBLISHED_PORT:-5432}:5432"
     environment:
@@ -329,6 +337,7 @@ services:
 
   rabbitmq:
     image: rabbitmq:3-management
+    restart: unless-stopped
     ports:
       - "${RABBITMQ_MANAGEMENT_PUBLISHED_PORT:-15672}:15672"
       - "${RABBITMQ_AMQP_PUBLISHED_PORT:-5672}:5672"
@@ -345,6 +354,7 @@ services:
 
   redis:
     image: redis:latest
+    restart: unless-stopped
     ports:
       - "${REDIS_PUBLISHED_PORT:-6379}:6379"
     volumes:
