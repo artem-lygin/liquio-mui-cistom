@@ -240,6 +240,46 @@ uses `packages/front-core/theme.js`, which has only one change so far (see Typog
   fontSize="inherit" />`, the same wrapping pattern documented above. Purely a demo change
   (no production `<IconButton>` usage was touched). _(2026-08-25)_
 
+## Buttons
+
+- **Recreated `Button / Primary` (Contained, Outlined, Text) and `Icon Button / Primary` from
+  the Figma design system** (`Liquio-AdminPanel-Design-System`, the "Buttons" page) in
+  `theme.js`'s `MuiButton`/`MuiIconButton` overrides — previously these were well behind the
+  design: `containedPrimary.backgroundColor`/`color` were hardcoded literals (`#BB86FC`,
+  `#232f3d`) instead of theme tokens, had no hover or pressed state at all (hover kept the
+  same background), no border, and no shadow; `outlinedPrimary`/`textPrimary` both hardcoded
+  `color: '#fff'` instead of `primary.main`, with no hover/pressed background wash either.
+  Now all three read live from `theme.palette.primary.*` and recreate Default/Hover/Pressed
+  exactly: Contained gets a `primary.light` border + a `primary.main`-tinted glow at rest,
+  turns `primary.light` on hover (bigger glow + a `primary.dark` bottom inner edge), and
+  `primary.dark` on press (tight, uncolored shadow); Outlined/Text share one treatment —
+  `primary.main` text at rest, a constant `alpha(primary.main, 0.3)` border (Outlined only),
+  a `alpha(primary.main, 0.1)` background wash on hover and `alpha(primary.main, 0.3)` on
+  press, with `primary.light` text in both. Icon Button's `colorPrimary` gets the same
+  hover/press washes instead of a generic grey ripple. **Disabled is deliberately left as
+  this app's own dimmed treatment** — Figma's own Disabled variant renders identically to
+  Default (no dimming at all), which reads as an unfinished placeholder state there rather
+  than a deliberate design choice; confirmed with the product designer before deciding not to
+  copy it.
+- **Fixed `palette.primary.light`/`dark`** (`#63ccff`/`#006db3`) — stale MUI-default blue
+  values, leftover from before `main` was changed to purple and never updated, unrelated to
+  `main` rather than a tonal ramp around it. Fixed to the Figma design system's own
+  `primary/light`/`primary/dark` (`#cca5fd`/`#a365f0`), a proper purple ramp around the same
+  `main`. Also fixed `palette.primary.contrastText` from `'#fff'` to the design system's
+  `rgba(0, 0, 0, 0.8)` — white reads poorly against `#BB86FC`, a light pastel purple.
+- **Added `theme.buttonCornerRadius`/`theme.buttonIconPadding`** (`{ small, medium, large }`
+  maps), alongside this theme's existing custom top-level keys (`buttonHoverBg`, `borderColor`,
+  ...) — Button's per-size padding now equals its per-size corner radius (`6`/`8`/`10`px,
+  reusing one map for both, per the Figma design system), applied via new
+  `contained/outlined/textSize{Small,Medium,Large}` override slots (MUI's own
+  `${variant}Size${Size}` resolver pattern) instead of the shared `sizeSmall`/`sizeMedium`/
+  `sizeLarge` slots, since Outlined needs 1px less padding per side than Contained/Text to
+  offset its border and keep all three variants the same total height — recomputed
+  `sizeSmall`/`sizeMedium`/`sizeLarge`'s `minHeight` (now `30`/`36`/`42`, was `26`/`32`/`38`)
+  to match the new, more generous padding. Icon Button's own padding scale is close but not
+  identical (`6`/`8`/`9`, not `6`/`8`/`10` — Large is 1px tighter there), hence the separate
+  map. _(2026-11-03)_
+
 ## Inputs
 
 - **Fixed outlined `Select`'s label getting crossed out by its own outline on hover**,

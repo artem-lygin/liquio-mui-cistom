@@ -1,5 +1,5 @@
 import merge from 'lodash/merge';
-import { lighten } from '@mui/material/styles';
+import { alpha, lighten } from '@mui/material/styles';
 
 import overrides from './theme.overrides.json';
 
@@ -168,7 +168,32 @@ const baseTheme = {
     MuiIconButton: {
       root: {
         padding: 8
-      }
+      },
+      // Mirrors Button's own per-size padding scale (theme.buttonIconPadding) instead of
+      // MUI's default icon-button padding steps, so Icon Button and Button read as the same
+      // family at each size — matches "Icon Button / Primary" in the Figma design system.
+      // Medium needs no entry: it already matches root's existing flat padding: 8 above.
+      sizeSmall: ({ theme }) => ({
+        padding: theme.buttonIconPadding.small
+      }),
+      sizeLarge: ({ theme }) => ({
+        padding: theme.buttonIconPadding.large
+      }),
+      // Primary-colored Icon Button: transparent at rest (the icon itself already reads
+      // palette.primary.main via MUI's own IconButtonRoot — no color override needed here),
+      // with a primary-tinted hover/press wash instead of the generic grey ripple. Matches
+      // "Icon Button / Primary" in the Figma design system (hover: 10% primary.main, press:
+      // 30% primary.main + a tight drop shadow — the same wash Button's own outlined/text
+      // variants use below).
+      colorPrimary: ({ theme }) => ({
+        '&:hover': {
+          backgroundColor: alpha(theme.palette.primary.main, 0.1)
+        },
+        '&:active': {
+          backgroundColor: alpha(theme.palette.primary.main, 0.3),
+          boxShadow: '0 2px 4px rgba(0, 0, 0, 0.25)'
+        }
+      })
     },
     MuiButton: {
       root: {
@@ -192,20 +217,26 @@ const baseTheme = {
       // large, 0.875rem for small — a deliberate design decision, not the default MUI
       // spacing). `large` still falls back to the shared base since it has no `.large`
       // override of its own — add theme.typography.button.large the same way if that ever
-      // needs to differ too.
+      // needs to differ too. borderRadius is shared across every variant at a given size
+      // (theme.buttonCornerRadius — Button / Primary in the Figma design system scales
+      // radius with size, 6/8/10px); padding differs per variant below instead, since
+      // outlined needs 1px less per side to offset its border (see containedSizeSmall &c.).
       sizeSmall: ({ theme }) => ({
         fontSize: theme.typography.button.small?.fontSize ?? theme.typography.button.fontSize,
-        minHeight: 26
+        minHeight: 30,
+        borderRadius: theme.buttonCornerRadius.small
       }),
       // MUI has no size-specific style for medium at all (it's the one size MUI itself
       // never touches), but `MuiButton-sizeMedium` is still a real class every medium
       // Button carries — this override slot works exactly like sizeSmall/sizeLarge.
-      sizeMedium: {
-        minHeight: 32
-      },
+      sizeMedium: ({ theme }) => ({
+        minHeight: 36,
+        borderRadius: theme.buttonCornerRadius.medium
+      }),
       sizeLarge: ({ theme }) => ({
         fontSize: theme.typography.button.large?.fontSize ?? theme.typography.button.fontSize,
-        minHeight: 38
+        minHeight: 42,
+        borderRadius: theme.buttonCornerRadius.large
       }),
       // Fixed per-size height, independent of whether the button shows an icon. Without
       // this, height comes from content: padding + max(label line-height, icon size) —
@@ -213,42 +244,104 @@ const baseTheme = {
       // theme-derived) is taller than this app's Button label line-height, so a plain-label
       // button renders shorter than an icon+label button of the same size.
       //
-      // These three numbers come from MUI's own fixed padding + icon-size constants
-      // (padding: MuiButton.js's per-variant/size styles; icon size: commonIconStyles in
-      // the same file) — not from anything in this theme, since MUI hardcodes both. Every
-      // variant converges on the same total height once box-sizing is border-box (this app
-      // mounts CssBaseline, which sets that globally) and an icon is shown, because
-      // `outlined`'s padding is already 1px/side smaller than text/contained specifically
-      // to offset its 2px border — both decisions baked into MUI itself:
-      //   small:  contained/text 4px*2 + 18px icon        = 26  |  outlined 3px*2 + 18 + 2px border = 26
-      //   medium: contained/text 6px*2 + 20px icon        = 32  |  outlined 5px*2 + 20 + 2px border = 32
-      //   large:  contained/text 8px*2 + 22px icon        = 38  |  outlined 7px*2 + 22 + 2px border = 38
-      // Set to the icon-present figure (rather than the shorter label-only one) so a
-      // plain-label button grows to match an icon button, instead of the icon overflowing
-      // a shorter box.
-      containedPrimary: {
+      // Every variant converges on the same total height once box-sizing is border-box
+      // (this app mounts CssBaseline, which sets that globally) and an icon is shown,
+      // because outlined's padding (below) is deliberately 1px/side smaller than
+      // contained/text, to offset its 1px border adding that same 1px/side back:
+      //   small:  contained/text 6px*2 + 18px icon            = 30  |  outlined 5px*2 + 18 + 2*1px border = 30
+      //   medium: contained/text 8px*2 + 20px icon            = 36  |  outlined 7px*2 + 20 + 2*1px border = 36
+      //   large:  contained/text 10px*2 + 22px icon           = 42  |  outlined 9px*2 + 22 + 2*1px border = 42
+      // (icon sizes 18/20/22 are still MUI's own commonIconStyles default — unchanged here,
+      // only padding/radius are now this app's own, from theme.buttonCornerRadius.) Set to
+      // the icon-present figure (rather than the shorter label-only one) so a plain-label
+      // button grows to match an icon button, instead of the icon overflowing a shorter box.
+      //
+      // Padding/radius/colors below recreate Button / Primary / Contained, Outlined, and
+      // Text from the Figma design system exactly (Default/Hover/Pressed) — see CHANGES.md.
+      // Disabled is intentionally left as this app's own (dimmed) treatment: Figma's own
+      // Disabled variant renders identically to Default (no dimming at all), which reads as
+      // an unfinished placeholder state there rather than a deliberate design choice.
+      containedPrimary: ({ theme }) => ({
         marginRight: 4,
-        color: '#232f3d',
-        backgroundColor: '#BB86FC',
-        border: 'none',
+        color: theme.palette.primary.contrastText,
+        backgroundColor: theme.palette.primary.main,
+        border: `1px solid ${theme.palette.primary.light}`,
+        boxShadow: `0 2px 2px rgba(0, 0, 0, 0.15), 0 2px 8px ${alpha(theme.palette.primary.main, 0.3)}`,
         '&:hover': {
-          backgroundColor: '#BB86FC'
+          backgroundColor: theme.palette.primary.light,
+          borderColor: theme.palette.primary.light,
+          boxShadow: `0 2px 2px rgba(0, 0, 0, 0.15), 0 2px 16px ${alpha(theme.palette.primary.main, 0.5)}, inset 0 -1px 0 ${theme.palette.primary.dark}`
+        },
+        '&:active': {
+          backgroundColor: theme.palette.primary.dark,
+          borderColor: theme.palette.primary.main,
+          boxShadow: '0 2px 2px rgba(0, 0, 0, 0.25)'
         },
         '&:disabled': {
           border: 'none',
-          color: 'rgb(221 221 221 / 50%)'
+          color: 'rgb(221 221 221 / 50%)',
+          boxShadow: 'none'
         }
-      },
-      outlinedPrimary: {
-        color: '#fff',
+      }),
+      containedSizeSmall: ({ theme }) => ({
+        padding: theme.buttonCornerRadius.small
+      }),
+      containedSizeMedium: ({ theme }) => ({
+        padding: theme.buttonCornerRadius.medium
+      }),
+      containedSizeLarge: ({ theme }) => ({
+        padding: theme.buttonCornerRadius.large
+      }),
+      outlinedPrimary: ({ theme }) => ({
+        color: theme.palette.primary.main,
+        borderColor: alpha(theme.palette.primary.main, 0.3),
+        '&:hover': {
+          color: theme.palette.primary.light,
+          backgroundColor: alpha(theme.palette.primary.main, 0.1),
+          borderColor: alpha(theme.palette.primary.main, 0.3),
+          boxShadow: `inset 0 -1px 0 ${alpha(theme.palette.primary.dark, 0.6)}`
+        },
+        '&:active': {
+          color: theme.palette.primary.light,
+          backgroundColor: alpha(theme.palette.primary.main, 0.3),
+          borderColor: alpha(theme.palette.primary.main, 0.3),
+          boxShadow: '0 2px 4px rgba(0, 0, 0, 0.25)'
+        },
         '&:disabled': {
           color: 'rgba(255, 255, 255, 0.5)',
           borderColor: 'rgba(255, 255, 255, 0.3)'
         }
-      },
-      textPrimary: {
-        color: '#fff'
-      },
+      }),
+      outlinedSizeSmall: ({ theme }) => ({
+        padding: theme.buttonCornerRadius.small - 1
+      }),
+      outlinedSizeMedium: ({ theme }) => ({
+        padding: theme.buttonCornerRadius.medium - 1
+      }),
+      outlinedSizeLarge: ({ theme }) => ({
+        padding: theme.buttonCornerRadius.large - 1
+      }),
+      textPrimary: ({ theme }) => ({
+        color: theme.palette.primary.main,
+        '&:hover': {
+          color: theme.palette.primary.light,
+          backgroundColor: alpha(theme.palette.primary.main, 0.1)
+        },
+        '&:active': {
+          color: theme.palette.primary.light,
+          backgroundColor: alpha(theme.palette.primary.main, 0.3),
+          boxShadow: '0 2px 4px rgba(0, 0, 0, 0.25)'
+        }
+      }),
+      textSizeSmall: ({ theme }) => ({
+        padding: theme.buttonCornerRadius.small
+      }),
+      textSizeMedium: ({ theme }) => ({
+        padding: theme.buttonCornerRadius.medium
+      }),
+      textSizeLarge: ({ theme }) => ({
+        padding: theme.buttonCornerRadius.large
+      }),
       textSecondary: {
         color: 'rgb(220, 0, 78)'
       }
@@ -501,10 +594,15 @@ const baseTheme = {
     },
     type: 'dark',
     primary: {
-      light: '#63ccff',
+      // light/dark were stale MUI-default blue values, leftover from before main was
+      // changed to purple and never updated — unrelated to main, not a tonal ramp around
+      // it. Fixed to the Figma design system's own primary/light & primary/dark (a proper
+      // purple ramp around the same main), and contrastText likewise fixed from white to
+      // the design system's near-black: white reads poorly against this light a purple.
+      light: '#cca5fd',
       main: '#BB86FC',
-      dark: '#006db3',
-      contrastText: '#fff'
+      dark: '#a365f0',
+      contrastText: 'rgba(0, 0, 0, 0.8)'
     },
     secondary: {
       light: '#ff4081',
@@ -840,6 +938,12 @@ const baseTheme = {
   leftSidebarBg: '#404040',
   buttonBg: '#BB86FC',
   buttonHoverBg: INPUT_SURFACE_BG,
+  // Button / Primary's per-size padding & corner radius from the Figma design system — the
+  // two are equal by design there (see MuiButton.containedSizeSmall &c. above), so one map
+  // covers both. Icon Button's own padding scale is close but not identical (6/8/9, not
+  // 6/8/10 — Large is 1px tighter there), hence the separate map.
+  buttonCornerRadius: { small: 6, medium: 8, large: 10 },
+  buttonIconPadding: { small: 6, medium: 8, large: 9 },
   textColorDark: '#232f3d',
   headerBg: '#eeeeee',
   checkboxBg: '#000000',
