@@ -570,9 +570,12 @@ const baseTheme = {
       }
     },
     MuiTableCell: {
-      root: {
-        padding: 12
-      },
+      // Borders use the divider (10% white). MUI's own dark-mode default derives a solid grey
+      // from it instead (darken(alpha(divider, 1), 0.68), i.e. rgb(81, 81, 81)).
+      root: ({ theme }) => ({
+        padding: 12,
+        borderBottom: `1px solid ${theme.palette.divider}`
+      }),
       paddingCheckbox: {
         width: ''
       }
@@ -607,13 +610,6 @@ const baseTheme = {
         height: 40
       }
     },
-    MuiInput: {
-      root: {
-        '&$disabled': {
-          color: '#000'
-        }
-      }
-    },
     MuiFormControlLabel: {
       label: {
         '&$disabled': {
@@ -646,13 +642,6 @@ const baseTheme = {
         '&.MuiPaper-rounded': {
           border: `1px solid ${alpha(theme.palette.common.white, 0.05)}`
         }
-      })
-    },
-    // Table cell borders use the divider (10% white). MUI's own dark-mode default derives a
-    // solid grey from it instead (darken(alpha(divider, 1), 0.68), i.e. rgb(81, 81, 81)).
-    MuiTableCell: {
-      root: ({ theme }) => ({
-        borderBottom: `1px solid ${theme.palette.divider}`
       })
     },
     MuiDialog: {

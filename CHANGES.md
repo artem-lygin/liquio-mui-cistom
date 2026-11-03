@@ -601,7 +601,15 @@ uses `packages/front-core/theme.js`, which has only one change so far (see Typog
   (`VersionsTimeline.jsx`) beat the theme rule; it's removed. _(2026-11-03)_
 - **Table borders use the divider** (10% white), at the product designer's direction:
   - `MuiTableCell.root` gets `borderBottom: 1px solid palette.divider`. MUI's own dark-mode
-    default derives a solid grey from the divider instead (`rgb(81, 81, 81)`).
+    default derives a solid grey from the divider instead (`rgb(81, 81, 81)`). **First
+    attempt bug, caught live:** the border was added as a second `MuiTableCell` key in
+    `overrides`, which silently replaced the existing one (a duplicate key in a JS object
+    literal means the later one wins). That dropped the cells' `padding: 12`, so Registry
+    keys' "Created" and "Updated" headers ran together. It's now merged into the original
+    block. A sweep found the same collision on `MuiInput`, where the Text field's
+    standard-variant block had replaced an older `'&$disabled': { color: '#000' }`. That rule
+    was v4 `$`-syntax that never matched under v5 (see "Worth addressing" on adaptV4Theme),
+    so nothing is lost; the dead block is gone. No duplicate keys remain in `overrides`.
   - The shared `DataTable`'s `cellDark` (rows and header, `darkTheme` = admin only) used the
     header's separator line (`theme.header.borderBottom`, `#4E4E4E`). It now reads
     `palette.divider`, so the list-page tables follow it and the header line is unchanged.
