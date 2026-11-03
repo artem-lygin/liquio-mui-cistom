@@ -26,14 +26,6 @@ const styles = (theme) => ({
   formControl: {
     marginBottom: 30,
   },
-  darkThemeLabel: {
-    '& fieldset': {
-      borderColor: 'transparent',
-    },
-    '& label': {
-      color: '#fff',
-    },
-  },
   buttonsWrapper: {
     display: 'flex',
     '& button': {
@@ -188,7 +180,6 @@ class CreateTag extends React.Component {
               maxLength={20}
               className={classNames({
                 [classes.formControl]: true,
-                [classes.darkThemeLabel]: true,
               })}
             />
 

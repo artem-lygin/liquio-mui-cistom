@@ -76,18 +76,6 @@ const styles = (theme) => ({
   additionalFiltersWrapperMargin: {
     marginBottom: 45
   },
-  datePicker: {
-    backgroundColor: '#2e2e2e',
-    borderRadius: '4px 4px 0px 0px',
-    '& fieldset': {
-      borderRadius: '4px 4px 0px 0px',
-      borderColor: 'transparent',
-      top: 0,
-      '& legend': {
-        display: 'none'
-      }
-    }
-  },
   filterElement: {
     marginRight: 16
   },
@@ -245,7 +233,7 @@ const ProcessesMetrics = ({ title, loading: loadingOrigin, location, actions }) 
 
         <DatePicker
           open={openFrom}
-          className={classNames(classes.filterElement, classes.datePicker)}
+          className={classes.filterElement}
           label={t('dateFrom')}
           value={filters['dateFrom'] || null}
           onChange={(newValue) => {
@@ -267,7 +255,7 @@ const ProcessesMetrics = ({ title, loading: loadingOrigin, location, actions }) 
 
         <DatePicker
           open={openTo}
-          className={classNames(classes.filterElement, classes.datePicker)}
+          className={classes.filterElement}
           label={t('dateTo')}
           value={filters['dateTo'] || null}
           onChange={(newValue) => {

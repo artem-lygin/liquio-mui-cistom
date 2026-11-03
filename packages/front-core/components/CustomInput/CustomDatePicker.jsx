@@ -40,17 +40,10 @@ const styles = (theme) => ({
   dateContainerDark: {
     margin: 0
   },
+  // darkTheme is admin-only; admin's theme draws the field itself (the Text field), so no
+  // background/radius/outline overrides here.
   darkThemeLabel: {
-    width: '100%',
-    background: theme?.header?.background,
-    borderRadius: '4px 4px 0px 0px',
-    '& fieldset': {
-      borderRadius: '4px 4px 0px 0px',
-      borderColor: 'transparent',
-      '& span': {
-        display: 'none'
-      }
-    }
+    width: '100%'
   },
   underlineThemeLabel: {
     paddingLeft: 7

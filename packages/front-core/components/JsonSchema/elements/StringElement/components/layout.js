@@ -54,6 +54,13 @@ const style = (theme) => ({
     '& p': {
       whiteSpace: 'normal',
     },
+    '& .MuiSelect-nativeInput': {
+      display: 'none',
+    }
+  },
+  // Width allowance for a floating label shrunk to 0.75 scale. Not applied with darkTheme
+  // (admin), where the theme's Text field puts the label above the field at full size.
+  floatingLabelWidth: {
     '& label': {
       '&.MuiInputLabel-shrink': {
         maxWidth: 'calc(100% + 40px)',
@@ -62,9 +69,6 @@ const style = (theme) => ({
         },
       },
     },
-    '& .MuiSelect-nativeInput': {
-      display: 'none',
-    }
   },
   fullDecsription: {
     '& label': {
@@ -123,31 +127,21 @@ const style = (theme) => ({
     top: '50%',
     marginTop: -12,
   },
+  // darkTheme is only ever passed by admin-front, whose theme draws the input itself (the
+  // Style Guide's Text field: elevation-0 fill, its own border and radius, a label above
+  // the field in text.secondary). The old dark-theme overrides here (#2e2e2e fill, square
+  // bottom corners, a transparent outline, a white label) are gone so they can't fight it.
   darkThemeLabel: {
-    '& fieldset': {
-      borderColor: 'transparent',
-    },
-    '& legend': {
-      maxWidth: 0.01,
-    },
     '& label': {
-      color: '#fff',
       top: 0,
       padding: 0,
       backgroundColor: 'transparent',
     },
   },
-  darkThemeInput: {
-    backgroundColor: '#2e2e2e',
-    borderRadius: '4px 4px 0px 0px',
-  },
   focusVisible: {
     '& input': {
       outline: '3px solid #0073E6 !important'
     }
-  },
-  darkThemeSelect: {
-    backgroundColor: '#2e2e2e',
   },
   darkThemePaper: {
     background:
@@ -318,14 +312,7 @@ const Layout = ({
 
   const InputPropsOptions = {
     ...InputProps,
-    classes: {
-      root: classNames({
-        [classes.darkThemeInput]: darkTheme,
-      }),
-      input: classNames({
-        [classes.darkThemeInput]: darkTheme,
-      }),
-    },
+    classes: {},
   };
 
   if (!multiline && mask.length) {
@@ -437,9 +424,10 @@ const Layout = ({
           className={classNames(
             {
               [classes.textField]: true,
-              [classes.formControlDisabled]: readOnly,
-              [classes.fullDecsription]: !inlineDisplay,
-              [classes.multiline]: multiline && (focused || !!value),
+              [classes.floatingLabelWidth]: !darkTheme,
+              [classes.formControlDisabled]: readOnly && !darkTheme,
+              [classes.fullDecsription]: !inlineDisplay && !darkTheme,
+              [classes.multiline]: multiline && (focused || !!value) && !darkTheme,
               [classes.focusVisible]: focusedByTab,
             },
             wrapperClass,
@@ -518,12 +506,12 @@ const Layout = ({
             'data-qa': ariaLabel
           }}
           InputLabelProps={{
-            shrink: !!value || focused || startAdornment,
+            shrink: darkTheme || !!value || focused || startAdornment,
             ...(select || !!options ? { htmlFor: randomLabelId } : {}),
             classes: {
               root: classNames({
-                [classes.placeHolderRoot]: true,
-                [classes.placeHolderRootSelect]: options || endAdornment,
+                [classes.placeHolderRoot]: !darkTheme,
+                [classes.placeHolderRootSelect]: (options || endAdornment) && !darkTheme,
               }),
             },
           }}
@@ -531,7 +519,6 @@ const Layout = ({
             classes: {
               select: classNames({
                 [classes.select]: true,
-                [classes.darkThemeSelect]: darkTheme,
               }),
             },
             inputProps: {

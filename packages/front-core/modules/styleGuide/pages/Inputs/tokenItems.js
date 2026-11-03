@@ -315,10 +315,11 @@ export const getSwitchTokenItems = (previewTheme) => {
   ];
 };
 
-// Top-label Text field (see TopLabelTextField.jsx): every row here is a token the component
-// reads directly, not a theme.components override, so values come straight off the theme.
-// Size rows describe the selected size; color rows mark the active state with ▸.
-export const getTopLabelInputTokenItems = (state, size, previewTheme) => {
+// Text field: the tokens admin's theme reads for every outlined/standard input
+// (inputFieldStyles/inputFieldSize in admin-front's theme.js, applied to MuiOutlinedInput
+// and MuiInput; label in MuiInputLabel). Values come straight off the theme. Size rows
+// describe the selected size; color rows mark the active state with ▸.
+export const getTextFieldTokenItems = (state, size, previewTheme) => {
   const { palette } = previewTheme;
   const radius = previewTheme.buttonCornerRadius?.[size];
   const missing = '— not defined in this app\'s theme (admin-only token); falls back to MUI default';
@@ -332,7 +333,7 @@ export const getTopLabelInputTokenItems = (state, size, previewTheme) => {
           path: `theme.buttonHeight.${size}`,
           value: previewTheme.buttonHeight?.[size] !== undefined ? `${previewTheme.buttonHeight[size]}px` : undefined,
           status: 'theme',
-          note: previewTheme.buttonHeight ? 'Field min height — the same map MuiButton.size* minHeight reads, so a one-line field and a button of the same size line up exactly. Multi-line and chip fields grow past it.' : missing
+          note: previewTheme.buttonHeight ? 'Field height — the same map MuiButton.size* minHeight reads, so a one-line field and a button of the same size line up exactly. Multi-line and chip fields use it as a minimum and grow.' : missing
         },
         {
           path: `theme.buttonCornerRadius.${size}`,
@@ -341,10 +342,10 @@ export const getTopLabelInputTokenItems = (state, size, previewTheme) => {
           note: radius !== undefined ? 'Corner radius — same per-size map as Button.' : missing
         },
         {
-          path: `theme.buttonCornerRadius.${size} − 1 / + 7`,
-          value: radius !== undefined ? `${radius - 1}px ${radius + 7}px` : undefined,
+          path: `theme.buttonCornerRadius.${size} + 7`,
+          value: radius !== undefined ? `0 ${radius + 7}px` : undefined,
           status: 'theme',
-          note: "Padding — same derivation as Outlined's own padding, so the value text starts where an Outlined button's label would. Fields with chips use a smaller, even inset instead, so one row of small chips still fits the same height."
+          note: "Padding — Outlined button's horizontal padding, so the value text starts where an Outlined button's label would. One-line fields have no vertical padding (text is centered in the fixed height); multi-line fields add r − 1 top and bottom; fields with chips use a smaller, even inset so one row of small chips still fits the same height."
         },
         {
           path: `theme.buttonCornerRadius.${size}`,

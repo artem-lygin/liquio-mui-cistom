@@ -54,14 +54,6 @@ const styles = (theme) => ({
   secondaryButton: {
     marginLeft: 16
   },
-  darkThemeLabel: {
-    '& fieldset': {
-      borderColor: 'transparent'
-    },
-    '& label': {
-      color: '#fff'
-    }
-  },
   buttonsWrapper: {
     display: 'flex',
     '& button': {
@@ -367,8 +359,7 @@ class ImportWorkflow extends React.Component {
               value={newWorkflow.name || ''}
               inputProps={{ maxLength: 255 }}
               className={classNames({
-                [classes.formControl]: true,
-                [classes.darkThemeLabel]: true
+                [classes.formControl]: true
               })}
               error={
                 trigered && !(newWorkflow?.name || '').length
@@ -386,8 +377,7 @@ class ImportWorkflow extends React.Component {
                 error={trigered && !customer}
                 variant={'outlined'}
                 className={classNames({
-                  [classes.formControl]: true,
-                  [classes.darkThemeLabel]: true
+                  [classes.formControl]: true
                 })}
               >
                 <InputLabel htmlFor="customer-select">{t('Customer')}</InputLabel>
@@ -431,8 +421,7 @@ class ImportWorkflow extends React.Component {
                 this.handleChangeNewWorkflow('id')({ target: { value } });
               }}
               className={classNames({
-                [classes.formControl]: true,
-                [classes.darkThemeLabel]: true
+                [classes.formControl]: true
               })}
             />
           </DialogContent>

@@ -24,11 +24,11 @@ import MeasureOverlay from '../../components/MeasureOverlay';
 import { PropertiesCardGroup } from '../../components/PropertiesPanel';
 import { navigateToSection } from '../../shared/navigation';
 import { useSectionScrollspy } from '../../shared/useSectionScrollspy';
-import TopLabelGallery from './TopLabelGallery';
+import TextFieldGallery from './TextFieldGallery';
 import { INPUT_STATES } from './constants';
 import { BUTTON_SIZES } from '../../shared/constants';
 import {
-  getTopLabelInputTokenItems,
+  getTextFieldTokenItems,
   getAutocompleteTokenItems,
   getComboBoxTokenItems,
   getCheckboxTokenItems,
@@ -52,9 +52,9 @@ const SCROLLSPY_IDS = ['inputs', ...INPUTS_SUB_SECTIONS.map((section) => section
 
 const InputsPageContent = () => {
   const { previewTheme, showProperties, measureEnabled } = useStyleGuideState();
-  const [topLabelState, setTopLabelState] = React.useState('resting');
-  const [topLabelSize, setTopLabelSize] = React.useState('medium');
-  const [topLabelShowHelperText, setTopLabelShowHelperText] = React.useState(true);
+  const [textFieldState, setTextFieldState] = React.useState('resting');
+  const [textFieldSize, setTextFieldSize] = React.useState('medium');
+  const [textFieldShowHelperText, setTextFieldShowHelperText] = React.useState(true);
   const activeSubId = useSectionScrollspy(SCROLLSPY_IDS);
 
   return (
@@ -80,13 +80,13 @@ const InputsPageContent = () => {
         id="inputs-text-field"
         title="Text field"
         titleVariant="h3"
-        description="Built from Button / Primary's tokens: same per-size height and corner radius as a button, elevation-0 fill, primary.main on focus. The label sits above the field and never moves. Below: every kind of text input the admin panel uses, rebuilt on this field."
+        description="Admin's theme renders every outlined and standard input this way (TextField, Select, Autocomplete, date pickers, schema forms). Built from Button / Primary's tokens: same per-size height and corner radius as a button, elevation-0 fill, primary.main on focus. The label sits above the field and never moves. Below: every kind of text input the admin panel uses, as plain MUI components."
         properties={
           showProperties ? (
             <>
               <Tabs
-                value={topLabelState}
-                onChange={(event, value) => setTopLabelState(value)}
+                value={textFieldState}
+                onChange={(event, value) => setTextFieldState(value)}
                 variant="scrollable"
                 style={{ minHeight: 36, borderBottom: '1px solid rgba(255, 255, 255, 0.12)' }}
               >
@@ -96,7 +96,7 @@ const InputsPageContent = () => {
               </Tabs>
               <PropertiesCardGroup
                 onNavigate={navigateToSection}
-                items={getTopLabelInputTokenItems(topLabelState, topLabelSize, previewTheme)}
+                items={getTextFieldTokenItems(textFieldState, textFieldSize, previewTheme)}
               />
             </>
           ) : null
@@ -112,7 +112,7 @@ const InputsPageContent = () => {
             borderBottom: '1px solid rgba(255, 255, 255, 0.12)'
           }}
         >
-          <Tabs value={topLabelSize} onChange={(event, value) => setTopLabelSize(value)} style={{ minHeight: 32 }}>
+          <Tabs value={textFieldSize} onChange={(event, value) => setTextFieldSize(value)} style={{ minHeight: 32 }}>
             {BUTTON_SIZES.map((size) => (
               <Tab key={size.key} value={size.key} label={size.label} style={{ minHeight: 32, minWidth: 'auto', padding: '4px 12px 8px' }} />
             ))}
@@ -122,8 +122,8 @@ const InputsPageContent = () => {
             control={
               <Switch
                 size="small"
-                checked={topLabelShowHelperText}
-                onChange={(event) => setTopLabelShowHelperText(event.target.checked)}
+                checked={textFieldShowHelperText}
+                onChange={(event) => setTextFieldShowHelperText(event.target.checked)}
               />
             }
             label="Helper text"
@@ -133,7 +133,7 @@ const InputsPageContent = () => {
         {/* The size tabs above switch the size of every field below; the state tabs in the
             properties panel switch their state. */}
         <MeasureOverlay enabled={measureEnabled}>
-          <TopLabelGallery size={topLabelSize} state={topLabelState} showHelperText={topLabelShowHelperText} />
+          <TextFieldGallery size={textFieldSize} state={textFieldState} showHelperText={textFieldShowHelperText} />
         </MeasureOverlay>
       </Section>
 

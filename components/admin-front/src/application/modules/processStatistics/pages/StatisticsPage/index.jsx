@@ -39,12 +39,7 @@ const styles = (theme) => ({
     marginTop: 30
   },
   filterField: {
-    marginBottom: 10,
-    borderRadius: '4px 4px 0px 0px',
-    '& fieldset': {
-      borderRadius: '4px 4px 0px 0px',
-      borderColor: 'transparent'
-    }
+    marginBottom: 10
   },
   tableRow: {
     '&:hover': {
@@ -70,18 +65,6 @@ const styles = (theme) => ({
   errorField: {
     color: '#f44336',
     marginBottom: 5
-  },
-  datePicker: {
-    backgroundColor: '#2e2e2e',
-    borderRadius: '4px 4px 0px 0px',
-    '& fieldset': {
-      borderRadius: '4px 4px 0px 0px',
-      borderColor: 'transparent',
-      top: 0,
-      '& legend': {
-        display: 'none'
-      }
-    }
   }
 });
 
@@ -321,7 +304,7 @@ const StatisticsPage = ({ title, loading: loadingOrigin, location, actions }) =>
               return (
                 <DatePicker
                   format="YYYY-MM-DD"
-                  className={classNames(classes.filterField, classes.datePicker)}
+                  className={classes.filterField}
                   key={description}
                   label={description}
                   value={filters[name] || null}

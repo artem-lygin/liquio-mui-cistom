@@ -26,13 +26,6 @@ const styles = (theme) => ({
   },
   darkThemeAutocomplete: {
     width: '100%',
-    '& fieldset': {
-      borderColor: theme.palette.primary.main,
-      borderWidth: 2,
-      '& legend': {
-        maxWidth: 0.01,
-      },
-    },
   },
   darkThemePaper: {
     color: theme.header.textColor,

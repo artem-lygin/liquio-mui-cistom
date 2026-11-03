@@ -487,61 +487,72 @@ uses `packages/front-core/theme.js`, which has only one change so far (see Typog
   its token rows (`getInputTokenItems`/`getInputColorRows`) are deleted. Nothing in production
   ever used it. The lessons above still apply: no global `MuiFilledInput`/`MuiInputLabel`
   override, and `&&` goes on the wrapper's own class at the top level. _(2026-11-03)_
-- **New input variation: a "top label" Text field derived from Button / Primary's tokens**,
-  now the Style Guide's only "Text field" (Inputs → "Text field", first on the page;
-  `styleGuide/pages/Inputs/TopLabelTextField.jsx`). Like the Reddit input before it, it is a
-  Style-Guide-only component for now, not a global override, so no production input
-  changes. It's built the way MUI's docs build a label-above input (`FormControl` + a shrunk
-  `InputLabel` + a bare `InputBase`), with no notched outline and no float animation.
-  - **Size:** three sizes, each reading the same per-size tokens as Button. Height comes from
-    the new `theme.buttonHeight` and radius from `theme.buttonCornerRadius` (6/8/10).
-    Horizontal padding is `r + 7`, the same as Outlined's. Value text uses
-    `typography.button(.small).fontSize`.
-    - **One-line fields have a fixed height** with the text centered. Measured live, Outlined's
-      `r − 1` vertical padding overshot at Medium: 7 + 7 + 2 border + a 20.125px line
-      (1.4375em at 14px) = 36.125px.
-    - **Multi-line and chip fields** use the height as a minimum and keep `r − 1` vertical
-      padding, so they can grow.
-  - **Icons dim with the field when disabled.** Inside the field, icons use `fill:
-    currentColor` to beat the global `MuiSvgIcon.root.fill`, which had kept the Select and
-    Autocomplete arrows and the chip ✕ white. Adornments inherit the field's disabled color,
-    which fixes the Search magnifier.
-  - **Works for every input type**, via three pieces: `TopLabelField` (label + helper frame),
-    `TopLabelInput` (the field, a styled `InputBase`), and `TopLabelTextField` (both
-    combined).
-    - Autocomplete passes its `renderInput` params straight into `TopLabelInput`. Its
-      styles are scoped three classes deep, to outrank the app's global
-      `MuiAutocomplete.inputRoot` override (radius 4px, grey surface).
-    - Select takes it through its `input` prop.
-    - Indicators (Select arrow, Autocomplete clear/open) sit `r` in from the right edge.
-    - Chip fields use an even, smaller inset so one row of small chips still lands on the
-      button height.
-    - Icon buttons inside the field (password toggle, date trigger) scale with the text and
-      cancel their own padding, so they never add height.
+- **Text field: one input design for all of admin, derived from Button / Primary's tokens.**
+  Applied at the theme level, so every outlined and standard input renders as this field:
+  TextField, Select, Autocomplete, date pickers, `StringElement` (schema forms) and the
+  table search. It started as a Style-Guide-only exploration (a one-off `TopLabelTextField`
+  component, since deleted) and was rolled out admin-wide at the product designer's
+  direction. Shown in the Style Guide under Inputs → "Text field", now rendered with plain
+  MUI components (`TextFieldGallery.jsx`), so the guide shows exactly what the theme draws.
+  - **Where it lives:** the Text field block at the top of `admin-front/.../theme.js`
+    (`inputFieldStyles`/`inputFieldSize`), applied to `MuiOutlinedInput.root` and
+    `MuiInput.root`, plus `MuiInputLabel.root`, the padding part of
+    `MuiAutocomplete.inputRoot`, and two default props (`MuiInputLabel.shrink: true`,
+    `MuiAutocomplete.ChipProps.size: 'small'`).
+  - **Variants:** outlined and standard both render as this field. The standard variant's
+    underline look is gone, at the product designer's direction. `variant="filled"` (the
+    Header search) is deliberately untouched; label rules are scoped to the outlined and
+    standard label classes for that reason.
+  - **Size:** small/medium/large via the `MuiInputBase-size*` class that the `size` prop
+    adds (medium default). Each size reads Button's tokens:
+    - height: `theme.buttonHeight`
+    - radius: `theme.buttonCornerRadius` (6/8/10)
+    - horizontal padding: `r + 7`, Outlined's
+    - value text: `typography.button(.small).fontSize`
+
+    One-line fields have a fixed height with the text centered. Measured live, Outlined's
+    `r − 1` vertical padding overshot at Medium: 7 + 7 + 2 border + a 20.125px line = 36.125px.
+    Multi-line fields use the height as a minimum with `r − 1` top and bottom. Fields holding
+    chips (Autocomplete tags, the table search's filter chips) grow too, with an even inset
+    so one row of small chips lands on the button height.
   - **Fill:** `palette.background.paper`, i.e. elevation 0, Paper's flat color with no
-    overlay.
-  - **Border:** `theme.borderColor` at rest, Outlined's resting border (`primary.main` at 30%)
-    on hover, `primary.main` plus a 2px 25% ring on focus, `error.main` on error.
-  - **Label:** sits above the field and never moves or recolors on focus/error. Error shows
-    only on the border and the helper text, in line with the earlier decision that the label
-    shouldn't read as an error. It still inherits the app's global `MuiFormLabel` color and
-    `opacity: 0.5`.
-  - **Demo** (`TopLabelGallery.jsx`): size tabs switch every field's size (one size at a
-    time), and the properties panel's state tabs switch their state. The gallery shows every
-    kind of text input the admin panel uses today, each labelled with a real place it appears:
-    - Text field (with a Contained button of the same size beside it)
-    - Autocomplete (File library access)
-    - Combo box (New workflow → Customer)
-    - Multi-select with chips (Unit → Units)
-    - Password with show/hide (Users)
-    - Search with a start icon (list-page table search)
-    - Date filter trigger (Metrics, Statistics; appearance only)
-    - Multi-line (Workflow settings, Task)
-  - **New token `theme.buttonHeight`** (`{ small: 32, medium: 36, large: 42 }`). This
-    replaces the three literals in `MuiButton.sizeSmall/Medium/Large`'s `minHeight`, which
-    now read it, so Button and this input share one source. No change to how Button renders.
-    Admin-only for now, like `buttonCornerRadius`; under cabinet-front the field falls back
-    to MUI's default height, radius and padding. _(2026-11-03)_
+    overlay. This replaces the old `#2e2e2e` input surface; autofill matches it.
+  - **Border:** the field draws its own border and the notched outline (`fieldset`) is
+    hidden, since there's nothing to notch with the label above. `theme.borderColor` at
+    rest, Outlined's resting border (`primary.main` at 30%) on hover, `primary.main` plus a
+    2px 25% ring on focus, `error.main` on error, `palette.text.disabled` for disabled text
+    and adornments.
+  - **Label:** static above the field (position/transform overridden, `opacity: 1`),
+    `body2` size, `palette.text.secondary` (the designer's choice) in every state except
+    disabled. It never moves or recolors on focus/error; error shows on the border and the
+    helper text only. It's always shrunk, which also keeps placeholders visible: MUI hides
+    them while a label is unshrunk. `MuiFormLabel.root`'s 0.5 opacity still applies to other
+    form labels (e.g. radio-group legends).
+  - **Inside the field:** icons use `currentColor`, beating the global `MuiSvgIcon` fill, so
+    they follow state. Indicators sit `r` in from the right. Icon buttons (password toggle,
+    date trigger, clear) scale with the text and cancel their padding, so they never add
+    height.
+  - **Local overrides removed** so they can't fight it. Each was admin-only, or scoped to
+    `darkTheme`, which only admin passes (cabinet-front has zero uses), so cabinet is
+    unaffected:
+    - `StringElement` (`layout.js`): the `darkTheme` `#2e2e2e` fill, square bottom corners,
+      transparent outline, white label and `#2e2e2e` select. In `darkTheme` it also skips
+      the 16px label font, the −5px multiline label offset, the black read-only label and
+      the floating-label width allowance, and always shrinks the label.
+    - Table search (`DataTable/.../InputComponent.jsx`): in `darkTheme` it renders as an
+      `OutlinedInput` instead of a bare `InputBase` (which the theme doesn't style), dropping
+      its `#2a2a2a` box and underline.
+    - `MultiSelectFilterHandler`'s search: its `#2e2e2e`/square-corner/padding rules now only
+      apply outside `darkTheme`.
+    - `CustomDatePicker`'s `darkThemeLabel`: header background, radius and outline removed.
+    - Admin pages: the white labels and transparent outlines in the Workflow and Tags
+      toolbars; the `#2e2e2e` date pickers in Metrics and Statistics; Statistics' filter
+      field corners; the 2px primary outline in the Journal users filter; and IconSelect's
+      outline/label colors.
+  - **New token `theme.buttonHeight`** (`{ small: 32, medium: 36, large: 42 }`). It replaces
+    the three literals in `MuiButton.sizeSmall/Medium/Large`'s `minHeight`, which now read
+    it, so Button and the Text field share one source. No change to how Button renders.
+    Admin-only, like `buttonCornerRadius`. _(2026-11-03)_
 
 ## Layout
 
@@ -612,6 +623,17 @@ uses `packages/front-core/theme.js`, which has only one change so far (see Typog
 
 ## Worth addressing (known issues found, not yet fixed)
 
+- **Text field rollout follow-ups** (from making the Text field admin-wide; not yet done):
+  - The Style Guide's separate Autocomplete and Combo box sections, and their token tables,
+    predate it and may still describe the old `#2e2e2e` surface. The Text field gallery now
+    covers both cases.
+  - `MuiAutocomplete.paper`'s `margin: '10px -14px'` was tuned to the old 14px input
+    padding, so the options list may now sit 14px wider than the field on each side.
+  - Dead `fieldset` rules remain where they no longer do anything, e.g. the quick-filter
+    borders in `DataGridPremium` and the Metrics/Statistics leftovers; these can be removed.
+  - The Header's filled search is still its own design.
+  - Every page needs a live look: anything that sized itself around the old 56px outlined
+    height will now get a 36px field. _(2026-11-03)_
 - **Admin buttons that still bypass the guide's Button variants** (audit done after the
   `ColorButton` removal under Buttons; not yet fixed). Admin-owned:
   - Header (`layouts/components/Header.jsx`): a circular bordered `iconBtn` (`#797979`), a

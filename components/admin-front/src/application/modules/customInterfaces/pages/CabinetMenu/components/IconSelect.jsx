@@ -263,21 +263,6 @@ const IconSelect = ({
               value={searchValue}
               onChange={(event) => setSearchValue(event.target.value)}
               onClick={(event) => event.stopPropagation()}
-              sx={(theme) => ({
-                "& .MuiInputBase-root": {
-                  color: theme.palette.text.primary,
-                  bgcolor: theme.searchInputBg,
-                },
-                "& .MuiOutlinedInput-notchedOutline": {
-                  borderColor: theme.palette.grey[700],
-                },
-                "&:hover .MuiOutlinedInput-notchedOutline": {
-                  borderColor: theme.palette.grey[500],
-                },
-                "& .MuiInputLabel-root": {
-                  color: theme.palette.grey[400],
-                },
-              })}
             />
           </Box>
           <Box

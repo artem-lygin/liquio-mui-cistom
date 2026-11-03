@@ -1,14 +1,16 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import { translate } from 'react-translate';
-import { InputBase } from '@mui/material';
+import { InputBase, OutlinedInput } from '@mui/material';
 import withStyles from '@mui/styles/withStyles';
 import classNames from 'classnames';
 
 const styles = (theme) => ({
   root: {
     color: 'inherit',
-    width: '100%',
+    width: '100%'
+  },
+  rootLight: {
     backgroundColor: theme.palette.background.default,
     borderBottom: `1px solid ${theme.borderColor}`
   },
@@ -19,21 +21,6 @@ const styles = (theme) => ({
     [theme.breakpoints.up('md')]: {
       minWidth: 200
     }
-  },
-  rootDark: {
-    backgroundColor: theme.searchInputBg,
-    borderRadius: '4px 4px 0px 0px',
-    borderBottom: '2px solid transparent',
-    padding: 0
-  },
-  inputDark: {
-    color: theme.palette.text.primary,
-    borderRadius: '4px 4px 0px 0px',
-    padding: '14px 15px',
-    borderBottom: 'none'
-  },
-  focusedDark: {
-    borderColor: theme.buttonBg
   },
   inline: {
     display: 'inherit'
@@ -79,8 +66,13 @@ const SearchInputComponent = ({
 
   const multiline = width > WIDTH_LIMIT;
 
+  // darkTheme is admin-only: there the search renders as an OutlinedInput so admin's theme
+  // draws it as the Style Guide's Text field (surface, border, radius, focus ring), instead
+  // of the old #2a2a2a box with a square-bottomed underline.
+  const Input = darkTheme ? OutlinedInput : InputBase;
+
   return (
-    <InputBase
+    <Input
       ref={rootRef}
       value={value}
       placeholder={placeholder}
@@ -93,14 +85,8 @@ const SearchInputComponent = ({
       classes={{
         root: classNames({
           [classes.root]: true,
-          [classes.rootDark]: darkTheme,
+          [classes.rootLight]: !darkTheme,
           [classes.block]: multiline
-        }),
-        input: classNames({
-          [classes.inputDark]: darkTheme
-        }),
-        focused: classNames({
-          [classes.focusedDark]: darkTheme
         })
       }}
       startAdornment={

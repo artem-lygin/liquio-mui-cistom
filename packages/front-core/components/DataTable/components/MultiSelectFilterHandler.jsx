@@ -124,7 +124,7 @@ class MultiSelectFilterHandler extends FilterHandler {
             variant="outlined"
             placeholder={placeholder}
             autoFocus={true}
-            className={classes.search}
+            className={classNames({ [classes.search]: !darkTheme })}
             onChange={(e) => this.setState({ searchValue: e.target.value })}
           />
         </div>

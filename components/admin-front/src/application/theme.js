@@ -3,19 +3,14 @@ import { alpha, lighten } from '@mui/material/styles';
 
 import overrides from './theme.overrides.json';
 
-// Input background used to be a standalone literal (#2e2e2e) duplicated across
-// MuiOutlinedInput (Text field/Select), MuiAutocomplete (Autocomplete), and the custom
-// buttonHoverBg key (button/sidebar hover fills, ~10 usages across admin pages) — three
-// independent copies of the same color, none derived from any palette value. 0.14 is tuned
-// to reproduce that exact literal from palette.background.paper (BACKGROUND_PAPER below):
-// lighten() adds (255-channel)*coefficient per channel, so 12 + (255-12)*0.14 ≈ 46 = 0x2e.
+// The old input background (#2e2e2e), derived from palette.background.paper: 0.14 reproduces
+// that exact literal (lighten() adds (255-channel)*coefficient per channel, so
+// 12 + (255-12)*0.14 ≈ 46 = 0x2e). Inputs themselves no longer use it (the Text field sits at
+// elevation 0, palette.background.paper); it now only feeds the custom buttonHoverBg key
+// (button/sidebar hover fills across admin pages). That key is read as a plain string by
+// component stylesheets, so it's computed once here rather than read live.
 const BACKGROUND_PAPER = '#0c0c0c';
 const INPUT_SURFACE_LIGHTEN = 0.14;
-// MuiOutlinedInput/MuiAutocomplete below read theme.palette.background.paper live (via a
-// function-valued style override), so they stay in sync with the Style Guide's live
-// draft/bake preview. buttonHoverBg can't do that — it's a plain custom theme key read
-// directly as a string by component stylesheets, not one of MUI's styleOverrides slots — so
-// it's computed once here, from the same BACKGROUND_PAPER literal, instead.
 const INPUT_SURFACE_BG = lighten(BACKGROUND_PAPER, INPUT_SURFACE_LIGHTEN);
 
 // The system's one subtle-separator-line color — already named as such via the top-level
@@ -24,6 +19,143 @@ const INPUT_SURFACE_BG = lighten(BACKGROUND_PAPER, INPUT_SURFACE_LIGHTEN);
 // and one had silently drifted to '#4E4E4F' (one hex digit off). Consolidated onto this one
 // constant so there's a single source again.
 const BORDER_COLOR = '#4E4E4E';
+
+// ── Text field ───────────────────────────────────────────────────────────────────────────
+// Every outlined and standard input in admin (TextField, Select, Autocomplete, date pickers,
+// StringElement) renders as one field designed from Button / Primary's own tokens: the
+// "Text field" in the Style Guide. Applied to MuiOutlinedInput and MuiInput (the standard
+// variant, whose underline look is gone), with the label static above the field
+// (MuiInputLabel). variant="filled" (the Header search) is deliberately left alone.
+//
+// Per size (small/medium/large, via the MuiInputBase-size* class TextField/Select/
+// Autocomplete add from their `size` prop; medium is the default):
+// - height      theme.buttonHeight[size]       (same map MuiButton.size* minHeight reads)
+// - radius      theme.buttonCornerRadius[size] (same map MuiButton.size* radius reads)
+// - padding     0 / r + 7: Outlined button's horizontal padding. One-line fields have a
+//               fixed height with centered text; vertical padding would overshoot (the text
+//               line is 1.4375em, e.g. 7 + 7 + 2 + 20.125 = 36.125px at medium).
+// - text        theme.typography.button(.small).fontSize, same as the button label
+// Multi-line and chip fields use the height as a minimum and grow.
+//
+// MUI's Autocomplete indicator button width (24px icon + 2px padding per side), reserved on
+// the right once per indicator (clear, open).
+const AUTOCOMPLETE_INDICATOR_WIDTH = 28;
+// A small Chip (24px) + Autocomplete's 3px tag margin per side + the field's 1px border per
+// side: a field holding one row of chips with no padding.
+const CHIP_ROW_HEIGHT = 24 + 3 * 2 + 1 * 2;
+
+const inputFieldSize = (theme, size) => {
+  const radius = theme.buttonCornerRadius[size];
+  const height = theme.buttonHeight[size];
+  return {
+    height,
+    borderRadius: radius,
+    padding: `0 ${radius + 7}px`,
+    fontSize:
+      size === 'small'
+        ? theme.typography.button.small?.fontSize ?? theme.typography.button.fontSize
+        : theme.typography.button.fontSize,
+    '&.MuiInputBase-multiline': {
+      height: 'auto',
+      minHeight: height,
+      paddingTop: radius - 1,
+      paddingBottom: radius - 1
+    },
+    // Chips inside the field (e.g. the table search's active filters) can wrap onto more
+    // rows, so the field grows past one line, with an even inset around one row of small
+    // chips. Autocomplete's own tags are handled in MuiAutocomplete.inputRoot.
+    '&:has(.MuiChip-root)': {
+      height: 'auto',
+      minHeight: height,
+      paddingTop: Math.max(0, (height - CHIP_ROW_HEIGHT) / 2),
+      paddingBottom: Math.max(0, (height - CHIP_ROW_HEIGHT) / 2)
+    },
+    // Indicators sit `radius` in from the right edge, the same inset as the corner.
+    '& .MuiSelect-icon': {
+      right: radius
+    }
+  };
+};
+
+const inputFieldStyles = (theme) => ({
+  boxSizing: 'border-box',
+  backgroundColor: theme.palette.background.paper, // elevation 0: Paper's flat color
+  border: `1px solid ${theme.borderColor}`,
+  transition: theme.transitions.create(['border-color', 'box-shadow']),
+  ...inputFieldSize(theme, 'medium'),
+  '&.MuiInputBase-sizeSmall': inputFieldSize(theme, 'small'),
+  '&.MuiInputBase-sizeLarge': inputFieldSize(theme, 'large'),
+  '& .MuiInputBase-input': {
+    padding: 0
+  },
+  // Icons inside the field follow its color; the global MuiSvgIcon.root.fill below would
+  // otherwise keep MUI's own icons (Select arrow, Autocomplete arrow, chip ✕) white.
+  '& .MuiSvgIcon-root': {
+    fill: 'currentColor'
+  },
+  // Icon buttons inside the field (password toggle, date trigger, clear) scale with the
+  // text and cancel their own padding, so they never add height.
+  '& .MuiInputAdornment-root .MuiIconButton-root': {
+    fontSize: '1.25em',
+    padding: 2,
+    margin: -2
+  },
+  '& .MuiInputAdornment-root > .MuiSvgIcon-root': {
+    fontSize: '1.25em'
+  },
+  // Order matters (equal specificity, last wins): hover < focused < error < disabled.
+  '&:hover': {
+    borderColor: alpha(theme.palette.primary.main, 0.3) // Outlined button's resting border
+  },
+  '&.Mui-focused': {
+    borderColor: theme.palette.primary.main,
+    boxShadow: `0 0 0 2px ${alpha(theme.palette.primary.main, 0.25)}`
+  },
+  '&.Mui-error': {
+    borderColor: theme.palette.error.main
+  },
+  '&.Mui-error.Mui-focused': {
+    boxShadow: `0 0 0 2px ${alpha(theme.palette.error.main, 0.25)}`
+  },
+  '&.Mui-disabled': {
+    borderColor: theme.borderColor,
+    color: theme.palette.text.disabled,
+    cursor: 'not-allowed',
+    // Adornments keep action.active even when disabled (e.g. a search icon).
+    '& .MuiInputAdornment-root': {
+      color: 'inherit'
+    }
+  }
+});
+
+// Autocomplete puts its own padding on the input root and its input (two/three-class
+// specificity), so the field's padding is restated here per size, in the same
+// MuiAutocomplete.inputRoot slot, which is applied after Autocomplete's own styles.
+const autocompleteInputRootSize = (theme, size) => {
+  const radius = theme.buttonCornerRadius[size];
+  const chipInset = Math.max(0, (theme.buttonHeight[size] - CHIP_ROW_HEIGHT) / 2);
+  return {
+    padding: `0 ${radius + 7}px`,
+    '.MuiAutocomplete-hasPopupIcon&, .MuiAutocomplete-hasClearIcon&': {
+      paddingRight: radius + AUTOCOMPLETE_INDICATOR_WIDTH
+    },
+    '.MuiAutocomplete-hasPopupIcon.MuiAutocomplete-hasClearIcon&': {
+      paddingRight: radius + AUTOCOMPLETE_INDICATOR_WIDTH * 2
+    },
+    '& .MuiAutocomplete-endAdornment': {
+      right: radius - 2
+    },
+    // With chips, padding shrinks to an even inset so one row of small chips still lands on
+    // the button height; more rows grow the field.
+    '&:has(.MuiAutocomplete-tag)': {
+      height: 'auto',
+      minHeight: theme.buttonHeight[size],
+      paddingTop: chipInset,
+      paddingBottom: chipInset,
+      paddingLeft: chipInset
+    }
+  };
+};
 
 const baseTheme = {
   breakpoints: {
@@ -75,19 +207,30 @@ const baseTheme = {
         }
       }
     },
-    // Input design explorations live as one-off components inside the Style Guide (currently
-    // styleGuide/pages/Inputs/TopLabelTextField.jsx), not as global MuiFilledInput/
-    // MuiInputBase/MuiInputLabel overrides here. An earlier global override (the since-removed
-    // "Reddit style" input) affected every variant="filled" input app-wide, including the
-    // Header's own search field (components/admin-front/.../layouts/components/Header.jsx),
-    // adding an unintended border and a redundant second focus ring on top of it.
+    // Text field label (see the Text field block at the top of this file): static above the
+    // field for outlined and standard inputs: no float, no notch, no color change on focus
+    // or error. Scoped to those two variants so variant="filled" (the Header search, whose
+    // own styling a global override once broke) is untouched. Overrides InputLabel's own
+    // absolute position and translate/scale transform, FormLabel's focus/error colors, and
+    // MuiFormLabel.root's 0.5 opacity (still in effect for other form labels).
     MuiInputLabel: {
-      root: {
+      root: ({ theme }) => ({
         whiteSpace: 'nowrap',
         textOverflow: 'ellipsis',
         overflow: 'hidden',
-        maxWidth: '100%'
-      }
+        maxWidth: '100%',
+        '&.MuiInputLabel-outlined, &.MuiInputLabel-standard': {
+          position: 'relative',
+          transform: 'none',
+          maxWidth: '100%',
+          marginBottom: theme.spacing(0.75),
+          fontSize: theme.typography.body2.fontSize,
+          opacity: 1,
+          '&:not(.Mui-disabled)': {
+            color: theme.palette.text.secondary
+          }
+        }
+      })
     },
     MuiSvgIcon: {
       root: {
@@ -571,14 +714,15 @@ const baseTheme = {
       }
     },
     MuiAutocomplete: {
+      // Surface, border, radius and states come from MuiOutlinedInput.root (the Text field);
+      // only the padding Autocomplete sets on its own input root needs restating per size.
       inputRoot: ({ theme }) => ({
-        borderRadius: '4px',
-        // Same computation as MuiOutlinedInput.root below — this slot is a separate CSS
-        // class applied to the same rendered surface (Autocomplete wraps a real
-        // variant="outlined" TextField), so it needs the same value, but isn't literally
-        // the same style rule. Kept in sync via one shared constant rather than one shared
-        // literal.
-        backgroundColor: lighten(theme.palette.background.paper, INPUT_SURFACE_LIGHTEN)
+        ...autocompleteInputRootSize(theme, 'medium'),
+        '&.MuiInputBase-sizeSmall': autocompleteInputRootSize(theme, 'small'),
+        '&.MuiInputBase-sizeLarge': autocompleteInputRootSize(theme, 'large'),
+        '& .MuiAutocomplete-input, &.MuiInputBase-sizeSmall .MuiAutocomplete-input': {
+          padding: 0
+        }
       }),
       paper: {
         margin: '10px -14px'
@@ -604,26 +748,36 @@ const baseTheme = {
     },
     MuiTextField: {
       root: {
-        width: '100%',
-        borderBottom: 'none',
-        borderRadius: '4px'
+        width: '100%'
       }
     },
+    // The Text field (see the block at the top of this file). The notched outline is hidden
+    // and the field draws its own border instead: with the label above the field there is
+    // nothing to notch, and a shrunk label would otherwise still cut a gap into the outline.
     MuiOutlinedInput: {
-      root: ({ theme }) => ({
-        backgroundColor: lighten(theme.palette.background.paper, INPUT_SURFACE_LIGHTEN),
-        borderBottom: 'none',
-        borderRadius: '4px',
-        '&.Mui-disabled': {
-          color: 'rgba(255, 255, 255, 0.38)',
-          cursor: 'not-allowed'
-        }
-      }),
+      root: ({ theme }) => inputFieldStyles(theme),
+      notchedOutline: {
+        display: 'none'
+      },
       input: ({ theme }) => ({
         '&:-webkit-autofill, &:-webkit-autofill:hover, &:-webkit-autofill:focus': {
-          WebkitBoxShadow: `0 0 0 1000px ${lighten(theme.palette.background.paper, INPUT_SURFACE_LIGHTEN)} inset`,
+          WebkitBoxShadow: `0 0 0 1000px ${theme.palette.background.paper} inset`,
           WebkitTextFillColor: '#fff',
           caretColor: '#fff'
+        }
+      })
+    },
+    // The standard variant renders as the same Text field: its underline (the ::before/
+    // ::after borders) is removed, and so is the 16px top margin MUI leaves for a floating
+    // label, since the label now sits above the field in normal flow.
+    MuiInput: {
+      root: ({ theme }) => ({
+        ...inputFieldStyles(theme),
+        'label + &': {
+          marginTop: 0
+        },
+        '&::before, &::after': {
+          display: 'none'
         }
       })
     }
@@ -701,6 +855,16 @@ const baseTheme = {
   props: {
     MuiTab: {
       disableRipple: true
+    },
+    // The Text field's label sits above the field permanently, so it is always "shrunk".
+    // This also matters for placeholders: MUI hides an empty field's placeholder while its
+    // label is unshrunk (it expects the label to be sitting where the text goes).
+    MuiInputLabel: {
+      shrink: true
+    },
+    // Small chips (24px) are what fits one row inside a Text field of each size.
+    MuiAutocomplete: {
+      ChipProps: { size: 'small' }
     }
   },
   shadows: [
