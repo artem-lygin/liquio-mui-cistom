@@ -11,14 +11,17 @@ import {
   Checkbox,
   FormGroup,
   FormControlLabel,
+  SvgIcon
 } from '@mui/material';
+import {
+  DownloadFill as SymbolDownload
+} from '@material-symbols-svg/react/rounded/w400';
 import withStyles from '@mui/styles/withStyles';
 import { importRegisters } from 'application/actions/registry';
 import { addMessage } from 'actions/error';
 import Message from 'components/Snackbars/Message';
 import ConfirmDialog from 'components/ConfirmDialog';
 import Preloader from 'components/Preloader';
-import DownloadIcon from 'assets/img/dowload-icon.svg';
 
 const styles = {
   buttonPadding: {
@@ -147,7 +150,7 @@ class ImportRegisters extends React.Component {
           color="primary"
           onClick={this.handleOpenImportDialog}
           className={classes.importBtn}
-          startIcon={<img src={DownloadIcon} alt="import icon" />}
+          startIcon={<SvgIcon component={SymbolDownload} inheritViewBox={true} />}
         >
           {t('ImportRegisters')}
         </Button>

@@ -1,10 +1,12 @@
 import React from 'react';
 import { translate } from 'react-translate';
 import PropTypes from 'prop-types';
-import { Button, Dialog } from '@mui/material';
+import { Button, Dialog, SvgIcon } from '@mui/material';
+import {
+  DownloadFill as SymbolDownload
+} from '@material-symbols-svg/react/rounded/w400';
 import Preloader from 'components/Preloader';
 import Message from 'components/Snackbars/Message';
-import DownloadIcon from 'assets/img/dowload-icon.svg';
 import parseFile from 'helpers/parseFile';
 
 class ImportTemplate extends React.Component {
@@ -96,7 +98,7 @@ class ImportTemplate extends React.Component {
           color="primary"
           onClick={this.handleUploadClick}
           style={{ marginLeft: 16 }}
-          startIcon={<img src={DownloadIcon} alt="import icon" />}
+          startIcon={<SvgIcon component={SymbolDownload} inheritViewBox={true} />}
         >
           {t('ImportTemplates')}
         </Button>

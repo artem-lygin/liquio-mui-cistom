@@ -2,7 +2,10 @@ import React from 'react';
 import { translate } from 'react-translate';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
-import { Button } from '@mui/material';
+import { Button, SvgIcon } from '@mui/material';
+import {
+  DownloadFill as SymbolDownload
+} from '@material-symbols-svg/react/rounded/w400';
 import withStyles from '@mui/styles/withStyles';
 import { importUnits } from 'application/actions/units';
 import unitListControlEndPoint from 'application/endPoints/unitListControl';
@@ -10,10 +13,9 @@ import dataTableConnect from 'services/dataTable/connect';
 import { addMessage } from 'actions/error';
 import Message from 'components/Snackbars/Message';
 import ConfirmDialog from 'components/ConfirmDialog';
-import DownloadIcon from 'assets/img/dowload-icon.svg';
 import parseFile from 'helpers/parseFile';
 
-const styles = (theme) => ({
+const styles = () => ({
   actionBtn: {
     marginLeft: 16,
   },
@@ -111,7 +113,7 @@ class ImportUnits extends React.Component {
           color="primary"
           className={classes.actionBtn}
           onClick={this.handleUploadClick}
-          startIcon={<img src={DownloadIcon} alt="import units icon" />}
+          startIcon={<SvgIcon component={SymbolDownload} inheritViewBox={true} />}
         >
           {t('ImportUnits')}
         </Button>

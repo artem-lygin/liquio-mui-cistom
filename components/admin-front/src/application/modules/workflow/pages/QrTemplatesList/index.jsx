@@ -26,13 +26,16 @@ import {
   Button,
   TextField,
   FormHelperText,
+  SvgIcon
 } from '@mui/material';
+import {
+  DataObjectFill as SymbolDataObject
+} from '@material-symbols-svg/react/rounded/w400';
 
 import { makeStyles } from '@mui/styles';
 
 import EditIcon from '@mui/icons-material/Edit';
 import HtmlIcon from '@mui/icons-material/Html';
-import jsonIcon from 'assets/icons/jsonFiolet.svg';
 import PictureAsPdfIcon from '@mui/icons-material/PictureAsPdf';
 import DeleteOutlinedIcon from '@mui/icons-material/DeleteOutlined';
 
@@ -327,7 +330,7 @@ const QrTemplatesList = ({
                 variant="contained"
                 color="primary"
                 onClick={() => editJson()}
-                startIcon={<img src={jsonIcon} alt={'json icon'} />}
+                startIcon={<SvgIcon component={SymbolDataObject} inheritViewBox={true} />}
               >
                 {t('MapppingFields')}
               </Button>

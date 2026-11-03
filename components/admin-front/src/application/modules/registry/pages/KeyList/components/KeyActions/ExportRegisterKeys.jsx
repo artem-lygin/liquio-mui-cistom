@@ -11,7 +11,11 @@ import {
   DialogActions,
   Button,
   Typography,
+  SvgIcon
 } from '@mui/material';
+import {
+  UploadFill as SymbolUpload
+} from '@material-symbols-svg/react/rounded/w400';
 import FormGroup from '@mui/material/FormGroup';
 import FormHelperText from '@mui/material/FormHelperText';
 import FormControlLabel from '@mui/material/FormControlLabel';
@@ -26,7 +30,6 @@ import {
   startPreparingExport,
 } from 'application/actions/registry';
 import { addMessage } from 'actions/error';
-import ExportIcon from 'assets/icons/gg_export.svg';
 import arrayUnique from 'helpers/arrayUnique';
 import { SchemaForm, handleChangeAdapter } from 'components/JsonSchema';
 
@@ -215,7 +218,7 @@ const ExportRegisterKeys = ({
         color="primary"
         onClick={handleOpen}
         disabled={loadingOrigin}
-        startIcon={<img src={ExportIcon} alt="ExportIcon" />}
+        startIcon={<SvgIcon component={SymbolUpload} inheritViewBox={true} />}
       >
         {t('ExportRegister')}
       </Button>

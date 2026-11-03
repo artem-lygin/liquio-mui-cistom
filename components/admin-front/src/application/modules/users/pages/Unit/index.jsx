@@ -5,7 +5,10 @@ import { bindActionCreators } from 'redux';
 import diff from 'deep-diff';
 import { history } from 'store';
 import objectPath from 'object-path';
-import { Button, Toolbar, IconButton, Tooltip } from '@mui/material';
+import { Button, Toolbar, IconButton, Tooltip, SvgIcon } from '@mui/material';
+import {
+  DownloadFill as SymbolDownload
+} from '@material-symbols-svg/react/rounded/w400';
 import withStyles from '@mui/styles/withStyles';
 import CreateIcon from '@mui/icons-material/Create';
 import DoneIcon from '@mui/icons-material/Done';
@@ -28,7 +31,6 @@ import ModulePage from 'components/ModulePage';
 import Preloader from 'components/Preloader';
 import { SchemaForm, validateData, handleChangeAdapter } from 'components/JsonSchema';
 import ChipTabs from 'components/ChipTabs';
-import DownloadIcon from 'assets/icons/gg_import.svg';
 import RenderOneLine from 'helpers/renderOneLine';
 import { addFavorites, deleteFavorites, getFavoritesById } from 'actions/favorites';
 import checkAccess from 'helpers/checkAccess';
@@ -683,7 +685,7 @@ class UnitPage extends ModulePage {
                 variant="contained"
                 color="primary"
                 onClick={this.startPreparing}
-                startIcon={<img src={DownloadIcon} alt="DownloadIcon" />}
+                startIcon={<SvgIcon component={SymbolDownload} inheritViewBox={true} />}
               >
                 {t('UploadCSV')}
               </Button>

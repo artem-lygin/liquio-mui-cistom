@@ -1,9 +1,11 @@
 import React from 'react';
 import { translate } from 'react-translate';
 import PropTypes from 'prop-types';
-import { Button } from '@mui/material';
+import { Button, SvgIcon } from '@mui/material';
+import {
+  UploadFill as SymbolUpload
+} from '@material-symbols-svg/react/rounded/w400';
 import downloadBase64Attach from 'helpers/downloadBase64Attach';
-import ExportIcon from 'assets/img/export_pink.svg';
 
 const ExportUnits = ({
   t,
@@ -28,7 +30,7 @@ const ExportUnits = ({
       color="primary"
       className={classes.actionBtn}
       onClick={exportUnitsAction}
-      startIcon={<img src={ExportIcon} alt="export units icon" width={23} />}
+      startIcon={<SvgIcon component={SymbolUpload} inheritViewBox={true} />}
     >
       {t('ExportUnits')}
     </Button>

@@ -17,8 +17,13 @@ import {
   ListItem,
   ListItemIcon,
   ListItemText,
-  CircularProgress
+  CircularProgress,
+  SvgIcon
 } from '@mui/material';
+import {
+  DownloadFill as SymbolDownload,
+  UploadFill as SymbolUpload
+} from '@material-symbols-svg/react/rounded/w400';
 import ExplicitIcon from '@mui/icons-material/Explicit';
 import AddIcon from '@mui/icons-material/Add';
 import ClearIcon from '@mui/icons-material/Clear';
@@ -45,8 +50,6 @@ import {
   searchLocalization
 } from 'actions/multiLang';
 import { addError, addMessage } from 'actions/error';
-import DownloadIcon from 'assets/icons/gg_import.svg';
-import ExportIcon from 'assets/icons/gg_export.svg';
 import downloadBase64Attach from 'helpers/downloadBase64Attach';
 import Message from 'components/Snackbars/Message';
 import awaitDelay from 'helpers/awaitDelay';
@@ -567,7 +570,7 @@ const TranslationsPage = ({ loading: loadingProp, location, title }) => {
                     importing ? (
                       <CircularProgress size={20} />
                     ) : (
-                      <img src={DownloadIcon} alt="DownloadIcon" />
+                      <SvgIcon component={SymbolDownload} inheritViewBox={true} />
                     )
                   }
                 >
@@ -727,7 +730,7 @@ const TranslationsPage = ({ loading: loadingProp, location, title }) => {
                 variant="contained"
                 color="primary"
                 onClick={handleOpenExport}
-                startIcon={<img src={ExportIcon} alt="DownloadIcon" />}
+                startIcon={<SvgIcon component={SymbolUpload} inheritViewBox={true} />}
               >
                 {t('ExportDialogTitle')}
               </Button>
@@ -740,7 +743,7 @@ const TranslationsPage = ({ loading: loadingProp, location, title }) => {
                   importing ? (
                     <CircularProgress size={20} />
                   ) : (
-                    <img src={DownloadIcon} alt="DownloadIcon" />
+                    <SvgIcon component={SymbolDownload} inheritViewBox={true} />
                   )
                 }
               >

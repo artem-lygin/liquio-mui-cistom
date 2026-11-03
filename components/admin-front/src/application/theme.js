@@ -198,14 +198,17 @@ const baseTheme = {
     MuiButton: {
       root: {
         minWidth: 32,
-        '&.MuiButton-outlinedPrimary .MuiButton-startIcon, &.MuiButton-outlinedPrimary .MuiButton-endIcon':
-          {
-            color: 'inherit'
-          },
-        '&.MuiButton-outlinedPrimary .MuiButton-startIcon svg, &.MuiButton-outlinedPrimary .MuiButton-endIcon svg':
-          {
-            fill: 'currentColor'
-          }
+        // A Button's icons always follow its label color, in every variant. Needed because
+        // the global MuiSvgIcon.root.fill override (above) would otherwise paint every
+        // @mui/icons-material icon white-ish regardless of the button it sits in (Material
+        // Symbols are immune: their <path> sets fill="currentColor" itself). This used to be
+        // scoped to outlinedPrimary only, which left Contained's icons white.
+        '& .MuiButton-startIcon, & .MuiButton-endIcon': {
+          color: 'inherit'
+        },
+        '& .MuiButton-startIcon svg, & .MuiButton-endIcon svg': {
+          fill: 'currentColor'
+        }
       },
       // theme.typography.button is the single source of truth for the Buttons label
       // typography. MUI's own Button.js hardcodes a different fontSize per size by default

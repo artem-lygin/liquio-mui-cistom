@@ -329,9 +329,22 @@ uses `packages/front-core/theme.js`, which has only one change so far (see Typog
   just because it exists. One behaviour change: Unit's "Upload CSV" had no `variant` at
   all (so it was Text underneath), and it is now Contained like its siblings. Not done here:
   the three front-core copies (`BpmnAi` ×2, `JsonSchema/elements/UserList`), since those
-  also render in cabinet-front. The `<img src="*.svg">` icons (export/import/json) still
-  have their colors baked into the SVG files, so they don't follow `currentColor`; see
-  "Worth addressing". _(2026-11-03)_
+  also render in cabinet-front.
+  **Two icon problems surfaced once these buttons went purple**, both found on the live page:
+  - **The `<img src="*.svg">` icons disappeared.** `dowload-icon.svg`, `export_pink.svg`,
+    `gg_import.svg`, `gg_export.svg`, `jsonFiolet.svg` and `add_icon.svg` all bake `#BB86FC`
+    into their paths. That is exactly `primary.main`, so they were invisible on the
+    Contained background; the old grey restyle was the only reason they ever showed.
+    Replaced with the guide's own icon source, Material Symbols Rounded/w400/Fill, as
+    `<SvgIcon component={…} inheritViewBox />`: import → `DownloadFill`, export →
+    `UploadFill`, json → `DataObjectFill`, add → `AddFill`. The old `.svg` files are no
+    longer imported by these buttons but were left on disk, since other places may use them.
+  - **`@mui/icons-material` icons (e.g. Create's "+") stayed white instead of taking the
+    label color.** The global `MuiSvgIcon.root.fill: rgba(255,255,255,0.7)` override wins
+    over `currentColor`, and `MuiButton.root` only reset it for `outlinedPrimary`. That
+    reset (`color: inherit` + `svg { fill: currentColor }` on start/end icons) is now
+    unscoped, so it covers every Button variant. The global `MuiSvgIcon` fill itself is
+    untouched: it's app-wide, and removing it is a separate decision. _(2026-11-03)_
 
 ## Inputs
 
@@ -544,11 +557,6 @@ uses `packages/front-core/theme.js`, which has only one change so far (see Typog
   copies. Some may turn out to be legitimate guide candidates (destructive red, link-style
   text, icon-only toolbar), so question each before either removing it or adding it to the
   guide. _(2026-11-03)_
-- **Toolbar `<img src="*.svg">` icons have their colors baked in.** The import/export/json
-  icons now sit in `startIcon` (see Buttons), but they are image files (`export_pink.svg`,
-  `dowload-icon.svg`, `gg_import.svg`, `jsonFiolet.svg`, `add_icon.svg`), not `SvgIcon`s.
-  So they don't take `currentColor` and won't match a Contained button's label color.
-  Replacing them with Material Symbols would fix it. _(2026-11-03)_
 - **The Style Guide's own Buttons page (`pages/Buttons/`) went stale after the Button /
   Primary recreation work above, in two ways — found while verifying that work live, not
   yet fixed.** First, its properties-table false-flags three now-tokenized values as

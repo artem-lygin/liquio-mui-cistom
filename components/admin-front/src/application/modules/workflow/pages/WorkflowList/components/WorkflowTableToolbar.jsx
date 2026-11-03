@@ -17,8 +17,13 @@ import {
   FormHelperText,
   FormGroup,
   FormControlLabel,
-  Checkbox
+  Checkbox,
+  SvgIcon
 } from '@mui/material';
+import {
+  DownloadFill as SymbolDownload,
+  UploadFill as SymbolUpload
+} from '@material-symbols-svg/react/rounded/w400';
 
 import withStyles from '@mui/styles/withStyles';
 
@@ -27,7 +32,6 @@ import classNames from 'classnames';
 import { history } from 'store';
 
 import AddIcon from '@mui/icons-material/Add';
-import ExportIcon from 'assets/img/export_pink.svg';
 
 import { importWorkflow, createWorkflow } from 'application/actions/workflow';
 
@@ -40,7 +44,6 @@ import StringElement from 'components/JsonSchema/elements/StringElement';
 
 import padWithZeroes from 'helpers/padWithZeroes';
 
-import DownloadIcon from 'assets/img/dowload-icon.svg';
 import parseFile from 'helpers/parseFile';
 import { getConfig } from 'core/helpers/configLoader';
 
@@ -267,7 +270,7 @@ class ImportWorkflow extends React.Component {
             color="primary"
             className={classes.actionBtn}
             onClick={this.exportWorkflow}
-            startIcon={<img src={ExportIcon} alt="export workflow icon" width={23} />}
+            startIcon={<SvgIcon component={SymbolUpload} inheritViewBox={true} />}
           >
             {t('ExportWorkflow')}
           </Button>
@@ -313,7 +316,7 @@ class ImportWorkflow extends React.Component {
               color="primary"
               onClick={() => this.setState({ ignoreErrorsDialog: true })}
               className={classes.importButton}
-              startIcon={<img src={DownloadIcon} alt="import workflow icon" />}
+              startIcon={<SvgIcon component={SymbolDownload} inheritViewBox={true} />}
             >
               {t('ImportWorkflow')}
             </Button>

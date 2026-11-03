@@ -9,8 +9,12 @@ import {
   Button,
   DialogTitle,
   DialogActions,
-  DialogContent
+  DialogContent,
+  SvgIcon
 } from '@mui/material';
+import {
+  DownloadFill as SymbolDownload
+} from '@material-symbols-svg/react/rounded/w400';
 import { makeStyles } from '@mui/styles';
 import classNames from 'classnames';
 import Preloader from 'components/Preloader';
@@ -18,7 +22,6 @@ import { checkImportPreparingStatus } from 'application/actions/registry';
 import { getApiUrl } from 'services/api';
 import storage from 'helpers/storage';
 import { readFileAsync } from 'helpers/parseFile';
-import DownloadIcon from 'assets/icons/gg_import.svg';
 import RenderOneLine from 'helpers/renderOneLine';
 import { generateUUID } from 'utils/uuid';
 import { addMessage } from 'actions/error';
@@ -334,7 +337,7 @@ const ImportRegisterKeys = ({ actions, loading: loadingOrigin }) => {
         color="primary"
         onClick={startPreparing}
         disabled={loadingOrigin}
-        startIcon={<img src={DownloadIcon} alt="DownloadIcon" />}
+        startIcon={<SvgIcon component={SymbolDownload} inheritViewBox={true} />}
       >
         {t('ImportRegister')}
       </Button>

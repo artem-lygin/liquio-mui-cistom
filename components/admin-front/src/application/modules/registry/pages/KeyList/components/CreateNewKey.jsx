@@ -1,8 +1,10 @@
 import React from 'react';
 import { translate } from 'react-translate';
 import PropTypes from 'prop-types';
-import { Button } from '@mui/material';
-import AddIcon from 'assets/icons/add_icon.svg';
+import { Button, SvgIcon } from '@mui/material';
+import {
+  AddFill as SymbolAdd
+} from '@material-symbols-svg/react/rounded/w400';
 
 import promiseChain from 'helpers/promiseChain';
 import KeyFormModal from './KeyFormModal';
@@ -17,7 +19,7 @@ const CreateNewKey = ({ t, actions, registerId, loading }) => {
         color="primary"
         onClick={() => setOpen(true)}
         disabled={loading}
-        startIcon={<img src={AddIcon} alt="DownloadIcon" />}
+        startIcon={<SvgIcon component={SymbolAdd} inheritViewBox={true} />}
       >
         {t('CreateNew')}
       </Button>
