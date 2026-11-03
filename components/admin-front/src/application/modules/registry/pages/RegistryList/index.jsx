@@ -3,7 +3,6 @@ import _ from 'lodash/fp';
 import { useDispatch } from 'react-redux';
 import { history } from 'store';
 import { useTranslate } from 'react-translate';
-import { Button } from '@mui/material';
 import withStyles from '@mui/styles/withStyles';
 
 import LeftSidebarLayout from 'layouts/LeftSidebar';
@@ -23,25 +22,6 @@ import ImportRegistersKeysXLS from './components/ImportRegistersKeysXLS';
 import dataTableSettings from './variables/dataTableSettings';
 import ImportRegisterKeys from '../KeyList/components/KeyActions/ImportRegisterKeys';
 
-const ColorButton = withStyles((theme) => ({
-  root: {
-    color: theme.buttonBg,
-    background: theme.searchInputBg,
-    borderRadius: 4,
-    paddingLeft: 10,
-    '&:hover': {
-      background: theme.listHover
-    },
-    '& svg': {
-      fill: theme.buttonBg,
-      marginRight: 10
-    },
-    '& img': {
-      fill: theme.buttonBg,
-      marginRight: 10
-    }
-  }
-}))(Button);
 
 const styles = (theme) => ({
   buttonsWrapper: {
@@ -85,10 +65,10 @@ const RegistryListPage = (props) => {
         CustomToolbar={() =>
           !isEditable ? null : (
             <>
-              <CreateNewRegister actions={tableProps.actions} ColorButton={ColorButton} />
+              <CreateNewRegister actions={tableProps.actions} />
               <div className={classes.buttonsWrapper}>
-                <ImportRegisterKeys ColorButton={ColorButton} title={props.title} />
-                <ImportRegistersKeysXLS actions={tableProps.actions} ColorButton={ColorButton} />
+                <ImportRegisterKeys title={props.title} />
+                <ImportRegistersKeysXLS actions={tableProps.actions} />
               </div>
             </>
           )

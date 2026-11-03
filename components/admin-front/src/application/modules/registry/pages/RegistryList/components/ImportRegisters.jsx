@@ -130,7 +130,7 @@ class ImportRegisters extends React.Component {
       });
 
   render() {
-    const { t, classes, ColorButton } = this.props;
+    const { t, classes } = this.props;
     const { openConfirmDialog, openImportDialog, checked, loading } =
       this.state;
 
@@ -142,16 +142,15 @@ class ImportRegisters extends React.Component {
           </Dialog>
         ) : null}
 
-        <ColorButton
+        <Button
           variant="contained"
           color="primary"
-          disableElevation={true}
           onClick={this.handleOpenImportDialog}
           className={classes.importBtn}
+          startIcon={<img src={DownloadIcon} alt="import icon" />}
         >
-          <img src={DownloadIcon} alt="import icon" />
           {t('ImportRegisters')}
-        </ColorButton>
+        </Button>
 
         <input
           ref={(ref) => {

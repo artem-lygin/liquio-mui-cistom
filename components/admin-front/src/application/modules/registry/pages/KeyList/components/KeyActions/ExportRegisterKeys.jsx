@@ -67,7 +67,6 @@ const withStyles = makeStyles((theme) => ({
 const ExportRegisterKeys = ({
   registerId,
   importActions,
-  ColorButton,
   data,
   loading: loadingOrigin,
 }) => {
@@ -211,15 +210,15 @@ const ExportRegisterKeys = ({
 
   return (
     <>
-      <ColorButton
+      <Button
         variant="contained"
         color="primary"
         onClick={handleOpen}
         disabled={loadingOrigin}
+        startIcon={<img src={ExportIcon} alt="ExportIcon" />}
       >
-        <img src={ExportIcon} alt="ExportIcon" />
         {t('ExportRegister')}
-      </ColorButton>
+      </Button>
 
       <Dialog open={loading}>
         <div className={classes.preloaderWrapper}>

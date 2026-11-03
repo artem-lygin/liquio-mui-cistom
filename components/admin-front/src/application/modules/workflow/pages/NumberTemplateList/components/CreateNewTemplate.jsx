@@ -9,25 +9,6 @@ import AddIcon from '@mui/icons-material/Add';
 import ImportTemplate from './Actions/ImportTemplate';
 import schema from '../variables/temlateSchema';
 
-const ColorButton = withStyles((theme) => ({
-  root: {
-    color: theme.buttonBg,
-    background: theme.searchInputBg,
-    borderRadius: 4,
-    paddingLeft: 10,
-    '&:hover': {
-      background: theme.listHover,
-    },
-    '& svg': {
-      fill: theme.buttonBg,
-      marginRight: 10,
-    },
-    '& img': {
-      fill: theme.buttonBg,
-      marginRight: 10,
-    },
-  },
-}))(Button);
 
 const styles = (theme) => ({
   buttonsWrapper: {
@@ -48,16 +29,15 @@ const CreateNewTemplate = ({ t, actions, classes }) => {
   return (
     <>
       <div className={classes.buttonsWrapper}>
-        <ColorButton
+        <Button
           variant="contained"
           color="primary"
-          disableElevation={true}
           onClick={() => setOpen(true)}
+          startIcon={<AddIcon />}
         >
-          <AddIcon />
           {t('CreateNew')}
-        </ColorButton>
-        <ImportTemplate actions={actions} ColorButton={ColorButton} />
+        </Button>
+        <ImportTemplate actions={actions} />
       </div>
       <SchemaFormModal
         title={t('NewTemplate')}

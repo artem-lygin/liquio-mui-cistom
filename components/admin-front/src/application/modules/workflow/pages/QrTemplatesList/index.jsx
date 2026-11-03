@@ -29,7 +29,6 @@ import {
 } from '@mui/material';
 
 import { makeStyles } from '@mui/styles';
-import withStyles from '@mui/styles/withStyles';
 
 import EditIcon from '@mui/icons-material/Edit';
 import HtmlIcon from '@mui/icons-material/Html';
@@ -45,25 +44,6 @@ import ConfirmDialog from 'components/ConfirmDialog';
 import checkAccess from 'helpers/checkAccess';
 import asModulePage from 'hooks/asModulePage';
 
-export const ColorButton = withStyles((theme) => ({
-  root: {
-    color: theme.buttonBg,
-    background: theme.searchInputBg,
-    borderRadius: 4,
-    paddingLeft: 10,
-    marginRight: 23,
-    '&:hover': {
-      background: theme.listHover,
-    },
-    '& svg': {
-      fill: theme.buttonBg,
-      marginRight: 10,
-    },
-    '& img': {
-      marginRight: 10,
-    },
-  },
-}))(Button);
 
 const defaultTemplate = {
   name: 'register',
@@ -343,30 +323,30 @@ const QrTemplatesList = ({
               </FormHelperText>
             ) : null}
             <div style={{ marginTop: 35 }}>
-              <ColorButton
+              <Button
                 variant="contained"
                 color="primary"
                 onClick={() => editJson()}
+                startIcon={<img src={jsonIcon} alt={'json icon'} />}
               >
-                {<img src={jsonIcon} alt={'json icon'} />}
                 {t('MapppingFields')}
-              </ColorButton>
-              <ColorButton
+              </Button>
+              <Button
                 variant="contained"
                 color="primary"
                 onClick={() => editHtml()}
+                startIcon={<HtmlIcon />}
               >
-                <HtmlIcon />
                 {t('Template')}
-              </ColorButton>
-              <ColorButton
+              </Button>
+              <Button
                 variant="contained"
                 color="primary"
                 onClick={() => editPdf()}
+                startIcon={<PictureAsPdfIcon />}
               >
-                <PictureAsPdfIcon />
                 {t('Template')}
-              </ColorButton>
+              </Button>
             </div>
           </>
         </DialogContent>

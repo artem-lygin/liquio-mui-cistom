@@ -47,7 +47,6 @@ import {
 import { addError, addMessage } from 'actions/error';
 import DownloadIcon from 'assets/icons/gg_import.svg';
 import ExportIcon from 'assets/icons/gg_export.svg';
-import withStyles from '@mui/styles/withStyles';
 import downloadBase64Attach from 'helpers/downloadBase64Attach';
 import Message from 'components/Snackbars/Message';
 import awaitDelay from 'helpers/awaitDelay';
@@ -83,23 +82,6 @@ const useStyles = makeStyles((theme) => ({
   }
 }));
 
-const ColorButton = withStyles((theme) => ({
-  root: {
-    color: theme.buttonBg,
-    background: theme.searchInputBg,
-    borderRadius: 4,
-    paddingLeft: 10,
-    '&:hover': {
-      background: theme.listHover
-    },
-    '& svg': {
-      fill: theme.buttonBg
-    },
-    '& img': {
-      fill: theme.buttonBg
-    }
-  }
-}))(Button);
 
 const TranslationsPage = ({ loading: loadingProp, location, title }) => {
   const t = useTranslate('TranslationsPage');
@@ -559,25 +541,25 @@ const TranslationsPage = ({ loading: loadingProp, location, title }) => {
                   </Tooltip>
                 ) : null}
 
-                <ColorButton
+                <Button
                   variant="contained"
                   color="primary"
                   onClick={() => setOpen(true)}
                   startIcon={<AddIcon />}
                 >
                   {t('AddLanguage')}
-                </ColorButton>
+                </Button>
 
-                <ColorButton
+                <Button
                   variant="contained"
                   color="primary"
                   onClick={() => setOpenRecord(true)}
                   startIcon={<AddIcon />}
                 >
                   {t('AddTranslation')}
-                </ColorButton>
+                </Button>
 
-                <ColorButton
+                <Button
                   variant="contained"
                   color="primary"
                   onClick={handleChoseExportTextsFile}
@@ -590,7 +572,7 @@ const TranslationsPage = ({ loading: loadingProp, location, title }) => {
                   }
                 >
                   {t('Import')}
-                </ColorButton>
+                </Button>
 
                 <input
                   ref={textsRef}
@@ -741,16 +723,16 @@ const TranslationsPage = ({ loading: loadingProp, location, title }) => {
               </div>
             </DialogContent>
             <DialogActions className={classes.dialogActions}>
-              <ColorButton
+              <Button
                 variant="contained"
                 color="primary"
                 onClick={handleOpenExport}
                 startIcon={<img src={ExportIcon} alt="DownloadIcon" />}
               >
                 {t('ExportDialogTitle')}
-              </ColorButton>
+              </Button>
 
-              <ColorButton
+              <Button
                 variant="contained"
                 color="primary"
                 onClick={handleChoseExportLangFile}
@@ -763,7 +745,7 @@ const TranslationsPage = ({ loading: loadingProp, location, title }) => {
                 }
               >
                 {t('Import')}
-              </ColorButton>
+              </Button>
 
               <input
                 ref={languagesRef}

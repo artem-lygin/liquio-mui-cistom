@@ -1,25 +1,26 @@
 import React from 'react';
 import { translate } from 'react-translate';
 import PropTypes from 'prop-types';
+import { Button } from '@mui/material';
 import AddIcon from 'assets/icons/add_icon.svg';
 
 import promiseChain from 'helpers/promiseChain';
 import KeyFormModal from './KeyFormModal';
 
-const CreateNewKey = ({ t, actions, registerId, ColorButton, loading }) => {
+const CreateNewKey = ({ t, actions, registerId, loading }) => {
   const [open, setOpen] = React.useState(false);
 
   return (
     <>
-      <ColorButton
+      <Button
         variant="contained"
         color="primary"
         onClick={() => setOpen(true)}
         disabled={loading}
+        startIcon={<img src={AddIcon} alt="DownloadIcon" />}
       >
-        <img src={AddIcon} alt="DownloadIcon" />
         {t('CreateNew')}
-      </ColorButton>
+      </Button>
 
       <KeyFormModal
         open={open}
@@ -37,7 +38,6 @@ const CreateNewKey = ({ t, actions, registerId, ColorButton, loading }) => {
 CreateNewKey.propTypes = {
   t: PropTypes.func.isRequired,
   actions: PropTypes.object.isRequired,
-  ColorButton: PropTypes.node.isRequired,
   registerId: PropTypes.string.isRequired,
 };
 

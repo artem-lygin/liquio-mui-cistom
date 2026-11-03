@@ -81,19 +81,6 @@ const styles = (theme) => ({
   }
 });
 
-const ColorButton = withStyles((theme) => ({
-  root: {
-    marginRight: 60,
-    marginBottom: 15,
-    color: theme.buttonBg,
-    background: theme.searchInputBg,
-    borderRadius: 4,
-    paddingLeft: 10,
-    '&:hover': {
-      background: theme.listHover
-    }
-  }
-}))(Button);
 
 class UnitPage extends ModulePage {
   constructor(props) {
@@ -692,10 +679,14 @@ class UnitPage extends ModulePage {
 
           {ipnUsersModule ? (
             <>
-              <ColorButton onClick={this.startPreparing}>
-                <img src={DownloadIcon} alt="DownloadIcon" />
+              <Button
+                variant="contained"
+                color="primary"
+                onClick={this.startPreparing}
+                startIcon={<img src={DownloadIcon} alt="DownloadIcon" />}
+              >
                 {t('UploadCSV')}
-              </ColorButton>
+              </Button>
               <input
                 ref={this.ref}
                 type="file"

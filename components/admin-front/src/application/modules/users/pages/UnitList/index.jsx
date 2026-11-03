@@ -14,7 +14,6 @@ import {
   DialogActions,
   CircularProgress,
 } from '@mui/material';
-import withStyles from '@mui/styles/withStyles';
 import { makeStyles } from '@mui/styles';
 import AddIcon from '@mui/icons-material/Add';
 import LeftSidebarLayout from 'layouts/LeftSidebar';
@@ -37,10 +36,6 @@ import { requestAllUnits } from 'actions/units';
 import { getFavorites } from 'actions/favorites';
 
 const useStyles = makeStyles((theme) => ({
-  actionColor: {
-    fill: theme.buttonBg,
-    marginRight: 6,
-  },
   actionBtn: {
     marginLeft: 16,
   },
@@ -64,17 +59,6 @@ const useStyles = makeStyles((theme) => ({
   },
 }));
 
-const ColorButton = withStyles((theme) => ({
-  root: {
-    color: theme.buttonBg,
-    background: theme.searchInputBg,
-    borderRadius: 4,
-    paddingLeft: 10,
-    '&:hover': {
-      background: theme.listHover,
-    },
-  },
-}))(Button);
 
 class UnitsListPage extends ModulePage {
   constructor(props) {
@@ -161,14 +145,12 @@ class UnitsListPage extends ModulePage {
         {(rowsSelected || []).length ? (
           <ExportUnits
             {...this.props}
-            ColorButton={ColorButton}
             classes={classes}
           />
         ) : null}
         {(rowsSelected || []).length ? (
           <ExportUnitXLSX
             {...this.props}
-            ColorButton={ColorButton}
             classes={classes}
           />
         ) : null}
@@ -194,18 +176,17 @@ class UnitsListPage extends ModulePage {
     return (
       <>
         <div className={classes.buttonsWrapper}>
-          <ColorButton
+          <Button
             variant="contained"
             color="primary"
-            disableElevation={true}
             onClick={() => this.setState({ open: true })}
+            startIcon={<AddIcon />}
           >
-            <AddIcon className={classes.actionColor} />
             {t('CreateNewUnit')}
-          </ColorButton>
+          </Button>
 
           {(rowsSelected || []).length ? null : (
-            <ImportUnits unitActions={actions} ColorButton={ColorButton} />
+            <ImportUnits unitActions={actions} />
           )}
 
           {this.renderExportButtons()}

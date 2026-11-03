@@ -78,25 +78,6 @@ const styles = (theme) => ({
   },
 });
 
-const ColorButton = withStyles((theme) => ({
-  root: {
-    color: theme.buttonBg,
-    background: theme.searchInputBg,
-    borderRadius: 4,
-    paddingLeft: 10,
-    '&:hover': {
-      background: theme.listHover,
-    },
-    '& svg': {
-      fill: theme.buttonBg,
-      marginRight: 10,
-    },
-    '& img': {
-      fill: theme.buttonBg,
-      marginRight: 10,
-    },
-  },
-}))(Button);
 class CreateTag extends React.Component {
   state = {
     error: null,
@@ -171,15 +152,14 @@ class CreateTag extends React.Component {
     return (
       <>
         <div className={classes.buttonsWrapper}>
-          <ColorButton
+          <Button
             variant="contained"
             color="primary"
-            disableElevation={true}
             onClick={() => setSelectedRow({})}
+            startIcon={<AddIcon />}
           >
-            <AddIcon />
             {t('Create')}
-          </ColorButton>
+          </Button>
         </div>
         <Dialog
           fullWidth={true}

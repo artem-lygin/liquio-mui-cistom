@@ -1,7 +1,7 @@
 import React from 'react';
 import { translate } from 'react-translate';
 import PropTypes from 'prop-types';
-import { Dialog } from '@mui/material';
+import { Button, Dialog } from '@mui/material';
 import Preloader from 'components/Preloader';
 import Message from 'components/Snackbars/Message';
 import DownloadIcon from 'assets/img/dowload-icon.svg';
@@ -70,7 +70,7 @@ class ImportTemplate extends React.Component {
   handleUploadClick = () => this.input && this.input.click();
 
   render = () => {
-    const { t, ColorButton } = this.props;
+    const { t } = this.props;
     const { loading } = this.state;
 
     return (
@@ -91,16 +91,15 @@ class ImportTemplate extends React.Component {
           multiple={false}
         />
 
-        <ColorButton
+        <Button
           variant="contained"
           color="primary"
-          disableElevation={true}
           onClick={this.handleUploadClick}
           style={{ marginLeft: 16 }}
+          startIcon={<img src={DownloadIcon} alt="import icon" />}
         >
-          <img src={DownloadIcon} alt="import icon" />
           {t('ImportTemplates')}
-        </ColorButton>
+        </Button>
       </>
     );
   };

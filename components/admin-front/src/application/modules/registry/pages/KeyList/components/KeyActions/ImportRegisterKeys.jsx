@@ -1,5 +1,4 @@
 import React from 'react';
-import PropTypes from 'prop-types';
 import { useDispatch, connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
 import { useTranslate } from 'react-translate';
@@ -87,7 +86,7 @@ const STATUSES = {
   failed: 'Failed'
 };
 
-const ImportRegisterKeys = ({ ColorButton, actions, loading: loadingOrigin }) => {
+const ImportRegisterKeys = ({ actions, loading: loadingOrigin }) => {
   const [open, setOpen] = React.useState(false);
   const [loading, setLoading] = React.useState(false);
   const [importingStatus, setStatus] = React.useState([]);
@@ -330,15 +329,15 @@ const ImportRegisterKeys = ({ ColorButton, actions, loading: loadingOrigin }) =>
 
   return (
     <>
-      <ColorButton
+      <Button
         variant="contained"
         color="primary"
         onClick={startPreparing}
         disabled={loadingOrigin}
+        startIcon={<img src={DownloadIcon} alt="DownloadIcon" />}
       >
-        <img src={DownloadIcon} alt="DownloadIcon" />
         {t('ImportRegister')}
-      </ColorButton>
+      </Button>
 
       <input
         ref={ref}
@@ -392,10 +391,6 @@ const ImportRegisterKeys = ({ ColorButton, actions, loading: loadingOrigin }) =>
       </Dialog>
     </>
   );
-};
-
-ImportRegisterKeys.propTypes = {
-  ColorButton: PropTypes.node.isRequired
 };
 
 const mapDispatchToProps = (dispatch) => ({

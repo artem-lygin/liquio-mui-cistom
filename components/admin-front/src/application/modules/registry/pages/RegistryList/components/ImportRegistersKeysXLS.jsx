@@ -157,7 +157,7 @@ class ImportRegistersKeys extends React.Component {
   };
 
   render = () => {
-    const { t, classes, ColorButton, loading: loadingOrigin } = this.props;
+    const { t, classes, loading: loadingOrigin } = this.props;
     const {
       openImportDialog,
       registerId,
@@ -178,16 +178,15 @@ class ImportRegistersKeys extends React.Component {
           </Dialog>
         ) : null}
 
-        <ColorButton
+        <Button
           variant="contained"
           color="primary"
-          disableElevation={true}
           onClick={this.handleOpenImportDialog}
           disabled={loadingOrigin}
+          startIcon={<ExplicitIcon />}
         >
-          <ExplicitIcon />
           {t('ImportRegistersKeysXLS')}
-        </ColorButton>
+        </Button>
 
         {openImportDialog ? (
           <input

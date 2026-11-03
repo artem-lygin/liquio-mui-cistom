@@ -3,8 +3,6 @@ import { translate } from 'react-translate';
 import { useDispatch, connect } from 'react-redux';
 import _ from 'lodash/fp';
 import queue from 'queue';
-import withStyles from '@mui/styles/withStyles';
-import { Button } from '@mui/material';
 
 import LeftSidebarLayout from 'layouts/LeftSidebar';
 import asModulePage from 'hooks/asModulePage';
@@ -21,26 +19,6 @@ import ImportRegisterKeys from './components/KeyActions/ImportRegisterKeys';
 import ImportRegistersKeysXLS from './../RegistryList/components/ImportRegistersKeysXLS';
 import ExportRegisterKeys from './components/KeyActions/ExportRegisterKeys';
 
-const ColorButton = withStyles((theme) => ({
-  root: {
-    color: theme.buttonBg,
-    background: theme.searchInputBg,
-    borderRadius: 4,
-    paddingLeft: 10,
-    marginLeft: 10,
-    '&:hover': {
-      background: theme.listHover
-    },
-    '& svg': {
-      fill: theme.buttonBg,
-      marginRight: 10
-    },
-    '& img': {
-      fill: theme.buttonBg,
-      marginRight: 10
-    }
-  }
-}))(Button);
 
 const exportEnabledUnits = [1000002, 1000000042];
 
@@ -171,7 +149,6 @@ const KeyListPage = (props) => {
               <ExportRegisterKeys
                 registerId={registerId}
                 data={props.data}
-                ColorButton={ColorButton}
                 loading={loading}
               />
             )}
@@ -180,13 +157,12 @@ const KeyListPage = (props) => {
                 <CreateNewKey
                   actions={actions}
                   registerId={registerId}
-                  ColorButton={ColorButton}
                   loading={loading}
                 />
 
-                <ImportRegisterKeys ColorButton={ColorButton} loading={loading} />
+                <ImportRegisterKeys loading={loading} />
 
-                <ImportRegistersKeysXLS ColorButton={ColorButton} loading={loading} />
+                <ImportRegistersKeysXLS loading={loading} />
               </>
             )}
           </div>

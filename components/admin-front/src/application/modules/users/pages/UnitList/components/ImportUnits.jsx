@@ -2,6 +2,7 @@ import React from 'react';
 import { translate } from 'react-translate';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
+import { Button } from '@mui/material';
 import withStyles from '@mui/styles/withStyles';
 import { importUnits } from 'application/actions/units';
 import unitListControlEndPoint from 'application/endPoints/unitListControl';
@@ -13,10 +14,6 @@ import DownloadIcon from 'assets/img/dowload-icon.svg';
 import parseFile from 'helpers/parseFile';
 
 const styles = (theme) => ({
-  actionColor: {
-    fill: theme.buttonBg,
-    marginRight: 10,
-  },
   actionBtn: {
     marginLeft: 16,
   },
@@ -104,25 +101,20 @@ class ImportUnits extends React.Component {
   };
 
   render() {
-    const { t, ColorButton, classes } = this.props;
+    const { t, classes } = this.props;
     const { openConfirmDialog, filesInfo } = this.state;
 
     return (
       <>
-        <ColorButton
+        <Button
           variant="contained"
           color="primary"
-          disableElevation={true}
           className={classes.actionBtn}
           onClick={this.handleUploadClick}
+          startIcon={<img src={DownloadIcon} alt="import units icon" />}
         >
-          <img
-            src={DownloadIcon}
-            alt="import units icon"
-            className={classes.actionColor}
-          />
           {t('ImportUnits')}
-        </ColorButton>
+        </Button>
 
         <input
           ref={(ref) => {

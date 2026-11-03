@@ -1,12 +1,12 @@
 import React from 'react';
 import { translate } from 'react-translate';
 import PropTypes from 'prop-types';
+import { Button } from '@mui/material';
 import downloadBase64Attach from 'helpers/downloadBase64Attach';
 import ExportIcon from 'assets/img/export_pink.svg';
 
 const ExportUnits = ({
   t,
-  ColorButton,
   classes,
   rowsSelected,
   actions: { exportUnits },
@@ -23,21 +23,15 @@ const ExportUnits = ({
   };
 
   return (
-    <ColorButton
+    <Button
       variant="contained"
       color="primary"
-      disableElevation={true}
       className={classes.actionBtn}
       onClick={exportUnitsAction}
+      startIcon={<img src={ExportIcon} alt="export units icon" width={23} />}
     >
-      <img
-        src={ExportIcon}
-        alt="export units icon"
-        className={classes.actionColor}
-        width={23}
-      />
       {t('ExportUnits')}
-    </ColorButton>
+    </Button>
   );
 };
 

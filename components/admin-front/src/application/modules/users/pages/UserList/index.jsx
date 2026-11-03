@@ -2,7 +2,6 @@ import React from 'react';
 import { translate } from 'react-translate';
 import _ from 'lodash/fp';
 import cleenDeep from 'clean-deep';
-import withStyles from '@mui/styles/withStyles';
 import { Button, Dialog, DialogContent, DialogActions, DialogTitle, Checkbox } from '@mui/material';
 import FormGroup from '@mui/material/FormGroup';
 import FormControlLabel from '@mui/material/FormControlLabel';
@@ -29,17 +28,6 @@ import { createUser } from 'actions/auth';
 import { addMessage } from 'actions/error';
 import { getConfig } from 'core/helpers/configLoader';
 
-const ColorButton = withStyles((theme) => ({
-  root: {
-    color: theme.buttonBg,
-    background: theme.searchInputBg,
-    borderRadius: 4,
-    paddingLeft: 10,
-    '&:hover': {
-      background: theme.listHover
-    }
-  }
-}))(Button);
 
 const withStylesCss = makeStyles((theme) => ({
   checkbox: {
@@ -188,15 +176,14 @@ const UserListPage = (props) => {
           return (
             <>
               {config?.passwordAuth ? (
-                <ColorButton
+                <Button
                   variant="contained"
                   color="primary"
-                  disableElevation={true}
                   onClick={handleOpenDialog}
                   actions={tableProps.actions}
                 >
                   {t('AddUser')}
-                </ColorButton>
+                </Button>
               ) : null}
             </>
           );

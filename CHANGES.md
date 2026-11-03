@@ -313,6 +313,25 @@ uses `packages/front-core/theme.js`, which has only one change so far (see Typog
   inner shadow has), and replacing the real border with an inset-shadow border entirely
   (would need +1px padding back on every side to keep the just-fixed 30/36/42px heights,
   reopening that work for no real benefit). _(2026-11-03)_
+- **Removed the local `ColorButton` restyle from admin page toolbars; they now render the
+  guide's own Contained / Primary.** Twelve admin files each defined an almost identical
+  `const ColorButton = withStyles(...)(Button)`. Each copy overrode `color: theme.buttonBg`,
+  `background: theme.searchInputBg`, hover `theme.listHover`, `borderRadius: 4`, an icon
+  `fill`/`marginRight` and, in some, a margin. Nine more child components received it as a
+  `ColorButton` prop. Because `withStyles` injects its class after MUI's, it silently won
+  over `MuiButton.containedPrimary`, so these buttons never picked up any of the Button
+  work above. They now render plain `<Button variant="contained" color="primary">`: the
+  leading icon moved into `startIcon`, so the theme's icon gap applies, and
+  `disableElevation` and the `ColorButton` prop were dropped. Pages affected: Workflow list,
+  Workflow tags, Number templates, QR templates, UI filters, Custom interfaces, Registry
+  list and keys, Users, Units, Unit, Translations. Deliberately *not* promoted to an official
+  "toolbar" variant: the guide is the source of truth, so an existing look isn't adopted
+  just because it exists. One behaviour change: Unit's "Upload CSV" had no `variant` at
+  all (so it was Text underneath), and it is now Contained like its siblings. Not done here:
+  the three front-core copies (`BpmnAi` ×2, `JsonSchema/elements/UserList`), since those
+  also render in cabinet-front. The `<img src="*.svg">` icons (export/import/json) still
+  have their colors baked into the SVG files, so they don't follow `currentColor`; see
+  "Worth addressing". _(2026-11-03)_
 
 ## Inputs
 
@@ -498,6 +517,38 @@ uses `packages/front-core/theme.js`, which has only one change so far (see Typog
 
 ## Worth addressing (known issues found, not yet fixed)
 
+- **Admin buttons that still bypass the guide's Button variants** (audit done after the
+  `ColorButton` removal under Buttons; not yet fixed). Admin-owned:
+  - Header (`layouts/components/Header.jsx`): a circular bordered `iconBtn` (`#797979`), a
+    white `menuButton`, and fixed 40×40 IconButtons.
+  - A copy-pasted `'&:hover': { backgroundColor: theme.buttonHoverBg }` plus
+    `theme.navigator.navItem.linkActiveColor` text on Buttons/IconButtons, about 14 places
+    across Workflow, WorkflowSettings, WorkflowVersions, Details/RightSidebar and Unit.
+    Task's `actionWrapper` uses the literal `#2e2e2e` instead.
+  - Journal `backBtn`: white outlined.
+  - DeleteTemplate: red IconButton, `#ff0000`.
+  - SyncStatusColumn `detailsButton`: a link-style text button with the literal
+    `rgb(187, 134, 252)`.
+  - Hand-rolled buttons: ProfileAppbar's `ButtonBase` pill, CabinetMenu IconSelect's
+    `ButtonBase` tiles, and clickable `<div>`s in ProcessesMetrics and RightSidebar.
+
+  Front-core pieces that render in admin (and also affect cabinet):
+  - The JsonSchema VisualEditor's nested `ThemeProvider` re-skins every MuiButton and
+    IconButton inside the form editor.
+  - The front-core `ColorButton` copies: `BpmnAi` ×2 and `UserList`.
+  - `#BB86FC` hardcoded in CreateControlSnippet/CreateGroup.
+  - `color="yellow"` (no such palette key) on about 12 file-preview buttons.
+  - Theme-spread hooks such as `theme.confirmDialogAcceptButton`.
+
+  Many of these are duplicated across the `editor` / `editor-old` / `CodeEditDialog`
+  copies. Some may turn out to be legitimate guide candidates (destructive red, link-style
+  text, icon-only toolbar), so question each before either removing it or adding it to the
+  guide. _(2026-11-03)_
+- **Toolbar `<img src="*.svg">` icons have their colors baked in.** The import/export/json
+  icons now sit in `startIcon` (see Buttons), but they are image files (`export_pink.svg`,
+  `dowload-icon.svg`, `gg_import.svg`, `jsonFiolet.svg`, `add_icon.svg`), not `SvgIcon`s.
+  So they don't take `currentColor` and won't match a Contained button's label color.
+  Replacing them with Material Symbols would fix it. _(2026-11-03)_
 - **The Style Guide's own Buttons page (`pages/Buttons/`) went stale after the Button /
   Primary recreation work above, in two ways — found while verifying that work live, not
   yet fixed.** First, its properties-table false-flags three now-tokenized values as

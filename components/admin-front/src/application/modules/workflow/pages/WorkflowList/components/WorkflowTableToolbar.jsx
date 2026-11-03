@@ -71,25 +71,6 @@ const styles = (theme) => ({
   }
 });
 
-const ColorButton = withStyles((theme) => ({
-  root: {
-    color: theme.buttonBg,
-    background: theme.searchInputBg,
-    borderRadius: 4,
-    paddingLeft: 10,
-    '&:hover': {
-      background: theme.listHover
-    },
-    '& svg': {
-      fill: theme.buttonBg,
-      marginRight: 10
-    },
-    '& img': {
-      fill: theme.buttonBg,
-      marginRight: 10
-    }
-  }
-}))(Button);
 
 class ImportWorkflow extends React.Component {
   state = {
@@ -281,21 +262,15 @@ class ImportWorkflow extends React.Component {
     return (
       <>
         {(selectedRowsData || []).length ? (
-          <ColorButton
+          <Button
             variant="contained"
             color="primary"
-            disableElevation={true}
             className={classes.actionBtn}
             onClick={this.exportWorkflow}
+            startIcon={<img src={ExportIcon} alt="export workflow icon" width={23} />}
           >
-            <img
-              src={ExportIcon}
-              className={classes.actionColor}
-              alt="export workflow icon"
-              width={23}
-            />
             {t('ExportWorkflow')}
-          </ColorButton>
+          </Button>
         ) : null}
       </>
     );
@@ -323,27 +298,25 @@ class ImportWorkflow extends React.Component {
     return (
       <>
         <div className={classes.buttonsWrapper}>
-          <ColorButton
+          <Button
             variant="contained"
             color="primary"
-            disableElevation={true}
             onClick={() => this.setState({ openNewWorkflowDialog: true })}
+            startIcon={<AddIcon />}
           >
-            <AddIcon />
             {t('CreateWorkflow')}
-          </ColorButton>
+          </Button>
 
           {(selectedRowsData || []).length ? null : (
-            <ColorButton
+            <Button
               variant="contained"
               color="primary"
-              disableElevation={true}
               onClick={() => this.setState({ ignoreErrorsDialog: true })}
               className={classes.importButton}
+              startIcon={<img src={DownloadIcon} alt="import workflow icon" />}
             >
-              <img src={DownloadIcon} alt="import workflow icon" className={classes.actionColor} />
               {t('ImportWorkflow')}
-            </ColorButton>
+            </Button>
           )}
 
           {this.exportWorkflowButton()}
