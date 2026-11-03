@@ -1230,6 +1230,7 @@ class WorkflowPage extends ModulePage {
         title={this.componentGetTitle()}
         loading={loading}
         flexContent={true}
+        disablePadding={true}
         workflowId={workflow?.id}
         workflowTags={workflow?.tags}
       >

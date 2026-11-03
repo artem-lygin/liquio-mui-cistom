@@ -628,7 +628,10 @@ uses `packages/front-core/theme.js`, which has only one change so far (see Typog
   at all — content sat flush against the viewport edges. Added `padding: 24` (plus
   `boxSizing: border-box` so it doesn't push content outside its flex basis), giving every
   page's content a gutter on all sides. Admin-only for now — front-core's shared `Layout`
-  (cabinet-front) has the equivalent `appContent` class but wasn't touched.
+  (cabinet-front) has the equivalent `appContent` class but wasn't touched. **The workflow
+  editor opts out** (`/workflow/:id`), at the product designer's direction: its BPMN canvas
+  and settings panel run edge to edge. This goes through a new `disablePadding` prop on
+  `LeftSidebarLayout` (default `false`, so every other page keeps the gutter). _(2026-11-03)_
 - **List pages get an opt-in "panel" treatment**: `DataTable` (`packages/front-core/
   components/DataTable/index.jsx`) gained a `panel` prop (default `false`) that wraps its
   toolbar (search/buttons) + table + pagination — everything but a fullscreen dialog — in a

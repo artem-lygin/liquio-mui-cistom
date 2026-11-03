@@ -67,6 +67,11 @@ const styles = (theme) => ({
     display: 'flex',
     flexDirection: 'column',
   },
+  // Opt-out of appContent's 24px gutter, for full-bleed pages like the workflow editor,
+  // whose canvas and settings panel should run edge to edge.
+  disablePadding: {
+    padding: 0,
+  },
 });
 
 class Layout extends React.Component {
@@ -138,6 +143,7 @@ class Layout extends React.Component {
       loading,
       children,
       flexContent,
+      disablePadding,
       openSidebar,
       onboardingTaskId,
       backButton,
@@ -173,6 +179,7 @@ class Layout extends React.Component {
             className={classNames(classes.appContent, {
               [classes.contentShift]: openSidebar,
               [classes.flexContent]: flexContent,
+              [classes.disablePadding]: disablePadding,
             })}
           >
             {children}
@@ -220,12 +227,14 @@ class Layout extends React.Component {
 Layout.propTypes = {
   classes: PropTypes.object.isRequired,
   disableScrolls: PropTypes.bool,
+  disablePadding: PropTypes.bool,
   openSidebar: PropTypes.bool,
   actions: PropTypes.object.isRequired,
   largeScreenWidth: PropTypes.number.isRequired,
 };
 Layout.defaultProps = {
   disableScrolls: false,
+  disablePadding: false,
   openSidebar: null,
   largeScreenWidth: 600,
 };
