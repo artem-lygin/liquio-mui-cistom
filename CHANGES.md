@@ -506,7 +506,9 @@ uses `packages/front-core/theme.js`, which has only one change so far (see Typog
   - **Size:** small/medium/large from the `size` prop (medium default), read from MUI's
     `ownerState` in the function-valued overrides. Not from a class: MUI only ever adds
     `MuiInputBase-sizeSmall`, never a large class, so a class-based large silently fell back
-    to medium (caught live). Each size reads Button's tokens:
+    to medium (caught live). Autocomplete needs one more step: MUI passes `size` to its input only
+    when it's small, so `MuiAutocomplete.inputRoot` restates height, radius and text size from
+    Autocomplete's own `ownerState`. Each size reads Button's tokens:
     - height: `theme.buttonHeight`
     - radius: `theme.buttonCornerRadius` (6/8/10)
     - horizontal padding: `r + 7`, Outlined's

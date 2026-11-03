@@ -149,7 +149,14 @@ const inputFieldStyles = (theme, ownerState) => ({
 const autocompleteInputRootSize = (theme, size) => {
   const radius = theme.buttonCornerRadius[size];
   const chipInset = Math.max(0, (theme.buttonHeight[size] - CHIP_ROW_HEIGHT) / 2);
+  const { height, borderRadius, fontSize } = inputFieldSize(theme, size);
   return {
+    // Restated here because MUI's Autocomplete only passes `size` on to its input when it's
+    // 'small' (Autocomplete.js: size === 'small' ? 'small' : undefined), so for large the
+    // inner MuiOutlinedInput sees medium. This slot gets Autocomplete's own ownerState.
+    height,
+    borderRadius,
+    fontSize,
     padding: `0 ${radius + 7}px`,
     '.MuiAutocomplete-hasPopupIcon&, .MuiAutocomplete-hasClearIcon&': {
       paddingRight: radius + AUTOCOMPLETE_INDICATOR_WIDTH
