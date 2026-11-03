@@ -2,12 +2,6 @@ import React from 'react';
 import {
   Typography,
   Divider,
-  TextField,
-  Autocomplete,
-  Select,
-  MenuItem,
-  FormControl,
-  InputLabel,
   Checkbox,
   Radio,
   RadioGroup,
@@ -24,13 +18,13 @@ import MeasureOverlay from '../../components/MeasureOverlay';
 import { PropertiesCardGroup } from '../../components/PropertiesPanel';
 import { navigateToSection } from '../../shared/navigation';
 import { useSectionScrollspy } from '../../shared/useSectionScrollspy';
-import TextFieldGallery from './TextFieldGallery';
+import { TextFieldCases, SelectCases, AutocompleteCases, MultipleSelectCases } from './TextFieldGallery';
 import { INPUT_STATES } from './constants';
 import { BUTTON_SIZES } from '../../shared/constants';
 import {
   getTextFieldTokenItems,
   getAutocompleteTokenItems,
-  getComboBoxTokenItems,
+  getSelectTokenItems,
   getCheckboxTokenItems,
   getRadioTokenItems,
   getSwitchTokenItems
@@ -38,11 +32,14 @@ import {
 
 // Inputs splits into one anchor-able Section per data-entry component — same pattern as
 // Typography's per-variant split — each with its own independent properties panel instead
-// of one shared panel describing all six at once.
+// of one shared panel describing all of them at once. The field sections follow MUI's own
+// docs: Text Field, Select, Autocomplete (whose basic demo MUI calls "Combo box"), and
+// Multiple select (Select's "Chip" demo and Autocomplete's "Multiple values" side by side).
 const INPUTS_SUB_SECTIONS = [
   { id: 'inputs-text-field', label: 'Text field' },
+  { id: 'inputs-select', label: 'Select' },
   { id: 'inputs-autocomplete', label: 'Autocomplete' },
-  { id: 'inputs-combo-box', label: 'Combo box' },
+  { id: 'inputs-multiple-select', label: 'Multiple select' },
   { id: 'inputs-checkboxes', label: 'Checkboxes' },
   { id: 'inputs-radio-buttons', label: 'Radio buttons' },
   { id: 'inputs-switches', label: 'Switches' }
@@ -50,12 +47,58 @@ const INPUTS_SUB_SECTIONS = [
 
 const SCROLLSPY_IDS = ['inputs', ...INPUTS_SUB_SECTIONS.map((section) => section.id)];
 
+const TAB_STYLE = { minHeight: 32, minWidth: 'auto', padding: '4px 12px 8px' };
+
+// Size, state and helper text for every field section. Repeated at the top of each section
+// so it's always in reach, but all copies drive the same page state: switching one switches
+// every field on the page.
+const FieldControls = ({ size, onSizeChange, state, onStateChange, showHelperText, onShowHelperTextChange }) => (
+  <div
+    style={{
+      display: 'flex',
+      gap: 16,
+      alignItems: 'flex-end',
+      flexWrap: 'wrap',
+      marginBottom: 20,
+      borderBottom: '1px solid rgba(255, 255, 255, 0.12)'
+    }}
+  >
+    <Tabs value={size} onChange={(event, value) => onSizeChange(value)} style={{ minHeight: 32 }}>
+      {BUTTON_SIZES.map((item) => (
+        <Tab key={item.key} value={item.key} label={item.label} style={TAB_STYLE} />
+      ))}
+    </Tabs>
+    <Tabs value={state} onChange={(event, value) => onStateChange(value)} variant="scrollable" style={{ minHeight: 32 }}>
+      {INPUT_STATES.map((item) => (
+        <Tab key={item.key} value={item.key} label={item.label} style={TAB_STYLE} />
+      ))}
+    </Tabs>
+    <FormControlLabel
+      style={{ marginLeft: 'auto', marginBottom: 8 }}
+      control={<Switch size="small" checked={showHelperText} onChange={(event) => onShowHelperTextChange(event.target.checked)} />}
+      label="Helper text"
+    />
+  </div>
+);
+
 const InputsPageContent = () => {
   const { previewTheme, showProperties, measureEnabled } = useStyleGuideState();
-  const [textFieldState, setTextFieldState] = React.useState('resting');
-  const [textFieldSize, setTextFieldSize] = React.useState('medium');
-  const [textFieldShowHelperText, setTextFieldShowHelperText] = React.useState(true);
+  const [fieldState, setFieldState] = React.useState('resting');
+  const [fieldSize, setFieldSize] = React.useState('medium');
+  const [showHelperText, setShowHelperText] = React.useState(true);
   const activeSubId = useSectionScrollspy(SCROLLSPY_IDS);
+
+  const galleryProps = { size: fieldSize, state: fieldState, showHelperText };
+  const fieldControls = (
+    <FieldControls
+      size={fieldSize}
+      onSizeChange={setFieldSize}
+      state={fieldState}
+      onStateChange={setFieldState}
+      showHelperText={showHelperText}
+      onShowHelperTextChange={setShowHelperText}
+    />
+  );
 
   return (
     <StyleGuideChrome
@@ -80,60 +123,32 @@ const InputsPageContent = () => {
         id="inputs-text-field"
         title="Text field"
         titleVariant="h3"
-        description="Admin's theme renders every outlined and standard input this way (TextField, Select, Autocomplete, date pickers, schema forms). Built from Button / Primary's tokens: same per-size height and corner radius as a button, elevation-0 fill, primary.main on focus. The label sits above the field and never moves. Below: every kind of text input the admin panel uses, as plain MUI components."
+        description="Admin's theme renders every outlined and standard input this way (TextField, Select, Autocomplete, date pickers, schema forms). Built from Button / Primary's tokens: same per-size height and corner radius as a button, elevation-0 fill, primary.main on focus. The label sits above the field and never moves. Below: the free-text inputs the admin panel uses, as plain MUI components."
         properties={
           showProperties ? (
-            <>
-              <Tabs
-                value={textFieldState}
-                onChange={(event, value) => setTextFieldState(value)}
-                variant="scrollable"
-                style={{ minHeight: 36, borderBottom: '1px solid rgba(255, 255, 255, 0.12)' }}
-              >
-                {INPUT_STATES.map((state) => (
-                  <Tab key={state.key} value={state.key} label={state.label} style={{ minHeight: 36, padding: '6px 16px' }} />
-                ))}
-              </Tabs>
-              <PropertiesCardGroup
-                onNavigate={navigateToSection}
-                items={getTextFieldTokenItems(textFieldState, textFieldSize, previewTheme)}
-              />
-            </>
+            <PropertiesCardGroup
+              onNavigate={navigateToSection}
+              items={getTextFieldTokenItems(fieldState, fieldSize, previewTheme)}
+            />
           ) : null
         }
       >
-        <div
-          style={{
-            display: 'flex',
-            gap: 16,
-            alignItems: 'flex-end',
-            flexWrap: 'wrap',
-            marginBottom: 20,
-            borderBottom: '1px solid rgba(255, 255, 255, 0.12)'
-          }}
-        >
-          <Tabs value={textFieldSize} onChange={(event, value) => setTextFieldSize(value)} style={{ minHeight: 32 }}>
-            {BUTTON_SIZES.map((size) => (
-              <Tab key={size.key} value={size.key} label={size.label} style={{ minHeight: 32, minWidth: 'auto', padding: '4px 12px 8px' }} />
-            ))}
-          </Tabs>
-          <FormControlLabel
-            style={{ marginLeft: 'auto', marginBottom: 8 }}
-            control={
-              <Switch
-                size="small"
-                checked={textFieldShowHelperText}
-                onChange={(event) => setTextFieldShowHelperText(event.target.checked)}
-              />
-            }
-            label="Helper text"
-          />
-        </div>
-
-        {/* The size tabs above switch the size of every field below; the state tabs in the
-            properties panel switch their state. */}
+        {fieldControls}
         <MeasureOverlay enabled={measureEnabled}>
-          <TextFieldGallery size={textFieldSize} state={textFieldState} showHelperText={textFieldShowHelperText} />
+          <TextFieldCases {...galleryProps} />
+        </MeasureOverlay>
+      </Section>
+
+      <Section
+        id="inputs-select"
+        title="Select"
+        titleVariant="h3"
+        description="Pick one value from a short, known list. The field is closed: it opens a menu, and you can't type into it. For long or searchable lists, use Autocomplete."
+        properties={showProperties ? <PropertiesCardGroup onNavigate={navigateToSection} items={getSelectTokenItems(previewTheme)} /> : null}
+      >
+        {fieldControls}
+        <MeasureOverlay enabled={measureEnabled}>
+          <SelectCases {...galleryProps} />
         </MeasureOverlay>
       </Section>
 
@@ -141,45 +156,24 @@ const InputsPageContent = () => {
         id="inputs-autocomplete"
         title="Autocomplete"
         titleVariant="h3"
+        description="A text input with a list: typing filters the options, and you pick one. MUI calls this basic form a combo box. Use it for long or searchable lists such as users or units."
         properties={showProperties ? <PropertiesCardGroup onNavigate={navigateToSection} items={getAutocompleteTokenItems(previewTheme)} /> : null}
       >
+        {fieldControls}
         <MeasureOverlay enabled={measureEnabled}>
-          <div style={{ display: 'flex', gap: 32, flexWrap: 'wrap' }}>
-            <Autocomplete
-              options={['Option one', 'Option two', 'Option three']}
-              style={{ minWidth: 240 }}
-              renderInput={(params) => <TextField {...params} label="Autocomplete" />}
-            />
-            <Autocomplete
-              disabled={true}
-              options={['Option one', 'Option two', 'Option three']}
-              style={{ minWidth: 240 }}
-              renderInput={(params) => <TextField {...params} label="Disabled" />}
-            />
-          </div>
+          <AutocompleteCases {...galleryProps} />
         </MeasureOverlay>
       </Section>
 
       <Section
-        id="inputs-combo-box"
-        title="Combo box"
+        id="inputs-multiple-select"
+        title="Multiple select"
         titleVariant="h3"
-        properties={showProperties ? <PropertiesCardGroup onNavigate={navigateToSection} items={getComboBoxTokenItems(previewTheme)} /> : null}
+        description="Several values, shown as chips inside the field. Select multiple for a short list you open and pick from; Autocomplete multiple when the list is long and needs typing to filter."
       >
+        {fieldControls}
         <MeasureOverlay enabled={measureEnabled}>
-          <div style={{ display: 'flex', gap: 32, flexWrap: 'wrap' }}>
-            <Select defaultValue={1} style={{ minWidth: 160 }}>
-              <MenuItem value={1}>Option one</MenuItem>
-              <MenuItem value={2}>Option two</MenuItem>
-            </Select>
-            <FormControl style={{ minWidth: 160 }}>
-              <InputLabel id="style-guide-input-combo-label">Combo box</InputLabel>
-              <Select labelId="style-guide-input-combo-label" label="Combo box" defaultValue={1}>
-                <MenuItem value={1}>Option one</MenuItem>
-                <MenuItem value={2}>Option two</MenuItem>
-              </Select>
-            </FormControl>
-          </div>
+          <MultipleSelectCases {...galleryProps} />
         </MeasureOverlay>
       </Section>
 

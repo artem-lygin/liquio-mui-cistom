@@ -111,7 +111,7 @@ export const getAutocompleteTokenItems = (previewTheme) => {
 // (fontSize/fontWeight/lineHeight/letterSpacing) that references no theme.typography variant
 // at all — the exact "second literal, not a derived value" pattern this project's theme work
 // is meant to catch, just for a whole component's typography rather than one property.
-export const getComboBoxTokenItems = (previewTheme) => {
+export const getSelectTokenItems = (previewTheme) => {
   const selectRoot = getResolvedMuiStyleOverride(previewTheme, 'MuiSelect', 'root');
   const outlinedRoot = getResolvedMuiStyleOverride(previewTheme, 'MuiOutlinedInput', 'root');
   const selectBg = readBackground(selectRoot);

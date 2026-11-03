@@ -570,8 +570,25 @@ uses `packages/front-core/theme.js`, which has only one change so far (see Typog
   TextField, Select, Autocomplete, date pickers, `StringElement` (schema forms) and the
   table search. It started as a Style-Guide-only exploration (a one-off `TopLabelTextField`
   component, since deleted) and was rolled out admin-wide at the product designer's
-  direction. Shown in the Style Guide under Inputs → "Text field", now rendered with plain
-  MUI components (`TextFieldGallery.jsx`), so the guide shows exactly what the theme draws.
+  direction. Shown in the Style Guide under Inputs, rendered with plain MUI components
+  (`TextFieldGallery.jsx`), so the guide shows exactly what the theme draws.
+  - **Style Guide sections follow MUI's own docs** (2026-11-03, at the product designer's
+    direction). Before, every variation sat in one "Text field" gallery. A separate
+    "Combo box" section was mislabelled: it showed MUI `Select`, but in MUI's docs and in
+    ARIA, a combo box is the editable Autocomplete. The field sections are now:
+    - **Text field:** Basic, Password, Search, Input adornments (date filter), Multiline.
+    - **Select:** Basic select (New workflow → Customer), Without label (table pagination
+      → Per page).
+    - **Autocomplete:** Combo box (File library → Access → User).
+    - **Multiple select:** both patterns side by side. One is Select multiple with chips
+      (MUI's Select "Chip" demo, not used in admin yet). The other is Autocomplete
+      multiple (MUI's "Multiple values", Unit → Units).
+
+    Case titles use MUI's demo names. The gallery is split into one export per section.
+    Size, state and helper text are now one control bar, repeated at the top of each
+    field section and all driving the same page state. The state tabs used to sit inside
+    Text field's properties panel only, and disappeared with it.
+    `getComboBoxTokenItems` was renamed `getSelectTokenItems`.
   - **Where it lives:** the Text field block at the top of `admin-front/.../theme.js`
     (`inputFieldStyles`/`inputFieldSize`), applied to `MuiOutlinedInput.root` and
     `MuiInput.root`, plus `MuiInputLabel.root`, the padding part of
