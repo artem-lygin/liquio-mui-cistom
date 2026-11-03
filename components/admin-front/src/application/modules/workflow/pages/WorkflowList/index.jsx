@@ -164,9 +164,12 @@ const WorkflowListPage = ({
 
   const selectedRowsData = mappedData.filter(({ id }) => rowsSelected.includes(id));
 
-  const unSubscribed = !selectedRowsData.every(({ errorsSubscribers }) =>
-    errorsSubscribers.find(({ id }) => id === userInfo?.userId)
-  );
+  // Nothing selected reads as "subscribe" (the disabled default), not "unsubscribe".
+  const unSubscribed =
+    !selectedRowsData.length ||
+    !selectedRowsData.every(({ errorsSubscribers }) =>
+      errorsSubscribers.find(({ id }) => id === userInfo?.userId)
+    );
 
   const startSubscribeProcess = async () => {
     setLoading(true);
@@ -196,18 +199,20 @@ const WorkflowListPage = ({
   const OnSelectActions = () => {
     const ItemIcon = () => (unSubscribed ? <NotificationsNoneIcon /> : <NotificationsOffIcon />);
 
+    // Always shown; disabled until at least one row is checked. The <span> lets the
+    // tooltip still fire on hover while the button itself is disabled.
     return (
-      <>
-        {rowsSelected.length ? (
-          <Tooltip
-            title={t(unSubscribed ? 'SubscribeProcessTooltip' : 'UnSubscribeProcessTooltip')}
+      <Tooltip title={t(unSubscribed ? 'SubscribeProcessTooltip' : 'UnSubscribeProcessTooltip')}>
+        <span>
+          <IconButton
+            onClick={() => setOpen(true)}
+            disabled={!rowsSelected.length || loading}
+            size="large"
           >
-            <IconButton onClick={() => setOpen(true)} size="large">
-              {loading ? <CircularProgress size={20} /> : <ItemIcon />}
-            </IconButton>
-          </Tooltip>
-        ) : null}
-      </>
+            {loading ? <CircularProgress size={20} /> : <ItemIcon />}
+          </IconButton>
+        </span>
+      </Tooltip>
     );
   };
 

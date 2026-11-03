@@ -116,6 +116,12 @@ const DataTableToolbar = (props) => {
   const selectableData = (data || []).filter(actions.isRowSelectable || Boolean);
   const selectedLength = selectableData.length;
 
+  // darkTheme (admin) toolbar order, right of search: icon-only actions (on-select actions,
+  // refresh, view/column/fullscreen toggles), then the page's own buttons, whose last one
+  // is the row's single Contained action (usually Create). 'start'-positioned toolbars
+  // (e.g. File library) keep their own layout.
+  const actionsOnRight = darkTheme && toolbarPosition !== 'start';
+
   return (
     <>
       <div
@@ -138,7 +144,9 @@ const DataTableToolbar = (props) => {
             />
           ) : null}
 
-          {OnSelectActions ? <OnSelectActions selectedLength={selectedLength} {...props} /> : null}
+          {OnSelectActions && !actionsOnRight ? (
+            <OnSelectActions selectedLength={selectedLength} {...props} />
+          ) : null}
 
           {CustomToolbar && toolbarPosition === 'start' ? (
             <CustomToolbar selectedLength={selectedLength} {...props} />
@@ -154,6 +162,9 @@ const DataTableToolbar = (props) => {
               updateOnChangeSearch={updateOnChangeSearch}
             />
           ) : null}
+          {OnSelectActions && actionsOnRight ? (
+            <OnSelectActions selectedLength={selectedLength} {...props} />
+          ) : null}
           {controls.refresh ? (
             <Tooltip title={t('Reload')}>
               <IconButton onClick={(actions || {}).load} size="large">
@@ -161,7 +172,7 @@ const DataTableToolbar = (props) => {
               </IconButton>
             </Tooltip>
           ) : null}
-          {CustomToolbar && toolbarPosition !== 'start' ? (
+          {CustomToolbar && toolbarPosition !== 'start' && !actionsOnRight ? (
             <CustomToolbar selectedLength={selectedLength} {...props} />
           ) : null}
         </Toolbar>
@@ -212,6 +223,11 @@ const DataTableToolbar = (props) => {
             </Tooltip>
           ) : null}
         </Toolbar>
+        {CustomToolbar && toolbarPosition !== 'start' && actionsOnRight ? (
+          <Toolbar className={classes.toolbar}>
+            <CustomToolbar selectedLength={selectedLength} {...props} />
+          </Toolbar>
+        ) : null}
       </div>
 
       {CustomToolbarHelper ? <CustomToolbarHelper {...props} /> : null}

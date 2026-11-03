@@ -51,11 +51,9 @@ const styles = (theme) => ({
   formControl: {
     marginBottom: theme.spacing(8)
   },
-  secondaryButton: {
-    marginLeft: theme.spacing(4)
-  },
   buttonsWrapper: {
     display: 'flex',
+    gap: theme.spacing(4),
     '& button': {
       flex: 1
     },
@@ -260,7 +258,6 @@ class ImportWorkflow extends React.Component {
           <Button
             variant="outlined"
             color="primary"
-            className={classes.secondaryButton}
             onClick={this.exportWorkflow}
             startIcon={<SvgIcon component={SymbolUpload} inheritViewBox={true} />}
           >
@@ -293,6 +290,19 @@ class ImportWorkflow extends React.Component {
     return (
       <>
         <div className={classes.buttonsWrapper}>
+          {(selectedRowsData || []).length ? null : (
+            <Button
+              variant="outlined"
+              color="primary"
+              onClick={() => this.setState({ ignoreErrorsDialog: true })}
+              startIcon={<SvgIcon component={SymbolDownload} inheritViewBox={true} />}
+            >
+              {t('ImportWorkflow')}
+            </Button>
+          )}
+
+          {this.exportWorkflowButton()}
+
           <Button
             variant="contained"
             color="primary"
@@ -301,20 +311,6 @@ class ImportWorkflow extends React.Component {
           >
             {t('CreateWorkflow')}
           </Button>
-
-          {(selectedRowsData || []).length ? null : (
-            <Button
-              variant="outlined"
-              color="primary"
-              onClick={() => this.setState({ ignoreErrorsDialog: true })}
-              className={classes.secondaryButton}
-              startIcon={<SvgIcon component={SymbolDownload} inheritViewBox={true} />}
-            >
-              {t('ImportWorkflow')}
-            </Button>
-          )}
-
-          {this.exportWorkflowButton()}
         </div>
 
         <input

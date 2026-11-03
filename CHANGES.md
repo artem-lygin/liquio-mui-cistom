@@ -373,6 +373,25 @@ uses `packages/front-core/theme.js`, which has only one change so far (see Typog
     changed there. Dialog-internal buttons (e.g. QR's three "Mapping fields / Template"
     buttons) were deliberately left out: they aren't part of the toolbar row.
   _(2026-11-03)_
+- **Admin table toolbar order: search, then icon-only actions, then Outlined, then the
+  single Contained (Create) last.** In `DataTableToolbar.jsx`, under `darkTheme` (admin
+  only), when `toolbarPosition` isn't `'start'`:
+  - `OnSelectActions` moved from the far left (before search) to the right of search,
+    alongside refresh and the view/columns/fullscreen toggles.
+  - The page's `CustomToolbar` now renders after that icon group instead of before it, so
+    the row ends with the page's own buttons.
+  - `'start'`-positioned toolbars (File library) and cabinet-front keep their old layout.
+  - Workflows (`WorkflowTableToolbar.jsx`): Create moved from first to last, after Import
+    and Export. Spacing is now one `gap: theme.spacing(4)` on the wrapper, replacing the
+    per-button `secondaryButton` left margin.
+  - Workflows' subscribe/unsubscribe icon button (`WorkflowList/index.jsx`) is now always
+    shown to users who have subscribe access, and stays disabled until a row is checked.
+    Before, it only appeared on selection. With nothing selected it shows the "subscribe"
+    bell, not the "unsubscribe" one. A `<span>` wraps it so the tooltip still works while
+    it's disabled.
+  - The icon buttons keep their existing default color. The guide only defines Icon Button
+    / Primary so far, and `palette.secondary.main` is `#000000`, so `color="secondary"`
+    would make them invisible. _(2026-11-03)_
 
 ## Inputs
 
