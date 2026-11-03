@@ -284,7 +284,22 @@ const baseTheme = {
         '&:hover': {
           backgroundColor: theme.palette.primary.light,
           borderColor: theme.palette.primary.light,
-          boxShadow: `0 2px 2px rgba(0, 0, 0, 0.15), 0 2px 16px ${alpha(theme.palette.primary.main, 0.5)}, inset 0 -1px 0 ${theme.palette.primary.dark}`
+          boxShadow: `0 2px 2px rgba(0, 0, 0, 0.15), 0 2px 16px ${alpha(theme.palette.primary.main, 0.5)}`
+        },
+        // A real `border` always paints on top of an inset box-shadow on the same box, so
+        // the hover glow's bottom-edge highlight — meant to sit on top of the border, the
+        // way Figma's own inner shadow does — would otherwise render underneath it instead.
+        // This ::after overlay (1px larger than the button on every side, via `inset: -1`)
+        // paints as its own layer on top of the border: purely decorative (pointerEvents:
+        // none, no layout/padding impact — Button is already position: relative by
+        // default), and still reads theme.palette.primary.dark live.
+        '&:hover::after': {
+          content: '""',
+          position: 'absolute',
+          inset: -1,
+          borderRadius: 'inherit',
+          boxShadow: `inset 0 -1px 0 ${theme.palette.primary.dark}`,
+          pointerEvents: 'none'
         },
         '&:active': {
           backgroundColor: theme.palette.primary.dark,
@@ -312,8 +327,18 @@ const baseTheme = {
         '&:hover': {
           color: theme.palette.primary.light,
           backgroundColor: alpha(theme.palette.primary.main, 0.1),
-          borderColor: alpha(theme.palette.primary.main, 0.3),
-          boxShadow: `inset 0 -1px 0 ${alpha(theme.palette.primary.dark, 0.6)}`
+          borderColor: alpha(theme.palette.primary.main, 0.3)
+        },
+        // Same reasoning as containedPrimary's &:hover::after above — the hover edge
+        // highlight needs to paint on top of the border, which a same-box inset box-shadow
+        // can't do.
+        '&:hover::after': {
+          content: '""',
+          position: 'absolute',
+          inset: -1,
+          borderRadius: 'inherit',
+          boxShadow: `inset 0 -1px 0 ${alpha(theme.palette.primary.dark, 0.6)}`,
+          pointerEvents: 'none'
         },
         '&:active': {
           color: theme.palette.primary.light,

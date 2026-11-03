@@ -300,6 +300,19 @@ uses `packages/front-core/theme.js`, which has only one change so far (see Typog
   Button's own padding scale is close but not identical (`6`/`8`/`9`, not `6`/`8`/`10` —
   Large is 1px tighter there, and it has no border, so no compensation needed), hence the
   separate map. _(2026-11-03)_
+- **Fixed the Contained/Outlined hover glow rendering *under* the border instead of on top
+  of it, like Figma's own inner shadow does.** A real `border` always paints on top of an
+  `inset` box-shadow on the same box — no combination of shadow layers changes that — so
+  the bottom-edge highlight (`inset 0 -1px 0 primary.dark`, previously stacked into the same
+  `boxShadow` as the glow/ring) could never actually sit over the 1px border the way it does
+  in Figma. Moved that inset shadow onto a `&:hover::after` overlay instead — a decorative
+  pseudo-element 1px larger than the button on every side (`inset: -1`, `borderRadius:
+  'inherit'`, `pointerEvents: 'none'`), which paints as its own layer on top of the real
+  border. Considered and rejected two alternatives: recoloring `borderBottomColor` on hover
+  (creates a hard diagonal seam at the rounded corners instead of the smooth taper Figma's
+  inner shadow has), and replacing the real border with an inset-shadow border entirely
+  (would need +1px padding back on every side to keep the just-fixed 30/36/42px heights,
+  reopening that work for no real benefit). _(2026-11-03)_
 
 ## Inputs
 
