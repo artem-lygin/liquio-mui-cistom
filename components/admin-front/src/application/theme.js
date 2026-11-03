@@ -691,7 +691,10 @@ const baseTheme = {
       hover: 'rgba(0, 0, 0, 0.1)',
       hoverOpacity: 0.08,
       selected: 'rgba(0, 0, 0, 0.14)',
-      disabled: 'rgba(0, 0, 0, 0.26)',
+      // MUI v5's own dark-mode value (createPalette.js dark.action.disabled). Was the
+      // light-mode rgba(0, 0, 0, 0.26), which made every disabled IconButton, Select arrow,
+      // Checkbox/Radio/Switch icon black, i.e. invisible on this dark theme.
+      disabled: 'rgba(255, 255, 255, 0.3)',
       disabledBackground: 'rgba(0, 0, 0, 0.12)'
     }
   },
