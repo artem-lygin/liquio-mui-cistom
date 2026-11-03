@@ -169,15 +169,10 @@ const styles = (theme) => ({
     padding: theme.spacing(2, 4)
   },
   // The table card has no padding: the table runs edge to edge, cells keep their own.
-  // Header cells drop MUI's stickyHeader fill (palette.background.default, i.e. the page
-  // colour, which is why the header looked like elevation 0) and show the card's own
-  // surface instead. Safe because the container doesn't scroll vertically here (no
-  // maxHeight), so the header never actually sticks over rows. The last row's divider is
-  // dropped: the card's own border closes the table.
+  // The last row's divider is dropped: the card's own border closes the table. (The header
+  // isn't sticky in panel mode, see renderTable, so it has no fill of its own and shows
+  // the card's surface.)
   panelTable: {
-    '& thead th': {
-      backgroundColor: 'transparent'
-    },
     '& tbody tr:last-child > td': {
       borderBottom: 'none'
     }
@@ -589,6 +584,13 @@ class DataTable extends React.Component {
     } = this.props;
     const { view, fullscreen } = this.state;
     const panelMode = this.isPanelMode();
+    // Panel mode: the container has no maxHeight, so it never scrolls vertically and a
+    // sticky header would never stick. Turning it off also drops what it costs: MUI's
+    // sticky head cells are filled with palette.background.default (the page colour, the
+    // "elevation 0" look, as a black block even over untitled columns), and DataTableHeader
+    // adds its stickyHeader 10px/20px th padding. The header falls back to MUI's default
+    // cell sizing.
+    const stickyHeaderOn = stickyHeader && !panelMode;
 
     const toolbarSection =
       controls.toolbar && !controls.bottomToolbar && !maxHeight ? this.renderToolBar() : null;
@@ -614,14 +616,18 @@ class DataTable extends React.Component {
           }}
         >
           <Table
-            stickyHeader={stickyHeader}
+            stickyHeader={stickyHeaderOn}
             className={classNames({
               [classes.table]: !panelMode,
               [classes.fixedTable]: fixedTable
             })}
           >
             {view === 'table' && controls.header ? (
-              <DataTableHeader createSortHandler={this.createSortHandler} {...this.props} />
+              <DataTableHeader
+                createSortHandler={this.createSortHandler}
+                {...this.props}
+                stickyHeader={stickyHeaderOn}
+              />
             ) : null}
             {this.renderTableContent()}
           </Table>

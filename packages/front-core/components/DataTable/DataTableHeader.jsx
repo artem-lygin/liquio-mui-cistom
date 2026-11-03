@@ -36,11 +36,13 @@ const DataTableHeader = ({
       <TableRow>
         {checkable ? (
           selectAllInHeader ? (
-            // padding="normal": the theme's MuiTableCell padding, so the checkbox lines up with
-            // the row checkboxes' own 12px cell padding below.
+            // padding="normal": the theme's MuiTableCell side padding, so the checkbox lines
+            // up with the row checkboxes' own 12px cell padding below. No vertical padding:
+            // the Checkbox's own padding already gives it room, so it fits inside the text
+            // cells' height instead of making the header row taller.
             <TableCell
               width={64}
-              style={headerCellStyle}
+              style={{ ...headerCellStyle, paddingTop: 0, paddingBottom: 0 }}
               component="th"
               className={classes.cellDark}
             >

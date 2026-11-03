@@ -582,6 +582,12 @@ const baseTheme = {
         padding: 12,
         borderBottom: `1px solid ${theme.palette.divider}`
       }),
+      // Header labels are muted: palette.text.secondary instead of MUI's own text.primary
+      // for head cells, so the column titles sit back from the row content. A sorted
+      // column's TableSortLabel still turns text.primary, which marks the active sort.
+      head: ({ theme }) => ({
+        color: theme.palette.text.secondary
+      }),
       paddingCheckbox: {
         width: ''
       }

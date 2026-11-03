@@ -410,10 +410,23 @@ uses `packages/front-core/theme.js`, which has only one change so far (see Typog
   - **Why the header looked like elevation 0.** `DataTable` defaults to
     `stickyHeader: true`. MUI's sticky `TableCell` fills header cells with
     `palette.background.default`, the page colour (`#0c0c0c`), which sat on top of the
-    card's elevation-2 surface. In the panel's table card, header cells are now
-    `transparent`, so they show the card's own surface. This is safe because the
-    container has no `maxHeight` there, so it never scrolls vertically and the header
-    never actually sticks over rows. Fullscreen and `maxHeight` tables are unchanged.
+    card's elevation-2 surface. The first fix made `thead th` transparent, but that
+    missed untitled columns. Favorites and actions render their header cell as a `td`
+    (`DataTableHeader`: `component={column?.name ? 'th' : 'td'}`), so they stayed a
+    black block. Replaced with the root-cause fix: in panel mode the header isn't sticky
+    at all (`Table` and `DataTableHeader` get `stickyHeader={false}`). The container has
+    no `maxHeight` there, so it never scrolls vertically and the header could never
+    stick anyway. With no fill of their own, the header cells show the card's surface.
+    Fullscreen and `maxHeight` tables are unchanged.
+  - **Header height back to the default, with no height settings added** (it was about
+    72px, now 48px). Two things inflated it:
+    - **Sticky-header padding.** `DataTable`'s own `stickyHeader` class adds
+      `th { paddingTop: 10, paddingBottom: 20 }`. It goes with sticky mode, so it's gone
+      too.
+    - **The select-all checkbox.** It's 42px tall (MUI's 9px padding around a 24px
+      icon) inside the cell's 12px padding. Its cell now has no vertical padding, so the
+      checkbox fits inside the text cells' height. Those cells are the theme's 12px
+      padding plus MUI's 24px head line-height.
   - **The bright line under the toolbar is gone.** It was the toolbar container's
     `borderBottom: theme.header.borderBottom` (`theme.borderColor`, `#4E4E4E`). The
     remaining separator is the header row's own bottom border, `palette.divider`
@@ -424,7 +437,12 @@ uses `packages/front-core/theme.js`, which has only one change so far (see Typog
     toolbar-specific zero padding and margins so it matches the row checkboxes. Its
     cell uses the theme's `MuiTableCell` padding (12px) rather than
     `padding="checkbox"`, so it lines up with the rows' 12px. Card view (`switchView`)
-    and cabinet keep select-all in the toolbar. _(2026-11-03)_
+    and cabinet keep select-all in the toolbar.
+  - **Header labels are muted:** `MuiTableCell.head` now reads `palette.text.secondary`
+    (70% white) instead of MUI's `text.primary`, in `admin-front`'s `theme.js`. It's a
+    theme override, so every admin table header gets it, not just the panel. A sorted
+    column's `TableSortLabel` still turns `text.primary`, which marks the active sort.
+    _(2026-11-03)_
 
 ## Inputs
 
