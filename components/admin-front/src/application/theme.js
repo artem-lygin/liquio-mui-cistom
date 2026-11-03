@@ -101,7 +101,7 @@ const inputFieldStyles = (theme, ownerState) => ({
     height: SMALL_CHIP_HEIGHT
   },
   '& .MuiChip-root:not(.MuiAutocomplete-tag)': {
-    marginRight: theme.spacing(0.75)
+    marginRight: theme.spacing(1.5) // 6px
   },
   // Icons inside the field follow its color; the global MuiSvgIcon.root.fill below would
   // otherwise keep MUI's own icons (Select arrow, Autocomplete arrow, chip ✕) white.
@@ -245,7 +245,7 @@ const baseTheme = {
           position: 'relative',
           transform: 'none',
           maxWidth: '100%',
-          marginBottom: theme.spacing(0.75),
+          marginBottom: theme.spacing(1.5), // 6px
           fontSize: theme.typography.body2.fontSize,
           opacity: 1,
           '&:not(.Mui-disabled)': {
@@ -1130,10 +1130,18 @@ const baseTheme = {
     },
     useNextVariants: true
   },
+  // Default corner radius: 8px, the product designer's value (was MUI's default 4). Read by
+  // MUI for Paper, Card, Menu/Popover, Tooltip, Alert and similar surfaces, and by sx
+  // borderRadius multipliers. Buttons and the Text field use theme.buttonCornerRadius
+  // (6/8/10 per size) instead; 8 matches their medium size.
   shape: {
-    borderRadius: 4
+    borderRadius: 8
   },
-  spacing: 8,
+  // Spacing unit: 4px, the product designer's scale (1 = 4px, 2 = 8px, …). Was MUI's
+  // default 8. Every existing theme.spacing(n), numeric sx spacing and Grid/Stack spacing
+  // value, and MUI's own internal spacing (Toolbar gutters, CardContent padding, etc.),
+  // renders at half its previous size: a deliberate change, not compensated for.
+  spacing: 4,
   transitions: {
     easing: {
       easeInOut: 'cubic-bezier(0.4, 0, 0.2, 1)',

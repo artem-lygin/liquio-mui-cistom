@@ -576,6 +576,21 @@ uses `packages/front-core/theme.js`, which has only one change so far (see Typog
     it, so Button and the Text field share one source. No change to how Button renders.
     Admin-only, like `buttonCornerRadius`. _(2026-11-03)_
 
+- **Spacing unit is now 4px** (`spacing: 4`, so 1 = 4px, 2 = 8px, …; was MUI's default 8),
+  at the product designer's direction. The designer chose to let existing layouts change
+  rather than compensate. Every `theme.spacing(n)` (about 43 calls in front-core
+  components), every numeric `sx` spacing and Grid/Stack `spacing` value in admin (about
+  47), and MUI's own internal spacing (Toolbar gutters, CardContent/ListItem padding,
+  Grid/Stack gaps, TablePagination…) now renders at half its previous size. The Text
+  field's two gaps (label to field, chip to text) moved from `spacing(0.75)` to
+  `spacing(1.5)` to stay at 6px. Literal px values are unaffected.
+- **Default corner radius is now 8px** (`shape.borderRadius: 8`, was MUI's default 4), at
+  the product designer's direction. MUI reads it for Paper, Card, Menu/Popover, Tooltip,
+  Alert and similar surfaces, and for `sx` `borderRadius` multipliers. Buttons and the Text
+  field keep their per-size `theme.buttonCornerRadius` (6/8/10); 8 matches their medium
+  size. Literal radius values in component stylesheets (about 120 across admin and
+  front-core) are unaffected. _(2026-11-03)_
+
 ## Layout
 
 - **Left sidebar is now elevation zero** — two separate tokens needed fixing, not one.
