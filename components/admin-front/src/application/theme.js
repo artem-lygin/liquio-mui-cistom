@@ -95,6 +95,12 @@ const inputFieldStyles = (theme, ownerState) => ({
   '& .MuiInputBase-input': {
     padding: 0
   },
+  // MUI's Select tints its inner element on focus (rgba(255,255,255,0.05), square corners),
+  // a second box inside the field. The field's own surface shows through in every state; focus
+  // is shown by the field's border and ring.
+  '& .MuiSelect-select:focus': {
+    backgroundColor: 'transparent'
+  },
   // Chips inside the field: capped to the small height so one row fits, and spaced from
   // the text that follows (Autocomplete's own tags already carry their own margin).
   '& .MuiChip-root:not(.MuiChip-sizeSmall)': {

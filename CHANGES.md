@@ -572,6 +572,10 @@ uses `packages/front-core/theme.js`, which has only one change so far (see Typog
       by the product designer. Removed in `darkTheme`. The page-number input also had a fixed
       digit-based width (≈24px) that the field's side padding exceeded, hiding the number.
       In `darkTheme` that width now sits on the input element and the field sizes around it.
+      On focus the Per Page select still showed a tint inside the field. That's MUI's own
+      Select focus background (`rgba(255,255,255,0.05)`, square corners) on its inner element,
+      so it's fixed for every Select in the theme's Text field styles: the inner element is
+      transparent on focus and the field's surface shows through in every state.
     - Table select filter (`DataTable/components/SelectFilterHandler.jsx`): the same
       leftovers: a header-colored panel, a white label, a transparent outline and a
       `buttonHoverBg` select fill. Removed in `darkTheme`.
