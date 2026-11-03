@@ -640,6 +640,13 @@ const baseTheme = {
         // palette.background.paper / palette.text.primary — see palette.background below.
       }
     },
+    // Cards get a hairline border: #ffffff at 5%, the product designer's value. Card only,
+    // not every Paper (menus, dialogs and the list-page panel are Papers too).
+    MuiCard: {
+      root: ({ theme }) => ({
+        border: `1px solid ${alpha(theme.palette.common.white, 0.05)}`
+      })
+    },
     MuiDialog: {
       paper: {
         backgroundColor: '#202020'

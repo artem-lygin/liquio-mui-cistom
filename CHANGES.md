@@ -591,6 +591,12 @@ uses `packages/front-core/theme.js`, which has only one change so far (see Typog
   size. Literal radius values in component stylesheets (about 120 across admin and
   front-core) are unaffected. _(2026-11-03)_
 
+- **Cards have a hairline border**: `MuiCard.root` gets `1px solid` `#ffffff` at 5%
+  (`alpha(palette.common.white, 0.05)`), at the product designer's direction. Card only,
+  not every Paper (menus, dialogs and the list-page panel are also Papers and are
+  unchanged). Card is used by the workflow versions timeline in admin and about 7 front-core
+  components. _(2026-11-03)_
+
 ## Layout
 
 - **Left sidebar is now elevation zero** — two separate tokens needed fixing, not one.
