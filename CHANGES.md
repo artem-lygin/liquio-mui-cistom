@@ -53,6 +53,12 @@ uses `packages/front-core/theme.js`, which has only one change so far (see Typog
   Text field gallery, where the Disabled state's arrows, password eye and calendar
   disappeared. This changes every disabled IconButton/Select/Checkbox/Radio/Switch in admin,
   from invisible to dimmed white. _(2026-11-03)_
+- **`palette.divider`**: set to `rgba(255, 255, 255, 0.1)` (`#ffffff` at 10%) at the product
+  designer's direction. Was the light-mode `rgba(0, 0, 0, 0.12)`, i.e. black and invisible
+  on `#0c0c0c`. MUI reads it for `Divider`, list/menu item dividers, table cell borders,
+  dialog dividers and similar hairlines, so those lines now show. It's a different token
+  from `theme.borderColor` (`#4E4E4E`, the sidebar/header separators and the Text field's
+  resting border), which is unchanged. _(2026-11-03)_
 - **Removed a dead `overrides.MuiDrawer.paper.backgroundColor: '#232f3d'`.** Traced it in
   `packages/front-core/layouts/LeftSidebar.jsx`: the app's real navigation `Drawer` already
   overrides its own paper color locally (`classes={{ paper: classes.drawerPaper }}` →
@@ -711,13 +717,10 @@ uses `packages/front-core/theme.js`, which has only one change so far (see Typog
   c85a27f. Each one is either a real design decision that belongs in `theme.js` (and this
   log) or leftover experimentation that should just be deleted — needs going through
   key-by-key, the same way `htmlFontSize`/`button.fontSize` just were, above. _(2026-08-26)_
-- **`palette.divider` (`rgba(0, 0, 0, 0.12)`) looks like the same class of leftover
-  light-theme value** as the ones already fixed above — not yet checked against how
-  dividers actually render on this dark theme. `palette.action.hover`/`selected`/
-  `disabledBackground` are the same pattern, not just divider: every remaining value is a
-  black-based rgba literal matching MUI's own light-mode defaults verbatim in a theme whose
-  `background.paper` is `#0c0c0c`. (`action.active` and `action.disabled` have since been
-  fixed; see Colors & surfaces above.) _(2026-11-03)_
+- **`palette.action.hover`/`selected`/`disabledBackground` are leftover light-theme
+  values**: black-based rgba literals matching MUI's own light-mode defaults verbatim, in a
+  theme whose `background.paper` is `#0c0c0c`. (`action.active`, `action.disabled` and
+  `palette.divider` have since been fixed; see Colors & surfaces above.) _(2026-11-03)_
 - **`theme.js` still uses the legacy v4 theme shape** (`overrides`, `props` top-level
   keys), adapted at runtime via `adaptV4Theme()` in `App.jsx`, rather than v5's native
   `components.<Name>.styleOverrides`. Not urgent — `adaptV4Theme` still works — but it's a

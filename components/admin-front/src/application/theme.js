@@ -855,7 +855,10 @@ const baseTheme = {
       disabled: 'rgba(255, 255, 255, 0.38)',
       hint: 'rgba(255, 255, 255, 0.38)'
     },
-    divider: 'rgba(0, 0, 0, 0.12)',
+    // #ffffff at 10%, the product designer's value. Was the light-mode rgba(0, 0, 0, 0.12),
+    // i.e. black and invisible on this dark theme. MUI reads it for Divider, list/menu item
+    // dividers, table cell borders, dialog dividers and similar hairlines.
+    divider: 'rgba(255, 255, 255, 0.1)',
     background: {
       paper: BACKGROUND_PAPER,
       default: BACKGROUND_PAPER
