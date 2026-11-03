@@ -22,7 +22,7 @@ const readStoredBoolean = (key, fallback) => {
 
 let state = {
   editMode: readStoredBoolean('editMode', false),
-  showProperties: readStoredBoolean('showProperties', true),
+  showProperties: readStoredBoolean('showProperties', false),
   measureEnabled: readStoredBoolean('measureEnabled', false),
   draft: {}
 };
