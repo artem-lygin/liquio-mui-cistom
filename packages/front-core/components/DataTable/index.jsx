@@ -145,8 +145,42 @@ const styles = (theme) => ({
     border: '#aaa 2px dashed',
     borderTop: 'none'
   },
-  panel: {
-    padding: 16
+  // `panel` (admin list pages): toolbar, table and pagination are three separate Paper
+  // cards stacked flush, so they read as one block. Each later card pulls up 1px so the
+  // two neighbouring hairline borders (MuiPaper-rounded) collapse into one line; only the
+  // outer corners stay rounded.
+  panelCard: {
+    '& + &': {
+      marginTop: -1
+    }
+  },
+  panelCardNotFirst: {
+    borderTopLeftRadius: 0,
+    borderTopRightRadius: 0
+  },
+  panelCardNotLast: {
+    borderBottomLeftRadius: 0,
+    borderBottomRightRadius: 0
+  },
+  panelToolbar: {
+    padding: theme.spacing(1, 4)
+  },
+  panelBottom: {
+    padding: theme.spacing(2, 4)
+  },
+  // The table card has no padding: the table runs edge to edge, cells keep their own.
+  // Header cells drop MUI's stickyHeader fill (palette.background.default, i.e. the page
+  // colour, which is why the header looked like elevation 0) and show the card's own
+  // surface instead. Safe because the container doesn't scroll vertically here (no
+  // maxHeight), so the header never actually sticks over rows. The last row's divider is
+  // dropped: the card's own border closes the table.
+  panelTable: {
+    '& thead th': {
+      backgroundColor: 'transparent'
+    },
+    '& tbody tr:last-child > td': {
+      borderBottom: 'none'
+    }
   }
 });
 
@@ -512,6 +546,7 @@ class DataTable extends React.Component {
     return (
       <DataTableToolbar
         {...clearProps}
+        panel={this.isPanelMode()}
         view={view}
         switchView={this.switchView}
         groupBy={groupBy}
@@ -553,18 +588,117 @@ class DataTable extends React.Component {
       loading
     } = this.props;
     const { view, fullscreen } = this.state;
+    const panelMode = this.isPanelMode();
+
+    const toolbarSection =
+      controls.toolbar && !controls.bottomToolbar && !maxHeight ? this.renderToolBar() : null;
+
+    const presetsSection = controls.presets ? (
+      <DataTableFilterPresetBar
+        actions={actions}
+        filters={filters}
+        presets={presets}
+        filterHandlers={filterHandlers}
+      />
+    ) : null;
+
+    const tableSection =
+      view === 'table' ? (
+        <TableContainer
+          className={classNames(classes.tableContainer, {
+            [classes.stickyHeader]: maxHeight && !fullscreen,
+            [classes.tableContainerDark]: darkTheme && !panelMode
+          })}
+          style={{
+            maxHeight: fullscreen ? 'calc(100vh - 130px)' : maxHeight || 'unset'
+          }}
+        >
+          <Table
+            stickyHeader={stickyHeader}
+            className={classNames({
+              [classes.table]: !panelMode,
+              [classes.fixedTable]: fixedTable
+            })}
+          >
+            {view === 'table' && controls.header ? (
+              <DataTableHeader createSortHandler={this.createSortHandler} {...this.props} />
+            ) : null}
+            {this.renderTableContent()}
+          </Table>
+        </TableContainer>
+      ) : (
+        <>
+          {this.renderCards()}
+          {panelMode ? null : <Divider light={true} />}
+        </>
+      );
+
+    const bottomToolbarSection =
+      controls.toolbar && controls.bottomToolbar
+        ? this.renderToolBar({ bottomToolbar: true })
+        : null;
+
+    // darkTheme (admin) shows a single pagination, below the table: also when a list
+    // only asked for the toolbar one (controls.pagination).
+    const paginationSection =
+      controls.bottomPagination || (darkTheme && controls.pagination) ? (
+        <DataTablePagination
+          t={t}
+          rowsPerPage={rowsPerPage}
+          page={page - 1}
+          count={count}
+          loading={loading}
+          onChangePage={actions?.onChangePage}
+          onChangeRowsPerPage={actions?.onChangeRowsPerPage}
+          darkTheme={darkTheme}
+        />
+      ) : null;
+
+    if (panelMode) {
+      const top = toolbarSection || presetsSection ? (
+        <>
+          {toolbarSection}
+          {presetsSection}
+        </>
+      ) : null;
+      const bottom = bottomToolbarSection || paginationSection ? (
+        <>
+          {bottomToolbarSection}
+          {paginationSection}
+        </>
+      ) : null;
+
+      const cards = [
+        top && { key: 'toolbar', className: classes.panelToolbar, content: top },
+        { key: 'table', className: classes.panelTable, content: tableSection },
+        bottom && { key: 'bottom', className: classes.panelBottom, content: bottom }
+      ].filter(Boolean);
+
+      // elevation 2 lands the dark-mode overlay alpha at ~0.069 (MUI's own
+      // getOverlayAlpha(2) ≈ 0.0694); default elevation 1 is only ~0.05, too subtle
+      // against the now-flush sidebar/page.
+      return (
+        <>
+          {cards.map(({ key, className, content }, index) => (
+            <Paper
+              key={key}
+              elevation={2}
+              className={classNames(classes.panelCard, className, {
+                [classes.panelCardNotFirst]: index > 0,
+                [classes.panelCardNotLast]: index < cards.length - 1
+              })}
+            >
+              {content}
+            </Paper>
+          ))}
+        </>
+      );
+    }
 
     return (
       <>
-        {controls.toolbar && !controls.bottomToolbar && !maxHeight ? this.renderToolBar() : null}
-        {controls.presets ? (
-          <DataTableFilterPresetBar
-            actions={actions}
-            filters={filters}
-            presets={presets}
-            filterHandlers={filterHandlers}
-          />
-        ) : null}
+        {toolbarSection}
+        {presetsSection}
 
         <div
           className={classNames({
@@ -572,60 +706,18 @@ class DataTable extends React.Component {
             [classes.tableDark]: darkTheme
           })}
         >
-          {view === 'table' ? (
-            <TableContainer
-              className={classNames(classes.tableContainer, {
-                [classes.stickyHeader]: maxHeight && !fullscreen,
-                [classes.tableContainerDark]: darkTheme
-              })}
-              style={{
-                maxHeight: fullscreen ? 'calc(100vh - 130px)' : maxHeight || 'unset'
-              }}
-            >
-              <Table
-                stickyHeader={stickyHeader}
-                className={classNames(classes.table, {
-                  [classes.fixedTable]: fixedTable
-                })}
-              >
-                {view === 'table' && controls.header ? (
-                  <DataTableHeader createSortHandler={this.createSortHandler} {...this.props} />
-                ) : null}
-                {this.renderTableContent()}
-              </Table>
-            </TableContainer>
-          ) : (
-            <>
-              {this.renderCards()}
-              <Divider light={true} />
-            </>
-          )}
-
-          {controls.toolbar && controls.bottomToolbar
-            ? this.renderToolBar({ bottomToolbar: true })
-            : null}
-
-          {/* darkTheme (admin) shows a single pagination, below the table: also when a list
-              only asked for the toolbar one (controls.pagination). */}
-          {controls.bottomPagination || (darkTheme && controls.pagination) ? (
-            <DataTablePagination
-              t={t}
-              rowsPerPage={rowsPerPage}
-              page={page - 1}
-              count={count}
-              loading={loading}
-              onChangePage={actions?.onChangePage}
-              onChangeRowsPerPage={actions?.onChangeRowsPerPage}
-              darkTheme={darkTheme}
-            />
-          ) : null}
+          {tableSection}
+          {bottomToolbarSection}
+          {paginationSection}
         </div>
       </>
     );
   };
 
+  isPanelMode = () => Boolean(this.props.panel) && !this.state.fullscreen;
+
   render = () => {
-    const { dragEvents, tableProps = {}, tableTitle, fieldBorder, panel, classes } = this.props;
+    const { dragEvents, tableProps = {}, tableTitle, fieldBorder, classes } = this.props;
     const { fullscreen } = this.state;
 
     return (
@@ -638,13 +730,6 @@ class DataTable extends React.Component {
           <FullScreenDialog open={true} title={tableTitle} onClose={this.toggleFullscreen}>
             {this.renderTable()}
           </FullScreenDialog>
-        ) : panel ? (
-          // elevation 2 lands the dark-mode overlay alpha at ~0.069 (MUI's own
-          // getOverlayAlpha(2) ≈ 0.0694) — default elevation 1 is only ~0.05, too subtle
-          // against the now-flush sidebar/page.
-          <Paper elevation={2} className={classes.panel}>
-            {this.renderTable()}
-          </Paper>
         ) : (
           this.renderTable()
         )}

@@ -55,6 +55,14 @@ const styles = (theme) => ({
     },
     ...(theme.tableToolbarContainer || {})
   },
+  // panel (admin list pages): the toolbar is its own card, so the card's edge separates it
+  // from the table; no divider line or side inset of its own.
+  containerPanel: {
+    paddingBottom: 0,
+    marginLeft: 0,
+    marginRight: 0,
+    borderBottom: 'none'
+  },
   flexContainer: {
     display: 'flex'
   },
@@ -110,7 +118,8 @@ const DataTableToolbar = (props) => {
     loading,
     updateOnChangeSearch = true,
     OnSelectActions = false,
-    multiple
+    multiple,
+    panel
   } = props;
 
   const selectableData = (data || []).filter(actions.isRowSelectable || Boolean);
@@ -122,12 +131,17 @@ const DataTableToolbar = (props) => {
   // (e.g. File library) keep their own layout.
   const actionsOnRight = darkTheme && toolbarPosition !== 'start';
 
+  // darkTheme (admin): select-all moves into the table header's checkbox column (see
+  // DataTableHeader) whenever that header is showing; card view keeps it here.
+  const selectAllInHeader = darkTheme && controls.header && view === 'table';
+
   return (
     <>
       <div
         className={classNames(
           classes.container,
           {
+            [classes.containerPanel]: panel,
             [classes.flexContainer]: !controls.pagination || darkTheme,
             [classes.bottomToolbar]: bottomToolbar
           },
@@ -135,7 +149,7 @@ const DataTableToolbar = (props) => {
         )}
       >
         <Toolbar className={classNames(classes.toolbar, classes.grow)}>
-          {checkable && selectAllButton && multiple ? (
+          {checkable && selectAllButton && multiple && !selectAllInHeader ? (
             <SelectAllButton
               rowsSelected={rowsSelected}
               selectableData={selectableData}

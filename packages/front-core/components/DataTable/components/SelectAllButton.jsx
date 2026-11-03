@@ -36,7 +36,17 @@ const getSelection = (rowsSelected, selectableData) => {
     .map(({ id, value }) => id || value);
 };
 
-const SelectAllButton = ({ classes, t, rowsSelected, selectableData, onRowsSelect, darkTheme }) => (
+// inHeader: rendered in the table header's checkbox column, so it keeps MUI's own Checkbox
+// padding like the row checkboxes, instead of the toolbar's zero-padding/margin layout.
+const SelectAllButton = ({
+  classes,
+  t,
+  rowsSelected,
+  selectableData,
+  onRowsSelect,
+  darkTheme,
+  inHeader
+}) => (
   <Tooltip title={t('Select')}>
     <Checkbox
       icon={<CheckBoxOutlineBlankOutlinedIcon />}
@@ -61,8 +71,8 @@ const SelectAllButton = ({ classes, t, rowsSelected, selectableData, onRowsSelec
       }}
       classes={{
         root: classNames({
-          [classes.checkBoxRoot]: true,
-          [classes.iconDark]: darkTheme
+          [classes.checkBoxRoot]: !inHeader,
+          [classes.iconDark]: darkTheme && !inHeader
         }),
         checked: classNames({
           [classes.checkBoxRootDarkChecked]: darkTheme

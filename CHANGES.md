@@ -392,6 +392,39 @@ uses `packages/front-core/theme.js`, which has only one change so far (see Typog
   - The icon buttons keep their existing default color. The guide only defines Icon Button
     / Primary so far, and `palette.secondary.main` is `#000000`, so `color="secondary"`
     would make them invisible. _(2026-11-03)_
+- **Admin list panel: three flush cards, select-all moved into the table header.**
+  Applies to `DataTable` with `panel` (currently only Workflows) and, for select-all,
+  every admin (`darkTheme`) table.
+  - **Three cards instead of one.** `panel` used to wrap the toolbar, table and
+    pagination in one `Paper` with 16px padding. It now renders three `Paper`s at the
+    same `elevation={2}`, stacked with no gap: the toolbar, the table, then the bottom
+    toolbar/pagination. Each card after the first pulls up 1px, so the two neighbouring
+    `MuiPaper-rounded` hairlines collapse into one line. Only the outer corners stay
+    rounded. A missing toolbar or pagination card drops out, and the corners follow.
+  - **The table card has no padding**, so the table runs edge to edge. Cells keep their
+    own padding. The admin-only side margins and bottom spacing around the table
+    (`tableDark`, `tableContainerDark`, `table`) are skipped in panel mode. The last row's
+    divider is dropped, since the card's own border closes the table.
+  - **The toolbar card's spacing** is `theme.spacing(1, 4)`, and the bottom card's is
+    `theme.spacing(2, 4)`.
+  - **Why the header looked like elevation 0.** `DataTable` defaults to
+    `stickyHeader: true`. MUI's sticky `TableCell` fills header cells with
+    `palette.background.default`, the page colour (`#0c0c0c`), which sat on top of the
+    card's elevation-2 surface. In the panel's table card, header cells are now
+    `transparent`, so they show the card's own surface. This is safe because the
+    container has no `maxHeight` there, so it never scrolls vertically and the header
+    never actually sticks over rows. Fullscreen and `maxHeight` tables are unchanged.
+  - **The bright line under the toolbar is gone.** It was the toolbar container's
+    `borderBottom: theme.header.borderBottom` (`theme.borderColor`, `#4E4E4E`). The
+    remaining separator is the header row's own bottom border, `palette.divider`
+    (10% white).
+  - **Select-all checkbox: from the toolbar to the header's checkbox column**, in every
+    admin (`darkTheme`) table view. Before, that column was an empty `aria-hidden`
+    cell. `SelectAllButton` takes a new `inHeader` prop, which drops its
+    toolbar-specific zero padding and margins so it matches the row checkboxes. Its
+    cell uses the theme's `MuiTableCell` padding (12px) rather than
+    `padding="checkbox"`, so it lines up with the rows' 12px. Card view (`switchView`)
+    and cabinet keep select-all in the toolbar. _(2026-11-03)_
 
 ## Inputs
 
