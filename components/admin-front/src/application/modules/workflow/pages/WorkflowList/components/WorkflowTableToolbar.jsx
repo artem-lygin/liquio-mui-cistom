@@ -266,7 +266,7 @@ class ImportWorkflow extends React.Component {
       <>
         {(selectedRowsData || []).length ? (
           <Button
-            variant="contained"
+            variant="outlined"
             color="primary"
             className={classes.actionBtn}
             onClick={this.exportWorkflow}
@@ -312,7 +312,7 @@ class ImportWorkflow extends React.Component {
 
           {(selectedRowsData || []).length ? null : (
             <Button
-              variant="contained"
+              variant="outlined"
               color="primary"
               onClick={() => this.setState({ ignoreErrorsDialog: true })}
               className={classes.importButton}

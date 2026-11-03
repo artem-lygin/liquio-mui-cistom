@@ -94,7 +94,7 @@ class ImportTemplate extends React.Component {
         />
 
         <Button
-          variant="contained"
+          variant="outlined"
           color="primary"
           onClick={this.handleUploadClick}
           style={{ marginLeft: 16 }}

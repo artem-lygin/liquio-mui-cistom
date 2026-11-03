@@ -359,7 +359,7 @@ const MessageTemplatesList = ({
         )}
         <Button
           color="primary"
-          variant="contained"
+          variant="outlined"
           onClick={handleExport}
           className={classes.createButton}
         >
@@ -367,7 +367,7 @@ const MessageTemplatesList = ({
         </Button>
         <Button
           color="primary"
-          variant="contained"
+          variant="outlined"
           onClick={handleUploadClick}
           className={classes.createButton}
         >

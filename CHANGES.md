@@ -345,6 +345,17 @@ uses `packages/front-core/theme.js`, which has only one change so far (see Typog
     reset (`color: inherit` + `svg { fill: currentColor }` on start/end icons) is now
     unscoped, so it covers every Button variant. The global `MuiSvgIcon` fill itself is
     untouched: it's app-wide, and removing it is a separate decision. _(2026-11-03)_
+- **Processes pages: one Contained per toolbar row, everything else Outlined.** Only the
+  row's Create action stays Contained Primary; the other buttons in that row are now
+  Outlined Primary:
+  - Workflows (`/workflow`, `/workflow_test`, `WorkflowTableToolbar.jsx`): Import, and
+    Export (shown only when rows are selected, and alone in read-only mode).
+  - Number templates (`ImportTemplate.jsx`): Import templates.
+  - Message templates (`MessageTemplatesList/index.jsx`): Export and Import.
+  - QR templates, Categories and Tags have only a Create button in that row, so nothing
+    changed there. Dialog-internal buttons (e.g. QR's three "Mapping fields / Template"
+    buttons) were deliberately left out: they aren't part of the toolbar row.
+  _(2026-11-03)_
 
 ## Inputs
 
