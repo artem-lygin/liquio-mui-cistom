@@ -605,7 +605,9 @@ class DataTable extends React.Component {
             ? this.renderToolBar({ bottomToolbar: true })
             : null}
 
-          {controls.bottomPagination ? (
+          {/* darkTheme (admin) shows a single pagination, below the table: also when a list
+              only asked for the toolbar one (controls.pagination). */}
+          {controls.bottomPagination || (darkTheme && controls.pagination) ? (
             <DataTablePagination
               t={t}
               rowsPerPage={rowsPerPage}

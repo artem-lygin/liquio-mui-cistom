@@ -732,6 +732,13 @@ uses `packages/front-core/theme.js`, which has only one change so far (see Typog
   three now read a single `BORDER_COLOR` constant (same value as `borderColor`, `#4E4E4E`) —
   the drift is gone and there's one source instead of four. _(2026-10-13)_
 
+- **Data grids show one pagination, below the table**, at the product designer's direction.
+  In `darkTheme` (admin only), the shared `DataTable` no longer draws the toolbar pagination
+  (`controls.pagination`). Instead it draws the bottom pagination whenever either flag is
+  set, so lists that only asked for the toolbar one (e.g. UI filters, Kibana reports,
+  Favorites, unit users) still get pagination, at the bottom. Cabinet-front, which never
+  passes `darkTheme`, is unchanged. _(2026-11-03)_
+
 ## Worth addressing (known issues found, not yet fixed)
 
 - **Text field rollout follow-ups** (from making the Text field admin-wide; not yet done):

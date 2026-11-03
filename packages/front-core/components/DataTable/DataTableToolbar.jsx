@@ -122,7 +122,7 @@ const DataTableToolbar = (props) => {
         className={classNames(
           classes.container,
           {
-            [classes.flexContainer]: !controls.pagination,
+            [classes.flexContainer]: !controls.pagination || darkTheme,
             [classes.bottomToolbar]: bottomToolbar
           },
           className
@@ -166,7 +166,9 @@ const DataTableToolbar = (props) => {
           ) : null}
         </Toolbar>
 
-        {controls.pagination ? (
+        {/* darkTheme (admin): pagination lives only below the table, never in the toolbar.
+            DataTable renders it at the bottom whenever either pagination flag is set. */}
+        {controls.pagination && !darkTheme ? (
           <DataTablePagination
             t={t}
             loading={loading}
