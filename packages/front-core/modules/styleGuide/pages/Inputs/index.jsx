@@ -3,9 +3,6 @@ import {
   Typography,
   Divider,
   TextField,
-  InputAdornment,
-  IconButton,
-  SvgIcon,
   Autocomplete,
   Select,
   MenuItem,
@@ -19,7 +16,6 @@ import {
   Tabs,
   Tab
 } from '@mui/material';
-import { CloseFill as SymbolClose } from '@material-symbols-svg/react/rounded/w400';
 import StyleGuideStateProvider, { useStyleGuideState } from '../../shared/StyleGuideStateProvider';
 import StyleGuideChrome from '../../components/StyleGuideChrome';
 import Section from '../../components/Section';
@@ -28,12 +24,10 @@ import MeasureOverlay from '../../components/MeasureOverlay';
 import { PropertiesCardGroup } from '../../components/PropertiesPanel';
 import { navigateToSection } from '../../shared/navigation';
 import { useSectionScrollspy } from '../../shared/useSectionScrollspy';
-import RedditTextField from './RedditTextField';
 import TopLabelGallery from './TopLabelGallery';
 import { INPUT_STATES } from './constants';
 import { BUTTON_SIZES } from '../../shared/constants';
 import {
-  getInputTokenItems,
   getTopLabelInputTokenItems,
   getAutocompleteTokenItems,
   getComboBoxTokenItems,
@@ -47,7 +41,6 @@ import {
 // of one shared panel describing all six at once.
 const INPUTS_SUB_SECTIONS = [
   { id: 'inputs-text-field', label: 'Text field' },
-  { id: 'inputs-text-field-top-label', label: 'Text field — top label' },
   { id: 'inputs-autocomplete', label: 'Autocomplete' },
   { id: 'inputs-combo-box', label: 'Combo box' },
   { id: 'inputs-checkboxes', label: 'Checkboxes' },
@@ -59,9 +52,6 @@ const SCROLLSPY_IDS = ['inputs', ...INPUTS_SUB_SECTIONS.map((section) => section
 
 const InputsPageContent = () => {
   const { previewTheme, showProperties, measureEnabled } = useStyleGuideState();
-  const [inputState, setInputState] = React.useState('resting');
-  const [inputDemoValue, setInputDemoValue] = React.useState('Value');
-  const [showInputHelperText, setShowInputHelperText] = React.useState(true);
   const [topLabelState, setTopLabelState] = React.useState('resting');
   const [topLabelSize, setTopLabelSize] = React.useState('medium');
   const [topLabelShowHelperText, setTopLabelShowHelperText] = React.useState(true);
@@ -89,93 +79,6 @@ const InputsPageContent = () => {
       <Section
         id="inputs-text-field"
         title="Text field"
-        titleVariant="h3"
-        properties={
-          showProperties ? (
-            <>
-              <div
-                style={{
-                  display: 'flex',
-                  alignItems: 'center',
-                  borderBottom: '1px solid rgba(255, 255, 255, 0.12)'
-                }}
-              >
-                <Tabs
-                  value={inputState}
-                  onChange={(event, value) => setInputState(value)}
-                  variant="scrollable"
-                  style={{ minHeight: 36, flex: '1 1 auto' }}
-                >
-                  {INPUT_STATES.map((state) => (
-                    <Tab
-                      key={state.key}
-                      value={state.key}
-                      label={state.label}
-                      style={{ minHeight: 36, padding: '6px 16px' }}
-                    />
-                  ))}
-                </Tabs>
-                <FormControlLabel
-                  style={{ marginRight: 8, whiteSpace: 'nowrap' }}
-                  control={
-                    <Switch
-                      size="small"
-                      checked={showInputHelperText}
-                      onChange={(event) => setShowInputHelperText(event.target.checked)}
-                    />
-                  }
-                  label="Helper text"
-                />
-              </div>
-              <PropertiesCardGroup onNavigate={navigateToSection} items={getInputTokenItems(inputState, previewTheme)} />
-            </>
-          ) : null
-        }
-      >
-        <MeasureOverlay enabled={measureEnabled}>
-          <div style={{ display: 'flex', gap: 32, flexWrap: 'wrap' }}>
-            <RedditTextField
-              label="Reddit style"
-              variant="filled"
-              InputProps={{
-                disableUnderline: true,
-                // MUI's own documented pattern (Input Adornments → "With a clear button")
-                // — InputAdornment + IconButton, not a hand-rolled overlay. Only rendered
-                // once there's something to clear, matching the standard convention.
-                endAdornment:
-                  inputDemoValue && inputState !== 'disabled' ? (
-                    <InputAdornment position="end">
-                      <IconButton
-                        aria-label="Clear"
-                        size="small"
-                        onClick={() => setInputDemoValue('')}
-                      >
-                        <SvgIcon component={SymbolClose} inheritViewBox={true} fontSize="inherit" />
-                      </IconButton>
-                    </InputAdornment>
-                  ) : undefined
-              }}
-              value={inputDemoValue}
-              onChange={(event) => setInputDemoValue(event.target.value)}
-              // Only forced when a non-resting tab is selected — FormControl falls back
-              // to real DOM focus tracking whenever `focused` is undefined (confirmed in
-              // FormControl.js), so resting stays a genuinely interactive field rather
-              // than one that's merely styled to look normal.
-              focused={inputState === 'focus' ? true : undefined}
-              error={inputState === 'error'}
-              disabled={inputState === 'disabled'}
-              helperText={
-                showInputHelperText ? (inputState === 'error' ? 'Something went wrong' : 'Helper text') : undefined
-              }
-              style={{ minWidth: 220 }}
-            />
-          </div>
-        </MeasureOverlay>
-      </Section>
-
-      <Section
-        id="inputs-text-field-top-label"
-        title="Text field — top label"
         titleVariant="h3"
         description="Built from Button / Primary's tokens: same per-size height and corner radius as a button, elevation-0 fill, primary.main on focus. The label sits above the field and never moves. Below: every kind of text input the admin panel uses, rebuilt on this field."
         properties={

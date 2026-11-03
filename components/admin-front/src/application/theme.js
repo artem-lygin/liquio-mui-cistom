@@ -75,13 +75,12 @@ const baseTheme = {
         }
       }
     },
-    // "Reddit style" input exploration (see packages/front-core/modules/styleGuide) lives as
-    // a one-off styled(TextField) wrapper local to that file, not a global MuiFilledInput/
-    // MuiInputLabel override — a global override here affected every variant="filled" input
-    // app-wide, including the Header's own existing search field (its own custom background/
-    // radius/underline handling, components/admin-front/.../layouts/components/Header.jsx),
-    // adding an unintended border and a redundant second focus ring on top of it. Reverted;
-    // see StyleGuide.jsx's RedditTextField for the current approach.
+    // Input design explorations live as one-off components inside the Style Guide (currently
+    // styleGuide/pages/Inputs/TopLabelTextField.jsx), not as global MuiFilledInput/
+    // MuiInputBase/MuiInputLabel overrides here. An earlier global override (the since-removed
+    // "Reddit style" input) affected every variant="filled" input app-wide, including the
+    // Header's own search field (components/admin-front/.../layouts/components/Header.jsx),
+    // adding an unintended border and a redundant second focus ring on top of it.
     MuiInputLabel: {
       root: {
         whiteSpace: 'nowrap',

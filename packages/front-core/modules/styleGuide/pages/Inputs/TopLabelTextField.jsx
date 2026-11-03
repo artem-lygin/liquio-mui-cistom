@@ -8,9 +8,10 @@ import { styled, alpha } from '@mui/material/styles';
 // FormControl + a shrunk InputLabel + a bare InputBase, so there is no notched outline for
 // the label to float into and no float animation.
 //
-// Like RedditTextField, this is a ONE-OFF component scoped to the Style Guide, not a global
-// MuiInputBase/MuiInputLabel override: a global override reaches every existing input in the
-// app (a previous attempt silently restyled the Header's search field).
+// This is a ONE-OFF component scoped to the Style Guide, not a global MuiInputBase/
+// MuiInputLabel override: a global override reaches every existing input in the app (an
+// earlier attempt, the since-removed "Reddit style" input, silently restyled the Header's
+// search field).
 //
 // Three exports, so the same field works for every input type in the demo:
 // - TopLabelField  the frame: FormControl + label above + helper text below

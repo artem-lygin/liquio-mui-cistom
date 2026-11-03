@@ -473,10 +473,15 @@ uses `packages/front-core/theme.js`, which has only one change so far (see Typog
   label/helper text did, via MUI's own native defaults. Added `&.Mui-error { borderColor:
   theme.palette.error.main }`, declared after `&.Mui-focused` so it wins on equal specificity
   when a field is both focused and invalid (an invalid field should read red even while
-  focused, not fall back to the primary ring). _(2026-10-13)_
+  focused, not fall back to the primary ring).
+  **Since removed from the Style Guide entirely, at the product designer's direction**,
+  superseded by the top-label Text field below. `RedditTextField.jsx`, its demo section and
+  its token rows (`getInputTokenItems`/`getInputColorRows`) are deleted. Nothing in production
+  ever used it. The lessons above still apply: no global `MuiFilledInput`/`MuiInputLabel`
+  override, and `&&` goes on the wrapper's own class at the top level. _(2026-11-03)_
 - **New input variation: a "top label" Text field derived from Button / Primary's tokens**,
-  shown in the Style Guide under Inputs → "Text field — top label"
-  (`styleGuide/pages/Inputs/TopLabelTextField.jsx`). Like `RedditTextField`, it is a
+  now the Style Guide's only "Text field" (Inputs → "Text field", first on the page;
+  `styleGuide/pages/Inputs/TopLabelTextField.jsx`). Like the Reddit input before it, it is a
   Style-Guide-only component for now, not a global override, so no production input
   changes. It's built the way MUI's docs build a label-above input (`FormControl` + a shrunk
   `InputLabel` + a bare `InputBase`), with no notched outline and no float animation.
