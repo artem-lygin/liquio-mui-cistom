@@ -349,7 +349,10 @@ uses `packages/front-core/theme.js`, which has only one change so far (see Typog
   row's Create action stays Contained Primary; the other buttons in that row are now
   Outlined Primary:
   - Workflows (`/workflow`, `/workflow_test`, `WorkflowTableToolbar.jsx`): Import, and
-    Export (shown only when rows are selected, and alone in read-only mode).
+    Export (shown only when rows are selected, and alone in read-only mode). Export also
+    got the same 16px left margin as Import. It pointed at `classes.actionBtn`, which this
+    file never defined, so it sat about 3px from Create instead of 20px. Both now share one
+    `secondaryButton` class.
   - Number templates (`ImportTemplate.jsx`): Import templates.
   - Message templates (`MessageTemplatesList/index.jsx`): Export and Import.
   - QR templates, Categories and Tags have only a Create button in that row, so nothing

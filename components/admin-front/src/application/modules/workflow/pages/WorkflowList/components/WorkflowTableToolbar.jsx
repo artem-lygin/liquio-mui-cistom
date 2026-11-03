@@ -51,7 +51,7 @@ const styles = (theme) => ({
   formControl: {
     marginBottom: 30
   },
-  importButton: {
+  secondaryButton: {
     marginLeft: 16
   },
   darkThemeLabel: {
@@ -268,7 +268,7 @@ class ImportWorkflow extends React.Component {
           <Button
             variant="outlined"
             color="primary"
-            className={classes.actionBtn}
+            className={classes.secondaryButton}
             onClick={this.exportWorkflow}
             startIcon={<SvgIcon component={SymbolUpload} inheritViewBox={true} />}
           >
@@ -315,7 +315,7 @@ class ImportWorkflow extends React.Component {
               variant="outlined"
               color="primary"
               onClick={() => this.setState({ ignoreErrorsDialog: true })}
-              className={classes.importButton}
+              className={classes.secondaryButton}
               startIcon={<SvgIcon component={SymbolDownload} inheritViewBox={true} />}
             >
               {t('ImportWorkflow')}
