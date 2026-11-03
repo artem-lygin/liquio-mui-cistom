@@ -576,6 +576,12 @@ uses `packages/front-core/theme.js`, which has only one change so far (see Typog
       Select focus background (`rgba(255,255,255,0.05)`, square corners) on its inner element,
       so it's fixed for every Select in the theme's Text field styles: the inner element is
       transparent on focus and the field's surface shows through in every state.
+      **Pagination controls are also transparent as a whole**, at the product designer's
+      direction. The Per Page select and the page-number input have no fill of their own, in
+      every state. As secondary controls, the Text field's elevation-0 fill read as heavy black
+      boxes on the lighter list-page panel. They take on the surface behind them, and the
+      field's border still carries rest, hover, focus and error. Scoped to the pagination
+      (`pageInputDark`); every other input keeps the standard field.
     - Table select filter (`DataTable/components/SelectFilterHandler.jsx`): the same
       leftovers: a header-colored panel, a white label, a transparent outline and a
       `buttonHoverBg` select fill. Removed in `darkTheme`.

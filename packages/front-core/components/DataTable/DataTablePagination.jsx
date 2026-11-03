@@ -78,6 +78,13 @@ const styles = (theme) => ({
   // darkTheme is admin-only: admin's theme draws these as the Text field (surface, border,
   // radius, padding), so no #2e2e2e box with square bottom corners inside the field.
   pageInputDark: {
+    // Secondary controls: no fill of their own, so they take on whatever surface they sit
+    // on (e.g. the list-page panel); the field's border still shows rest/hover/focus.
+    // Covers both shapes this class lands on: the Select's input root itself, and the page
+    // TextField's FormControl wrapping one.
+    '&.MuiInputBase-root, & .MuiInputBase-root': {
+      backgroundColor: 'transparent'
+    },
     '& input': {
       textAlign: 'center'
     }
