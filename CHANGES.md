@@ -281,15 +281,25 @@ uses `packages/front-core/theme.js`, which has only one change so far (see Typog
   spacing Figma's own Label Wrapper uses around just the label text — MUI's Button has no
   such intermediate element to target, so it's folded into the button's own padding
   instead), so a plain-label button isn't cramped against its own edges even with no icon to
-  provide that spacing. Recomputed `sizeSmall`/`sizeMedium`/`sizeLarge`'s `minHeight` (now
-  `30`/`36`/`42`, was `26`/`32`/`38`) to match — verified live via `/style-guide/buttons`
-  that Contained/Outlined/Text now render at an identical height at every size (an earlier
-  pass here had Contained 2px taller, from missing its own border in that calculation; also
-  added `color="primary"` to that page's own Icon Button demo, which had been demonstrating
-  the *unstyled* default color instead of the new treatment above). Icon Button's own padding
-  scale is close but not identical (`6`/`8`/`9`, not `6`/`8`/`10` — Large is 1px tighter
-  there, and it has no border, so no compensation needed), hence the separate map.
-  _(2026-11-03)_
+  provide that spacing. Recomputed `sizeSmall`/`sizeMedium`/`sizeLarge`'s `minHeight` to
+  `32`/`36`/`42` (was `26`/`32`/`38`) — these three numbers are taken directly from the
+  Figma design system's own per-size frame heights (confirmed identical across Contained/
+  Outlined/Text and across Default/Hover/Pressed there), not derived from a padding+icon
+  formula: that formula (real padding + MUI's own 18/20/22px icon glyph size + a 1px/side
+  border on Contained/Outlined) naturally lands on 36/42 for medium/large, but comes up 2px
+  short at small (30, not 32) — Figma's own mockup icons are a flat 20px at every size,
+  unlike this app's real rendering, which is the likely source of that one gap — so
+  `sizeSmall`'s `minHeight` does real work there instead of just being a floor that's
+  already satisfied. Verified live via `/style-guide/buttons` that Contained/Outlined/Text
+  now render at an identical height at every size (an earlier pass here had Contained 2px
+  taller at every size, from missing its own border in that calculation — and a pass before
+  that had all three sizes 2px short at Small specifically, since the above hadn't been
+  checked against Figma's own stated frame heights yet, only internal consistency between
+  variants; also added `color="primary"` to that page's own Icon Button demo, which had been
+  demonstrating the *unstyled* default color instead of the new treatment above). Icon
+  Button's own padding scale is close but not identical (`6`/`8`/`9`, not `6`/`8`/`10` —
+  Large is 1px tighter there, and it has no border, so no compensation needed), hence the
+  separate map. _(2026-11-03)_
 
 ## Inputs
 

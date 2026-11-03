@@ -224,7 +224,7 @@ const baseTheme = {
       // give the label itself extra horizontal room independent of the button's own edge.
       sizeSmall: ({ theme }) => ({
         fontSize: theme.typography.button.small?.fontSize ?? theme.typography.button.fontSize,
-        minHeight: 30,
+        minHeight: 32,
         borderRadius: theme.buttonCornerRadius.small
       }),
       // MUI has no size-specific style for medium at all (it's the one size MUI itself
@@ -245,18 +245,20 @@ const baseTheme = {
       // present. Without this fixed minHeight, height would come from content instead:
       // padding + max(label line-height, icon size).
       //
+      // These three numbers (32/36/42) are taken directly from the Figma design system's own
+      // per-size frame heights — confirmed identical across Contained/Outlined/Text and
+      // across Default/Hover/Pressed there, so not something specific to one variant/state.
       // containedSizeSmall &c. below set *vertical* padding (theme.buttonCornerRadius minus
       // 1px for Contained/Outlined specifically, to offset their 1px border — Text has no
-      // border, so it keeps the full value) so every variant's natural content height
-      // converges on the same number here, with box-sizing: border-box (this app mounts
-      // CssBaseline, which sets that globally):
-      //   small:  contained/outlined 5px*2 + 18px icon + 2*1px border = 30 | text 6px*2 + 18px icon = 30
-      //   medium: contained/outlined 7px*2 + 20px icon + 2*1px border = 36 | text 8px*2 + 20px icon = 36
-      //   large:  contained/outlined 9px*2 + 22px icon + 2*1px border = 42 | text 10px*2 + 22px icon = 42
-      // (icon sizes 18/20/22 are still MUI's own commonIconStyles default — unchanged here,
-      // only padding/radius are now this app's own, from theme.buttonCornerRadius.) Set to
-      // the icon-present figure (rather than the shorter label-only one) so a plain-label
-      // button grows to match an icon button, instead of the icon overflowing a shorter box.
+      // border, so it keeps the full value); combined with MUI's own real per-size icon
+      // glyph size (commonIconStyles: 18/20/22px, unchanged here — Figma's own mockup icons
+      // are a flat 20px at every size, not a source of truth for this app's real rendering)
+      // and a 1px/side border on Contained/Outlined, that padding naturally produces 36/42
+      // for medium/large, matching Figma exactly without needing minHeight to do any work —
+      // small's natural content height comes out to 30, 2px short of Figma's 32, which is
+      // where the fixed minHeight below actually earns its keep (the gap is absorbed by the
+      // button's own flex-centering, same mechanism that already keeps icon vs. label-only
+      // buttons the same height regardless of which is naturally taller).
       //
       // *Horizontal* padding is 8px (the same "s2" spacing token the Figma design system's
       // own Label Wrapper uses) more than vertical, on top of the border/no-border split
