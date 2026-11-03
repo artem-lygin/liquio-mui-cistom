@@ -30,7 +30,7 @@ const styles = (theme) => ({
     paddingRight: 10
   },
   tableCell: {
-    borderColor: theme.borderColor
+    borderColor: theme.palette.divider
   }
 });
 

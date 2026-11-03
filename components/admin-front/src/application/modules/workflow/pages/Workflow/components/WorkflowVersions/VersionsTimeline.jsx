@@ -19,7 +19,7 @@ const withStyles = makeStyles((theme) => ({
     marginBottom: 20,
     backgroundColor: theme.navigator.sidebarBg,
     boxShadow: 'none',
-    // Border comes from the theme's MuiCard (1px, #ffffff at 5%).
+    // Border comes from the theme's MuiPaper (rounded surfaces: 1px, #ffffff at 5%).
     '&:hover': {
       backgroundColor: theme.buttonHoverBg,
       '& *': {

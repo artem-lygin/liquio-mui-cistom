@@ -634,17 +634,25 @@ const baseTheme = {
       }
     },
     MuiPaper: {
-      root: {
-        fontFamily: '"Inter", "Helvetica", "Arial", sans-serif'
+      root: ({ theme }) => ({
+        fontFamily: '"Inter", "Helvetica", "Arial", sans-serif',
         // backgroundColor/color removed: Paper already defaults to
         // palette.background.paper / palette.text.primary — see palette.background below.
-      }
+        //
+        // Every surface gets a hairline border: #ffffff at 5%, the product designer's
+        // value. Scoped to rounded Papers: cards, menus, popovers, dialogs, list-page panels,
+        // the Autocomplete list. Square Papers (the app bar, the nav drawer, other flush
+        // structural panels) stay borderless.
+        '&.MuiPaper-rounded': {
+          border: `1px solid ${alpha(theme.palette.common.white, 0.05)}`
+        }
+      })
     },
-    // Cards get a hairline border: #ffffff at 5%, the product designer's value. Card only,
-    // not every Paper (menus, dialogs and the list-page panel are Papers too).
-    MuiCard: {
+    // Table cell borders use the divider (10% white). MUI's own dark-mode default derives a
+    // solid grey from it instead (darken(alpha(divider, 1), 0.68), i.e. rgb(81, 81, 81)).
+    MuiTableCell: {
       root: ({ theme }) => ({
-        border: `1px solid ${alpha(theme.palette.common.white, 0.05)}`
+        borderBottom: `1px solid ${theme.palette.divider}`
       })
     },
     MuiDialog: {

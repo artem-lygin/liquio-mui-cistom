@@ -76,8 +76,10 @@ const styles = (theme) => ({
     },
     ...(theme.tableHeaderCell || {})
   },
+  // darkTheme is admin-only: table rows use the theme's divider (10% white), not the
+  // header's separator line.
   cellDark: {
-    borderBottom: theme?.header?.borderBottom
+    borderBottom: `1px solid ${theme.palette.divider}`
   },
   empty: {
     marginTop: 15,

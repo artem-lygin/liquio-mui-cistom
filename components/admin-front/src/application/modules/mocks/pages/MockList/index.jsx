@@ -92,7 +92,7 @@ const useStyles = makeStyles((theme) => ({
     right: -45,
   },
   tableCell: {
-    borderColor: theme.borderColor,
+    borderColor: theme.palette.divider,
   },
   actions: {
     display: 'flex',

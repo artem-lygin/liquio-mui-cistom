@@ -54,13 +54,13 @@ const styles = (theme) => ({
     margin: 0
   },
   groupCellStart: {
-    borderLeft: `1px solid ${theme.borderColor}`
+    borderLeft: `1px solid ${theme.palette.divider}`
   },
   nameCell: {
-    borderRight: `1px solid ${theme.borderColor}`
+    borderRight: `1px solid ${theme.palette.divider}`
   },
   tableCell: {
-    borderColor: theme.borderColor
+    borderColor: theme.palette.divider
   },
   errorField: {
     color: '#f44336',

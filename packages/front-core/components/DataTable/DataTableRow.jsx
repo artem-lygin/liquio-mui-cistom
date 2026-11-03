@@ -51,8 +51,10 @@ const styles = (theme) => ({
     top: 7,
     backgroundColor: 'transparent!important'
   },
+  // darkTheme is admin-only: table rows use the theme's divider (10% white), not the
+  // header's separator line.
   cellDark: {
-    borderBottom: theme?.header?.borderBottom,
+    borderBottom: `1px solid ${theme.palette.divider}`,
     padding: '14px 12px'
   },
   checkBoxRootDarkChecked: {

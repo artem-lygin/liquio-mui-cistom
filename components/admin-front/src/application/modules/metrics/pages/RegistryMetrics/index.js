@@ -28,10 +28,10 @@ const styles = (theme) => ({
     }
   },
   nameCell: {
-    borderRight: `1px solid ${theme.borderColor}`
+    borderRight: `1px solid ${theme.palette.divider}`
   },
   tableCell: {
-    borderColor: theme.borderColor
+    borderColor: theme.palette.divider
   },
   tableCellHover: {
     cursor: 'pointer'

@@ -28,7 +28,7 @@ import DataTablePagination from 'components/DataTable/DataTablePagination';
 
 const useStyles = makeStyles((theme) => ({
   cellStyled: {
-    borderColor: theme.borderColor
+    borderColor: theme.palette.divider
   },
   tabItem: {
     color: '#fff',

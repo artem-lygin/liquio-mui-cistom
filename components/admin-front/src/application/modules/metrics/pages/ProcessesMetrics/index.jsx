@@ -50,7 +50,7 @@ const styles = (theme) => ({
     margin: 0
   },
   groupCellStart: {
-    borderLeft: `1px solid ${theme?.borderColor}`
+    borderLeft: `1px solid ${theme.palette.divider}`
   },
   link: {
     color: theme?.palette?.primary?.main
@@ -61,10 +61,10 @@ const styles = (theme) => ({
     marginBottom: 8
   },
   tableCell: {
-    borderColor: theme?.borderColor
+    borderColor: theme.palette.divider
   },
   tableHead: {
-    borderTop: `1px solid ${theme?.borderColor}`
+    borderTop: `1px solid ${theme.palette.divider}`
   },
   filtersWrapper: {
     display: 'flex',

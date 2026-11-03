@@ -591,14 +591,23 @@ uses `packages/front-core/theme.js`, which has only one change so far (see Typog
   size. Literal radius values in component stylesheets (about 120 across admin and
   front-core) are unaffected. _(2026-11-03)_
 
-- **Cards have a hairline border**: `MuiCard.root` gets `1px solid` `#ffffff` at 5%
-  (`alpha(palette.common.white, 0.05)`), at the product designer's direction. Card only,
-  not every Paper (menus, dialogs and the list-page panel are also Papers and are
-  unchanged). Card is used by the workflow versions timeline in admin and about 7 front-core
-  components. The versions timeline card had its own `1px solid theme.borderColor`
-  (`VersionsTimeline.jsx`), which beat the theme rule. It's removed, so that card now uses
-  the theme border. The Style Guide's own section and token-table containers are Cards too,
-  so they now show the hairline as well. _(2026-11-03)_
+- **Every surface has a hairline border**: `1px solid` `#ffffff` at 5%
+  (`alpha(palette.common.white, 0.05)`), at the product designer's direction. It started as
+  Card-only (`MuiCard`) and was then extended admin-wide, so it now lives on
+  `MuiPaper.root`, scoped to `.MuiPaper-rounded`. That covers cards, menus, popovers,
+  dialogs, the list-page panel, the Autocomplete list and the Style Guide's own section
+  containers. Square Papers (the app bar, the nav drawer, other flush structural panels) stay
+  borderless. The versions timeline card's own `1px solid theme.borderColor`
+  (`VersionsTimeline.jsx`) beat the theme rule; it's removed. _(2026-11-03)_
+- **Table borders use the divider** (10% white), at the product designer's direction:
+  - `MuiTableCell.root` gets `borderBottom: 1px solid palette.divider`. MUI's own dark-mode
+    default derives a solid grey from the divider instead (`rgb(81, 81, 81)`).
+  - The shared `DataTable`'s `cellDark` (rows and header, `darkTheme` = admin only) used the
+    header's separator line (`theme.header.borderBottom`, `#4E4E4E`). It now reads
+    `palette.divider`, so the list-page tables follow it and the header line is unchanged.
+  - Admin pages with their own table cell, header and group borders on `theme.borderColor`
+    now read `palette.divider` too: Metrics, Registry metrics, Process metrics, Statistics,
+    Monitoring, Health check and Mocks. _(2026-11-03)_
 
 ## Layout
 
