@@ -18,13 +18,11 @@ const styles = {
   formControl: {
     padding: '0 0 10px',
   },
+  // darkTheme is admin-only: admin's theme draws the Text field itself (surface, border,
+  // label above the field), so no #2a2a2a panel behind the whole FormControl here; it
+  // painted a grey band behind both the label and the field.
   darkThemeLabel: {
-    backgroundColor: '#2a2a2a',
-    borderRadius: 4,
     padding: 0,
-    '& fieldset': {
-      borderColor: 'transparent',
-    },
   },
   darkThemeSelect: {},
   chevronIcon: {

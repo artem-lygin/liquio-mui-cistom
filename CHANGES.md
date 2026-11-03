@@ -554,6 +554,10 @@ uses `packages/front-core/theme.js`, which has only one change so far (see Typog
       behind label and field, white label, transparent outline) is removed, and in
       `darkTheme` it skips its 16px label size. Found live on Statistics → Report List and
       Registry → Parent Registry.
+    - The schema-form Select (`JsonSchema/elements/Select.jsx`): its `darkThemeLabel`
+      `#2a2a2a` panel and 4px radius on the whole FormControl are removed. It showed as a grey
+      band behind both label and field, e.g. Workflow → Statuses → Task or Event / Status
+      Type, reported by the product designer.
     - Admin pages: the white labels and transparent outlines in the Workflow and Tags
       toolbars; the `#2e2e2e` date pickers in Metrics and Statistics; Statistics' filter
       field corners; the 2px primary outline in the Journal users filter; and IconSelect's
