@@ -480,11 +480,19 @@ uses `packages/front-core/theme.js`, which has only one change so far (see Typog
   Style-Guide-only component for now, not a global override, so no production input
   changes. It's built the way MUI's docs build a label-above input (`FormControl` + a shrunk
   `InputLabel` + a bare `InputBase`), with no notched outline and no float animation.
-  - **Size:** three sizes, each reading the same per-size tokens as Button. Min height comes
-    from the new `theme.buttonHeight` and radius from `theme.buttonCornerRadius` (6/8/10).
-    Padding is `r − 1` / `r + 7`, the same derivation as Outlined's padding. Value text uses
-    `typography.button(.small).fontSize`. It's a min height rather than a fixed one, so
-    multi-line and chip fields can grow.
+  - **Size:** three sizes, each reading the same per-size tokens as Button. Height comes from
+    the new `theme.buttonHeight` and radius from `theme.buttonCornerRadius` (6/8/10).
+    Horizontal padding is `r + 7`, the same as Outlined's. Value text uses
+    `typography.button(.small).fontSize`.
+    - **One-line fields have a fixed height** with the text centered. Measured live, Outlined's
+      `r − 1` vertical padding overshot at Medium: 7 + 7 + 2 border + a 20.125px line
+      (1.4375em at 14px) = 36.125px.
+    - **Multi-line and chip fields** use the height as a minimum and keep `r − 1` vertical
+      padding, so they can grow.
+  - **Icons dim with the field when disabled.** Inside the field, icons use `fill:
+    currentColor` to beat the global `MuiSvgIcon.root.fill`, which had kept the Select and
+    Autocomplete arrows and the chip ✕ white. Adornments inherit the field's disabled color,
+    which fixes the Search magnifier.
   - **Works for every input type**, via three pieces: `TopLabelField` (label + helper frame),
     `TopLabelInput` (the field, a styled `InputBase`), and `TopLabelTextField` (both
     combined).

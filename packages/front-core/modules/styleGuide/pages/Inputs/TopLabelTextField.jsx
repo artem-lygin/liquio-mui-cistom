@@ -29,7 +29,8 @@ import { styled, alpha } from '@mui/material/styles';
 // - border         theme.borderColor at rest; Outlined's own resting border
 //                  (primary.main at 30%) on hover; primary.main on focus; error.main on error
 //
-// minHeight rather than height, so multiline and chip inputs can grow past one line.
+// One-line fields have a fixed height; multi-line and chip fields use it as a min height,
+// so they can grow past one line.
 //
 // These are admin-front theme keys: cabinet-front's theme doesn't define buttonHeight/
 // buttonCornerRadius yet, so there the size-dependent values fall back to MUI's defaults.
@@ -86,9 +87,27 @@ export const TopLabelInput = styled(InputBase, {
     // grey input surface), so the field's own look has to outrank it, not tie with it.
     '&&&': {
       boxSizing: 'border-box',
-      minHeight: height,
+      // One line: exactly the button height, text centered by InputBase's own flex
+      // alignment. Padding is horizontal only, since content-driven height would overshoot:
+      // the text line is 1.4375em (20.125px at 14px), so r − 1 padding top and bottom gives
+      // 36.125px at Medium instead of 36.
+      height,
       borderRadius: radius,
-      padding: padY !== undefined ? `${padY}px ${padX}px` : undefined,
+      padding: padX !== undefined ? `0 ${padX}px` : undefined,
+      // Multi-line and chip fields grow instead: same height as a floor, and Outlined's
+      // r − 1 vertical padding so the first line sits where a one-line field's text does.
+      '&.MuiInputBase-multiline': {
+        height: 'auto',
+        minHeight: height,
+        paddingTop: padY,
+        paddingBottom: padY
+      },
+      // Icons inside the field follow its color. The app's global MuiSvgIcon.root.fill would
+      // otherwise keep MUI's own icons (Select arrow, Autocomplete arrow, chip ✕) white in
+      // every state, including disabled.
+      '& .MuiSvgIcon-root': {
+        fill: 'currentColor'
+      },
       fontSize,
       backgroundColor: theme.palette.background.paper,
       border: `1px solid ${borderRest}`,
@@ -122,6 +141,8 @@ export const TopLabelInput = styled(InputBase, {
       // small chips still lands exactly on the button height, with the same inset on the
       // left as above and below (so the chips sit evenly inside the field).
       '&:has(.MuiAutocomplete-tag)': {
+        height: 'auto',
+        minHeight: height,
         paddingTop: px(chipInset),
         paddingBottom: px(chipInset),
         paddingLeft: px(chipInset)
@@ -154,7 +175,12 @@ export const TopLabelInput = styled(InputBase, {
       },
       '&.Mui-disabled': {
         borderColor: borderRest,
-        cursor: 'not-allowed'
+        cursor: 'not-allowed',
+        // A start/end adornment keeps MUI's action.active color even when the field is
+        // disabled (e.g. the Search magnifier); inherit the field's own disabled color.
+        '& .MuiInputAdornment-root': {
+          color: 'inherit'
+        }
       }
     }
   };
