@@ -213,9 +213,6 @@ const DataTablePagination = ({
 
           <Select
             variant="standard"
-            // darkTheme (admin): pagination fields use the Text field's small size (height,
-            // radius, padding and text all come from the theme's size maps).
-            size={darkTheme ? 'small' : undefined}
             value={perPageValue}
             className={classNames({
               [classes.pageInput]: true,
@@ -305,7 +302,6 @@ const DataTablePagination = ({
           >
             <TextField
               variant="standard"
-              size={darkTheme ? 'small' : undefined}
               // Light theme: the field is the input itself, so it gets the digit-based width.
               // darkTheme (admin): the field has its own side padding, so the width goes on
               // the input and the field sizes around it; otherwise the padding squeezes the

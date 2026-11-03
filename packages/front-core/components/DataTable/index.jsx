@@ -166,7 +166,7 @@ const styles = (theme) => ({
     padding: theme.spacing(1, 4)
   },
   panelBottom: {
-    padding: theme.spacing(2, 4)
+    padding: theme.spacing(4)
   },
   // The table card has no padding: the table runs edge to edge, cells keep their own.
   // The last row's divider is dropped: the card's own border closes the table. (The header

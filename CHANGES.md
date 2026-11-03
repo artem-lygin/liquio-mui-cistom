@@ -405,8 +405,10 @@ uses `packages/front-core/theme.js`, which has only one change so far (see Typog
     own padding. The admin-only side margins and bottom spacing around the table
     (`tableDark`, `tableContainerDark`, `table`) are skipped in panel mode. The last row's
     divider is dropped, since the card's own border closes the table.
-  - **The toolbar card's spacing** is `theme.spacing(1, 4)`, and the bottom card's is
-    `theme.spacing(2, 4)`.
+  - **The toolbar card's spacing** is `theme.spacing(1, 4)`. The bottom (pagination)
+    card's is `theme.spacing(4)` on all sides, at the product designer's direction. It
+    started at `theme.spacing(2, 4)`. A small-size pagination field was tried instead
+    and reverted: the fields stay medium.
   - **Why the header looked like elevation 0.** `DataTable` defaults to
     `stickyHeader: true`. MUI's sticky `TableCell` fills header cells with
     `palette.background.default`, the page colour (`#0c0c0c`), which sat on top of the
@@ -652,12 +654,6 @@ uses `packages/front-core/theme.js`, which has only one change so far (see Typog
       boxes on the lighter list-page panel. They take on the surface behind them, and the
       field's border still carries rest, hover, focus and error. Scoped to the pagination
       (`pageInputDark`); every other input keeps the standard field.
-      **Pagination fields are the small size**, at the product designer's direction: the
-      Per Page select and the page-number input pass `size="small"` in `darkTheme`. Their
-      height, radius, padding and text size come from the theme's per-size maps, the same
-      ones the Text field reads for every size (`theme.buttonHeight.small`,
-      `theme.buttonCornerRadius.small`, `theme.typography.button.small`). No new values were
-      added. Cabinet's pagination is unchanged. _(2026-11-03)_
     - Table select filter (`DataTable/components/SelectFilterHandler.jsx`): the same
       leftovers: a header-colored panel, a white label, a transparent outline and a
       `buttonHoverBg` select fill. Removed in `darkTheme`.
