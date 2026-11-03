@@ -227,19 +227,19 @@ const baseTheme = {
       // give the label itself extra horizontal room independent of the button's own edge.
       sizeSmall: ({ theme }) => ({
         fontSize: theme.typography.button.small?.fontSize ?? theme.typography.button.fontSize,
-        minHeight: 32,
+        minHeight: theme.buttonHeight.small,
         borderRadius: theme.buttonCornerRadius.small
       }),
       // MUI has no size-specific style for medium at all (it's the one size MUI itself
       // never touches), but `MuiButton-sizeMedium` is still a real class every medium
       // Button carries — this override slot works exactly like sizeSmall/sizeLarge.
       sizeMedium: ({ theme }) => ({
-        minHeight: 36,
+        minHeight: theme.buttonHeight.medium,
         borderRadius: theme.buttonCornerRadius.medium
       }),
       sizeLarge: ({ theme }) => ({
         fontSize: theme.typography.button.large?.fontSize ?? theme.typography.button.fontSize,
-        minHeight: 42,
+        minHeight: theme.buttonHeight.large,
         borderRadius: theme.buttonCornerRadius.large
       }),
       // Fixed per-size height, independent of whether the button shows an icon or just a
@@ -989,6 +989,12 @@ const baseTheme = {
   // hence the separate map.
   buttonCornerRadius: { small: 6, medium: 8, large: 10 },
   buttonIconPadding: { small: 6, medium: 8, large: 9 },
+  // Button / Primary's fixed per-size height from the Figma design system (see the comment
+  // above MuiButton.sizeSmall for why it's a fixed minHeight rather than content-derived).
+  // A token rather than three literals inside MuiButton.sizeX because it's no longer
+  // Button-only: the Style Guide's top-label Text field reads the same map so an input and
+  // a button of the same size always line up.
+  buttonHeight: { small: 32, medium: 36, large: 42 },
   textColorDark: '#232f3d',
   headerBg: '#eeeeee',
   checkboxBg: '#000000',

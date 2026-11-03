@@ -471,6 +471,31 @@ uses `packages/front-core/theme.js`, which has only one change so far (see Typog
   theme.palette.error.main }`, declared after `&.Mui-focused` so it wins on equal specificity
   when a field is both focused and invalid (an invalid field should read red even while
   focused, not fall back to the primary ring). _(2026-10-13)_
+- **New input variation: a "top label" Text field derived from Button / Primary's tokens**,
+  shown in the Style Guide under Inputs → "Text field — top label"
+  (`styleGuide/pages/Inputs/TopLabelTextField.jsx`). Like `RedditTextField`, it is a
+  Style-Guide-only component for now, not a global override, so no production input
+  changes. It's built the way MUI's docs build a label-above input (`FormControl` + a shrunk
+  `InputLabel` + a bare `InputBase`), with no notched outline and no float animation.
+  - **Size:** three sizes, each reading the same per-size tokens as Button. Height comes
+    from the new `theme.buttonHeight` and radius from `theme.buttonCornerRadius` (6/8/10).
+    Side padding is `buttonCornerRadius + 7`, the same derivation as Outlined's horizontal
+    padding. Value text uses `typography.button(.small).fontSize`.
+  - **Fill:** `palette.background.paper`, i.e. elevation 0, Paper's flat color with no
+    overlay.
+  - **Border:** `theme.borderColor` at rest, Outlined's resting border (`primary.main` at 30%)
+    on hover, `primary.main` plus a 2px 25% ring on focus, `error.main` on error.
+  - **Label:** sits above the field and never moves or recolors on focus/error. Error shows
+    only on the border and the helper text, in line with the earlier decision that the label
+    shouldn't read as an error. It still inherits the app's global `MuiFormLabel` color and
+    `opacity: 0.5`.
+  - **Demo:** each size is shown next to a Contained button of the same size, so equal
+    heights can be checked by eye.
+  - **New token `theme.buttonHeight`** (`{ small: 32, medium: 36, large: 42 }`). This
+    replaces the three literals in `MuiButton.sizeSmall/Medium/Large`'s `minHeight`, which
+    now read it, so Button and this input share one source. No change to how Button renders.
+    Admin-only for now, like `buttonCornerRadius`; under cabinet-front the field falls back
+    to MUI's default height, radius and padding. _(2026-11-03)_
 
 ## Layout
 

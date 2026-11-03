@@ -538,3 +538,99 @@ export const getSwitchTokenItems = (previewTheme) => {
     { category: 'Spacing', anchor: 'spacing', tokens: [{ path: 'theme.spacing', note: `unit: ${previewTheme.spacing(1)}` }] }
   ];
 };
+
+// Top-label Text field (see TopLabelTextField.jsx): every row here is a token the component
+// reads directly, not a theme.components override, so values come straight off the theme.
+// Size rows describe the selected size; color rows mark the active state with ▸.
+export const getTopLabelInputTokenItems = (state, size, previewTheme) => {
+  const { palette } = previewTheme;
+  const radius = previewTheme.buttonCornerRadius?.[size];
+  const missing = '— not defined in this app\'s theme (admin-only token); falls back to MUI default';
+
+  return [
+    {
+      category: 'Size',
+      anchor: 'spacing',
+      tokens: [
+        {
+          path: `theme.buttonHeight.${size}`,
+          value: previewTheme.buttonHeight?.[size] !== undefined ? `${previewTheme.buttonHeight[size]}px` : undefined,
+          status: 'theme',
+          note: previewTheme.buttonHeight ? 'Field height — the same map MuiButton.size* minHeight reads, so a field and a button of the same size line up exactly.' : missing
+        },
+        {
+          path: `theme.buttonCornerRadius.${size}`,
+          value: radius !== undefined ? `${radius}px` : undefined,
+          status: 'theme',
+          note: radius !== undefined ? 'Corner radius — same per-size map as Button.' : missing
+        },
+        {
+          path: `theme.buttonCornerRadius.${size} + 7`,
+          value: radius !== undefined ? `${radius + 7}px` : undefined,
+          status: 'theme',
+          note: "Side padding — same derivation as Outlined's own horizontal padding, so the value text starts where an Outlined button's label would."
+        }
+      ]
+    },
+    {
+      category: 'Color',
+      anchor: 'colors',
+      tokens: [
+        {
+          path: 'palette.background.paper',
+          value: palette.background.paper,
+          status: 'theme',
+          note: 'Fill, every state — elevation 0 (Paper\'s flat color, no overlay).'
+        },
+        {
+          path: 'theme.borderColor',
+          value: previewTheme.borderColor ?? palette.divider,
+          status: 'theme',
+          active: state === 'resting' || state === 'disabled',
+          note: 'Border at rest and when disabled — the same line color as the sidebar/header separators.'
+        },
+        {
+          path: 'alpha(palette.primary.main, 0.3)',
+          value: palette.primary.main,
+          status: 'theme',
+          note: "Border on hover — Outlined button's own resting border."
+        },
+        {
+          path: 'palette.primary.main',
+          value: palette.primary.main,
+          status: 'theme',
+          active: state === 'focus',
+          note: 'Border on focus, plus a 2px ring at 25% — the button\'s main color.'
+        },
+        {
+          path: 'palette.error.main',
+          value: palette.error.main,
+          status: 'theme',
+          active: state === 'error',
+          note: 'Border on error (ring turns red too while focused). Helper text turns red; the label does not.'
+        },
+        {
+          path: 'theme.typography.body1.color',
+          value: previewTheme.typography.body1.color,
+          status: 'theme',
+          active: state !== 'disabled',
+          note: 'Label — the same color in every state except disabled: it sits above the field and never moves or recolors on focus/error.'
+        }
+      ]
+    },
+    {
+      category: 'Typography',
+      anchor: 'typography',
+      tokens: [
+        { path: 'theme.typography.body2.fontSize', value: previewTheme.typography.body2.fontSize, status: 'theme', note: 'Label.' },
+        {
+          path: size === 'small' ? 'theme.typography.button.small.fontSize' : 'theme.typography.button.fontSize',
+          value: size === 'small' ? previewTheme.typography.button.small?.fontSize ?? previewTheme.typography.button.fontSize : previewTheme.typography.button.fontSize,
+          status: 'theme',
+          note: "Value text — the same size as a button label at this size."
+        },
+        { path: 'theme.typography.caption', status: 'theme', note: 'Helper text (MUI default).' }
+      ]
+    }
+  ];
+};

@@ -1,6 +1,7 @@
 import React from 'react';
 import {
   Typography,
+  Button,
   Divider,
   TextField,
   InputAdornment,
@@ -29,9 +30,12 @@ import { PropertiesCardGroup } from '../../components/PropertiesPanel';
 import { navigateToSection } from '../../shared/navigation';
 import { useSectionScrollspy } from '../../shared/useSectionScrollspy';
 import RedditTextField from './RedditTextField';
+import TopLabelTextField, { TopLabel } from './TopLabelTextField';
 import { INPUT_STATES } from './constants';
+import { BUTTON_SIZES } from '../../shared/constants';
 import {
   getInputTokenItems,
+  getTopLabelInputTokenItems,
   getAutocompleteTokenItems,
   getComboBoxTokenItems,
   getCheckboxTokenItems,
@@ -44,6 +48,7 @@ import {
 // of one shared panel describing all six at once.
 const INPUTS_SUB_SECTIONS = [
   { id: 'inputs-text-field', label: 'Text field' },
+  { id: 'inputs-text-field-top-label', label: 'Text field — top label' },
   { id: 'inputs-autocomplete', label: 'Autocomplete' },
   { id: 'inputs-combo-box', label: 'Combo box' },
   { id: 'inputs-checkboxes', label: 'Checkboxes' },
@@ -58,6 +63,10 @@ const InputsPageContent = () => {
   const [inputState, setInputState] = React.useState('resting');
   const [inputDemoValue, setInputDemoValue] = React.useState('Value');
   const [showInputHelperText, setShowInputHelperText] = React.useState(true);
+  const [topLabelState, setTopLabelState] = React.useState('resting');
+  const [topLabelSize, setTopLabelSize] = React.useState('medium');
+  const [topLabelShowHelperText, setTopLabelShowHelperText] = React.useState(true);
+  const [topLabelValues, setTopLabelValues] = React.useState({ small: 'Value', medium: 'Value', large: 'Value' });
   const activeSubId = useSectionScrollspy(SCROLLSPY_IDS);
 
   return (
@@ -162,6 +171,100 @@ const InputsPageContent = () => {
               }
               style={{ minWidth: 220 }}
             />
+          </div>
+        </MeasureOverlay>
+      </Section>
+
+      <Section
+        id="inputs-text-field-top-label"
+        title="Text field — top label"
+        titleVariant="h3"
+        description="Built from Button / Primary's tokens: same per-size height and corner radius as a button, elevation-0 fill, primary.main on focus. The label sits above the field and never moves."
+        properties={
+          showProperties ? (
+            <>
+              <Tabs
+                value={topLabelState}
+                onChange={(event, value) => setTopLabelState(value)}
+                variant="scrollable"
+                style={{ minHeight: 36, borderBottom: '1px solid rgba(255, 255, 255, 0.12)' }}
+              >
+                {INPUT_STATES.map((state) => (
+                  <Tab key={state.key} value={state.key} label={state.label} style={{ minHeight: 36, padding: '6px 16px' }} />
+                ))}
+              </Tabs>
+              <PropertiesCardGroup
+                onNavigate={navigateToSection}
+                items={getTopLabelInputTokenItems(topLabelState, topLabelSize, previewTheme)}
+              />
+            </>
+          ) : null
+        }
+      >
+        <div
+          style={{
+            display: 'flex',
+            gap: 16,
+            alignItems: 'flex-end',
+            flexWrap: 'wrap',
+            marginBottom: 20,
+            borderBottom: '1px solid rgba(255, 255, 255, 0.12)'
+          }}
+        >
+          <Tabs value={topLabelSize} onChange={(event, value) => setTopLabelSize(value)} style={{ minHeight: 32 }}>
+            {BUTTON_SIZES.map((size) => (
+              <Tab key={size.key} value={size.key} label={size.label} style={{ minHeight: 32, minWidth: 'auto', padding: '4px 12px 8px' }} />
+            ))}
+          </Tabs>
+          <FormControlLabel
+            style={{ marginLeft: 'auto', marginBottom: 8 }}
+            control={
+              <Switch
+                size="small"
+                checked={topLabelShowHelperText}
+                onChange={(event) => setTopLabelShowHelperText(event.target.checked)}
+              />
+            }
+            label="Helper text"
+          />
+        </div>
+
+        <MeasureOverlay enabled={measureEnabled}>
+          {/* All three sizes at once; the selected size tab drives the properties panel. Each
+              field sits next to a Contained button of the same size, bottom-aligned on the
+              field itself (helper text hangs below), so equal heights are visible directly. */}
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 28 }}>
+            {BUTTON_SIZES.map(({ key: size, label: sizeLabel }) => (
+              <div key={size} style={{ display: 'flex', gap: 12, alignItems: 'flex-start', opacity: size === topLabelSize ? 1 : 0.55 }}>
+                <TopLabelTextField
+                  id={`style-guide-top-label-${size}`}
+                  size={size}
+                  label={`${sizeLabel} field`}
+                  placeholder="Placeholder"
+                  value={topLabelValues[size]}
+                  onChange={(event) => setTopLabelValues({ ...topLabelValues, [size]: event.target.value })}
+                  // Same contract as the Text field demo above: only forced when a non-resting
+                  // tab is selected, so Resting stays genuinely interactive (real focus works).
+                  focused={topLabelState === 'focus' ? true : undefined}
+                  error={topLabelState === 'error'}
+                  disabled={topLabelState === 'disabled'}
+                  helperText={
+                    topLabelShowHelperText ? (topLabelState === 'error' ? 'Something went wrong' : 'Helper text') : undefined
+                  }
+                  style={{ width: 260 }}
+                />
+                {/* An invisible copy of the real label sits above the button, so the button
+                    lines up with the field itself without hardcoding the label's height. */}
+                <div style={{ display: 'flex', flexDirection: 'column' }}>
+                  <TopLabel aria-hidden={true} shrink={true} disableAnimation={true} style={{ visibility: 'hidden' }}>
+                    &nbsp;
+                  </TopLabel>
+                  <Button variant="contained" color="primary" size={size}>
+                    Button
+                  </Button>
+                </div>
+              </div>
+            ))}
           </div>
         </MeasureOverlay>
       </Section>
