@@ -12,20 +12,44 @@ import { styled, alpha } from '@mui/material/styles';
 // MuiInputBase/MuiInputLabel override: a global override reaches every existing input in the
 // app (a previous attempt silently restyled the Header's search field).
 //
+// Three exports, so the same field works for every input type in the demo:
+// - TopLabelField  the frame: FormControl + label above + helper text below
+// - TopLabelInput  the field itself (a styled InputBase); also what Autocomplete's
+//                  renderInput and Select's `input` prop receive
+// - TopLabelTextField  the two combined, for a plain text field
+//
 // Every visual value is read from an existing token, per size:
-// - height         theme.buttonHeight[size]        (same map MuiButton.sizeX's minHeight reads)
+// - min height     theme.buttonHeight[size]        (same map MuiButton.sizeX's minHeight reads)
 // - corner radius  theme.buttonCornerRadius[size]  (same map MuiButton.sizeX's radius reads)
-// - side padding   buttonCornerRadius + 7, i.e. the same derivation as Outlined's own
-//                  horizontal padding (MuiButton.outlinedSize*), so text sits where an
-//                  Outlined button's label would
+// - padding        `${r - 1}px ${r + 7}px`, the same derivation as Outlined's own padding
+//                  (MuiButton.outlinedSize*), so a single line lands on the button height and
+//                  text starts where an Outlined button's label would
 // - value text     theme.typography.button(.small).fontSize, same as the button label
 // - background     palette.background.paper (elevation 0: Paper's flat color, no overlay)
 // - border         theme.borderColor at rest; Outlined's own resting border
 //                  (primary.main at 30%) on hover; primary.main on focus; error.main on error
 //
+// minHeight rather than height, so multiline and chip inputs can grow past one line.
+//
 // These are admin-front theme keys: cabinet-front's theme doesn't define buttonHeight/
 // buttonCornerRadius yet, so there the size-dependent values fall back to MUI's defaults.
-const SIDE_PADDING_EXTRA = 7; // mirrors MuiButton.outlinedSize*: `${r - 1}px ${r + 7}px`
+
+// MUI's own Autocomplete indicator button width (28px: a 24px icon + 2px padding each side,
+// from Autocomplete.js), needed to reserve room for one or two of them on the right.
+const AUTOCOMPLETE_INDICATOR_WIDTH = 28;
+// A small Chip (24px) plus Autocomplete's own 3px tag margin on each side, plus the field's
+// 1px border on each side: the height of a field holding one row of chips with no padding.
+const CHIP_ROW_HEIGHT = 24 + 3 * 2 + 1 * 2;
+
+const getSize = (theme, inputSize) => {
+  const radius = theme.buttonCornerRadius?.[inputSize];
+  return {
+    radius,
+    height: theme.buttonHeight?.[inputSize],
+    padY: radius !== undefined ? radius - 1 : undefined,
+    padX: radius !== undefined ? radius + 7 : undefined
+  };
+};
 
 export const TopLabel = styled(InputLabel)(({ theme }) => ({
   // Doubled class: beats InputLabel's own formControl/shrink positioning (an absolute
@@ -44,50 +68,128 @@ export const TopLabel = styled(InputLabel)(({ theme }) => ({
   }
 }));
 
-const TopLabelInput = styled(InputBase, {
+export const TopLabelInput = styled(InputBase, {
   shouldForwardProp: (prop) => prop !== 'inputSize'
-})(({ theme, inputSize }) => {
-  const radius = theme.buttonCornerRadius?.[inputSize];
-  const height = theme.buttonHeight?.[inputSize];
+})(({ theme, inputSize = 'medium' }) => {
+  const { radius, height, padY, padX } = getSize(theme, inputSize);
   const fontSize =
     inputSize === 'small'
       ? theme.typography.button.small?.fontSize ?? theme.typography.button.fontSize
       : theme.typography.button.fontSize;
   const borderRest = theme.borderColor ?? theme.palette.divider;
+  const px = (value) => (value !== undefined ? `${value}px` : undefined);
+  const chipInset = height !== undefined ? Math.max(0, (height - CHIP_ROW_HEIGHT) / 2) : undefined;
 
   return {
-    boxSizing: 'border-box',
-    height,
-    borderRadius: radius,
-    padding: radius !== undefined ? `0 ${radius + SIDE_PADDING_EXTRA}px` : undefined,
-    fontSize,
-    backgroundColor: theme.palette.background.paper,
-    border: `1px solid ${borderRest}`,
-    transition: theme.transitions.create(['border-color', 'box-shadow']),
-    '& .MuiInputBase-input': {
-      padding: 0,
-      height: '100%'
-    },
-    // Order matters (equal specificity, last wins): hover < focused < error < disabled.
-    '&:hover': {
-      borderColor: alpha(theme.palette.primary.main, 0.3)
-    },
-    '&.Mui-focused': {
-      borderColor: theme.palette.primary.main,
-      boxShadow: `0 0 0 2px ${alpha(theme.palette.primary.main, 0.25)}`
-    },
-    '&.Mui-error': {
-      borderColor: theme.palette.error.main
-    },
-    '&.Mui-error.Mui-focused': {
-      boxShadow: `0 0 0 2px ${alpha(theme.palette.error.main, 0.25)}`
-    },
-    '&.Mui-disabled': {
-      borderColor: borderRest,
-      cursor: 'not-allowed'
+    // Tripled class: Autocomplete applies its own (theme) inputRoot override at two-class
+    // specificity (".MuiAutocomplete-root .MuiAutocomplete-inputRoot" — radius 4px and the
+    // grey input surface), so the field's own look has to outrank it, not tie with it.
+    '&&&': {
+      boxSizing: 'border-box',
+      minHeight: height,
+      borderRadius: radius,
+      padding: padY !== undefined ? `${padY}px ${padX}px` : undefined,
+      fontSize,
+      backgroundColor: theme.palette.background.paper,
+      border: `1px solid ${borderRest}`,
+      transition: theme.transitions.create(['border-color', 'box-shadow']),
+
+      '& .MuiInputBase-input:not(.MuiSelect-select)': {
+        padding: 0
+      },
+      // Select keeps MUI's own paddingRight (room for its arrow); only the vertical/left
+      // padding is handed over to the field.
+      '& .MuiSelect-select': {
+        paddingTop: 0,
+        paddingBottom: 0,
+        paddingLeft: 0
+      },
+      // Indicators (Select's arrow, Autocomplete's clear/open buttons) sit `radius` in from
+      // the right edge — the same inset as the field's own corner.
+      '& .MuiSelect-icon': {
+        right: px(radius)
+      },
+      '& .MuiAutocomplete-endAdornment': {
+        right: px(radius !== undefined ? radius - 2 : undefined)
+      },
+      '.MuiAutocomplete-hasPopupIcon &, .MuiAutocomplete-hasClearIcon &': {
+        paddingRight: px(radius !== undefined ? radius + AUTOCOMPLETE_INDICATOR_WIDTH : undefined)
+      },
+      '.MuiAutocomplete-hasPopupIcon.MuiAutocomplete-hasClearIcon &': {
+        paddingRight: px(radius !== undefined ? radius + AUTOCOMPLETE_INDICATOR_WIDTH * 2 : undefined)
+      },
+      // With chips, the chips themselves set the row height: padding shrinks so one row of
+      // small chips still lands exactly on the button height, with the same inset on the
+      // left as above and below (so the chips sit evenly inside the field).
+      '&:has(.MuiAutocomplete-tag)': {
+        paddingTop: px(chipInset),
+        paddingBottom: px(chipInset),
+        paddingLeft: px(chipInset)
+      },
+      // Icon buttons inside the field (password toggle, date trigger, clear) scale with the
+      // field's own text size and don't add height: their padding is cancelled by an equal
+      // negative margin.
+      '& .MuiInputAdornment-root .MuiIconButton-root': {
+        fontSize: '1.25em',
+        padding: 2,
+        margin: -2
+      },
+      '& .MuiInputAdornment-root > .MuiSvgIcon-root': {
+        fontSize: '1.25em'
+      },
+
+      // Order matters (equal specificity, last wins): hover < focused < error < disabled.
+      '&:hover': {
+        borderColor: alpha(theme.palette.primary.main, 0.3)
+      },
+      '&.Mui-focused': {
+        borderColor: theme.palette.primary.main,
+        boxShadow: `0 0 0 2px ${alpha(theme.palette.primary.main, 0.25)}`
+      },
+      '&.Mui-error': {
+        borderColor: theme.palette.error.main
+      },
+      '&.Mui-error.Mui-focused': {
+        boxShadow: `0 0 0 2px ${alpha(theme.palette.error.main, 0.25)}`
+      },
+      '&.Mui-disabled': {
+        borderColor: borderRest,
+        cursor: 'not-allowed'
+      }
     }
   };
 });
+
+export const TopLabelField = ({
+  id,
+  label,
+  helperText,
+  error,
+  disabled,
+  focused,
+  fullWidth,
+  style,
+  className,
+  children
+}) => (
+  <FormControl
+    variant="standard"
+    error={error}
+    disabled={disabled}
+    focused={focused}
+    fullWidth={fullWidth}
+    style={style}
+    className={className}
+  >
+    {label ? (
+      <TopLabel shrink={true} disableAnimation={true} htmlFor={id}>
+        {label}
+      </TopLabel>
+    ) : null}
+    {children}
+    {helperText ? <FormHelperText id={`${id}-helper-text`}>{helperText}</FormHelperText> : null}
+  </FormControl>
+);
 
 const TopLabelTextField = ({
   id,
@@ -101,28 +203,25 @@ const TopLabelTextField = ({
   style,
   className,
   ...inputProps
-}) => {
-  const helperTextId = helperText ? `${id}-helper-text` : undefined;
-
-  return (
-    <FormControl
-      variant="standard"
-      error={error}
-      disabled={disabled}
-      focused={focused}
-      fullWidth={fullWidth}
-      style={style}
-      className={className}
-    >
-      {label ? (
-        <TopLabel shrink={true} disableAnimation={true} htmlFor={id}>
-          {label}
-        </TopLabel>
-      ) : null}
-      <TopLabelInput id={id} inputSize={size} aria-describedby={helperTextId} {...inputProps} />
-      {helperText ? <FormHelperText id={helperTextId}>{helperText}</FormHelperText> : null}
-    </FormControl>
-  );
-};
+}) => (
+  <TopLabelField
+    id={id}
+    label={label}
+    helperText={helperText}
+    error={error}
+    disabled={disabled}
+    focused={focused}
+    fullWidth={fullWidth}
+    style={style}
+    className={className}
+  >
+    <TopLabelInput
+      id={id}
+      inputSize={size}
+      aria-describedby={helperText ? `${id}-helper-text` : undefined}
+      {...inputProps}
+    />
+  </TopLabelField>
+);
 
 export default TopLabelTextField;

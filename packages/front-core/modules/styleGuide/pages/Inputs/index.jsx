@@ -1,7 +1,6 @@
 import React from 'react';
 import {
   Typography,
-  Button,
   Divider,
   TextField,
   InputAdornment,
@@ -30,7 +29,7 @@ import { PropertiesCardGroup } from '../../components/PropertiesPanel';
 import { navigateToSection } from '../../shared/navigation';
 import { useSectionScrollspy } from '../../shared/useSectionScrollspy';
 import RedditTextField from './RedditTextField';
-import TopLabelTextField, { TopLabel } from './TopLabelTextField';
+import TopLabelGallery from './TopLabelGallery';
 import { INPUT_STATES } from './constants';
 import { BUTTON_SIZES } from '../../shared/constants';
 import {
@@ -66,7 +65,6 @@ const InputsPageContent = () => {
   const [topLabelState, setTopLabelState] = React.useState('resting');
   const [topLabelSize, setTopLabelSize] = React.useState('medium');
   const [topLabelShowHelperText, setTopLabelShowHelperText] = React.useState(true);
-  const [topLabelValues, setTopLabelValues] = React.useState({ small: 'Value', medium: 'Value', large: 'Value' });
   const activeSubId = useSectionScrollspy(SCROLLSPY_IDS);
 
   return (
@@ -179,7 +177,7 @@ const InputsPageContent = () => {
         id="inputs-text-field-top-label"
         title="Text field — top label"
         titleVariant="h3"
-        description="Built from Button / Primary's tokens: same per-size height and corner radius as a button, elevation-0 fill, primary.main on focus. The label sits above the field and never moves."
+        description="Built from Button / Primary's tokens: same per-size height and corner radius as a button, elevation-0 fill, primary.main on focus. The label sits above the field and never moves. Below: every kind of text input the admin panel uses, rebuilt on this field."
         properties={
           showProperties ? (
             <>
@@ -229,43 +227,10 @@ const InputsPageContent = () => {
           />
         </div>
 
+        {/* The size tabs above switch the size of every field below; the state tabs in the
+            properties panel switch their state. */}
         <MeasureOverlay enabled={measureEnabled}>
-          {/* All three sizes at once; the selected size tab drives the properties panel. Each
-              field sits next to a Contained button of the same size, bottom-aligned on the
-              field itself (helper text hangs below), so equal heights are visible directly. */}
-          <div style={{ display: 'flex', flexDirection: 'column', gap: 28 }}>
-            {BUTTON_SIZES.map(({ key: size, label: sizeLabel }) => (
-              <div key={size} style={{ display: 'flex', gap: 12, alignItems: 'flex-start', opacity: size === topLabelSize ? 1 : 0.55 }}>
-                <TopLabelTextField
-                  id={`style-guide-top-label-${size}`}
-                  size={size}
-                  label={`${sizeLabel} field`}
-                  placeholder="Placeholder"
-                  value={topLabelValues[size]}
-                  onChange={(event) => setTopLabelValues({ ...topLabelValues, [size]: event.target.value })}
-                  // Same contract as the Text field demo above: only forced when a non-resting
-                  // tab is selected, so Resting stays genuinely interactive (real focus works).
-                  focused={topLabelState === 'focus' ? true : undefined}
-                  error={topLabelState === 'error'}
-                  disabled={topLabelState === 'disabled'}
-                  helperText={
-                    topLabelShowHelperText ? (topLabelState === 'error' ? 'Something went wrong' : 'Helper text') : undefined
-                  }
-                  style={{ width: 260 }}
-                />
-                {/* An invisible copy of the real label sits above the button, so the button
-                    lines up with the field itself without hardcoding the label's height. */}
-                <div style={{ display: 'flex', flexDirection: 'column' }}>
-                  <TopLabel aria-hidden={true} shrink={true} disableAnimation={true} style={{ visibility: 'hidden' }}>
-                    &nbsp;
-                  </TopLabel>
-                  <Button variant="contained" color="primary" size={size}>
-                    Button
-                  </Button>
-                </div>
-              </div>
-            ))}
-          </div>
+          <TopLabelGallery size={topLabelSize} state={topLabelState} showHelperText={topLabelShowHelperText} />
         </MeasureOverlay>
       </Section>
 

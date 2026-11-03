@@ -556,7 +556,7 @@ export const getTopLabelInputTokenItems = (state, size, previewTheme) => {
           path: `theme.buttonHeight.${size}`,
           value: previewTheme.buttonHeight?.[size] !== undefined ? `${previewTheme.buttonHeight[size]}px` : undefined,
           status: 'theme',
-          note: previewTheme.buttonHeight ? 'Field height — the same map MuiButton.size* minHeight reads, so a field and a button of the same size line up exactly.' : missing
+          note: previewTheme.buttonHeight ? 'Field min height — the same map MuiButton.size* minHeight reads, so a one-line field and a button of the same size line up exactly. Multi-line and chip fields grow past it.' : missing
         },
         {
           path: `theme.buttonCornerRadius.${size}`,
@@ -565,10 +565,16 @@ export const getTopLabelInputTokenItems = (state, size, previewTheme) => {
           note: radius !== undefined ? 'Corner radius — same per-size map as Button.' : missing
         },
         {
-          path: `theme.buttonCornerRadius.${size} + 7`,
-          value: radius !== undefined ? `${radius + 7}px` : undefined,
+          path: `theme.buttonCornerRadius.${size} − 1 / + 7`,
+          value: radius !== undefined ? `${radius - 1}px ${radius + 7}px` : undefined,
           status: 'theme',
-          note: "Side padding — same derivation as Outlined's own horizontal padding, so the value text starts where an Outlined button's label would."
+          note: "Padding — same derivation as Outlined's own padding, so the value text starts where an Outlined button's label would. Fields with chips use a smaller, even inset instead, so one row of small chips still fits the same height."
+        },
+        {
+          path: `theme.buttonCornerRadius.${size}`,
+          value: radius !== undefined ? `${radius}px` : undefined,
+          status: 'theme',
+          note: "Right inset of Select's arrow and Autocomplete's clear/open buttons — the same as the field's corner radius."
         }
       ]
     },
