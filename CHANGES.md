@@ -595,7 +595,10 @@ uses `packages/front-core/theme.js`, which has only one change so far (see Typog
   (`alpha(palette.common.white, 0.05)`), at the product designer's direction. Card only,
   not every Paper (menus, dialogs and the list-page panel are also Papers and are
   unchanged). Card is used by the workflow versions timeline in admin and about 7 front-core
-  components. _(2026-11-03)_
+  components. The versions timeline card had its own `1px solid theme.borderColor`
+  (`VersionsTimeline.jsx`), which beat the theme rule. It's removed, so that card now uses
+  the theme border. The Style Guide's own section and token-table containers are Cards too,
+  so they now show the hairline as well. _(2026-11-03)_
 
 ## Layout
 
