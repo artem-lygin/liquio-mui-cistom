@@ -75,11 +75,10 @@ const styles = (theme) => ({
       textAlign: 'center'
     }
   },
+  // darkTheme is admin-only: admin's theme draws these as the Text field (surface, border,
+  // radius, padding), so no #2e2e2e box with square bottom corners inside the field.
   pageInputDark: {
     '& input': {
-      backgroundColor: theme?.buttonHoverBg,
-      borderRadius: '4px 4px 0px 0px',
-      padding: 5,
       textAlign: 'center'
     }
   },
@@ -157,10 +156,7 @@ const styles = (theme) => ({
     }
   },
   darkThemeSelect: {
-    color: theme?.header?.textColor,
-    backgroundColor: theme?.buttonHoverBg,
-    borderRadius: '4px 4px 0px 0px',
-    padding: 5
+    color: theme?.header?.textColor
   },
   loading: {
     color: theme?.palette?.text?.secondary,
@@ -299,9 +295,14 @@ const DataTablePagination = ({
           >
             <TextField
               variant="standard"
+              // Light theme: the field is the input itself, so it gets the digit-based width.
+              // darkTheme (admin): the field has its own side padding, so the width goes on
+              // the input and the field sizes around it; otherwise the padding squeezes the
+              // page number out of view.
               style={{
-                width: countInputWidth(page)
+                width: darkTheme ? 'auto' : countInputWidth(page)
               }}
+              inputProps={darkTheme ? { style: { width: countInputWidth(page) } } : undefined}
               className={classNames({
                 [classes.pageInput]: true,
                 [classes.pageInputDark]: darkTheme

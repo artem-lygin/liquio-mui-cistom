@@ -27,21 +27,12 @@ const styles = (theme) => ({
     ...theme.listBackground
   },
   darkThemeLabel: {
-    width: '100%',
-    background: theme?.header?.background,
-    '& label': {
-      color: '#fff'
-    },
-    '& input': {
-      color: '#fff'
-    },
-    '& fieldset': {
-      borderColor: 'transparent'
-    }
+    // darkTheme is admin-only: admin's theme draws the field (Text field), so no header-
+    // colored panel, white label or transparent outline here.
+    width: '100%'
   },
   darkThemeSelect: {
-    color: navigator.fillIcon,
-    backgroundColor: theme.buttonHoverBg
+    color: navigator.fillIcon
   },
   darkThemePaper: {
     ...theme.listBackground,

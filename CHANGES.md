@@ -566,6 +566,15 @@ uses `packages/front-core/theme.js`, which has only one change so far (see Typog
       `#2a2a2a` panel and 4px radius on the whole FormControl are removed. It showed as a grey
       band behind both label and field, e.g. Workflow → Statuses → Task or Event / Status
       Type, reported by the product designer.
+    - Table pagination (`DataTable/DataTablePagination.jsx`): the Per Page select and the
+      page-number input painted `theme.buttonHoverBg` (the old `#2e2e2e`) with square bottom
+      corners and 5px padding on their inner element, a second box inside the field. Reported
+      by the product designer. Removed in `darkTheme`. The page-number input also had a fixed
+      digit-based width (≈24px) that the field's side padding exceeded, hiding the number.
+      In `darkTheme` that width now sits on the input element and the field sizes around it.
+    - Table select filter (`DataTable/components/SelectFilterHandler.jsx`): the same
+      leftovers: a header-colored panel, a white label, a transparent outline and a
+      `buttonHoverBg` select fill. Removed in `darkTheme`.
     - Admin pages: the white labels and transparent outlines in the Workflow and Tags
       toolbars; the `#2e2e2e` date pickers in Metrics and Statistics; Statistics' filter
       field corners; the 2px primary outline in the Journal users filter; and IconSelect's
