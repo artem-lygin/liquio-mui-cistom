@@ -8,16 +8,16 @@ import ErrorOutlineIcon from '@mui/icons-material/ErrorOutline';
 import HighlightText from 'components/HighlightText';
 import toCamelCase from 'helpers/toCamelCase';
 
-const styles = {
+const styles = (theme) => ({
   errorLabel: {
     color: '#f44336',
   },
   ids: {
-    paddingLeft: 5,
+    paddingLeft: theme.spacing(1),
   },
   link: {
     textDecorationColor: '#f44336',
-    marginRight: 4,
+    marginRight: theme.spacing(1),
     whiteSpace: 'nowrap',
   },
   errorMessage: {
@@ -25,7 +25,7 @@ const styles = {
     maxWidth: 300,
     textOverflow: 'ellipsis',
   },
-};
+});
 
 const ErrorDetails = ({
   t,

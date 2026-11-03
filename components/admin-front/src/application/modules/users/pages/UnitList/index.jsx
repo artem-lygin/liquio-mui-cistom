@@ -37,11 +37,11 @@ import { getFavorites } from 'actions/favorites';
 
 const useStyles = makeStyles((theme) => ({
   actionBtn: {
-    marginLeft: 16,
+    marginLeft: theme.spacing(4),
   },
   dialogTitle: {
     '& > h2': {
-      marginTop: 20,
+      marginTop: theme.spacing(5),
       fontWeight: 400,
       fontSize: 32,
       lineHeight: '38px',
@@ -49,12 +49,12 @@ const useStyles = makeStyles((theme) => ({
     },
   },
   actionsWrapper: {
-    paddingRight: 20,
-    marginBottom: 20,
+    paddingRight: theme.spacing(5),
+    marginBottom: theme.spacing(5),
   },
   buttonsWrapper: {
     [theme.breakpoints.down('md')]: {
-      marginTop: '10px',
+      marginTop: theme.spacing(3),
     },
   },
 }));

@@ -25,18 +25,18 @@ import StringElement from 'components/JsonSchema/elements/StringElement';
 import Select from 'components/Select';
 import RegisterSelect from './RegisterSelect';
 
-const styles = {
+const styles = (theme) => ({
   buttonPadding: {
-    marginLeft: 10,
+    marginLeft: theme.spacing(3),
   },
   xlsButton: {
-    marginTop: 20,
-    marginBottom: 20,
+    marginTop: theme.spacing(5),
+    marginBottom: theme.spacing(5),
   },
   selectWrapper: {
-    marginBottom: 40,
+    marginBottom: theme.spacing(10),
   },
-};
+});
 
 class ImportRegistersKeys extends React.Component {
   constructor(props) {

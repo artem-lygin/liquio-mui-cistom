@@ -59,8 +59,8 @@ const useStyles = makeStyles((theme) => ({
   mockRow: {
     display: 'flex',
     alignItems: 'center',
-    paddingBottom: 10,
-    paddingTop: 5,
+    paddingBottom: theme.spacing(3),
+    paddingTop: theme.spacing(1),
   },
   mockslist: {
     paddingLeft: 0,
@@ -80,7 +80,7 @@ const useStyles = makeStyles((theme) => ({
     color: '#E2E2E2',
   },
   actionIcon: {
-    marginLeft: 10,
+    marginLeft: theme.spacing(3),
   },
   disabled: {
     color: '#E2E2E2!important',
@@ -107,8 +107,8 @@ const useStyles = makeStyles((theme) => ({
     width: 50,
   },
   toolbar: {
-    marginTop: 12,
-    marginBottom: 12,
+    marginTop: theme.spacing(3),
+    marginBottom: theme.spacing(3),
   },
   lastTableCell: {
     paddingLeft: 0,
@@ -117,11 +117,11 @@ const useStyles = makeStyles((theme) => ({
     background: '#232323',
   },
   dialogDescription: {
-    marginBottom: 30,
+    marginBottom: theme.spacing(8),
   },
   error: {
     fontSize: 14,
-    marginTop: 10,
+    marginTop: theme.spacing(3),
   },
 }));
 

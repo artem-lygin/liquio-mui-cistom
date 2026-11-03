@@ -8,7 +8,7 @@ import ChevronRightIcon from '@mui/icons-material/ChevronRight';
 import InfoIcon from '@mui/icons-material/Info';
 import DeleteOutlinedIcon from '@mui/icons-material/DeleteOutlined';
 
-const useStyles = makeStyles({
+const useStyles = makeStyles((theme) => ({
   item: {
     color: '#ffffff',
     '& div': {
@@ -36,13 +36,13 @@ const useStyles = makeStyles({
   labelRoot: {
     display: 'flex',
     alignItems: 'center',
-    padding: 4,
+    padding: theme.spacing(1),
   },
   icon: {
     fontSize: 16,
-    marginRight: 4,
+    marginRight: theme.spacing(1),
   },
-});
+}));
 
 const VersionTreeMenu = ({ tree, onClick }) => {
   const classes = useStyles();

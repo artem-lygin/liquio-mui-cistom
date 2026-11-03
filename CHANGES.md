@@ -609,6 +609,32 @@ uses `packages/front-core/theme.js`, which has only one change so far (see Typog
     now read `palette.divider` too: Metrics, Registry metrics, Process metrics, Statistics,
     Monitoring, Health check and Mocks. _(2026-11-03)_
 
+- **Admin's own spacing and corner radii now read the theme**, at the product designer's
+  direction. Spacing keeps its current size; corners follow the 8px default.
+  - **What changed:** 266 hardcoded `padding`/`margin`/`gap` values (numbers and `'Npx …'`
+    strings) in 52 files under `components/admin-front/src/application` became
+    `theme.spacing(n)` at their current size, snapped to the 4px grid: 24px → `spacing(6)`.
+  - **Off-grid values moved slightly:** the most common were 10 → 12 (×40), 30 → 32 (×20),
+    5 → 4 (×18), 15 → 16 (×12), 11 → 12 (×6) and 43 → 44 (×6).
+  - **Left alone:**
+    - zero
+    - 1–3px nudges
+    - anything over 64px (offsets and widths, e.g. the sidebar's −300)
+    - numeric `sx` spacing, which MUI already scales by the unit
+    - inline `style={{}}` props and JSON-schema layout config (`schema.js`), which can't
+      read the theme (62 values)
+    - `theme.js` itself
+  - **Radius:** admin's own rectangular corners of 1–8px became `theme.shape.borderRadius`
+    (8px). Only 3 qualified: the Header (2px), the profile app bar (already 8) and Import
+    register keys (4px). Most of the ~60 rectangular radii counted earlier are in
+    front-core. Circles, pills, square and one-sided corners are unchanged.
+  - **How:** a syntax-aware rewrite, not text replacement. It only edited values inside style
+    functions that receive `theme` (`makeStyles`/`withStyles`/`styled`). Plain style objects
+    passed only to `withStyles`/`makeStyles` were wrapped as `(theme) => ({…})`, and
+    parameterless style callbacks got a `theme` parameter.
+  - **Not yet:** front-core (about 1,800 spacing values) is shared with cabinet-front, whose
+    theme differs, so it's a separate pass. _(2026-11-03)_
+
 ## Layout
 
 - **Left sidebar is now elevation zero** — two separate tokens needed fixing, not one.

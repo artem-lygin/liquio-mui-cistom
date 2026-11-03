@@ -26,7 +26,7 @@ import ImportRegisterKeys from '../KeyList/components/KeyActions/ImportRegisterK
 const styles = (theme) => ({
   buttonsWrapper: {
     [theme.breakpoints.down('md')]: {
-      marginTop: '10px'
+      marginTop: theme.spacing(3)
     }
   }
 });

@@ -27,49 +27,49 @@ import { generateUUID } from 'utils/uuid';
 import { addMessage } from 'actions/error';
 import Message from 'components/Snackbars/Message';
 
-const withStyles = makeStyles(() => ({
+const withStyles = makeStyles((theme) => ({
   dialogTitle: {
     fontSize: 32,
-    marginBottom: 50
+    marginBottom: theme.spacing(13)
   },
   listWrapper: {
-    marginLeft: 50
+    marginLeft: theme.spacing(13)
   },
   keysList: {
     listStyle: 'none',
-    marginBottom: 35
+    marginBottom: theme.spacing(9)
   },
   keysListItem: {
     display: 'flex',
     '& div': {
       display: 'inline-block',
-      marginRight: 15
+      marginRight: theme.spacing(4)
     },
-    marginBottom: 10
+    marginBottom: theme.spacing(3)
   },
   dialogActionRoot: {
-    marginTop: 20
+    marginTop: theme.spacing(5)
   },
   detailsWrapper: {
-    marginBottom: 20
+    marginBottom: theme.spacing(5)
   },
   centerText: {
     textAlign: 'center',
-    marginBottom: 16
+    marginBottom: theme.spacing(4)
   },
   detailsResultWrapper: {
-    marginLeft: 40
+    marginLeft: theme.spacing(10)
   },
   marginBottom: {
     marginBottom: 0
   },
   marginTop: {
-    marginTop: 40
+    marginTop: theme.spacing(10)
   },
   statusWrapper: {
     padding: '2px 5px',
-    borderRadius: 4,
-    marginTop: 5,
+    borderRadius: theme.shape.borderRadius,
+    marginTop: theme.spacing(1),
     display: 'inline-block'
   },
   statusSuccess: {
@@ -79,7 +79,7 @@ const withStyles = makeStyles(() => ({
     backgroundColor: '#f44336'
   },
   preloaderWrapper: {
-    paddingBottom: 16
+    paddingBottom: theme.spacing(4)
   }
 }));
 

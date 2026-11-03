@@ -15,7 +15,7 @@ const styles = (theme) => ({
   details: {
     color: '#fff',
     backgroundColor: '#141414',
-    padding: 10
+    padding: theme.spacing(3)
   },
   pre: {
     margin: 0
@@ -26,8 +26,8 @@ const styles = (theme) => ({
     width: '100%'
   },
   wrapper: {
-    paddingLeft: 10,
-    paddingRight: 10
+    paddingLeft: theme.spacing(3),
+    paddingRight: theme.spacing(3)
   },
   tableCell: {
     borderColor: theme.palette.divider

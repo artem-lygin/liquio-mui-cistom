@@ -48,10 +48,10 @@ const styles = (theme) => ({
     borderColor: theme.palette.divider
   },
   tableContainer: {
-    paddingLeft: '20px'
+    paddingLeft: theme.spacing(5)
   },
   search: {
-    margin: '10px',
+    margin: theme.spacing(3),
     width: '50%'
   }
 });

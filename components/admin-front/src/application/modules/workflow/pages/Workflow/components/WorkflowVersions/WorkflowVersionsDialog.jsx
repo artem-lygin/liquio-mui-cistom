@@ -29,7 +29,7 @@ const withStyles = makeStyles((theme) => ({
       display: 'flex',
       justifyContent: 'space-between',
       '& > *': {
-        marginRight: 10,
+        marginRight: theme.spacing(3),
       },
       '& > :last-child': {
         marginRight: 0,
@@ -37,12 +37,12 @@ const withStyles = makeStyles((theme) => ({
     },
   },
   revertButton: {
-    marginLeft: 8,
+    marginLeft: theme.spacing(2),
   },
   dialogTitle: {
     paddingBottom: 0,
-    paddingTop: 30,
-    marginBottom: 30,
+    paddingTop: theme.spacing(8),
+    marginBottom: theme.spacing(8),
     '& h2': {
       fontWeight: 400,
       fontSize: 32,
@@ -55,8 +55,8 @@ const withStyles = makeStyles((theme) => ({
     background: theme.navigator.sidebarBg,
   },
   dialogActionsRoot: {
-    padding: '0 24px',
-    paddingBottom: 25,
+    padding: theme.spacing(0, 6),
+    paddingBottom: theme.spacing(6),
   },
   headline: {
     color: '#fff',
@@ -70,7 +70,7 @@ const withStyles = makeStyles((theme) => ({
     },
   },
   createNewBtn: {
-    marginLeft: 10,
+    marginLeft: theme.spacing(3),
   },
 }));
 

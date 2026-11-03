@@ -47,7 +47,7 @@ const styles = (theme) => ({
     }
   },
   filtersWrapper: {
-    margin: 12
+    margin: theme.spacing(3)
   }
 });
 

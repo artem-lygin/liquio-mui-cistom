@@ -15,13 +15,13 @@ import Autocomplete from '@mui/material/Autocomplete';
 const styles = (theme) => ({
   root: {
     display: 'flex',
-    padding: 8,
+    padding: theme.spacing(2),
   },
   field: {
     width: '100%',
   },
   darkThemeRoot: {
-    padding: 17,
+    padding: theme.spacing(4),
     ...theme.listBackground,
   },
   darkThemeAutocomplete: {

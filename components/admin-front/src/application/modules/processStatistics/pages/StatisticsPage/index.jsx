@@ -27,19 +27,19 @@ import LeftSidebarLayout from 'layouts/LeftSidebar';
 const styles = (theme) => ({
   pageWrapper: {
     maxWidth: 640,
-    padding: 12
+    padding: theme.spacing(3)
   },
   actionsWrapper: {
-    marginTop: 30
+    marginTop: theme.spacing(8)
   },
   resultWrapper: {
-    marginTop: 12
+    marginTop: theme.spacing(3)
   },
   actionButton: {
-    marginTop: 30
+    marginTop: theme.spacing(8)
   },
   filterField: {
-    marginBottom: 10
+    marginBottom: theme.spacing(3)
   },
   tableRow: {
     '&:hover': {
@@ -64,7 +64,7 @@ const styles = (theme) => ({
   },
   errorField: {
     color: '#f44336',
-    marginBottom: 5
+    marginBottom: theme.spacing(1)
   }
 });
 

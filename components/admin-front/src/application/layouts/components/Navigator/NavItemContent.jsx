@@ -30,14 +30,14 @@ const styles = (theme) => ({
     minWidth: 'auto',
     height: '24px',
     width: '24px',
-    marginRight: '12px',
+    marginRight: theme.spacing(3),
     '& svg': {
       fontSize: 24,
     },
   },
   /* if item is a child in the menu */
   childItem: {
-    padding: '8px 0 8px 52px',
+    padding: theme.spacing(2, 0, 2, 13),
     margin: 0,
     '&:hover': {
       background: theme.navigator.navItemContent.linkActiveBg,

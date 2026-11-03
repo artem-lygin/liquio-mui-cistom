@@ -16,7 +16,7 @@ const styles = (theme) => ({
     display: 'block',
     textDecoration: 'none',
     '& > div': {
-      padding: '18px 16px',
+      padding: theme.spacing(5, 4),
       borderBottom: theme.navigator.borderBottom,
       '&:hover': {
         background: theme.navigator.navItem.linkActiveBg,
@@ -49,7 +49,7 @@ const styles = (theme) => ({
   },
   summaryRoot: {
     minHeight: 'auto !important',
-    padding: '16px',
+    padding: theme.spacing(4),
     '&:hover': {
       background: theme.navigator.navItem.linkActiveBg,
     },

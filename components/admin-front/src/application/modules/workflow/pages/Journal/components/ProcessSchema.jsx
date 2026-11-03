@@ -9,11 +9,11 @@ import AccountTreeIcon from '@mui/icons-material/AccountTree';
 import { BPMNViewer } from 'components/BpmnSchema';
 import FullScreenDialog from 'components/FullScreenDialog';
 
-const styles = {
+const styles = (theme) => ({
   button: {
-    marginRight: 4,
+    marginRight: theme.spacing(1),
   },
-};
+});
 
 const ProcessSchema = ({ classes, process, data }) => {
   const [open, setOpen] = React.useState(false);

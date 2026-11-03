@@ -86,8 +86,8 @@ const useStyles = makeStyles((theme) => ({
   },
   dialogTitle: {
     paddingBottom: 0,
-    padding: 35,
-    marginBottom: 35,
+    padding: theme.spacing(9),
+    marginBottom: theme.spacing(9),
     '& h2': {
       fontWeight: 400,
       fontSize: 32,
@@ -99,7 +99,7 @@ const useStyles = makeStyles((theme) => ({
     },
   },
   dialogContent: {
-    padding: '0 35px',
+    padding: theme.spacing(0, 9),
   },
   dialogPaper: {
     background: theme?.navigator?.sidebarBg,
@@ -112,9 +112,9 @@ const useStyles = makeStyles((theme) => ({
   draftsMethodItem: {
     display: 'flex',
     alignItems: 'baseline',
-    gap: 11,
-    marginTop: 35,
-    padding: '0 15px',
+    gap: theme.spacing(3),
+    marginTop: theme.spacing(9),
+    padding: theme.spacing(0, 4),
     '& .MuiFormHelperText-root': {
       color: 'rgba(255, 255, 255, 0.6)',
       '&.Mui-error': {
@@ -123,9 +123,9 @@ const useStyles = makeStyles((theme) => ({
     },
   },
   dialogActionsRoot: {
-    paddingLeft: 50,
-    paddingRight: 50,
-    paddingTop: 50,
+    paddingLeft: theme.spacing(13),
+    paddingRight: theme.spacing(13),
+    paddingTop: theme.spacing(13),
   },
   radioChecked: {
     '&.Mui-checked svg': {

@@ -31,9 +31,9 @@ const styles = (theme) => ({
   profileButton: {
     display: 'flex',
     alignItems: 'center',
-    gap: 12,
-    padding: '12px 20px 12px 14px',
-    borderRadius: 8,
+    gap: theme.spacing(3),
+    padding: theme.spacing(3, 5, 3, 4),
+    borderRadius: theme.shape.borderRadius,
     border: '1px solid rgba(255, 255, 255, 0.18)',
     background: 'rgba(255, 255, 255, 0.08)',
     color: theme?.header?.profile?.textColor || '#ffffff',
@@ -68,7 +68,7 @@ const styles = (theme) => ({
     boxShadow: '0 6px 14px rgba(0, 0, 0, 0.2)'
   },
   menuPaper: {
-    marginTop: 8,
+    marginTop: theme.spacing(2),
     borderRadius: 10,
     minWidth: 240,
     padding: 0,
@@ -79,8 +79,8 @@ const styles = (theme) => ({
   menuHeader: {
     display: 'flex',
     alignItems: 'center',
-    gap: 12,
-    padding: '6px 10px'
+    gap: theme.spacing(3),
+    padding: theme.spacing(2, 3)
   },
   menuName: {
     fontSize: 14,
@@ -99,7 +99,7 @@ const styles = (theme) => ({
     marginBottom: 2
   },
   menuLanguageItem: {
-    padding: '6px 10px',
+    padding: theme.spacing(2, 3),
     display: 'flex',
     justifyContent: 'center'
   },

@@ -54,18 +54,18 @@ const styles = (theme) => ({
   centerWrapper: {
     display: 'flex',
     justifyContent: 'center',
-    marginTop: 10,
+    marginTop: theme.spacing(3),
   },
   selectedHeader: {
     display: 'flex',
     alignItems: 'center',
     '& > button': {
-      marginLeft: 10,
+      marginLeft: theme.spacing(3),
     },
   },
   iconButton: {
     marginRight: 0,
-    marginLeft: 5,
+    marginLeft: theme.spacing(1),
   },
 });
 

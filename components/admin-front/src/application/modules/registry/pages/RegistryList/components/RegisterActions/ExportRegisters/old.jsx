@@ -21,18 +21,18 @@ import Message from 'components/Snackbars/Message';
 import SaveAltIcon from '@mui/icons-material/SaveAlt';
 import downloadBase64Attach from 'helpers/downloadBase64Attach';
 
-const styles = {
+const styles = (theme) => ({
   buttonPadding: {
-    marginLeft: 10,
+    marginLeft: theme.spacing(3),
   },
   actionBtn: {
-    marginTop: 20,
-    marginBottom: 20,
+    marginTop: theme.spacing(5),
+    marginBottom: theme.spacing(5),
   },
   title: {
     paddingBottom: 0,
   },
-};
+});
 
 class ExportRegisters extends React.Component {
   constructor(props) {

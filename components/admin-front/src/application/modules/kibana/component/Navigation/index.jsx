@@ -24,7 +24,7 @@ const styles = (theme) => ({
   },
   summaryRoot: {
     minHeight: 'auto !important',
-    padding: '14px 16px',
+    padding: theme.spacing(4, 4),
     '&:hover': {
       background: theme.navigator.navItem.linkActiveBg,
     },

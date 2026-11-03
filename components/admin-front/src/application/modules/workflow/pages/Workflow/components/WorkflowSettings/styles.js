@@ -1,10 +1,10 @@
 const styles = (theme) => ({
   exportButton: {
     color: theme?.navigator?.navItem?.linkActiveColor,
-    marginTop: 11,
-    marginBottom: 26,
+    marginTop: theme.spacing(3),
+    marginBottom: theme.spacing(7),
     '& img': {
-      marginRight: 11,
+      marginRight: theme.spacing(3),
     },
     '&:hover': {
       backgroundColor: theme.buttonHoverBg,
@@ -13,7 +13,7 @@ const styles = (theme) => ({
   fillSvg: {
     fill: theme.textColorDark,
     color: theme.textColorDark,
-    marginRight: 10,
+    marginRight: theme.spacing(3),
   },
   actionWrapper: {
     display: 'flex',
@@ -36,7 +36,7 @@ const styles = (theme) => ({
     textAlign: 'left',
   },
   addTableWrapper: {
-    marginBottom: 20,
+    marginBottom: theme.spacing(5),
     width: 'calc(100% + 12px)',
     display: 'flex',
     justifyContent: 'space-between',
@@ -44,11 +44,11 @@ const styles = (theme) => ({
   },
   icon: {
     fill: theme.textColorDark,
-    marginRight: 5,
+    marginRight: theme.spacing(1),
   },
   dialogTitle: {
     paddingBottom: 0,
-    paddingTop: 30,
+    paddingTop: theme.spacing(8),
     '& h2': {
       fontWeight: 400,
       fontSize: 32,
@@ -68,15 +68,15 @@ const styles = (theme) => ({
     },
   },
   dialogActionsRoot: {
-    padding: '0 24px',
-    paddingBottom: 25,
+    padding: theme.spacing(0, 6),
+    paddingBottom: theme.spacing(6),
   },
   biggerLabel: {
     fontSize: 16,
     lineHeight: '19px',
   },
   actionWrapperMargin: {
-    marginBottom: 20,
+    marginBottom: theme.spacing(5),
   },
   closeDialog: {
     color: theme?.navigator?.navItem?.linkActiveColor,
@@ -93,15 +93,15 @@ const styles = (theme) => ({
     justifyContent: 'space-between',
   },
   editorLabel: {
-    marginBottom: 10,
+    marginBottom: theme.spacing(3),
     fontSize: 15,
     color: 'rgba(255, 255, 255, 0.6)',
   },
   firstStatus: {
-    marginTop: 30,
+    marginTop: theme.spacing(8),
   },
   statusWrapper: {
-    marginBottom: 30,
+    marginBottom: theme.spacing(8),
     '& > div': {
       width: '100%',
       maxWidth: '100%',
@@ -112,11 +112,11 @@ const styles = (theme) => ({
   },
   deleteButtonContainer: {
     float: 'right',
-    marginTop: 20,
-    marginBottom: 10,
+    marginTop: theme.spacing(5),
+    marginBottom: theme.spacing(3),
   },
   switchWrapper: {
-    marginBottom: 15,
+    marginBottom: theme.spacing(4),
   },
 });
 

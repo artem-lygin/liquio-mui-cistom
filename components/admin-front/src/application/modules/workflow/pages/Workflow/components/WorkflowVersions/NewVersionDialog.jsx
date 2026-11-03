@@ -25,12 +25,12 @@ const initialState = {
 const useStyles = makeStyles((theme) => ({
   error: {
     color: '#f44336',
-    marginLeft: 10,
+    marginLeft: theme.spacing(3),
   },
   dialogTitle: {
     paddingBottom: 0,
-    paddingTop: 30,
-    marginBottom: 30,
+    paddingTop: theme.spacing(8),
+    marginBottom: theme.spacing(8),
     '& h2': {
       fontWeight: 400,
       fontSize: 32,
@@ -43,8 +43,8 @@ const useStyles = makeStyles((theme) => ({
     background: theme.navigator.sidebarBg,
   },
   dialogActionsRoot: {
-    padding: '0 24px',
-    paddingBottom: 25,
+    padding: theme.spacing(0, 6),
+    paddingBottom: theme.spacing(6),
   },
   hover: {
     '&:hover': {

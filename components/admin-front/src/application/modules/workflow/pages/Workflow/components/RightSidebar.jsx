@@ -27,9 +27,9 @@ const useStyles = makeStyles((theme) => ({
     width: 300,
     height: '100%',
     borderLeft: `1px solid ${theme.borderColor}`,
-    paddingLeft: 12,
-    paddingBottom: 8,
-    paddingTop: 8,
+    paddingLeft: theme.spacing(3),
+    paddingBottom: theme.spacing(2),
+    paddingTop: theme.spacing(2),
     position: 'relative',
   },
   header: {
@@ -59,7 +59,7 @@ const useStyles = makeStyles((theme) => ({
     width: '100%',
     height: 'calc(100vh - 125px)',
     background: theme?.navigator?.sidebarBg,
-    paddingTop: 20,
+    paddingTop: theme.spacing(5),
     transition: '.2s ease-in-out',
     opacity: 1,
     zIndex: 10,
@@ -74,17 +74,17 @@ const useStyles = makeStyles((theme) => ({
   },
   divider: {
     background: theme.borderColor,
-    marginBottom: 15,
+    marginBottom: theme.spacing(4),
   },
   sidebarHeadline: {
     color: '#fff',
     display: 'flex',
-    marginBottom: 10,
+    marginBottom: theme.spacing(3),
     alignItems: 'center',
     justifyContent: 'space-between',
     '& > span': {
       fontWeight: 500,
-      paddingRight: 15,
+      paddingRight: theme.spacing(4),
       textTransform: 'capitalize',
     },
   },
@@ -93,14 +93,14 @@ const useStyles = makeStyles((theme) => ({
     alignItems: 'center'
   },
   copyIcon: {
-    marginLeft: 5,
+    marginLeft: theme.spacing(1),
   },
   copyElementButton: {
     color: theme?.navigator?.navItem?.linkActiveColor,
-    marginTop: 11,
-    marginBottom: 26,
+    marginTop: theme.spacing(3),
+    marginBottom: theme.spacing(7),
     '& img': {
-      marginRight: 11,
+      marginRight: theme.spacing(3),
     },
     '&:hover': {
       backgroundColor: theme.buttonHoverBg,
@@ -109,12 +109,12 @@ const useStyles = makeStyles((theme) => ({
   fillSvg: {
     fill: theme.textColorDark,
     color: theme.textColorDark,
-    marginRight: 10,
+    marginRight: theme.spacing(3),
   },
   pdr: {
-    paddingLeft: 12,
-    paddingRight: 12,
-    paddingBottom: 20,
+    paddingLeft: theme.spacing(3),
+    paddingRight: theme.spacing(3),
+    paddingBottom: theme.spacing(5),
   },
 }));
 

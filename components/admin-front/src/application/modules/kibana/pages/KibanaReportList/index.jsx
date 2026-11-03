@@ -20,12 +20,12 @@ import schema from './variables/reportSchema';
 
 import checkAccess from 'helpers/checkAccess';
 
-const withStyles = makeStyles({
+const withStyles = makeStyles((theme) => ({
   chip: {
-    marginRight: 4,
+    marginRight: theme.spacing(1),
     cursor: 'inherit'
   }
-});
+}));
 
 const KibanaReportList = ({ history, userInfo, userUnits }) => {
   const t = useTranslate('KibanaReports');

@@ -6,9 +6,9 @@ import { makeStyles } from '@mui/styles';
 
 import HourglassEmptyOutlinedIcon from '@mui/icons-material/HourglassEmptyOutlined';
 
-const withStyles = makeStyles({
+const withStyles = makeStyles((theme) => ({
   root: {
-    padding: 24,
+    padding: theme.spacing(6),
     display: 'flex',
     flexDirection: 'column',
     alignItems: 'center',
@@ -18,9 +18,9 @@ const withStyles = makeStyles({
     color: '#aaa',
   },
   text: {
-    marginTop: 12,
+    marginTop: theme.spacing(3),
   },
-});
+}));
 
 const EmptyResults = () => {
   const t = useTranslate('WorkflowAdminPage');

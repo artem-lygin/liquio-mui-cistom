@@ -35,19 +35,19 @@ const useStyles = makeStyles((theme) => ({
     cursor: 'pointer'
   },
   wrapper: {
-    padding: 10
+    padding: theme.spacing(3)
   },
   filters: {
     display: 'flex',
-    gap: 20,
-    marginBottom: 10,
+    gap: theme.spacing(5),
+    marginBottom: theme.spacing(3),
     alignItems: 'center'
   },
   textField: {
     width: 250
   },
   pagination: {
-    marginTop: 20
+    marginTop: theme.spacing(5)
   }
 }));
 

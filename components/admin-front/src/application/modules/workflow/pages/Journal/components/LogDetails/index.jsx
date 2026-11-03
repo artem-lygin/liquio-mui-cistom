@@ -11,7 +11,7 @@ import MessagesDetails from './MessageDetails';
 import ElementDetails from './ElementDetails';
 import ErrorDetails from './ErrorDetails';
 
-const styles = {
+const styles = (theme) => ({
   errorLabel: {
     color: '#f44336',
   },
@@ -19,9 +19,9 @@ const styles = {
     color: '#ffa500',
   },
   ids: {
-    paddingLeft: 5,
+    paddingLeft: theme.spacing(1),
   },
-};
+});
 
 const ERROR_LOG_TYPES = ['error', 'warning'];
 const ELEMENT_LOG_TYPES = ['task', 'event', 'gateway'];

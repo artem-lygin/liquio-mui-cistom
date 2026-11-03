@@ -9,14 +9,14 @@ import { addMessage } from 'actions/error';
 import Message from 'components/Snackbars/Message';
 import BlockIcon from '@mui/icons-material/Block';
 
-const styles = {
+const styles = (theme) => ({
   ids: {
-    paddingLeft: 5,
+    paddingLeft: theme.spacing(1),
   },
   link: {
     textDecorationColor: '#fff',
   },
-};
+});
 
 const StopDelayEvent = ({ processId, classes, details, delayId }) => {
   const [open, setOpen] = React.useState(false);

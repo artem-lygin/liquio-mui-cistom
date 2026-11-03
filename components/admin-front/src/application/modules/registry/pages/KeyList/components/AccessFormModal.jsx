@@ -24,7 +24,7 @@ import UnitList from 'application/modules/users/pages/Unit/components/UnitList';
 import ProgressLine from 'components/Preloader/ProgressLine';
 import schemaEval from '../variables/keyAccessSchema.js';
 
-const styles = {
+const styles = (theme) => ({
   title: {
     fontSize: '32px',
     fontWeight: 400,
@@ -33,19 +33,19 @@ const styles = {
   desc: {
     maxWidth: 'none',
     '& h6': {
-      marginTop: '26px',
+      marginTop: theme.spacing(7),
       fontSize: '20px',
       letterSpacing: '-0.4px'
     },
     '&>h6': {
       fontSize: '24px',
       letterSpacing: '-0.48px',
-      marginTop: '30px'
+      marginTop: theme.spacing(8)
     },
     '& .MuiPaper-root': {
       backgroundColor: '#4A4A4A',
       borderRadius: 0,
-      padding: '24px 19px 37px 13px'
+      padding: theme.spacing(6, 5, 9, 3)
     }
   },
   modal: {
@@ -64,11 +64,11 @@ const styles = {
     '& .MuiFormControl-root': {
       maxWidth: 'none',
       '& .MuiTextField-root': {
-        marginBottom: '20px',
+        marginBottom: theme.spacing(5),
       },
     }
   }
-};
+});
 
 class KeyFormModal extends React.Component {
   constructor(props) {

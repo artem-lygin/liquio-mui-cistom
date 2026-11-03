@@ -23,7 +23,7 @@ const styles = (theme) => ({
   menuButton: {
     color: '#fff',
     padding: 0,
-    marginRight: 16,
+    marginRight: theme.spacing(4),
     [theme.breakpoints.up('sm')]: {
       display: 'none'
     }
@@ -56,7 +56,7 @@ const styles = (theme) => ({
     justifyContent: 'center'
   },
   content: {
-    paddingRight: 16,
+    paddingRight: theme.spacing(4),
     display: 'flex',
     alignItems: 'center',
     flex: '0 1 100%',
@@ -66,13 +66,13 @@ const styles = (theme) => ({
       justifyContent: 'space-between'
     },
     [theme.breakpoints.down('sm')]: {
-      paddingLeft: 16,
+      paddingLeft: theme.spacing(4),
       display: 'block'
     }
   },
   left: {
     flex: '0 0 100%',
-    padding: '14px 11px',
+    padding: theme.spacing(4, 3),
     alignSelf: 'stretch',
     [theme.breakpoints.up('sm')]: {
       maxWidth: 250
@@ -81,7 +81,7 @@ const styles = (theme) => ({
       borderRight: theme.header.middle.border
     },
     [theme.breakpoints.down('md')]: {
-      padding: '8px 0',
+      padding: theme.spacing(2, 0),
       borderTop: theme.header.middle.border,
       borderBottom: theme.header.middle.border
     }
@@ -91,7 +91,7 @@ const styles = (theme) => ({
     fontSize: '20px',
     lineHeight: '24px',
     color: theme.header.textColor,
-    marginBottom: 8
+    marginBottom: theme.spacing(2)
   },
   leftSubTitle: {
     fontSize: '14px',
@@ -114,7 +114,7 @@ const styles = (theme) => ({
     display: 'flex',
     justifyContent: 'center',
     alignItems: 'center',
-    marginLeft: 16
+    marginLeft: theme.spacing(4)
   },
   leftLabelStage: {
     background: theme.header.leftLabelStage.background
@@ -136,12 +136,12 @@ const styles = (theme) => ({
   },
   right: {
     flex: '0 0 100%',
-    padding: '12px 0',
+    padding: theme.spacing(3, 0),
     display: 'flex',
     [theme.breakpoints.up('sm')]: {
       maxWidth: 284,
       alignSelf: 'stretch',
-      padding: '16px 0 16px 16px'
+      padding: theme.spacing(4, 0, 4, 4)
     },
     [theme.breakpoints.up('md')]: {
       borderLeft: theme.header.middle.border
@@ -170,15 +170,15 @@ const styles = (theme) => ({
   },
   middleWrap: {
     width: '100%',
-    padding: '8px 0 16px',
+    padding: theme.spacing(2, 0, 4),
     [theme.breakpoints.up('md')]: {
-      padding: '16px'
+      padding: theme.spacing(4)
     }
   },
   tagsWrap: {
-    marginTop: '18px',
+    marginTop: theme.spacing(5),
     display: 'flex',
-    gap: 9
+    gap: theme.spacing(2)
   },
   iconBtn: {
     border: '1px solid #797979',
@@ -196,16 +196,16 @@ const styles = (theme) => ({
     zIndex: -1
   },
   dropdown: {
-    borderRadius: '2px',
-    padding: '9px 14px 22px 14px',
+    borderRadius: theme.shape.borderRadius,
+    padding: theme.spacing(2, 4, 6, 4),
     backgroundColor: '#404040',
-    marginTop: '10px',
+    marginTop: theme.spacing(3),
     width: 247
   },
   searchWrap: {
     display: 'flex',
     justifyContent: 'space-between',
-    marginBottom: 16
+    marginBottom: theme.spacing(4)
   },
   search: {
     '& .MuiInputBase-root': {
@@ -216,7 +216,7 @@ const styles = (theme) => ({
       borderBottom: 'none'
     },
     '& .MuiInputBase-input': {
-      padding: '8px',
+      padding: theme.spacing(2),
       fontSize: '14px'
     }
   },
@@ -234,7 +234,7 @@ const styles = (theme) => ({
     display: 'flex',
     flexDirection: 'column',
     alignItems: 'flex-start',
-    gap: 12,
+    gap: theme.spacing(3),
     maxHeight: '138px',
     overflowY: 'auto'
   },
@@ -251,7 +251,7 @@ const styles = (theme) => ({
   selectedTagsList: {
     display: 'flex',
     flexWrap: 'wrap',
-    gap: 9
+    gap: theme.spacing(2)
   },
   deleteIcon: {
     padding: 0,
@@ -269,7 +269,7 @@ const styles = (theme) => ({
     fontSize: '14px',
     color: 'rgba(255, 255, 255, 0.80)',
     lineHeight: '18px',
-    marginBottom: '12px'
+    marginBottom: theme.spacing(3)
   },
   emptyDescription: {
     margin: 0,

@@ -20,7 +20,7 @@ import { requestEvent, saveEventData } from 'application/actions/events';
 import { requestGateway, saveGatewayData } from 'application/actions/gateways';
 import { restartProcessFromPoint } from 'application/actions/workflowProcess';
 
-const styles = {
+const styles = (theme) => ({
   root: {
     height: 200,
     width: 600,
@@ -36,7 +36,7 @@ const styles = {
   },
   actionText: {
     color: '#fff',
-    marginLeft: 5,
+    marginLeft: theme.spacing(1),
   },
   debugActionRoot: {
     color: '#fff',
@@ -59,7 +59,7 @@ const styles = {
   title: {
     flexGrow: 1,
     color: '#E2E2E2',
-    padding: '0 10px',
+    padding: theme.spacing(0, 3),
   },
   button: {
     color: '#E2E2E2!important',
@@ -87,9 +87,9 @@ const styles = {
   },
   icon: {
     fill: '#404040',
-    marginRight: 10,
+    marginRight: theme.spacing(3),
   },
-};
+});
 
 const renderEditor = ({ value, onChange, onValidate, readOnly }) => (
   <Editor

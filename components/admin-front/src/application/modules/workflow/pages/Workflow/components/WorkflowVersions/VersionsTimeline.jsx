@@ -16,7 +16,7 @@ import CheckBoxOutlinedIcon from '@mui/icons-material/CheckBoxOutlined';
 const withStyles = makeStyles((theme) => ({
   card: {
     cursor: 'pointer',
-    marginBottom: 20,
+    marginBottom: theme.spacing(5),
     backgroundColor: theme.navigator.sidebarBg,
     boxShadow: 'none',
     // Border comes from the theme's MuiPaper (rounded surfaces: 1px, #ffffff at 5%).
@@ -44,7 +44,7 @@ const withStyles = makeStyles((theme) => ({
     },
   },
   chipContained: {
-    marginRight: 8,
+    marginRight: theme.spacing(2),
     cursor: 'inherit',
     '& span': {
       color: '#000!important',

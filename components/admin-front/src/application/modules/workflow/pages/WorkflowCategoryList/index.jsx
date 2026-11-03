@@ -50,10 +50,10 @@ const categoryTree = (list, firstLevelId = null) =>
     },
   );
 
-const styles = {
+const styles = (theme) => ({
   toolbar: {
-    marginTop: 12,
-    marginBottom: 12,
+    marginTop: theme.spacing(3),
+    marginBottom: theme.spacing(3),
     display: 'flex',
     alignItems: 'baseline',
   },
@@ -61,9 +61,9 @@ const styles = {
     height: 'calc(100% - 48px)',
   },
   createButton: {
-    marginLeft: 20,
+    marginLeft: theme.spacing(5),
   },
-};
+});
 
 class WorkflowCategoryListPage extends ModulePage {
   constructor(props) {

@@ -56,9 +56,9 @@ const styles = (theme) => ({
     color: theme?.palette?.primary?.main
   },
   table: {
-    paddingLeft: 8,
-    paddingRight: 8,
-    marginBottom: 8
+    paddingLeft: theme.spacing(2),
+    paddingRight: theme.spacing(2),
+    marginBottom: theme.spacing(2)
   },
   tableCell: {
     borderColor: theme.palette.divider
@@ -72,15 +72,15 @@ const styles = (theme) => ({
     // filters), whose label sits above the field.
     alignItems: 'flex-end',
     position: 'relative',
-    padding: 12,
+    padding: theme.spacing(3),
     paddingBottom: 0,
-    marginBottom: 15
+    marginBottom: theme.spacing(4)
   },
   additionalFiltersWrapperMargin: {
-    marginBottom: 45
+    marginBottom: theme.spacing(11)
   },
   filterElement: {
-    marginRight: 16
+    marginRight: theme.spacing(4)
   },
   periodOutput: {
     marginTop: 0,
@@ -103,7 +103,7 @@ const styles = (theme) => ({
     fontSize: 18,
     letterSpacing: '1px',
     margin: 0,
-    marginRight: 8
+    marginRight: theme.spacing(2)
   },
   additionalFiltersIcon: {
     width: 25,

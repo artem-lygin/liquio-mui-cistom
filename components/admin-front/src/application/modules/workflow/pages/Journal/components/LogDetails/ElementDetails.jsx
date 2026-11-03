@@ -11,14 +11,14 @@ import { restartProcessFromPoint } from 'application/actions/workflowProcess';
 import { addMessage } from 'actions/error';
 import Message from 'components/Snackbars/Message';
 
-const styles = {
+const styles = (theme) => ({
   ids: {
-    paddingLeft: 5,
+    paddingLeft: theme.spacing(1),
   },
   link: {
     textDecorationColor: '#fff',
   },
-};
+});
 
 const ElementDetails = ({
   classes,

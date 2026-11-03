@@ -11,11 +11,11 @@ import Message from 'components/Snackbars/Message';
 import CloudUploadIcon from '@mui/icons-material/CloudUpload';
 import ConfirmDialog from 'components/ConfirmDialog';
 
-const styles = {
+const styles = (theme) => ({
   buttonPadding: {
-    marginLeft: 10,
+    marginLeft: theme.spacing(3),
   },
-};
+});
 class ImportUnits extends React.Component {
   state = { openConfirmDialog: false };
 

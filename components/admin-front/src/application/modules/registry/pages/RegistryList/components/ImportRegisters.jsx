@@ -23,21 +23,21 @@ import Message from 'components/Snackbars/Message';
 import ConfirmDialog from 'components/ConfirmDialog';
 import Preloader from 'components/Preloader';
 
-const styles = {
+const styles = (theme) => ({
   buttonPadding: {
-    marginLeft: 10,
+    marginLeft: theme.spacing(3),
   },
   actionBtn: {
-    marginTop: 20,
-    marginBottom: 20,
+    marginTop: theme.spacing(5),
+    marginBottom: theme.spacing(5),
   },
   title: {
     paddingBottom: 0,
   },
   importBtn: {
-    marginLeft: 10,
+    marginLeft: theme.spacing(3),
   },
-};
+});
 
 class ImportRegisters extends React.Component {
   constructor(props) {

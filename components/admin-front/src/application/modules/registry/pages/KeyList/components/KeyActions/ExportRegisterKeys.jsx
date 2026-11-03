@@ -43,7 +43,7 @@ const withStyles = makeStyles((theme) => ({
     fontSize: 32,
   },
   formWrapper: {
-    marginLeft: -10,
+    marginLeft: theme.spacing(-3),
   },
   labelWrapper: {
     display: 'flex',
@@ -54,16 +54,16 @@ const withStyles = makeStyles((theme) => ({
     width: '100%',
   },
   labelItemId: {
-    marginRight: 30,
+    marginRight: theme.spacing(8),
   },
   noDataWrapper: {
-    padding: 11,
+    padding: theme.spacing(3),
   },
   preloaderWrapper: {
-    paddingTop: 16,
+    paddingTop: theme.spacing(4),
   },
   preloaderTitle: {
-    padding: 16,
+    padding: theme.spacing(4),
   },
 }));
 

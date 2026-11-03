@@ -49,10 +49,10 @@ import { getConfig } from 'core/helpers/configLoader';
 
 const styles = (theme) => ({
   formControl: {
-    marginBottom: 30
+    marginBottom: theme.spacing(8)
   },
   secondaryButton: {
-    marginLeft: 16
+    marginLeft: theme.spacing(4)
   },
   buttonsWrapper: {
     display: 'flex',
@@ -61,7 +61,7 @@ const styles = (theme) => ({
     },
     [theme.breakpoints.down('md')]: {
       width: '100%',
-      marginTop: '10px'
+      marginTop: theme.spacing(3)
     }
   }
 });

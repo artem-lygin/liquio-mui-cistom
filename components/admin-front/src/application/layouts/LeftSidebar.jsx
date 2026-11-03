@@ -43,7 +43,7 @@ const styles = (theme) => ({
     flex: 1,
     overflowY: 'auto',
     marginLeft: -300,
-    padding: 24,
+    padding: theme.spacing(6),
     boxSizing: 'border-box',
     transition: 'margin 225ms cubic-bezier(0.0, 0, 0.2, 1) 0ms',
     [theme.breakpoints.up('md')]: {

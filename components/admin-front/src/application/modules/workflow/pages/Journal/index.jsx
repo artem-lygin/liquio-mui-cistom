@@ -47,26 +47,26 @@ import { searchUsers } from 'actions/users';
 
 const styles = (theme) => ({
   toolbar: {
-    padding: 4,
+    padding: theme.spacing(1),
     flexWrap: 'wrap',
-    marginTop: 20,
-    marginBottom: 15,
+    marginTop: theme.spacing(5),
+    marginBottom: theme.spacing(4),
     minHeight: 'auto',
     [theme.breakpoints.down('xl')]: {
-      marginBottom: 30,
+      marginBottom: theme.spacing(8),
     },
     '& > .MuiFormGroup-root': {
-      marginLeft: 15,
+      marginLeft: theme.spacing(4),
     },
   },
   flexGrow: {
     flexGrow: 1,
   },
   toggle: {
-    paddingTop: 20,
+    paddingTop: theme.spacing(5),
   },
   search: {
-    marginLeft: 15,
+    marginLeft: theme.spacing(4),
   },
   link: {
     color: 'inherit',
@@ -86,7 +86,7 @@ const styles = (theme) => ({
   },
   root: {
     [theme.breakpoints.down('xl')]: {
-      marginTop: 5,
+      marginTop: theme.spacing(1),
     },
   },
   backBtn: {
@@ -94,7 +94,7 @@ const styles = (theme) => ({
     borderColor: '#fff',
   },
   icon: {
-    marginRight: 5,
+    marginRight: theme.spacing(1),
   },
 });
 

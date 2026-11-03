@@ -45,7 +45,7 @@ import BlocksAccess from './components/BlocksAccess';
 
 const styles = (theme) => ({
   iconWrapper: {
-    marginLeft: 15,
+    marginLeft: theme.spacing(4),
     '&:hover': {
       backgroundColor: theme.buttonHoverBg
     }
@@ -59,26 +59,26 @@ const styles = (theme) => ({
     fill: theme.buttonBg
   },
   infoIcon: {
-    padding: 4,
+    padding: theme.spacing(1),
     boxSizing: 'initial',
-    marginLeft: 15
+    marginLeft: theme.spacing(4)
   },
   chipsWrapper: {
-    marginTop: 20,
-    marginLeft: 20
+    marginTop: theme.spacing(5),
+    marginLeft: theme.spacing(5)
   },
   fullWidth: {
     width: '100%',
     maxWidth: '100%'
   },
   content: {
-    paddingLeft: 40,
+    paddingLeft: theme.spacing(10),
     paddingRigth: 40
   },
   editFields: {
     width: '100%',
     '& > div': {
-      marginBottom: 10
+      marginBottom: theme.spacing(3)
     }
   }
 });

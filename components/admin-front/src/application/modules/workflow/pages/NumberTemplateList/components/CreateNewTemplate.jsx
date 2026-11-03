@@ -18,7 +18,7 @@ const styles = (theme) => ({
     },
     [theme.breakpoints.down('md')]: {
       width: '100%',
-      marginTop: '10px',
+      marginTop: theme.spacing(3),
     },
   },
 });

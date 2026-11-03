@@ -56,16 +56,16 @@ import awaitDelay from 'helpers/awaitDelay';
 
 const useStyles = makeStyles((theme) => ({
   root: {
-    paddingTop: 20
+    paddingTop: theme.spacing(5)
   },
   lanCode: {
     fontSize: 20,
     fontWeight: 600,
-    marginBottom: 10,
-    marginTop: 20
+    marginBottom: theme.spacing(3),
+    marginTop: theme.spacing(5)
   },
   langsList: {
-    marginBottom: 20
+    marginBottom: theme.spacing(5)
   },
   checkbox: {
     '& svg': {
@@ -73,7 +73,7 @@ const useStyles = makeStyles((theme) => ({
     }
   },
   addActions: {
-    marginTop: 10,
+    marginTop: theme.spacing(3),
     display: 'flex',
     justifyContent: 'flex-end',
     '& button': {
@@ -81,7 +81,7 @@ const useStyles = makeStyles((theme) => ({
     }
   },
   dialogActions: {
-    marginRight: 10
+    marginRight: theme.spacing(3)
   }
 }));
 

@@ -24,7 +24,7 @@ import {
 
 const styles = (theme) => ({
   formControl: {
-    marginBottom: 30,
+    marginBottom: theme.spacing(8),
   },
   buttonsWrapper: {
     display: 'flex',
@@ -33,14 +33,14 @@ const styles = (theme) => ({
     },
     [theme.breakpoints.down('md')]: {
       width: '100%',
-      marginTop: '10px',
+      marginTop: theme.spacing(3),
     },
   },
   colorsWrapper: {
     display: 'flex',
-    gap: '17px 10px',
+    gap: theme.spacing(4, 3),
     maxWidth: '266px',
-    marginBottom: 44,
+    marginBottom: theme.spacing(11),
     flexWrap: 'wrap',
   },
   colorsItem: {
@@ -54,7 +54,7 @@ const styles = (theme) => ({
   },
   deleteIcon: {
     fill: theme.buttonBg,
-    marginRight: 8,
+    marginRight: theme.spacing(2),
   },
   buttonWrapper: {
     display: 'flex',
@@ -66,7 +66,7 @@ const styles = (theme) => ({
   },
   actionButtons: {
     display: 'flex',
-    gap: 24,
+    gap: theme.spacing(6),
   },
 });
 

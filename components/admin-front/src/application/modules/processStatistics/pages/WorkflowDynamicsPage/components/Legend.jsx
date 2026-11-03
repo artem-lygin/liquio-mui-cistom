@@ -16,7 +16,7 @@ const styles = (theme) => ({
   chip: {
     background: theme.chipColor,
     borderRadius: 16,
-    marginRight: 8,
+    marginRight: theme.spacing(2),
     marginBottom: 3,
     marginTop: 3,
     '& span': {
@@ -27,8 +27,8 @@ const styles = (theme) => ({
     background: 'rgba(255, 255, 255, 0.08)',
   },
   chipsWrapper: {
-    paddingLeft: 12,
-    paddingRight: 12,
+    paddingLeft: theme.spacing(3),
+    paddingRight: theme.spacing(3),
   },
   chipHidden: {
     display: 'none',
@@ -38,10 +38,10 @@ const styles = (theme) => ({
     width: 10,
     height: 10,
     borderRadius: '50%',
-    marginLeft: 10,
+    marginLeft: theme.spacing(3),
   },
   icon: {
-    marginLeft: 5,
+    marginLeft: theme.spacing(1),
   },
 });
 

@@ -4,19 +4,19 @@ import { Button, Paper, Typography } from '@mui/material';
 import withStyles from '@mui/styles/withStyles';
 import LeftSidebarLayout, { Content } from 'layouts/LeftSidebar';
 
-const styles = {
+const styles = (theme) => ({
   wrapper: {
     backgroundColor: '#eeeeee',
-    marginTop: 20,
+    marginTop: theme.spacing(5),
   },
   paper: {
-    marginTop: 20,
-    padding: 15,
+    marginTop: theme.spacing(5),
+    padding: theme.spacing(4),
   },
   button: {
-    marginTop: 20,
+    marginTop: theme.spacing(5),
   },
-};
+});
 
 class Settings extends React.Component {
   renderBody() {

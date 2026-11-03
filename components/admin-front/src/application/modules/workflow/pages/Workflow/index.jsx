@@ -111,23 +111,23 @@ const styles = (theme) => ({
     borderColor: 'green',
     fontWeight: 900,
     '& > *': {
-      marginRight: 4
+      marginRight: theme.spacing(1)
     }
   },
   withError: {
     color: 'red'
   },
   toolbar: {
-    paddingLeft: 12,
+    paddingLeft: theme.spacing(3),
     '& > *': {
-      marginRight: 10
+      marginRight: theme.spacing(3)
     },
     '& > :last-child': {
       marginRight: 0
     }
   },
   saveButtonIcon: {
-    marginRight: 5
+    marginRight: theme.spacing(1)
   },
   historyText: {
     color: '#fff',
@@ -138,7 +138,7 @@ const styles = (theme) => ({
     fill: theme.navigator.navItem.linkActiveColor
   },
   iconWrapper: {
-    marginLeft: 15,
+    marginLeft: theme.spacing(4),
     '&:hover': {
       backgroundColor: theme.buttonHoverBg
     }
@@ -150,7 +150,7 @@ const styles = (theme) => ({
   },
   dialogTitle: {
     paddingBottom: 0,
-    paddingTop: 30,
+    paddingTop: theme.spacing(8),
     '& h2': {
       fontWeight: 400,
       fontSize: 32,
@@ -163,8 +163,8 @@ const styles = (theme) => ({
     background: theme.navigator.sidebarBg
   },
   dialogActionsRoot: {
-    padding: '0 24px',
-    paddingBottom: 25
+    padding: theme.spacing(0, 6),
+    paddingBottom: theme.spacing(6)
   },
   dialogTextRoot: {
     color: '#fff'
