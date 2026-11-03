@@ -197,13 +197,15 @@ const MultiSelect = ({
               disabled: classes.disabled,
             },
           }}
+          // darkTheme is admin-only: admin's theme draws the Text field itself (surface,
+          // border, label above the field), so the old #2a2a2a panel, white label and 16px
+          // label size don't apply there.
           InputLabelProps={{
             classes: {
-              root: classes.inputLabel,
+              root: darkTheme ? undefined : classes.inputLabel,
             },
           }}
           className={classNames({
-            [classes.darkThemeLabel]: darkTheme,
             [classes.focusVisible]: focusedByTab,
           })}
         />

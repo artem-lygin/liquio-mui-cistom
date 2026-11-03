@@ -503,8 +503,10 @@ uses `packages/front-core/theme.js`, which has only one change so far (see Typog
     underline look is gone, at the product designer's direction. `variant="filled"` (the
     Header search) is deliberately untouched; label rules are scoped to the outlined and
     standard label classes for that reason.
-  - **Size:** small/medium/large via the `MuiInputBase-size*` class that the `size` prop
-    adds (medium default). Each size reads Button's tokens:
+  - **Size:** small/medium/large from the `size` prop (medium default), read from MUI's
+    `ownerState` in the function-valued overrides. Not from a class: MUI only ever adds
+    `MuiInputBase-sizeSmall`, never a large class, so a class-based large silently fell back
+    to medium (caught live). Each size reads Button's tokens:
     - height: `theme.buttonHeight`
     - radius: `theme.buttonCornerRadius` (6/8/10)
     - horizontal padding: `r + 7`, Outlined's
@@ -514,7 +516,10 @@ uses `packages/front-core/theme.js`, which has only one change so far (see Typog
     `r − 1` vertical padding overshot at Medium: 7 + 7 + 2 border + a 20.125px line = 36.125px.
     Multi-line fields use the height as a minimum with `r − 1` top and bottom. Fields holding
     chips (Autocomplete tags, the table search's filter chips) grow too, with an even inset
-    so one row of small chips lands on the button height.
+    so one row of small chips lands on the button height. Chips inside a field are capped to
+    the small chip height (24px) and spaced 6px from the text after them. Measured live, the
+    table search's medium filter chips had made it 40px, with the chip ✕ touching the
+    placeholder.
   - **Fill:** `palette.background.paper`, i.e. elevation 0, Paper's flat color with no
     overlay. This replaces the old `#2e2e2e` input surface; autofill matches it.
   - **Border:** the field draws its own border and the notched outline (`fieldset`) is
@@ -545,10 +550,15 @@ uses `packages/front-core/theme.js`, which has only one change so far (see Typog
     - `MultiSelectFilterHandler`'s search: its `#2e2e2e`/square-corner/padding rules now only
       apply outside `darkTheme`.
     - `CustomDatePicker`'s `darkThemeLabel`: header background, radius and outline removed.
+    - The shared `Select` (`components/Select`): its `darkThemeLabel` (a `#2a2a2a` panel
+      behind label and field, white label, transparent outline) is removed, and in
+      `darkTheme` it skips its 16px label size. Found live on Statistics → Report List and
+      Registry → Parent Registry.
     - Admin pages: the white labels and transparent outlines in the Workflow and Tags
       toolbars; the `#2e2e2e` date pickers in Metrics and Statistics; Statistics' filter
       field corners; the 2px primary outline in the Journal users filter; and IconSelect's
-      outline/label colors.
+      outline/label colors. The Metrics filter row is now bottom-aligned, so its unlabeled
+      Search lines up with the labeled date fields instead of sitting about 24px higher.
   - **New token `theme.buttonHeight`** (`{ small: 32, medium: 36, large: 42 }`). It replaces
     the three literals in `MuiButton.sizeSmall/Medium/Large`'s `minHeight`, which now read
     it, so Button and the Text field share one source. No change to how Button renders.

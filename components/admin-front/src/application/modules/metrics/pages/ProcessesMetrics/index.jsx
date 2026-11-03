@@ -68,6 +68,9 @@ const styles = (theme) => ({
   },
   filtersWrapper: {
     display: 'flex',
+    // Bottom-aligned, so an unlabeled field (Search) lines up with labeled ones (the date
+    // filters), whose label sits above the field.
+    alignItems: 'flex-end',
     position: 'relative',
     padding: 12,
     paddingBottom: 0,

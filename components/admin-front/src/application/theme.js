@@ -27,8 +27,8 @@ const BORDER_COLOR = '#4E4E4E';
 // variant, whose underline look is gone), with the label static above the field
 // (MuiInputLabel). variant="filled" (the Header search) is deliberately left alone.
 //
-// Per size (small/medium/large, via the MuiInputBase-size* class TextField/Select/
-// Autocomplete add from their `size` prop; medium is the default):
+// Per size (small/medium/large, from the `size` prop on TextField/Select/Autocomplete, read
+// via ownerState; medium is the default):
 // - height      theme.buttonHeight[size]       (same map MuiButton.size* minHeight reads)
 // - radius      theme.buttonCornerRadius[size] (same map MuiButton.size* radius reads)
 // - padding     0 / r + 7: Outlined button's horizontal padding. One-line fields have a
@@ -40,9 +40,18 @@ const BORDER_COLOR = '#4E4E4E';
 // MUI's Autocomplete indicator button width (24px icon + 2px padding per side), reserved on
 // the right once per indicator (clear, open).
 const AUTOCOMPLETE_INDICATOR_WIDTH = 28;
-// A small Chip (24px) + Autocomplete's 3px tag margin per side + the field's 1px border per
-// side: a field holding one row of chips with no padding.
-const CHIP_ROW_HEIGHT = 24 + 3 * 2 + 1 * 2;
+// MUI's small Chip height. Chips inside a field render at this height (Autocomplete is set to
+// small chips via its default ChipProps; other chips, e.g. the table search's filter chips,
+// are capped to it), so one row of chips fits the button height.
+const SMALL_CHIP_HEIGHT = 24;
+// A small Chip + Autocomplete's 3px tag margin per side + the field's 1px border per side: a
+// field holding one row of chips with no padding.
+const CHIP_ROW_HEIGHT = SMALL_CHIP_HEIGHT + 3 * 2 + 1 * 2;
+
+// The field's size from MUI's ownerState (TextField/Select/Autocomplete's `size` prop,
+// carried through FormControl). Read from ownerState rather than a class because MUI only
+// ever adds a size class for small (MuiInputBase-sizeSmall), never for large.
+const getInputSize = (ownerState) => (['small', 'large'].includes(ownerState?.size) ? ownerState.size : 'medium');
 
 const inputFieldSize = (theme, size) => {
   const radius = theme.buttonCornerRadius[size];
@@ -77,16 +86,22 @@ const inputFieldSize = (theme, size) => {
   };
 };
 
-const inputFieldStyles = (theme) => ({
+const inputFieldStyles = (theme, ownerState) => ({
   boxSizing: 'border-box',
   backgroundColor: theme.palette.background.paper, // elevation 0: Paper's flat color
   border: `1px solid ${theme.borderColor}`,
   transition: theme.transitions.create(['border-color', 'box-shadow']),
-  ...inputFieldSize(theme, 'medium'),
-  '&.MuiInputBase-sizeSmall': inputFieldSize(theme, 'small'),
-  '&.MuiInputBase-sizeLarge': inputFieldSize(theme, 'large'),
+  ...inputFieldSize(theme, getInputSize(ownerState)),
   '& .MuiInputBase-input': {
     padding: 0
+  },
+  // Chips inside the field: capped to the small height so one row fits, and spaced from
+  // the text that follows (Autocomplete's own tags already carry their own margin).
+  '& .MuiChip-root:not(.MuiChip-sizeSmall)': {
+    height: SMALL_CHIP_HEIGHT
+  },
+  '& .MuiChip-root:not(.MuiAutocomplete-tag)': {
+    marginRight: theme.spacing(0.75)
   },
   // Icons inside the field follow its color; the global MuiSvgIcon.root.fill below would
   // otherwise keep MUI's own icons (Select arrow, Autocomplete arrow, chip ✕) white.
@@ -716,10 +731,8 @@ const baseTheme = {
     MuiAutocomplete: {
       // Surface, border, radius and states come from MuiOutlinedInput.root (the Text field);
       // only the padding Autocomplete sets on its own input root needs restating per size.
-      inputRoot: ({ theme }) => ({
-        ...autocompleteInputRootSize(theme, 'medium'),
-        '&.MuiInputBase-sizeSmall': autocompleteInputRootSize(theme, 'small'),
-        '&.MuiInputBase-sizeLarge': autocompleteInputRootSize(theme, 'large'),
+      inputRoot: ({ theme, ownerState }) => ({
+        ...autocompleteInputRootSize(theme, getInputSize(ownerState)),
         '& .MuiAutocomplete-input, &.MuiInputBase-sizeSmall .MuiAutocomplete-input': {
           padding: 0
         }
@@ -755,7 +768,7 @@ const baseTheme = {
     // and the field draws its own border instead: with the label above the field there is
     // nothing to notch, and a shrunk label would otherwise still cut a gap into the outline.
     MuiOutlinedInput: {
-      root: ({ theme }) => inputFieldStyles(theme),
+      root: ({ theme, ownerState }) => inputFieldStyles(theme, ownerState),
       notchedOutline: {
         display: 'none'
       },
@@ -771,8 +784,8 @@ const baseTheme = {
     // ::after borders) is removed, and so is the 16px top margin MUI leaves for a floating
     // label, since the label now sits above the field in normal flow.
     MuiInput: {
-      root: ({ theme }) => ({
-        ...inputFieldStyles(theme),
+      root: ({ theme, ownerState }) => ({
+        ...inputFieldStyles(theme, ownerState),
         'label + &': {
           marginTop: 0
         },

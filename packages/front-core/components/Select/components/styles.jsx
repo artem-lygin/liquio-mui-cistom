@@ -17,19 +17,6 @@ const styles = (theme) => ({
       lineHeight: '17px',
     },
   },
-  darkThemeLabel: {
-    backgroundColor: '#2a2a2a',
-    borderRadius: '4px 4px 0px 0px',
-    '& fieldset': {
-      borderColor: 'transparent',
-    },
-    '& label': {
-      color: '#fff',
-    },
-    '& legend': {
-      maxWidth: 0.01,
-    },
-  },
   inputLabel: {
     fontSize: 16,
   },
