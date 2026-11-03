@@ -485,6 +485,29 @@ uses `packages/front-core/theme.js`, which has only one change so far (see Typog
 
 ## Worth addressing (known issues found, not yet fixed)
 
+- **The Style Guide's own Buttons page (`pages/Buttons/`) went stale after the Button /
+  Primary recreation work above, in two ways — found while verifying that work live, not
+  yet fixed.** First, its properties-table false-flags three now-tokenized values as
+  hardcoded literals: `getResolvedMuiStyleOverride`
+  (`shared/themeIntrospection.js:21`) resolves a function-valued override
+  (`({ theme }) => ({ backgroundColor: theme.palette.primary.main })`) down to a plain value
+  *before* `resolveComponentColorRow` (`shared/themeIntrospection.js:55`) compares it against
+  the palette token — so it can no longer tell "reads the token live" apart from "someone
+  typed the same hex by hand," and labels both "duplicates ... as a literal." Affects
+  `containedPrimary` background, and `containedPrimary`/`outlinedPrimary`/`textPrimary`
+  label color — all four were correctly *unflagged* before they were tokenized, and now
+  incorrectly flagged after the fix that was supposed to resolve them; `textSecondary`
+  (genuinely still a hardcoded literal) is correctly flagged throughout. Proposed fix: call
+  the override function a second time with that one palette value swapped for a throwaway
+  color — if the resolved output changes accordingly, it reads the token live; if not, it's
+  a real hardcoded duplicate. Second, three separate rows in `tokenItems.js` are now
+  factually wrong, written as fixed prose describing MUI's pre-override defaults rather than
+  reading the theme live the way the color rows do: the padding note still says "hardcoded
+  '6px 16px' in MUI's Button.js" (Medium Contained now actually renders `7px 15px`, from
+  `theme.buttonCornerRadius`), the shape note still cites `theme.shape.borderRadius` (4px;
+  Button no longer uses it at all, see `theme.buttonCornerRadius` above), and the elevation
+  note still lists `shadows[4]`/`[6]`/`[8]` (Contained now uses its own
+  `containedPrimary`-specific shadow, not a numbered elevation). _(2026-11-03)_
 - **`theme.overrides.json` still has other un-audited baked values, not yet reconciled into
   `theme.js` or discarded.** The committed file (as of this writing) has `h5`/`h6`/
   `subtitle1`/`subtitle2` `fontWeight`, `h1.textTransform`, and `button.textTransform`/
