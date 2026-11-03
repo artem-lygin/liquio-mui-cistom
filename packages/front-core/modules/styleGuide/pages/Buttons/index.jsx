@@ -1,6 +1,10 @@
 import React from 'react';
 import { Typography, Divider, Button, IconButton, SvgIcon, Tabs, Tab, FormControlLabel, Switch } from '@mui/material';
-import { DeleteFill as SymbolDelete, ArrowForwardFill as SymbolArrowForward } from '@material-symbols-svg/react/rounded/w400';
+import {
+  DeleteFill as SymbolDelete,
+  ArrowForwardFill as SymbolArrowForward,
+  AccountCircleFill as SymbolAccountCircle
+} from '@material-symbols-svg/react/rounded/w400';
 import StyleGuideStateProvider, { useStyleGuideState } from '../../shared/StyleGuideStateProvider';
 import StyleGuideChrome from '../../components/StyleGuideChrome';
 import Section from '../../components/Section';
@@ -156,7 +160,7 @@ const ButtonsPageContent = () => {
                 size={buttonSize}
                 disabled={buttonState === 'disabled'}
                 onClick={() => setButtonVariant(variant)}
-                startIcon={buttonShowIcon ? <SvgIcon component={SymbolDelete} inheritViewBox={true} /> : undefined}
+                startIcon={buttonShowIcon ? <SvgIcon component={SymbolAccountCircle} inheritViewBox={true} /> : undefined}
                 endIcon={buttonShowEndIcon ? <SvgIcon component={SymbolArrowForward} inheritViewBox={true} /> : undefined}
               >
                 {variant[0].toUpperCase() + variant.slice(1)}
