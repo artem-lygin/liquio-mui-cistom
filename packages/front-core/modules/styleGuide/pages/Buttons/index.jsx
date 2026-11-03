@@ -220,7 +220,7 @@ const ButtonsPageContent = () => {
         </div>
         <MeasureOverlay enabled={measureEnabled}>
           <div style={{ display: 'flex', gap: 28, alignItems: 'center' }}>
-            <IconButton aria-label="delete" size={iconButtonSize} disabled={iconButtonState === 'disabled'}>
+            <IconButton aria-label="delete" color="primary" size={iconButtonSize} disabled={iconButtonState === 'disabled'}>
               {/* SvgIcon defaults to a fixed 24px regardless of the parent's size — inherit ties it to the button's own fontSize instead. */}
               <SvgIcon component={SymbolDelete} inheritViewBox={true} fontSize="inherit" />
             </IconButton>

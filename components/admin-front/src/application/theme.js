@@ -219,8 +219,9 @@ const baseTheme = {
       // override of its own — add theme.typography.button.large the same way if that ever
       // needs to differ too. borderRadius is shared across every variant at a given size
       // (theme.buttonCornerRadius — Button / Primary in the Figma design system scales
-      // radius with size, 6/8/10px); padding differs per variant below instead, since
-      // outlined needs 1px less per side to offset its border (see containedSizeSmall &c.).
+      // radius with size, 6/8/10px); padding differs per variant below instead (see
+      // containedSizeSmall &c.) — both to offset Contained/Outlined's 1px border, and to
+      // give the label itself extra horizontal room independent of the button's own edge.
       sizeSmall: ({ theme }) => ({
         fontSize: theme.typography.button.small?.fontSize ?? theme.typography.button.fontSize,
         minHeight: 30,
@@ -238,23 +239,34 @@ const baseTheme = {
         minHeight: 42,
         borderRadius: theme.buttonCornerRadius.large
       }),
-      // Fixed per-size height, independent of whether the button shows an icon. Without
-      // this, height comes from content: padding + max(label line-height, icon size) —
-      // and MUI's own icon glyph size (18/20/22px for small/medium/large, hardcoded, not
-      // theme-derived) is taller than this app's Button label line-height, so a plain-label
-      // button renders shorter than an icon+label button of the same size.
+      // Fixed per-size height, independent of whether the button shows an icon or just a
+      // label — a plain-label button must render at exactly the same height as an
+      // icon+label button of the same size, not grow/shrink to fit whichever content is
+      // present. Without this fixed minHeight, height would come from content instead:
+      // padding + max(label line-height, icon size).
       //
-      // Every variant converges on the same total height once box-sizing is border-box
-      // (this app mounts CssBaseline, which sets that globally) and an icon is shown,
-      // because outlined's padding (below) is deliberately 1px/side smaller than
-      // contained/text, to offset its 1px border adding that same 1px/side back:
-      //   small:  contained/text 6px*2 + 18px icon            = 30  |  outlined 5px*2 + 18 + 2*1px border = 30
-      //   medium: contained/text 8px*2 + 20px icon            = 36  |  outlined 7px*2 + 20 + 2*1px border = 36
-      //   large:  contained/text 10px*2 + 22px icon           = 42  |  outlined 9px*2 + 22 + 2*1px border = 42
+      // containedSizeSmall &c. below set *vertical* padding (theme.buttonCornerRadius minus
+      // 1px for Contained/Outlined specifically, to offset their 1px border — Text has no
+      // border, so it keeps the full value) so every variant's natural content height
+      // converges on the same number here, with box-sizing: border-box (this app mounts
+      // CssBaseline, which sets that globally):
+      //   small:  contained/outlined 5px*2 + 18px icon + 2*1px border = 30 | text 6px*2 + 18px icon = 30
+      //   medium: contained/outlined 7px*2 + 20px icon + 2*1px border = 36 | text 8px*2 + 20px icon = 36
+      //   large:  contained/outlined 9px*2 + 22px icon + 2*1px border = 42 | text 10px*2 + 22px icon = 42
       // (icon sizes 18/20/22 are still MUI's own commonIconStyles default — unchanged here,
       // only padding/radius are now this app's own, from theme.buttonCornerRadius.) Set to
       // the icon-present figure (rather than the shorter label-only one) so a plain-label
       // button grows to match an icon button, instead of the icon overflowing a shorter box.
+      //
+      // *Horizontal* padding is 8px (the same "s2" spacing token the Figma design system's
+      // own Label Wrapper uses) more than vertical, on top of the border/no-border split
+      // above — giving the label breathing room independent of the button's own edge. In
+      // Figma this 8px lives on a dedicated wrapper around just the label text, inside the
+      // icon/label/icon row; MUI's Button has no such intermediate element to target (the
+      // label is a bare text child, not wrapped), so it's folded into the button's own
+      // horizontal padding instead — the visible effect (a label-only button isn't
+      // cramped against its own edges, and height never depends on whether an icon is
+      // present) is the same either way.
       //
       // Padding/radius/colors below recreate Button / Primary / Contained, Outlined, and
       // Text from the Figma design system exactly (Default/Hover/Pressed) — see CHANGES.md.
@@ -284,13 +296,13 @@ const baseTheme = {
         }
       }),
       containedSizeSmall: ({ theme }) => ({
-        padding: theme.buttonCornerRadius.small
+        padding: `${theme.buttonCornerRadius.small - 1}px ${theme.buttonCornerRadius.small + 7}px`
       }),
       containedSizeMedium: ({ theme }) => ({
-        padding: theme.buttonCornerRadius.medium
+        padding: `${theme.buttonCornerRadius.medium - 1}px ${theme.buttonCornerRadius.medium + 7}px`
       }),
       containedSizeLarge: ({ theme }) => ({
-        padding: theme.buttonCornerRadius.large
+        padding: `${theme.buttonCornerRadius.large - 1}px ${theme.buttonCornerRadius.large + 7}px`
       }),
       outlinedPrimary: ({ theme }) => ({
         color: theme.palette.primary.main,
@@ -313,13 +325,13 @@ const baseTheme = {
         }
       }),
       outlinedSizeSmall: ({ theme }) => ({
-        padding: theme.buttonCornerRadius.small - 1
+        padding: `${theme.buttonCornerRadius.small - 1}px ${theme.buttonCornerRadius.small + 7}px`
       }),
       outlinedSizeMedium: ({ theme }) => ({
-        padding: theme.buttonCornerRadius.medium - 1
+        padding: `${theme.buttonCornerRadius.medium - 1}px ${theme.buttonCornerRadius.medium + 7}px`
       }),
       outlinedSizeLarge: ({ theme }) => ({
-        padding: theme.buttonCornerRadius.large - 1
+        padding: `${theme.buttonCornerRadius.large - 1}px ${theme.buttonCornerRadius.large + 7}px`
       }),
       textPrimary: ({ theme }) => ({
         color: theme.palette.primary.main,
@@ -334,13 +346,13 @@ const baseTheme = {
         }
       }),
       textSizeSmall: ({ theme }) => ({
-        padding: theme.buttonCornerRadius.small
+        padding: `${theme.buttonCornerRadius.small}px ${theme.buttonCornerRadius.small + 8}px`
       }),
       textSizeMedium: ({ theme }) => ({
-        padding: theme.buttonCornerRadius.medium
+        padding: `${theme.buttonCornerRadius.medium}px ${theme.buttonCornerRadius.medium + 8}px`
       }),
       textSizeLarge: ({ theme }) => ({
-        padding: theme.buttonCornerRadius.large
+        padding: `${theme.buttonCornerRadius.large}px ${theme.buttonCornerRadius.large + 8}px`
       }),
       textSecondary: {
         color: 'rgb(220, 0, 78)'
@@ -938,10 +950,13 @@ const baseTheme = {
   leftSidebarBg: '#404040',
   buttonBg: '#BB86FC',
   buttonHoverBg: INPUT_SURFACE_BG,
-  // Button / Primary's per-size padding & corner radius from the Figma design system — the
-  // two are equal by design there (see MuiButton.containedSizeSmall &c. above), so one map
-  // covers both. Icon Button's own padding scale is close but not identical (6/8/9, not
-  // 6/8/10 — Large is 1px tighter there), hence the separate map.
+  // Button / Primary's per-size corner radius from the Figma design system — Button's own
+  // per-variant padding (MuiButton.containedSizeSmall &c. above) is *derived* from this same
+  // map rather than reusing it directly (vertical padding is this value, minus 1px for
+  // Contained/Outlined's border; horizontal adds 8px more, for the label's own breathing
+  // room — see the comment above MuiButton.sizeSmall for why). Icon Button's own padding
+  // scale is close but not identical (6/8/9, not 6/8/10 — Large is 1px tighter there),
+  // hence the separate map.
   buttonCornerRadius: { small: 6, medium: 8, large: 10 },
   buttonIconPadding: { small: 6, medium: 8, large: 9 },
   textColorDark: '#232f3d',

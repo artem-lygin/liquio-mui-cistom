@@ -269,16 +269,27 @@ uses `packages/front-core/theme.js`, which has only one change so far (see Typog
   `rgba(0, 0, 0, 0.8)` — white reads poorly against `#BB86FC`, a light pastel purple.
 - **Added `theme.buttonCornerRadius`/`theme.buttonIconPadding`** (`{ small, medium, large }`
   maps), alongside this theme's existing custom top-level keys (`buttonHoverBg`, `borderColor`,
-  ...) — Button's per-size padding now equals its per-size corner radius (`6`/`8`/`10`px,
-  reusing one map for both, per the Figma design system), applied via new
+  ...) — `buttonCornerRadius` sets Button's per-size corner radius (`6`/`8`/`10`px, per the
+  Figma design system) directly, and Button's own per-variant padding (below) is *derived*
+  from it rather than reusing it as-is. Applied via new
   `contained/outlined/textSize{Small,Medium,Large}` override slots (MUI's own
   `${variant}Size${Size}` resolver pattern) instead of the shared `sizeSmall`/`sizeMedium`/
-  `sizeLarge` slots, since Outlined needs 1px less padding per side than Contained/Text to
-  offset its border and keep all three variants the same total height — recomputed
-  `sizeSmall`/`sizeMedium`/`sizeLarge`'s `minHeight` (now `30`/`36`/`42`, was `26`/`32`/`38`)
-  to match the new, more generous padding. Icon Button's own padding scale is close but not
-  identical (`6`/`8`/`9`, not `6`/`8`/`10` — Large is 1px tighter there), hence the separate
-  map. _(2026-11-03)_
+  `sizeLarge` slots, since padding differs per variant: **vertical** padding is
+  `buttonCornerRadius` minus `1px` for Contained/Outlined specifically (both now have a 1px
+  border — Text doesn't), so every variant's rendered height converges on the same number
+  regardless of border; **horizontal** padding adds `8px` more than that on top (the same
+  spacing Figma's own Label Wrapper uses around just the label text — MUI's Button has no
+  such intermediate element to target, so it's folded into the button's own padding
+  instead), so a plain-label button isn't cramped against its own edges even with no icon to
+  provide that spacing. Recomputed `sizeSmall`/`sizeMedium`/`sizeLarge`'s `minHeight` (now
+  `30`/`36`/`42`, was `26`/`32`/`38`) to match — verified live via `/style-guide/buttons`
+  that Contained/Outlined/Text now render at an identical height at every size (an earlier
+  pass here had Contained 2px taller, from missing its own border in that calculation; also
+  added `color="primary"` to that page's own Icon Button demo, which had been demonstrating
+  the *unstyled* default color instead of the new treatment above). Icon Button's own padding
+  scale is close but not identical (`6`/`8`/`9`, not `6`/`8`/`10` — Large is 1px tighter
+  there, and it has no border, so no compensation needed), hence the separate map.
+  _(2026-11-03)_
 
 ## Inputs
 
