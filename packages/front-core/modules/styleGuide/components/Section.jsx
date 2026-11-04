@@ -13,7 +13,8 @@ import ExpandableDescription from './ExpandableDescription';
 //
 // A page-level section (titleVariant h2, the default) keeps its title above the card, as the
 // page heading. A subsection (h4) carries its title inside the card, as its first
-// row, so each subsection reads as one self-contained block.
+// row, so each subsection reads as one self-contained block. A full-width divider runs under
+// the title, or under the tab bar when there is one, never both.
 const ControlBar = ({ children, style }) => (
   <>
     <div style={{ display: 'flex', gap: 16, alignItems: 'flex-end', flexWrap: 'wrap', padding: '8px 16px 0', ...style }}>
@@ -49,10 +50,21 @@ const Section = ({
     ) : null}
     <Card elevation={1}>
       {titleVariant !== 'h2' ? (
-        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '16px 16px 0' }}>
-          <Typography variant={titleVariant}>{title}</Typography>
-          {actions}
-        </div>
+        <>
+          <div
+            style={{
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'space-between',
+              padding: controls ? '16px 16px 0' : 16
+            }}
+          >
+            <Typography variant={titleVariant}>{title}</Typography>
+            {actions}
+          </div>
+          {/* With a tab bar, the tab bar's own full-width divider is the one under the title. */}
+          {controls ? null : <Divider />}
+        </>
       ) : null}
       {controls ? <ControlBar>{controls}</ControlBar> : null}
       <CardContent>{children}</CardContent>
