@@ -68,6 +68,7 @@ const FieldControls = ({ size, onSizeChange, state, onStateChange, showHelperTex
         <Tab key={item.key} value={item.key} label={item.label} style={TAB_STYLE} />
       ))}
     </Tabs>
+    <Divider orientation="vertical" flexItem={true} style={{ marginBottom: 8 }} />
     <Tabs value={state} onChange={(event, value) => onStateChange(value)} variant="scrollable" style={{ minHeight: 32 }}>
       {INPUT_STATES.map((item) => (
         <Tab key={item.key} value={item.key} label={item.label} style={TAB_STYLE} />

@@ -39,9 +39,13 @@ const UNITS = ['Administrators', 'Registry editors', 'Workflow designers', 'Supp
 const CUSTOMERS = ['Ministry of Justice', 'City Council', 'Regional Administration'];
 const PER_PAGE = [10, 50, 100];
 
+// Each case is one row of a two-column list: the input on the left, its title and where it's
+// used on the right. Case returns both cells as a fragment so every row shares the same column
+// widths (set once on Grid).
 const Case = ({ title, where, children }) => (
-  <div style={{ display: 'flex', flexDirection: 'column', gap: 8, minWidth: 0 }}>
-    <div>
+  <>
+    <div style={{ minWidth: 0 }}>{children}</div>
+    <div style={{ minWidth: 0 }}>
       <Typography variant="subtitle2" component="div">
         {title}
       </Typography>
@@ -49,16 +53,15 @@ const Case = ({ title, where, children }) => (
         {where}
       </Typography>
     </div>
-    {children}
-  </div>
+  </>
 );
 
 const Grid = ({ children }) => (
   <div
     style={{
       display: 'grid',
-      gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))',
-      gap: '32px 28px',
+      gridTemplateColumns: 'minmax(0, 400px) minmax(0, 1fr)',
+      gap: '32px 40px',
       alignItems: 'start'
     }}
   >
@@ -113,10 +116,12 @@ export const TextFieldCases = ({ size, state, showHelperText }) => {
             {...stateProps}
           />
           <div style={{ display: 'flex', flexDirection: 'column', flexShrink: 0 }}>
-            {/* An invisible label keeps the button level with the field itself, without
-                hardcoding the label's height. */}
-            <FormControl style={{ visibility: 'hidden' }} aria-hidden={true}>
-              <InputLabel>{' '}</InputLabel>
+            {/* An invisible label above the button takes exactly the field label's height
+                (its font size and bottom margin come from the theme's MuiInputLabel), so the
+                button lines up with the input box itself, not with the label. It holds a
+                non-breaking space: a plain space collapses to zero height. */}
+            <FormControl size={size} style={{ visibility: 'hidden' }} aria-hidden={true}>
+              <InputLabel>{'\u00a0'}</InputLabel>
             </FormControl>
             <Button variant="contained" color="primary" size={size} disabled={stateProps.disabled}>
               Create

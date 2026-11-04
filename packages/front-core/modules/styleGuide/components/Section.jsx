@@ -5,7 +5,7 @@ import ExpandableDescription from './ExpandableDescription';
 // Layout is always: demo (`children`), a splitter, `description`, then — when `properties`
 // is provided (i.e. "Show properties" is on) — a stronger splitter and the theme-tokens
 // table. The tokens table sits flush inside the same outer card, just nested one elevation
-// lower (2 vs 4) so it still reads as "reference" without a gap breaking up the surface.
+// lower (1 vs 2) so it still reads as "reference" without a gap breaking up the surface.
 const Section = ({ id, title, titleVariant = 'h2', actions, description, properties, propertiesHeading, children }) => (
   <div id={id} style={{ marginBottom: 32, scrollMarginTop: 24 }}>
     <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
@@ -15,7 +15,7 @@ const Section = ({ id, title, titleVariant = 'h2', actions, description, propert
       {actions}
     </div>
     <Divider style={{ marginBottom: 16 }} />
-    <Card elevation={4}>
+    <Card elevation={2}>
       <CardContent>{children}</CardContent>
       {description ? (
         <>
@@ -28,7 +28,7 @@ const Section = ({ id, title, titleVariant = 'h2', actions, description, propert
       {properties ? (
         <>
           <Divider style={{ borderBottomWidth: 2 }} />
-          <Card elevation={2} square={true}>
+          <Card elevation={1} square={true}>
             <Typography
               variant="overline"
               color="textSecondary"
