@@ -44,7 +44,7 @@ const Section = ({
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'space-between',
-              padding: controls ? '16px 16px 0' : 16
+              padding: controls ? '16px 16px 8px' : 16
             }}
           >
             <Typography variant={titleVariant}>{title}</Typography>

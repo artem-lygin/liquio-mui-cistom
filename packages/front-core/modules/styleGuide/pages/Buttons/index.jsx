@@ -1,7 +1,10 @@
 import React from 'react';
-import { Divider, Button, IconButton, SvgIcon, Tabs, Tab, FormControlLabel, Switch } from '@mui/material';
+import { Divider, Button, IconButton, SvgIcon, Tabs, Tab, FormControlLabel, Switch, Tooltip } from '@mui/material';
 import {
   DeleteFill as SymbolDelete,
+  RefreshFill as SymbolRefresh,
+  FullscreenFill as SymbolFullscreen,
+  MoreHorizFill as SymbolMoreHoriz,
   ArrowForwardFill as SymbolArrowForward,
   AccountCircleFill as SymbolAccountCircle
 } from '@material-symbols-svg/react/rounded/w400';
@@ -15,6 +18,16 @@ import { navigateToSection } from '../../shared/navigation';
 import { BUTTON_SIZES } from '../../shared/constants';
 import { BUTTON_STATES, ICON_BUTTON_USAGE_NOTES } from './constants';
 import { getButtonTokenItems, getIconButtonTokenItems } from './tokenItems';
+
+// Icon buttons the admin panel really uses (the list-page toolbar's Reload and Toggle
+// fullscreen, row Delete), drawn with the Material Symbols set instead of the
+// @mui/icons-material icons they use today, plus the "more" button that opens a context menu.
+const ICON_BUTTON_EXAMPLES = [
+  { key: 'reload', icon: SymbolRefresh, label: 'Reload' },
+  { key: 'fullscreen', icon: SymbolFullscreen, label: 'Toggle fullscreen' },
+  { key: 'delete', icon: SymbolDelete, label: 'Delete' },
+  { key: 'more', icon: SymbolMoreHoriz, label: 'More actions' }
+];
 
 const TAB_STYLE = { minHeight: 32, minWidth: 'auto', padding: '4px 12px 8px' };
 
@@ -127,17 +140,25 @@ const ButtonsPageContent = () => {
                 {variant[0].toUpperCase() + variant.slice(1)}
               </Button>
             ))}
-            <IconButton
-              aria-label="delete"
-              color={buttonColor}
-              size={buttonSize}
-              disabled={buttonState === 'disabled'}
-              onClick={() => setButtonVariant('icon')}
-              style={{ marginLeft: 'auto' }}
-            >
-              {/* SvgIcon defaults to a fixed 24px regardless of the parent's size — inherit ties it to the button's own fontSize instead. */}
-              <SvgIcon component={SymbolDelete} inheritViewBox={true} fontSize="inherit" />
-            </IconButton>
+            <div style={{ display: 'flex', gap: 8, marginLeft: 'auto' }}>
+              {ICON_BUTTON_EXAMPLES.map((example) => (
+                <Tooltip key={example.key} title={example.label}>
+                  {/* A disabled button fires no mouse events, so the tooltip listens on this span. */}
+                  <span>
+                    <IconButton
+                      aria-label={example.label}
+                      color={buttonColor}
+                      size={buttonSize}
+                      disabled={buttonState === 'disabled'}
+                      onClick={() => setButtonVariant('icon')}
+                    >
+                      {/* SvgIcon defaults to a fixed 24px regardless of the parent's size — inherit ties it to the button's own fontSize instead. */}
+                      <SvgIcon component={example.icon} inheritViewBox={true} fontSize="inherit" />
+                    </IconButton>
+                  </span>
+                </Tooltip>
+              ))}
+            </div>
           </div>
         </MeasureOverlay>
       </Section>
