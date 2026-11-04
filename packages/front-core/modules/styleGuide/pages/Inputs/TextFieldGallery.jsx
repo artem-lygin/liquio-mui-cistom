@@ -18,7 +18,11 @@ import {
   SearchFill as SymbolSearch,
   VisibilityFill as SymbolVisibility,
   VisibilityOffFill as SymbolVisibilityOff,
-  CalendarMonthFill as SymbolCalendarMonth
+  CalendarMonthFill as SymbolCalendarMonth,
+  ContentCopyFill as SymbolContentCopy,
+  CheckFill as SymbolCheck,
+  CancelFill as SymbolCancel,
+  MailFill as SymbolMail
 } from '@material-symbols-svg/react/rounded/w400';
 
 // Every kind of text input the admin panel uses, rendered with plain MUI components and no
@@ -86,6 +90,22 @@ const autocompleteInput = (stateProps, props) => (params) => (
   <TextField {...params} {...props} error={stateProps.error} focused={stateProps.focused} />
 );
 
+// Copies to the clipboard and swaps the copy icon for a check for a moment, so the action
+// confirms itself without a toast.
+const useCopyAction = () => {
+  const [copied, setCopied] = React.useState(false);
+  React.useEffect(() => {
+    if (!copied) return undefined;
+    const timer = setTimeout(() => setCopied(false), 1500);
+    return () => clearTimeout(timer);
+  }, [copied]);
+  const copy = (text) => {
+    navigator.clipboard?.writeText(text).catch(() => {});
+    setCopied(true);
+  };
+  return [copied, copy];
+};
+
 export const TextFieldCases = ({ size, state, showHelperText }) => {
   const { stateProps, helper } = useCaseProps(state, showHelperText);
   const [name, setName] = React.useState('Citizen request');
@@ -93,12 +113,30 @@ export const TextFieldCases = ({ size, state, showHelperText }) => {
   const [showPassword, setShowPassword] = React.useState(false);
   const [search, setSearch] = React.useState('');
   const [description, setDescription] = React.useState('Handles incoming citizen requests\nand routes them to the right unit.');
+  const [website, setWebsite] = React.useState('liquio.gov.ua');
+  const [deadline, setDeadline] = React.useState('14');
+  const [email, setEmail] = React.useState('olena.kovalenko@liquio.gov.ua');
+  const [filterName, setFilterName] = React.useState('Citizen request');
+  const [token, setToken] = React.useState('lq_live_8f3a2c91d4e7b6a0');
+  const [showToken, setShowToken] = React.useState(false);
+  const [workflowIdCopied, copyWorkflowId] = useCopyAction();
+  const [tokenCopied, copyToken] = useCopyAction();
+  const workflowId = '6f1c2e04-91ab-4d3e-b8a7-2c5d0e9f4a17';
 
-  const iconButton = (icon, ariaLabel, onClick) => (
+  // One or more action buttons at the end of the field, as in MUI's Input Adornments demo.
+  const endActions = (...actions) => (
     <InputAdornment position="end">
-      <IconButton aria-label={ariaLabel} onClick={onClick} disabled={stateProps.disabled}>
-        <SvgIcon component={icon} inheritViewBox={true} fontSize="inherit" />
-      </IconButton>
+      {actions.map(({ icon, label, onClick }) => (
+        <IconButton key={label} aria-label={label} onClick={onClick} disabled={stateProps.disabled}>
+          <SvgIcon component={icon} inheritViewBox={true} fontSize="inherit" />
+        </IconButton>
+      ))}
+    </InputAdornment>
+  );
+  const iconButton = (icon, label, onClick) => endActions({ icon, label, onClick });
+  const startIcon = (icon) => (
+    <InputAdornment position="start">
+      <SvgIcon component={icon} inheritViewBox={true} />
     </InputAdornment>
   );
 
@@ -155,13 +193,7 @@ export const TextFieldCases = ({ size, state, showHelperText }) => {
           placeholder="Search"
           value={search}
           onChange={(event) => setSearch(event.target.value)}
-          InputProps={{
-            startAdornment: (
-              <InputAdornment position="start">
-                <SvgIcon component={SymbolSearch} inheritViewBox={true} />
-              </InputAdornment>
-            )
-          }}
+          InputProps={{ startAdornment: startIcon(SymbolSearch) }}
           inputProps={{ 'aria-label': 'Search' }}
           helperText={helper('Name or ID')}
           {...stateProps}
@@ -175,6 +207,102 @@ export const TextFieldCases = ({ size, state, showHelperText }) => {
           value="01.11.2026"
           InputProps={{ readOnly: true, endAdornment: iconButton(SymbolCalendarMonth, 'Open calendar') }}
           helperText={helper('DD.MM.YYYY')}
+          {...stateProps}
+        />
+      </Case>
+
+      <Case title="Text adornment · start" where="Prefix text, e.g. a fixed URL scheme (MUI Input Adornments demo)">
+        <TextField
+          size={size}
+          label="Website"
+          value={website}
+          onChange={(event) => setWebsite(event.target.value)}
+          InputProps={{ startAdornment: <InputAdornment position="start">https://</InputAdornment> }}
+          helperText={helper('Domain only')}
+          {...stateProps}
+        />
+      </Case>
+
+      <Case title="Text adornment · end" where="Unit after the value, e.g. a deadline in days">
+        <TextField
+          size={size}
+          label="Deadline"
+          value={deadline}
+          onChange={(event) => setDeadline(event.target.value)}
+          InputProps={{ endAdornment: <InputAdornment position="end">days</InputAdornment> }}
+          inputProps={{ inputMode: 'numeric' }}
+          helperText={helper('Working days')}
+          {...stateProps}
+        />
+      </Case>
+
+      <Case title="Icon adornment · start" where="Icon before the value, naming what the field holds">
+        <TextField
+          size={size}
+          label="Email"
+          type="email"
+          value={email}
+          onChange={(event) => setEmail(event.target.value)}
+          InputProps={{ startAdornment: startIcon(SymbolMail) }}
+          helperText={helper('Used for notifications')}
+          {...stateProps}
+        />
+      </Case>
+
+      <Case title="Action · Clear" where="Clear button, shown only while the field has a value">
+        <TextField
+          size={size}
+          label="Filter by name"
+          value={filterName}
+          onChange={(event) => setFilterName(event.target.value)}
+          InputProps={{
+            endAdornment: filterName ? endActions({ icon: SymbolCancel, label: 'Clear', onClick: () => setFilterName('') }) : null
+          }}
+          helperText={helper('Type to filter the list')}
+          {...stateProps}
+        />
+      </Case>
+
+      <Case title="Action · Copy" where="Read-only value with a copy button, e.g. a workflow ID">
+        <TextField
+          size={size}
+          label="Workflow ID"
+          value={workflowId}
+          InputProps={{
+            readOnly: true,
+            endAdornment: endActions({
+              icon: workflowIdCopied ? SymbolCheck : SymbolContentCopy,
+              label: workflowIdCopied ? 'Copied' : 'Copy',
+              onClick: () => copyWorkflowId(workflowId)
+            })
+          }}
+          helperText={helper('Read-only')}
+          {...stateProps}
+        />
+      </Case>
+
+      <Case title="Actions · Show + Copy" where="Secret with two actions side by side, e.g. an API token">
+        <TextField
+          size={size}
+          label="API token"
+          type={showToken ? 'text' : 'password'}
+          value={token}
+          onChange={(event) => setToken(event.target.value)}
+          InputProps={{
+            endAdornment: endActions(
+              {
+                icon: showToken ? SymbolVisibility : SymbolVisibilityOff,
+                label: showToken ? 'Hide token' : 'Show token',
+                onClick: () => setShowToken(!showToken)
+              },
+              {
+                icon: tokenCopied ? SymbolCheck : SymbolContentCopy,
+                label: tokenCopied ? 'Copied' : 'Copy',
+                onClick: () => copyToken(token)
+              }
+            )
+          }}
+          helperText={helper('Keep it secret')}
           {...stateProps}
         />
       </Case>
