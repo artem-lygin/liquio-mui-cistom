@@ -6,7 +6,31 @@ import ExpandableDescription from './ExpandableDescription';
 // is provided (i.e. "Show properties" is on) — a stronger splitter and the theme-tokens
 // table. The tokens table sits flush inside the same outer card, just nested one elevation
 // lower (1 vs 2) so it still reads as "reference" without a gap breaking up the surface.
-const Section = ({ id, title, titleVariant = 'h2', actions, description, properties, propertiesHeading, children }) => (
+//
+// `controls` (the demo's tab bar: size, state, color...) sits at the very top of the card and
+// `propertiesControls` at the top of the tokens table, each above a full-width divider, so the
+// tabs' selection indicator lands on a line that runs edge to edge of the card.
+const ControlBar = ({ children, style }) => (
+  <>
+    <div style={{ display: 'flex', gap: 16, alignItems: 'flex-end', flexWrap: 'wrap', padding: '8px 16px 0', ...style }}>
+      {children}
+    </div>
+    <Divider />
+  </>
+);
+
+const Section = ({
+  id,
+  title,
+  titleVariant = 'h2',
+  actions,
+  controls,
+  description,
+  properties,
+  propertiesControls,
+  propertiesHeading,
+  children
+}) => (
   <div id={id} style={{ marginBottom: 32, scrollMarginTop: 24 }}>
     <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
       <Typography variant={titleVariant} gutterBottom={true}>
@@ -16,6 +40,7 @@ const Section = ({ id, title, titleVariant = 'h2', actions, description, propert
     </div>
     <Divider style={{ marginBottom: 16 }} />
     <Card elevation={2}>
+      {controls ? <ControlBar>{controls}</ControlBar> : null}
       <CardContent>{children}</CardContent>
       {description ? (
         <>
@@ -36,6 +61,7 @@ const Section = ({ id, title, titleVariant = 'h2', actions, description, propert
             >
               {propertiesHeading || 'Theme tokens'}
             </Typography>
+            {propertiesControls ? <ControlBar style={{ paddingTop: 0 }}>{propertiesControls}</ControlBar> : null}
             <div style={{ padding: '8px 16px 16px' }}>{properties}</div>
           </Card>
         </>

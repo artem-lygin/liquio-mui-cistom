@@ -50,31 +50,71 @@ const ButtonsPageContent = () => {
     >
       <Section
         id="buttons"
+        controls={
+          <>
+            <Tabs value={buttonColor} onChange={(event, value) => setButtonColor(value)} style={{ minHeight: 32 }}>
+              <Tab value="primary" label="Primary" style={{ minHeight: 32, minWidth: 'auto', padding: '4px 12px 8px' }} />
+              <Tab value="secondary" label="Secondary" style={{ minHeight: 32, minWidth: 'auto', padding: '4px 12px 8px' }} />
+            </Tabs>
+            <Divider
+              orientation="vertical"
+              flexItem={true}
+              style={{ margin: '4px 0', borderColor: 'rgba(255, 255, 255, 0.12)' }}
+            />
+            <Tabs value={buttonSize} onChange={(event, value) => setButtonSize(value)} style={{ minHeight: 32 }}>
+              {BUTTON_SIZES.map((size) => (
+                <Tab key={size.key} value={size.key} label={size.label} style={{ minHeight: 32, minWidth: 'auto', padding: '4px 12px 8px' }} />
+              ))}
+            </Tabs>
+            <FormControlLabel
+              style={{ marginLeft: 'auto', marginBottom: 8 }}
+              control={
+                <Switch
+                  size="small"
+                  checked={buttonShowIcon}
+                  onChange={(event) => setButtonShowIcon(event.target.checked)}
+                />
+              }
+              label="startIcon"
+            />
+            <FormControlLabel
+              style={{ marginBottom: 8 }}
+              control={
+                <Switch
+                  size="small"
+                  checked={buttonShowEndIcon}
+                  onChange={(event) => setButtonShowEndIcon(event.target.checked)}
+                />
+              }
+              label="endIcon"
+            />
+          </>
+        }
         title="Buttons"
         propertiesHeading={`Theme tokens for ${buttonVariant} button`}
+        propertiesControls={
+          <Tabs
+            value={buttonState}
+            onChange={(event, value) => setButtonState(value)}
+            variant="scrollable"
+            style={{ minHeight: 36 }}
+          >
+            {BUTTON_STATES.map((state) => (
+              <Tab
+                key={state.key}
+                value={state.key}
+                label={state.label}
+                style={{ minHeight: 36, minWidth: 'auto', padding: '6px 16px 10px' }}
+              />
+            ))}
+          </Tabs>
+        }
         properties={
           showProperties ? (
-            <>
-              <Tabs
-                value={buttonState}
-                onChange={(event, value) => setButtonState(value)}
-                variant="scrollable"
-                style={{ minHeight: 36, borderBottom: '1px solid rgba(255, 255, 255, 0.12)' }}
-              >
-                {BUTTON_STATES.map((state) => (
-                  <Tab
-                    key={state.key}
-                    value={state.key}
-                    label={state.label}
-                    style={{ minHeight: 36, minWidth: 'auto', padding: '6px 16px 10px' }}
-                  />
-                ))}
-              </Tabs>
-              <PropertiesCardGroup
-                onNavigate={navigateToSection}
-                items={getButtonTokenItems(buttonVariant, buttonColor, buttonSize, buttonState, previewTheme, buttonShowIcon, buttonShowEndIcon)}
-              />
-            </>
+            <PropertiesCardGroup
+              onNavigate={navigateToSection}
+              items={getButtonTokenItems(buttonVariant, buttonColor, buttonSize, buttonState, previewTheme, buttonShowIcon, buttonShowEndIcon)}
+            />
           ) : null
         }
         description={
@@ -102,53 +142,6 @@ const ButtonsPageContent = () => {
           </>
         }
       >
-        <div
-          style={{
-            display: 'flex',
-            gap: 16,
-            alignItems: 'flex-end',
-            flexWrap: 'wrap',
-            marginBottom: 20,
-            borderBottom: '1px solid rgba(255, 255, 255, 0.12)'
-          }}
-        >
-          <Tabs value={buttonColor} onChange={(event, value) => setButtonColor(value)} style={{ minHeight: 32 }}>
-            <Tab value="primary" label="Primary" style={{ minHeight: 32, minWidth: 'auto', padding: '4px 12px 8px' }} />
-            <Tab value="secondary" label="Secondary" style={{ minHeight: 32, minWidth: 'auto', padding: '4px 12px 8px' }} />
-          </Tabs>
-          <Divider
-            orientation="vertical"
-            flexItem={true}
-            style={{ margin: '4px 0', borderColor: 'rgba(255, 255, 255, 0.12)' }}
-          />
-          <Tabs value={buttonSize} onChange={(event, value) => setButtonSize(value)} style={{ minHeight: 32 }}>
-            {BUTTON_SIZES.map((size) => (
-              <Tab key={size.key} value={size.key} label={size.label} style={{ minHeight: 32, minWidth: 'auto', padding: '4px 12px 8px' }} />
-            ))}
-          </Tabs>
-          <FormControlLabel
-            style={{ marginLeft: 'auto', marginBottom: 8 }}
-            control={
-              <Switch
-                size="small"
-                checked={buttonShowIcon}
-                onChange={(event) => setButtonShowIcon(event.target.checked)}
-              />
-            }
-            label="startIcon"
-          />
-          <FormControlLabel
-            style={{ marginBottom: 8 }}
-            control={
-              <Switch
-                size="small"
-                checked={buttonShowEndIcon}
-                onChange={(event) => setButtonShowEndIcon(event.target.checked)}
-              />
-            }
-            label="endIcon"
-          />
-        </div>
 
         <MeasureOverlay enabled={measureEnabled}>
           <div style={{ display: 'flex', gap: 28, alignItems: 'center', flexWrap: 'wrap', marginBottom: 20 }}>
@@ -179,49 +172,42 @@ const ButtonsPageContent = () => {
 
       <Section
         id="buttons-icon-buttons"
+        controls={
+          <>
+            <Tabs value={iconButtonSize} onChange={(event, value) => setIconButtonSize(value)} style={{ minHeight: 32 }}>
+              {BUTTON_SIZES.map((size) => (
+                <Tab key={size.key} value={size.key} label={size.label} style={{ minHeight: 32, minWidth: 'auto', padding: '4px 12px 8px' }} />
+              ))}
+            </Tabs>
+          </>
+        }
         title="Icon Buttons"
         titleVariant="h3"
         propertiesHeading={`Theme tokens for ${iconButtonSize} icon button`}
+        propertiesControls={
+          <Tabs
+            value={iconButtonState}
+            onChange={(event, value) => setIconButtonState(value)}
+            variant="scrollable"
+            style={{ minHeight: 36 }}
+          >
+            {BUTTON_STATES.map((state) => (
+              <Tab
+                key={state.key}
+                value={state.key}
+                label={state.label}
+                style={{ minHeight: 36, minWidth: 'auto', padding: '6px 16px 10px' }}
+              />
+            ))}
+          </Tabs>
+        }
         properties={
           showProperties ? (
-            <>
-              <Tabs
-                value={iconButtonState}
-                onChange={(event, value) => setIconButtonState(value)}
-                variant="scrollable"
-                style={{ minHeight: 36, borderBottom: '1px solid rgba(255, 255, 255, 0.12)' }}
-              >
-                {BUTTON_STATES.map((state) => (
-                  <Tab
-                    key={state.key}
-                    value={state.key}
-                    label={state.label}
-                    style={{ minHeight: 36, minWidth: 'auto', padding: '6px 16px 10px' }}
-                  />
-                ))}
-              </Tabs>
-              <PropertiesCardGroup onNavigate={navigateToSection} items={getIconButtonTokenItems(iconButtonSize, iconButtonState, previewTheme)} />
-            </>
+            <PropertiesCardGroup onNavigate={navigateToSection} items={getIconButtonTokenItems(iconButtonSize, iconButtonState, previewTheme)} />
           ) : null
         }
         description={ICON_BUTTON_USAGE_NOTES[iconButtonSize]}
       >
-        <div
-          style={{
-            display: 'flex',
-            gap: 16,
-            alignItems: 'flex-end',
-            flexWrap: 'wrap',
-            marginBottom: 20,
-            borderBottom: '1px solid rgba(255, 255, 255, 0.12)'
-          }}
-        >
-          <Tabs value={iconButtonSize} onChange={(event, value) => setIconButtonSize(value)} style={{ minHeight: 32 }}>
-            {BUTTON_SIZES.map((size) => (
-              <Tab key={size.key} value={size.key} label={size.label} style={{ minHeight: 32, minWidth: 'auto', padding: '4px 12px 8px' }} />
-            ))}
-          </Tabs>
-        </div>
         <MeasureOverlay enabled={measureEnabled}>
           <div style={{ display: 'flex', gap: 28, alignItems: 'center' }}>
             <IconButton aria-label="delete" color="primary" size={iconButtonSize} disabled={iconButtonState === 'disabled'}>

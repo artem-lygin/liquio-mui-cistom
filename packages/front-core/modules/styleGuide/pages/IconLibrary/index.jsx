@@ -19,6 +19,25 @@ const IconLibraryPageContent = () => {
     <StyleGuideChrome activeId="icon-library">
       <Section
         id="icon-library"
+        controls={
+          <>
+            <Tabs value={iconLibraryColor} onChange={(event, value) => setIconLibraryColor(value)} style={{ minHeight: 32 }}>
+              {ICON_LIBRARY_COLORS.map((color) => (
+                <Tab key={color.key} value={color.key} label={color.label} style={{ minHeight: 32, minWidth: 'auto', padding: '4px 12px 8px' }} />
+              ))}
+            </Tabs>
+            <Divider
+              orientation="vertical"
+              flexItem={true}
+              style={{ margin: '4px 0', borderColor: 'rgba(255, 255, 255, 0.12)' }}
+            />
+            <Tabs value={iconLibrarySize} onChange={(event, value) => setIconLibrarySize(value)} style={{ minHeight: 32 }}>
+              {BUTTON_SIZES.map((size) => (
+                <Tab key={size.key} value={size.key} label={size.label} style={{ minHeight: 32, minWidth: 'auto', padding: '4px 12px 8px' }} />
+              ))}
+            </Tabs>
+          </>
+        }
         title="Icon library"
         propertiesHeading={`Theme tokens for ${iconLibraryColor} color, ${iconLibrarySize} size`}
         properties={showProperties ? <PropertiesCardGroup onNavigate={navigateToSection} items={getIconLibraryTokenItems(iconLibraryColor, iconLibrarySize, previewTheme)} /> : null}
@@ -49,32 +68,6 @@ const IconLibraryPageContent = () => {
           </>
         }
       >
-        <div
-          style={{
-            display: 'flex',
-            gap: 16,
-            alignItems: 'flex-end',
-            flexWrap: 'wrap',
-            marginBottom: 20,
-            borderBottom: '1px solid rgba(255, 255, 255, 0.12)'
-          }}
-        >
-          <Tabs value={iconLibraryColor} onChange={(event, value) => setIconLibraryColor(value)} style={{ minHeight: 32 }}>
-            {ICON_LIBRARY_COLORS.map((color) => (
-              <Tab key={color.key} value={color.key} label={color.label} style={{ minHeight: 32, minWidth: 'auto', padding: '4px 12px 8px' }} />
-            ))}
-          </Tabs>
-          <Divider
-            orientation="vertical"
-            flexItem={true}
-            style={{ margin: '4px 0', borderColor: 'rgba(255, 255, 255, 0.12)' }}
-          />
-          <Tabs value={iconLibrarySize} onChange={(event, value) => setIconLibrarySize(value)} style={{ minHeight: 32 }}>
-            {BUTTON_SIZES.map((size) => (
-              <Tab key={size.key} value={size.key} label={size.label} style={{ minHeight: 32, minWidth: 'auto', padding: '4px 12px 8px' }} />
-            ))}
-          </Tabs>
-        </div>
         <MeasureOverlay enabled={measureEnabled}>
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(10, 1fr)' }}>
             {ICON_LIBRARY_SAMPLES.map((sample, index) => {

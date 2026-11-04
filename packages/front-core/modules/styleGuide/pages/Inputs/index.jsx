@@ -51,18 +51,10 @@ const TAB_STYLE = { minHeight: 32, minWidth: 'auto', padding: '4px 12px 8px' };
 
 // Size, state and helper text for every field section. Repeated at the top of each section
 // so it's always in reach, but all copies drive the same page state: switching one switches
-// every field on the page.
+// every field on the page. Rendered as the Section's `controls`, so it sits in the card's
+// top bar above a full-width divider.
 const FieldControls = ({ size, onSizeChange, state, onStateChange, showHelperText, onShowHelperTextChange }) => (
-  <div
-    style={{
-      display: 'flex',
-      gap: 16,
-      alignItems: 'flex-end',
-      flexWrap: 'wrap',
-      marginBottom: 20,
-      borderBottom: '1px solid rgba(255, 255, 255, 0.12)'
-    }}
-  >
+  <>
     <Tabs value={size} onChange={(event, value) => onSizeChange(value)} style={{ minHeight: 32 }}>
       {BUTTON_SIZES.map((item) => (
         <Tab key={item.key} value={item.key} label={item.label} style={TAB_STYLE} />
@@ -79,7 +71,7 @@ const FieldControls = ({ size, onSizeChange, state, onStateChange, showHelperTex
       control={<Switch size="small" checked={showHelperText} onChange={(event) => onShowHelperTextChange(event.target.checked)} />}
       label="Helper text"
     />
-  </div>
+  </>
 );
 
 const InputsPageContent = () => {
@@ -124,6 +116,7 @@ const InputsPageContent = () => {
         id="inputs-text-field"
         title="Text field"
         titleVariant="h3"
+        controls={fieldControls}
         description="Admin's theme renders every outlined and standard input this way (TextField, Select, Autocomplete, date pickers, schema forms). Built from Button / Primary's tokens: same per-size height and corner radius as a button, elevation-0 fill, primary.main on focus. The label sits above the field and never moves. Below: the free-text inputs the admin panel uses, as plain MUI components."
         properties={
           showProperties ? (
@@ -134,7 +127,6 @@ const InputsPageContent = () => {
           ) : null
         }
       >
-        {fieldControls}
         <MeasureOverlay enabled={measureEnabled}>
           <TextFieldCases {...galleryProps} />
         </MeasureOverlay>
@@ -144,10 +136,10 @@ const InputsPageContent = () => {
         id="inputs-select"
         title="Select"
         titleVariant="h3"
+        controls={fieldControls}
         description="Pick one value from a short, known list. The field is closed: it opens a menu, and you can't type into it. For long or searchable lists, use Autocomplete."
         properties={showProperties ? <PropertiesCardGroup onNavigate={navigateToSection} items={getSelectTokenItems(previewTheme)} /> : null}
       >
-        {fieldControls}
         <MeasureOverlay enabled={measureEnabled}>
           <SelectCases {...galleryProps} />
         </MeasureOverlay>
@@ -157,10 +149,10 @@ const InputsPageContent = () => {
         id="inputs-autocomplete"
         title="Autocomplete"
         titleVariant="h3"
+        controls={fieldControls}
         description="A text input with a list: typing filters the options, and you pick one. MUI calls this basic form a combo box. Use it for long or searchable lists such as users or units."
         properties={showProperties ? <PropertiesCardGroup onNavigate={navigateToSection} items={getAutocompleteTokenItems(previewTheme)} /> : null}
       >
-        {fieldControls}
         <MeasureOverlay enabled={measureEnabled}>
           <AutocompleteCases {...galleryProps} />
         </MeasureOverlay>
@@ -170,9 +162,9 @@ const InputsPageContent = () => {
         id="inputs-multiple-select"
         title="Multiple select"
         titleVariant="h3"
+        controls={fieldControls}
         description="Several values, shown as chips inside the field. Select multiple for a short list you open and pick from; Autocomplete multiple when the list is long and needs typing to filter."
       >
-        {fieldControls}
         <MeasureOverlay enabled={measureEnabled}>
           <MultipleSelectCases {...galleryProps} />
         </MeasureOverlay>
