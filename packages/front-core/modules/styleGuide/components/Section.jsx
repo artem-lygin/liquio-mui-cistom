@@ -11,10 +11,9 @@ import ExpandableDescription from './ExpandableDescription';
 // `propertiesControls` at the top of the tokens table, each above a full-width divider, so the
 // tabs' selection indicator lands on a line that runs edge to edge of the card.
 //
-// A page-level section (titleVariant h2, the default) keeps its title above the card, as the
-// page heading. A subsection (h4) carries its title inside the card, as its first
-// row, so each subsection reads as one self-contained block. A full-width divider runs under
-// the title, or under the tab bar when there is one, never both.
+// Every section carries its title inside the card (h4), as its first row, so each one reads
+// as a self-contained block; the page's own title sits above the cards (PageHeading). A
+// full-width divider runs under the title, or under the tab bar when there is one, never both.
 const ControlBar = ({ children, style }) => (
   <>
     <div style={{ display: 'flex', gap: 16, alignItems: 'flex-end', flexWrap: 'wrap', padding: '8px 16px 0', ...style }}>
@@ -27,7 +26,7 @@ const ControlBar = ({ children, style }) => (
 const Section = ({
   id,
   title,
-  titleVariant = 'h2',
+  titleVariant = 'h4',
   actions,
   controls,
   description,
@@ -37,19 +36,8 @@ const Section = ({
   children
 }) => (
   <div id={id} style={{ marginBottom: 32, scrollMarginTop: 24 }}>
-    {titleVariant === 'h2' ? (
-      <>
-        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-          <Typography variant={titleVariant} gutterBottom={true}>
-            {title}
-          </Typography>
-          {actions}
-        </div>
-        <Divider style={{ marginBottom: 16 }} />
-      </>
-    ) : null}
     <Card elevation={1}>
-      {titleVariant !== 'h2' ? (
+      {title ? (
         <>
           <div
             style={{

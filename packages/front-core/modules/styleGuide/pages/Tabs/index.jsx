@@ -3,6 +3,7 @@ import { Tabs, Tab } from '@mui/material';
 import StyleGuideStateProvider, { useStyleGuideState } from '../../shared/StyleGuideStateProvider';
 import StyleGuideChrome from '../../components/StyleGuideChrome';
 import Section from '../../components/Section';
+import PageHeading from '../../components/PageHeading';
 import MeasureOverlay from '../../components/MeasureOverlay';
 import { PropertiesCardGroup } from '../../components/PropertiesPanel';
 import { navigateToSection } from '../../shared/navigation';
@@ -14,6 +15,7 @@ const TabsPageContent = () => {
 
   return (
     <StyleGuideChrome activeId="tabs">
+      <PageHeading title="Tabs" />
       <Section
         id="tabs"
         title="Tabs"

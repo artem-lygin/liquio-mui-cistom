@@ -3,6 +3,7 @@ import { Typography, Paper, Card, CardContent, Divider, TextField } from '@mui/m
 import StyleGuideStateProvider, { useStyleGuideState } from '../../shared/StyleGuideStateProvider';
 import StyleGuideChrome from '../../components/StyleGuideChrome';
 import Section from '../../components/Section';
+import PageHeading from '../../components/PageHeading';
 import SubNav from '../../components/SubNav';
 import MeasureOverlay from '../../components/MeasureOverlay';
 import { PropertiesCardGroup } from '../../components/PropertiesPanel';
@@ -48,6 +49,7 @@ const SurfacesPageContent = () => {
         />
       }
     >
+      <PageHeading title="Surfaces" />
       <Section
         id="surfaces"
         title="Surfaces"

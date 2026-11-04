@@ -3,6 +3,7 @@ import { Typography, Divider, Tabs, Tab, SvgIcon } from '@mui/material';
 import StyleGuideStateProvider, { useStyleGuideState } from '../../shared/StyleGuideStateProvider';
 import StyleGuideChrome from '../../components/StyleGuideChrome';
 import Section from '../../components/Section';
+import PageHeading from '../../components/PageHeading';
 import MeasureOverlay from '../../components/MeasureOverlay';
 import { PropertiesCardGroup } from '../../components/PropertiesPanel';
 import { navigateToSection } from '../../shared/navigation';
@@ -17,6 +18,7 @@ const IconLibraryPageContent = () => {
 
   return (
     <StyleGuideChrome activeId="icon-library">
+      <PageHeading title="Icon library" />
       <Section
         id="icon-library"
         controls={

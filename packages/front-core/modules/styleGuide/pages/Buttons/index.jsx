@@ -1,5 +1,5 @@
 import React from 'react';
-import { Typography, Divider, Button, IconButton, SvgIcon, Tabs, Tab, FormControlLabel, Switch } from '@mui/material';
+import { Divider, Button, IconButton, SvgIcon, Tabs, Tab, FormControlLabel, Switch } from '@mui/material';
 import {
   DeleteFill as SymbolDelete,
   ArrowForwardFill as SymbolArrowForward,
@@ -8,97 +8,62 @@ import {
 import StyleGuideStateProvider, { useStyleGuideState } from '../../shared/StyleGuideStateProvider';
 import StyleGuideChrome from '../../components/StyleGuideChrome';
 import Section from '../../components/Section';
-import SubNav from '../../components/SubNav';
+import PageHeading from '../../components/PageHeading';
 import MeasureOverlay from '../../components/MeasureOverlay';
 import { PropertiesCardGroup } from '../../components/PropertiesPanel';
 import { navigateToSection } from '../../shared/navigation';
-import { useSectionScrollspy } from '../../shared/useSectionScrollspy';
 import { BUTTON_SIZES } from '../../shared/constants';
 import { BUTTON_STATES, ICON_BUTTON_USAGE_NOTES } from './constants';
-import { getButtonHeightPx } from './metrics';
 import { getButtonTokenItems, getIconButtonTokenItems } from './tokenItems';
 
-// Icon Buttons lives inside the Buttons page (one card, switched by its own size/state
-// tabs) rather than as its own top-level page — this is its one sub-nav entry.
-const BUTTONS_SUB_SECTIONS = [{ id: 'buttons-icon-buttons', label: 'Icon Buttons' }];
+const TAB_STYLE = { minHeight: 32, minWidth: 'auto', padding: '4px 12px 8px' };
 
-const SCROLLSPY_IDS = ['buttons', ...BUTTONS_SUB_SECTIONS.map((section) => section.id)];
-
+// Buttons and Icon Buttons share one card and one set of tabs: color, size and state drive
+// both. The icon button sits at the right end of the row, and clicking any button (the icon
+// one included) picks which one the tokens table below describes.
 const ButtonsPageContent = () => {
-  const { previewTheme, rootFontSize, showProperties, measureEnabled } = useStyleGuideState();
+  const { previewTheme, showProperties, measureEnabled } = useStyleGuideState();
   const [buttonVariant, setButtonVariant] = React.useState('contained');
   const [buttonColor, setButtonColor] = React.useState('primary');
   const [buttonSize, setButtonSize] = React.useState('medium');
   const [buttonShowIcon, setButtonShowIcon] = React.useState(true);
   const [buttonShowEndIcon, setButtonShowEndIcon] = React.useState(true);
   const [buttonState, setButtonState] = React.useState('resting');
-  const [iconButtonSize, setIconButtonSize] = React.useState('medium');
-  const [iconButtonState, setIconButtonState] = React.useState('resting');
-  const activeSubId = useSectionScrollspy(SCROLLSPY_IDS);
+  const isIconButton = buttonVariant === 'icon';
 
   return (
-    <StyleGuideChrome
-      activeId="buttons"
-      subNav={
-        <SubNav
-          heading="Buttons"
-          items={BUTTONS_SUB_SECTIONS}
-          activeSubId={activeSubId}
-          onSelect={(id) => document.getElementById(id)?.scrollIntoView({ behavior: 'smooth', block: 'start' })}
-        />
-      }
-    >
+    <StyleGuideChrome activeId="buttons">
+      <PageHeading title="Buttons" />
       <Section
         id="buttons"
+        title="Button & Icon Button"
         controls={
           <>
             <Tabs value={buttonColor} onChange={(event, value) => setButtonColor(value)} style={{ minHeight: 32 }}>
-              <Tab value="primary" label="Primary" style={{ minHeight: 32, minWidth: 'auto', padding: '4px 12px 8px' }} />
-              <Tab value="secondary" label="Secondary" style={{ minHeight: 32, minWidth: 'auto', padding: '4px 12px 8px' }} />
+              <Tab value="primary" label="Primary" style={TAB_STYLE} />
+              <Tab value="secondary" label="Secondary" style={TAB_STYLE} />
             </Tabs>
-            <Divider
-              orientation="vertical"
-              flexItem={true}
-              style={{ margin: '4px 0', borderColor: 'rgba(255, 255, 255, 0.12)' }}
-            />
+            <Divider orientation="vertical" flexItem={true} style={{ marginBottom: 8 }} />
             <Tabs value={buttonSize} onChange={(event, value) => setButtonSize(value)} style={{ minHeight: 32 }}>
               {BUTTON_SIZES.map((size) => (
-                <Tab key={size.key} value={size.key} label={size.label} style={{ minHeight: 32, minWidth: 'auto', padding: '4px 12px 8px' }} />
+                <Tab key={size.key} value={size.key} label={size.label} style={TAB_STYLE} />
               ))}
             </Tabs>
             <FormControlLabel
               style={{ marginLeft: 'auto', marginBottom: 8 }}
-              control={
-                <Switch
-                  size="small"
-                  checked={buttonShowIcon}
-                  onChange={(event) => setButtonShowIcon(event.target.checked)}
-                />
-              }
+              control={<Switch size="small" checked={buttonShowIcon} onChange={(event) => setButtonShowIcon(event.target.checked)} />}
               label="startIcon"
             />
             <FormControlLabel
               style={{ marginBottom: 8 }}
-              control={
-                <Switch
-                  size="small"
-                  checked={buttonShowEndIcon}
-                  onChange={(event) => setButtonShowEndIcon(event.target.checked)}
-                />
-              }
+              control={<Switch size="small" checked={buttonShowEndIcon} onChange={(event) => setButtonShowEndIcon(event.target.checked)} />}
               label="endIcon"
             />
           </>
         }
-        title="Buttons"
-        propertiesHeading={`Theme tokens for ${buttonVariant} button`}
+        propertiesHeading={`Theme tokens for ${isIconButton ? `${buttonSize} icon` : buttonVariant} button`}
         propertiesControls={
-          <Tabs
-            value={buttonState}
-            onChange={(event, value) => setButtonState(value)}
-            variant="scrollable"
-            style={{ minHeight: 36 }}
-          >
+          <Tabs value={buttonState} onChange={(event, value) => setButtonState(value)} variant="scrollable" style={{ minHeight: 36 }}>
             {BUTTON_STATES.map((state) => (
               <Tab
                 key={state.key}
@@ -113,7 +78,11 @@ const ButtonsPageContent = () => {
           showProperties ? (
             <PropertiesCardGroup
               onNavigate={navigateToSection}
-              items={getButtonTokenItems(buttonVariant, buttonColor, buttonSize, buttonState, previewTheme, buttonShowIcon, buttonShowEndIcon)}
+              items={
+                isIconButton
+                  ? getIconButtonTokenItems(buttonSize, buttonState, previewTheme)
+                  : getButtonTokenItems(buttonVariant, buttonColor, buttonSize, buttonState, previewTheme, buttonShowIcon, buttonShowEndIcon)
+              }
             />
           ) : null
         }
@@ -138,13 +107,12 @@ const ButtonsPageContent = () => {
             >
               Status colors
             </a>
-            .
+            . Icon button, {buttonSize}: {ICON_BUTTON_USAGE_NOTES[buttonSize]}
           </>
         }
       >
-
         <MeasureOverlay enabled={measureEnabled}>
-          <div style={{ display: 'flex', gap: 28, alignItems: 'center', flexWrap: 'wrap', marginBottom: 20 }}>
+          <div style={{ display: 'flex', gap: 28, alignItems: 'center', flexWrap: 'wrap' }}>
             {['contained', 'outlined', 'text'].map((variant) => (
               <Button
                 key={variant}
@@ -159,58 +127,14 @@ const ButtonsPageContent = () => {
                 {variant[0].toUpperCase() + variant.slice(1)}
               </Button>
             ))}
-            <Typography
-              variant="caption"
-              color="textSecondary"
-              style={{ fontFamily: 'monospace', marginLeft: 'auto', whiteSpace: 'nowrap' }}
+            <IconButton
+              aria-label="delete"
+              color={buttonColor}
+              size={buttonSize}
+              disabled={buttonState === 'disabled'}
+              onClick={() => setButtonVariant('icon')}
+              style={{ marginLeft: 'auto' }}
             >
-              {`height: ${getButtonHeightPx(buttonVariant, buttonSize, previewTheme, rootFontSize, buttonShowIcon || buttonShowEndIcon).toFixed(2)}px`}
-            </Typography>
-          </div>
-        </MeasureOverlay>
-      </Section>
-
-      <Section
-        id="buttons-icon-buttons"
-        controls={
-          <>
-            <Tabs value={iconButtonSize} onChange={(event, value) => setIconButtonSize(value)} style={{ minHeight: 32 }}>
-              {BUTTON_SIZES.map((size) => (
-                <Tab key={size.key} value={size.key} label={size.label} style={{ minHeight: 32, minWidth: 'auto', padding: '4px 12px 8px' }} />
-              ))}
-            </Tabs>
-          </>
-        }
-        title="Icon Buttons"
-        titleVariant="h4"
-        propertiesHeading={`Theme tokens for ${iconButtonSize} icon button`}
-        propertiesControls={
-          <Tabs
-            value={iconButtonState}
-            onChange={(event, value) => setIconButtonState(value)}
-            variant="scrollable"
-            style={{ minHeight: 36 }}
-          >
-            {BUTTON_STATES.map((state) => (
-              <Tab
-                key={state.key}
-                value={state.key}
-                label={state.label}
-                style={{ minHeight: 36, minWidth: 'auto', padding: '6px 16px 10px' }}
-              />
-            ))}
-          </Tabs>
-        }
-        properties={
-          showProperties ? (
-            <PropertiesCardGroup onNavigate={navigateToSection} items={getIconButtonTokenItems(iconButtonSize, iconButtonState, previewTheme)} />
-          ) : null
-        }
-        description={ICON_BUTTON_USAGE_NOTES[iconButtonSize]}
-      >
-        <MeasureOverlay enabled={measureEnabled}>
-          <div style={{ display: 'flex', gap: 28, alignItems: 'center' }}>
-            <IconButton aria-label="delete" color="primary" size={iconButtonSize} disabled={iconButtonState === 'disabled'}>
               {/* SvgIcon defaults to a fixed 24px regardless of the parent's size — inherit ties it to the button's own fontSize instead. */}
               <SvgIcon component={SymbolDelete} inheritViewBox={true} fontSize="inherit" />
             </IconButton>

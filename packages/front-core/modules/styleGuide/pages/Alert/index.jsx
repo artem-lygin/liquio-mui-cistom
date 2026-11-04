@@ -3,6 +3,7 @@ import { Typography, Divider, Alert, AlertTitle } from '@mui/material';
 import StyleGuideStateProvider, { useStyleGuideState } from '../../shared/StyleGuideStateProvider';
 import StyleGuideChrome from '../../components/StyleGuideChrome';
 import Section from '../../components/Section';
+import PageHeading from '../../components/PageHeading';
 import MeasureOverlay from '../../components/MeasureOverlay';
 import { PropertiesCardGroup } from '../../components/PropertiesPanel';
 import { navigateToSection } from '../../shared/navigation';
@@ -30,6 +31,7 @@ const AlertPageContent = () => {
 
   return (
     <StyleGuideChrome activeId="alert">
+      <PageHeading title="Alert" />
       <Section
         id="alert"
         title="Alert"

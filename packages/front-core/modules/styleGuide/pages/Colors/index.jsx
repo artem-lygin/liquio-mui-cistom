@@ -3,6 +3,7 @@ import { Typography, Divider, Table, TableHead, TableBody, TableRow, TableCell }
 import StyleGuideStateProvider, { useStyleGuideState } from '../../shared/StyleGuideStateProvider';
 import StyleGuideChrome from '../../components/StyleGuideChrome';
 import Section from '../../components/Section';
+import PageHeading from '../../components/PageHeading';
 import SubNav from '../../components/SubNav';
 import ColorTokenTable, { Swatch } from '../../components/ColorTokenTable';
 import ComponentColorTable from './ComponentColorTable';
@@ -73,6 +74,7 @@ const ColorsPageContent = () => {
         />
       }
     >
+      <PageHeading title="Colors" />
       <Section id="colors" title="Colors">
         <Typography variant="subtitle1" gutterBottom={true}>
           Palette

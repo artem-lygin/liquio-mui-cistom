@@ -3,6 +3,7 @@ import { Typography } from '@mui/material';
 import StyleGuideStateProvider, { useStyleGuideState } from '../../shared/StyleGuideStateProvider';
 import StyleGuideChrome from '../../components/StyleGuideChrome';
 import Section from '../../components/Section';
+import PageHeading from '../../components/PageHeading';
 import { getResolvedMuiStyleOverride, readBackground, readPseudoSlot } from '../../shared/themeIntrospection';
 import { navigateToSection } from '../../shared/navigation';
 
@@ -24,6 +25,7 @@ const OverridesVsPalettePageContent = () => {
 
   return (
     <StyleGuideChrome activeId="overrides-vs-palette">
+      <PageHeading title="Overrides vs. palette" />
       <Section id="overrides-vs-palette" title="Overrides vs. palette">
         <Typography variant="body2" color="textSecondary" style={{ marginBottom: 16, maxWidth: 540 }}>
           <span style={{ fontFamily: 'monospace' }}>theme.js</span> has an{' '}
