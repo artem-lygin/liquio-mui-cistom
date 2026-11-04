@@ -182,7 +182,7 @@ const ButtonsPageContent = () => {
           </>
         }
         title="Icon Buttons"
-        titleVariant="h3"
+        titleVariant="h4"
         propertiesHeading={`Theme tokens for ${iconButtonSize} icon button`}
         propertiesControls={
           <Tabs

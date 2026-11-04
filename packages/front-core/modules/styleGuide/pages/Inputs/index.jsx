@@ -115,7 +115,7 @@ const InputsPageContent = () => {
       <Section
         id="inputs-text-field"
         title="Text field"
-        titleVariant="h3"
+        titleVariant="h4"
         controls={fieldControls}
         description="Admin's theme renders every outlined and standard input this way (TextField, Select, Autocomplete, date pickers, schema forms). Built from Button / Primary's tokens: same per-size height and corner radius as a button, elevation-0 fill, primary.main on focus. The label sits above the field and never moves. Below: the free-text inputs the admin panel uses, as plain MUI components."
         properties={
@@ -135,7 +135,7 @@ const InputsPageContent = () => {
       <Section
         id="inputs-select"
         title="Select"
-        titleVariant="h3"
+        titleVariant="h4"
         controls={fieldControls}
         description="Pick one value from a short, known list. The field is closed: it opens a menu, and you can't type into it. For long or searchable lists, use Autocomplete."
         properties={showProperties ? <PropertiesCardGroup onNavigate={navigateToSection} items={getSelectTokenItems(previewTheme)} /> : null}
@@ -148,7 +148,7 @@ const InputsPageContent = () => {
       <Section
         id="inputs-autocomplete"
         title="Autocomplete"
-        titleVariant="h3"
+        titleVariant="h4"
         controls={fieldControls}
         description="A text input with a list: typing filters the options, and you pick one. MUI calls this basic form a combo box. Use it for long or searchable lists such as users or units."
         properties={showProperties ? <PropertiesCardGroup onNavigate={navigateToSection} items={getAutocompleteTokenItems(previewTheme)} /> : null}
@@ -161,7 +161,7 @@ const InputsPageContent = () => {
       <Section
         id="inputs-multiple-select"
         title="Multiple select"
-        titleVariant="h3"
+        titleVariant="h4"
         controls={fieldControls}
         description="Several values, shown as chips inside the field. Select multiple for a short list you open and pick from; Autocomplete multiple when the list is long and needs typing to filter."
       >
@@ -173,7 +173,7 @@ const InputsPageContent = () => {
       <Section
         id="inputs-checkboxes"
         title="Checkboxes"
-        titleVariant="h3"
+        titleVariant="h4"
         properties={showProperties ? <PropertiesCardGroup onNavigate={navigateToSection} items={getCheckboxTokenItems(previewTheme)} /> : null}
       >
         <MeasureOverlay enabled={measureEnabled}>
@@ -187,7 +187,7 @@ const InputsPageContent = () => {
       <Section
         id="inputs-radio-buttons"
         title="Radio buttons"
-        titleVariant="h3"
+        titleVariant="h4"
         properties={showProperties ? <PropertiesCardGroup onNavigate={navigateToSection} items={getRadioTokenItems(previewTheme)} /> : null}
       >
         <MeasureOverlay enabled={measureEnabled}>
@@ -202,7 +202,7 @@ const InputsPageContent = () => {
       <Section
         id="inputs-switches"
         title="Switches"
-        titleVariant="h3"
+        titleVariant="h4"
         properties={showProperties ? <PropertiesCardGroup onNavigate={navigateToSection} items={getSwitchTokenItems(previewTheme)} /> : null}
       >
         <MeasureOverlay enabled={measureEnabled}>

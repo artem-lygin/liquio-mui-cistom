@@ -12,7 +12,7 @@ import ExpandableDescription from './ExpandableDescription';
 // tabs' selection indicator lands on a line that runs edge to edge of the card.
 //
 // A page-level section (titleVariant h2, the default) keeps its title above the card, as the
-// page heading. A subsection (h3 and below) carries its title inside the card, as its first
+// page heading. A subsection (h4) carries its title inside the card, as its first
 // row, so each subsection reads as one self-contained block.
 const ControlBar = ({ children, style }) => (
   <>

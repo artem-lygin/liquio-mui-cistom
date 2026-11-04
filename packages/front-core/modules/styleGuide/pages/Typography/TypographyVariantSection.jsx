@@ -14,7 +14,7 @@ const TypographyVariantSection = ({ variant, previewTheme, rootFontSize, editMod
     <Section
       id={`typography-${variant}`}
       title={TYPOGRAPHY_LABELS[variant] || variant}
-      titleVariant="h3"
+      titleVariant="h4"
       properties={showProperties ? <PropertiesCardGroup onNavigate={onNavigate} items={getTypographyTokenItems(variant, previewTheme, rootFontSize)} /> : null}
       description={description}
     >
