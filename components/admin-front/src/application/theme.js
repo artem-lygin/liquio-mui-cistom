@@ -185,6 +185,17 @@ const autocompleteInputRootSize = (theme, size) => {
   };
 };
 
+// Button's per-variant padding, derived from the size tokens. Vertical padding centers a
+// buttonIconSize icon inside buttonHeight (minus the 1px border Contained/Outlined carry), so
+// an icon+label button comes out at exactly buttonHeight with no help from minHeight.
+// Horizontal padding is 8px more than the corner radius (the label's breathing room, see the
+// comment above MuiButton.sizeSmall), minus the same border.
+const buttonPadding = (theme, size, border) => {
+  const vertical = (theme.buttonHeight[size] - theme.buttonIconSize[size]) / 2 - border;
+  const horizontal = theme.buttonCornerRadius[size] + 8 - border;
+  return `${vertical}px ${horizontal}px`;
+};
+
 const baseTheme = {
   breakpoints: {
     keys: ['xs', 'sm', 'md', 'lg', 'xl'],
@@ -336,18 +347,30 @@ const baseTheme = {
       }
     },
     MuiIconButton: {
-      root: {
-        padding: 8
-      },
+      // Icon size per size from theme.buttonIconSize (20/20/24, the Figma design system's
+      // icon size for both Button and Icon Button). MUI's own IconButton.js hardcodes
+      // 24px/18px/28px instead. `inherit` on default-size SvgIcons makes every icon inside
+      // follow it: an SvgIcon left at its default fontSize="medium" would otherwise stay a
+      // fixed 24px whatever the button's size. Explicit fontSize="small"/"large" is left alone.
+      // With buttonIconPadding, an icon button comes out at exactly buttonHeight per size.
+      root: ({ theme }) => ({
+        padding: 8,
+        fontSize: theme.buttonIconSize.medium,
+        '& .MuiSvgIcon-fontSizeMedium': {
+          fontSize: 'inherit'
+        }
+      }),
       // Mirrors Button's own per-size padding scale (theme.buttonIconPadding) instead of
       // MUI's default icon-button padding steps, so Icon Button and Button read as the same
       // family at each size — matches "Icon Button / Primary" in the Figma design system.
       // Medium needs no entry: it already matches root's existing flat padding: 8 above.
       sizeSmall: ({ theme }) => ({
-        padding: theme.buttonIconPadding.small
+        padding: theme.buttonIconPadding.small,
+        fontSize: theme.buttonIconSize.small
       }),
       sizeLarge: ({ theme }) => ({
-        padding: theme.buttonIconPadding.large
+        padding: theme.buttonIconPadding.large,
+        fontSize: theme.buttonIconSize.large
       }),
       // Primary-colored Icon Button: transparent at rest (the icon itself already reads
       // palette.primary.main via MUI's own IconButtonRoot — no color override needed here),
@@ -412,6 +435,18 @@ const baseTheme = {
         minHeight: theme.buttonHeight.large,
         borderRadius: theme.buttonCornerRadius.large
       }),
+      // startIcon/endIcon size per button size, from theme.buttonIconSize (20/20/24),
+      // replacing MUI's own hardcoded 18/20/22px (Button.js commonIconStyles). Same selector
+      // MUI uses, so it wins by coming later.
+      iconSizeSmall: ({ theme }) => ({
+        '& > *:nth-of-type(1)': { fontSize: theme.buttonIconSize.small }
+      }),
+      iconSizeMedium: ({ theme }) => ({
+        '& > *:nth-of-type(1)': { fontSize: theme.buttonIconSize.medium }
+      }),
+      iconSizeLarge: ({ theme }) => ({
+        '& > *:nth-of-type(1)': { fontSize: theme.buttonIconSize.large }
+      }),
       // Fixed per-size height, independent of whether the button shows an icon or just a
       // label — a plain-label button must render at exactly the same height as an
       // icon+label button of the same size, not grow/shrink to fit whichever content is
@@ -423,15 +458,11 @@ const baseTheme = {
       // across Default/Hover/Pressed there, so not something specific to one variant/state.
       // containedSizeSmall &c. below set *vertical* padding (theme.buttonCornerRadius minus
       // 1px for Contained/Outlined specifically, to offset their 1px border — Text has no
-      // border, so it keeps the full value); combined with MUI's own real per-size icon
-      // glyph size (commonIconStyles: 18/20/22px, unchanged here — Figma's own mockup icons
-      // are a flat 20px at every size, not a source of truth for this app's real rendering)
-      // and a 1px/side border on Contained/Outlined, that padding naturally produces 36/42
-      // for medium/large, matching Figma exactly without needing minHeight to do any work —
-      // small's natural content height comes out to 30, 2px short of Figma's 32, which is
-      // where the fixed minHeight below actually earns its keep (the gap is absorbed by the
-      // button's own flex-centering, same mechanism that already keeps icon vs. label-only
-      // buttons the same height regardless of which is naturally taller).
+      // border, so it keeps the full value) — see buttonPadding() at the top of this file:
+      // vertical padding is now derived as (buttonHeight - buttonIconSize) / 2 minus the
+      // border, so with the Figma design system's icon sizes (theme.buttonIconSize, 20/20/24
+      // for small/medium/large, in both Button and Icon Button) an icon+label button lands on
+      // exactly 32/36/42. minHeight still guarantees the same height for a label-only button.
       //
       // *Horizontal* padding is 8px (the same "s2" spacing token the Figma design system's
       // own Label Wrapper uses) more than vertical, on top of the border/no-border split
@@ -486,13 +517,13 @@ const baseTheme = {
         }
       }),
       containedSizeSmall: ({ theme }) => ({
-        padding: `${theme.buttonCornerRadius.small - 1}px ${theme.buttonCornerRadius.small + 7}px`
+        padding: buttonPadding(theme, 'small', 1)
       }),
       containedSizeMedium: ({ theme }) => ({
-        padding: `${theme.buttonCornerRadius.medium - 1}px ${theme.buttonCornerRadius.medium + 7}px`
+        padding: buttonPadding(theme, 'medium', 1)
       }),
       containedSizeLarge: ({ theme }) => ({
-        padding: `${theme.buttonCornerRadius.large - 1}px ${theme.buttonCornerRadius.large + 7}px`
+        padding: buttonPadding(theme, 'large', 1)
       }),
       outlinedPrimary: ({ theme }) => ({
         color: theme.palette.primary.main,
@@ -525,13 +556,13 @@ const baseTheme = {
         }
       }),
       outlinedSizeSmall: ({ theme }) => ({
-        padding: `${theme.buttonCornerRadius.small - 1}px ${theme.buttonCornerRadius.small + 7}px`
+        padding: buttonPadding(theme, 'small', 1)
       }),
       outlinedSizeMedium: ({ theme }) => ({
-        padding: `${theme.buttonCornerRadius.medium - 1}px ${theme.buttonCornerRadius.medium + 7}px`
+        padding: buttonPadding(theme, 'medium', 1)
       }),
       outlinedSizeLarge: ({ theme }) => ({
-        padding: `${theme.buttonCornerRadius.large - 1}px ${theme.buttonCornerRadius.large + 7}px`
+        padding: buttonPadding(theme, 'large', 1)
       }),
       textPrimary: ({ theme }) => ({
         color: theme.palette.primary.main,
@@ -546,13 +577,13 @@ const baseTheme = {
         }
       }),
       textSizeSmall: ({ theme }) => ({
-        padding: `${theme.buttonCornerRadius.small}px ${theme.buttonCornerRadius.small + 8}px`
+        padding: buttonPadding(theme, 'small', 0)
       }),
       textSizeMedium: ({ theme }) => ({
-        padding: `${theme.buttonCornerRadius.medium}px ${theme.buttonCornerRadius.medium + 8}px`
+        padding: buttonPadding(theme, 'medium', 0)
       }),
       textSizeLarge: ({ theme }) => ({
-        padding: `${theme.buttonCornerRadius.large}px ${theme.buttonCornerRadius.large + 8}px`
+        padding: buttonPadding(theme, 'large', 0)
       }),
       textSecondary: {
         color: 'rgb(220, 0, 78)'
@@ -1202,6 +1233,10 @@ const baseTheme = {
   // hence the separate map.
   buttonCornerRadius: { small: 6, medium: 8, large: 10 },
   buttonIconPadding: { small: 6, medium: 8, large: 9 },
+  // Icon size per size from the Figma design system, shared by Button's startIcon/endIcon and
+  // Icon Button: 20px for small and medium, 24px for large. Icon Button's padding above plus
+  // this size gives exactly buttonHeight (6+20+6 = 32, 8+20+8 = 36, 9+24+9 = 42).
+  buttonIconSize: { small: 20, medium: 20, large: 24 },
   // Button / Primary's fixed per-size height from the Figma design system (see the comment
   // above MuiButton.sizeSmall for why it's a fixed minHeight rather than content-derived).
   // A token rather than three literals inside MuiButton.sizeX because it's no longer

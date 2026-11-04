@@ -231,13 +231,21 @@ export const getButtonTokenItems = (variant, color, size, state, previewTheme, s
 
   if (showStartIcon || showEndIcon) {
     const iconMetrics = BUTTON_ICON_METRICS[size];
+    const themeIconSize = previewTheme.buttonIconSize?.[size];
     const iconTokens = [
-      {
-        path: `MuiButton size${size[0].toUpperCase()}${size.slice(1)} icon`,
-        status: 'other',
-        inheritsFrom: notResting,
-        note: `fontSize — hardcoded ${iconMetrics.fontSize}px in MUI's Button.js for size="${size}", independent of the button's own fontSize; shared by startIcon and endIcon`
-      }
+      themeIconSize !== undefined
+        ? {
+            path: `buttonIconSize.${size}`,
+            value: `${themeIconSize}px`,
+            inheritsFrom: notResting,
+            note: `fontSize — ${themeIconSize}px via MuiButton.iconSize${capitalize(size)}, replacing MUI's own hardcoded ${iconMetrics.fontSize}px; the same token Icon Button uses; shared by startIcon and endIcon`
+          }
+        : {
+            path: `MuiButton size${size[0].toUpperCase()}${size.slice(1)} icon`,
+            status: 'other',
+            inheritsFrom: notResting,
+            note: `fontSize — hardcoded ${iconMetrics.fontSize}px in MUI's Button.js for size="${size}", independent of the button's own fontSize; shared by startIcon and endIcon`
+          }
     ];
     if (showStartIcon) {
       iconTokens.push({
@@ -332,18 +340,28 @@ export const getIconButtonTokenItems = (size, state, previewTheme) => {
     {
       category: 'Icon size',
       tokens: [
-        {
-          path: sizeSlot,
-          status: 'other',
-          inheritsFrom: notResting,
-          note:
-            `fontSize — hardcoded to theme.typography.pxToRem(${metrics.fontSize}) in MUI's IconButton.js for size="${size}", ` +
-            'but only reaches the icon glyph if it\'s given fontSize="inherit" — real usage never does (confirmed: 83 real ' +
-            'size="large" instances, none pair it with a matching fontSize on their child icon), so in this app the icon ' +
-            "itself stays a fixed 24px regardless of size — only the button's own padding/hit-area actually changes. The " +
-            'demo below uses fontSize="inherit" so the size difference is visible; toggle "Measure" in the header to see ' +
-            "the real padding change even where the demo matches production and the icon doesn't visibly grow."
-        }
+        previewTheme.buttonIconSize?.[size] !== undefined
+          ? {
+              path: `buttonIconSize.${size}`,
+              value: `${previewTheme.buttonIconSize[size]}px`,
+              inheritsFrom: notResting,
+              note:
+                `fontSize — ${previewTheme.buttonIconSize[size]}px via ${sizeSlot}, replacing MUI's own hardcoded ` +
+                `${metrics.fontSize}px; the same token Button's icons use. The theme also sets default-size SvgIcons ` +
+                'inside an icon button to fontSize: inherit, so real icons follow it too (explicit small/large icons are left alone).'
+            }
+          : {
+              path: sizeSlot,
+              status: 'other',
+              inheritsFrom: notResting,
+              note:
+                `fontSize — hardcoded to theme.typography.pxToRem(${metrics.fontSize}) in MUI's IconButton.js for size="${size}", ` +
+                'but only reaches the icon glyph if it\'s given fontSize="inherit" — real usage never does (confirmed: 83 real ' +
+                'size="large" instances, none pair it with a matching fontSize on their child icon), so in this app the icon ' +
+                "itself stays a fixed 24px regardless of size — only the button's own padding/hit-area actually changes. The " +
+                'demo below uses fontSize="inherit" so the size difference is visible; toggle "Measure" in the header to see ' +
+                "the real padding change even where the demo matches production and the icon doesn't visibly grow."
+            }
       ]
     },
     {

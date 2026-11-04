@@ -281,6 +281,32 @@ uses `packages/front-core/theme.js`, which has only one change so far (see Typog
   `primary/light`/`primary/dark` (`#cca5fd`/`#a365f0`), a proper purple ramp around the same
   `main`. Also fixed `palette.primary.contrastText` from `'#fff'` to the design system's
   `rgba(0, 0, 0, 0.8)` — white reads poorly against `#BB86FC`, a light pastel purple.
+- **Added `theme.buttonIconSize`** (`{ small: 20, medium: 20, large: 24 }`): the Figma
+  design system (Liquio AdminPanel Design System) uses 20px icons at small and medium and
+  24px at large, in both Button (startIcon/endIcon) and Icon Button. Replaces MUI's own
+  hardcoded sizes: 18/20/22px for Button (`Button.js` commonIconStyles) and 18/24/28px for
+  Icon Button. This corrects the earlier note below that Figma's icons are "a flat 20px at
+  every size". Applied through:
+  - `MuiButton.iconSizeSmall`/`iconSizeMedium`/`iconSizeLarge`, using the same
+    `& > *:nth-of-type(1)` selector MUI uses.
+  - `MuiIconButton.root` (medium), `sizeSmall` and `sizeLarge`. `root` also sets
+    default-size SvgIcons inside an icon button (`.MuiSvgIcon-fontSizeMedium`) to
+    `fontSize: inherit`. Without that, an `@mui/icons-material` icon stays a fixed 24px
+    whatever the button's size. This changes real icon buttons app-wide: medium icon
+    buttons now draw 20px icons (they were 24px). Icons given an explicit
+    `fontSize="small"`/`"large"` are left alone.
+
+  Icon Button's padding plus this size now lands exactly on `buttonHeight`
+  (6+20+6 = 32, 8+20+8 = 36, 9+24+9 = 42).
+
+  Button's per-variant padding is now derived by a `buttonPadding(theme, size, border)`
+  helper. Vertical padding is `(buttonHeight − buttonIconSize) / 2 − border`, and
+  horizontal is `buttonCornerRadius + 8 − border`. Small and medium come out the same as
+  before (5/7px Contained and Outlined, 6/8px Text). Large tightens by 1px (8px
+  Contained/Outlined, 9px Text), so a large button with a 24px icon still lands on 42px
+  instead of 44px.
+
+  The Style Guide's Buttons tokens tables now read `buttonIconSize`. _(2026-11-04)_
 - **Added `theme.buttonCornerRadius`/`theme.buttonIconPadding`** (`{ small, medium, large }`
   maps), alongside this theme's existing custom top-level keys (`buttonHoverBg`, `borderColor`,
   ...) — `buttonCornerRadius` sets Button's per-size corner radius (`6`/`8`/`10`px, per the
