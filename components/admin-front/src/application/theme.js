@@ -307,8 +307,7 @@ const baseTheme = {
         }
       },
       root: {
-        textTransform: 'initial',
-        marginRight: 8
+        textTransform: 'initial'
       },
       labelContainer: {
         padding: 0,
@@ -480,7 +479,6 @@ const baseTheme = {
       // Disabled variant renders identically to Default (no dimming at all), which reads as
       // an unfinished placeholder state there rather than a deliberate design choice.
       containedPrimary: ({ theme }) => ({
-        marginRight: 4,
         color: theme.palette.primary.contrastText,
         backgroundColor: theme.palette.primary.main,
         border: `1px solid ${theme.palette.primary.light}`,

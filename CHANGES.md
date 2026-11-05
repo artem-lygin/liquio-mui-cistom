@@ -281,6 +281,11 @@ uses `packages/front-core/theme.js`, which has only one change so far (see Typog
   `primary/light`/`primary/dark` (`#cca5fd`/`#a365f0`), a proper purple ramp around the same
   `main`. Also fixed `palette.primary.contrastText` from `'#fff'` to the design system's
   `rgba(0, 0, 0, 0.8)` — white reads poorly against `#BB86FC`, a light pastel purple.
+- **Removed two leftover margins:**
+  - `MuiButton.containedPrimary` had `marginRight: 4`. No other variant or color had one, so a Contained Primary button sat 4px further from its neighbour than any other button.
+  - `MuiTab.root` had `marginRight: 8`.
+
+  Neither was a design decision. MUI itself gives buttons no margin: spacing between them comes from their container (for example `DialogActions`/`CardActions` put 8px on the left of every child but the first). A per-size default gap for buttons is planned; see "Worth addressing". _(2026-11-04)_
 - **Added `theme.buttonIconSize`** (`{ small: 20, medium: 20, large: 24 }`): the Figma
   design system (Liquio AdminPanel Design System) uses 20px icons at small and medium and
   24px at large, in both Button (startIcon/endIcon) and Icon Button. Replaces MUI's own
@@ -855,6 +860,14 @@ uses `packages/front-core/theme.js`, which has only one change so far (see Typog
   passes `darkTheme`, is unchanged. _(2026-11-03)_
 
 ## Worth addressing (known issues found, not yet fixed)
+
+- **Buttons have no default spacing between them.** The plan is a per-size gap token (a "preset"), applied as a left margin on any button that has something before it, so:
+  - a row starting with a button has no margin on that first button;
+  - a right-aligned row ending with a button gets that button's margin from its left neighbour.
+
+  Not done yet. Open questions:
+  - the values per size;
+  - whether it applies app-wide (which means removing existing container gaps, e.g. the Workflows toolbar's 16px gap and MUI's 8px in `DialogActions`) or only in row containers. _(2026-11-04)_
 
 - **Text field rollout follow-ups** (from making the Text field admin-wide; not yet done):
   - The Style Guide's separate Autocomplete and Combo box sections, and their token tables,
