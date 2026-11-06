@@ -60,9 +60,6 @@ const styles = (theme) => ({
   container: {
     height: 'calc(100% - 48px)',
   },
-  createButton: {
-    marginLeft: theme.spacing(5),
-  },
 });
 
 class WorkflowCategoryListPage extends ModulePage {
@@ -277,7 +274,6 @@ class WorkflowCategoryListPage extends ModulePage {
               variant="contained"
               color="primary"
               onClick={this.handleCreateCategory}
-              className={classes.createButton}
             >
               {t('CreateCategory')}
             </Button>

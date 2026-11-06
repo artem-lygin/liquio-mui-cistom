@@ -31,14 +31,15 @@ const styles = (theme) => ({
     lineHeight: '35px'
   },
   buttonWithSidebar: {
-    marginRight: 20,
+    // Cabinet's theme has no buttonGap, so it keeps this spacing; admin's buttons space themselves.
+    ...(theme.buttonGap ? {} : { marginRight: 20 }),
     [theme.breakpoints.down('md')]: {
       minWidth: 110,
       padding: '28px'
     }
   },
   button: {
-    marginRight: 20,
+    ...(theme.buttonGap ? {} : { marginRight: 20 }),
     [theme.breakpoints.down('md')]: {
       padding: '10px'
     },

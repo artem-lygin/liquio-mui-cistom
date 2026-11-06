@@ -83,6 +83,8 @@ const withStyles = makeStyles({
     marginBottom: 5
   },
   actionRoot: {
+    // Full-width buttons stacked one per line: no theme button gap.
+    marginLeft: 0,
     color: 'inherit',
     justifyContent: 'flex-start',
     textTransform: 'inherit',

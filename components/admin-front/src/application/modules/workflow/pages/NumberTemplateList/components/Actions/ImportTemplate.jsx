@@ -82,6 +82,15 @@ class ImportTemplate extends React.Component {
             <Preloader />
           </Dialog>
         ) : null}
+        <Button
+          variant="outlined"
+          color="primary"
+          onClick={this.handleUploadClick}
+          startIcon={<SvgIcon component={SymbolDownload} inheritViewBox={true} />}
+        >
+          {t('ImportTemplates')}
+        </Button>
+        {/* After the button, so the hidden input never counts as the row's first child. */}
         <input
           ref={(ref) => {
             this.input = ref;
@@ -92,16 +101,6 @@ class ImportTemplate extends React.Component {
           hidden={true}
           multiple={false}
         />
-
-        <Button
-          variant="outlined"
-          color="primary"
-          onClick={this.handleUploadClick}
-          style={{ marginLeft: 16 }}
-          startIcon={<SvgIcon component={SymbolDownload} inheritViewBox={true} />}
-        >
-          {t('ImportTemplates')}
-        </Button>
       </>
     );
   };

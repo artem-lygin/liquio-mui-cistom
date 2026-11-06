@@ -66,7 +66,6 @@ const styles = (theme) => ({
   },
   actionButtons: {
     display: 'flex',
-    gap: theme.spacing(6),
   },
 });
 

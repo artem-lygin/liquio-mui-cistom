@@ -358,6 +358,8 @@ const StatisticsPage = ({ title, loading: loadingOrigin, location, actions }) =>
             color="primary"
             variant="contained"
             onClick={handleSearch}
+            // Stacked under the filter fields, not in a button row: no theme button gap.
+            style={{ marginLeft: 0 }}
             className={classNames({
               [classes.actionButton]: value?.params
             })}

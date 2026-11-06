@@ -32,6 +32,7 @@ const styles = (theme) => ({
   xlsButton: {
     marginTop: theme.spacing(5),
     marginBottom: theme.spacing(5),
+    marginLeft: 0, // stacked under the options, not in a button row
   },
   selectWrapper: {
     marginBottom: theme.spacing(10),

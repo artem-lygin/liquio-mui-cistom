@@ -231,6 +231,7 @@ class EmailInput extends React.Component {
                   onClick={this.toggleModal}
                   variant="contained"
                   color="primary"
+                  style={{ marginLeft: 0 }}
                 >
                   {t('GoToProfile')}
                 </Button>
@@ -288,6 +289,7 @@ class EmailInput extends React.Component {
                   color="primary"
                   disabled={disabledButton}
                   autoFocus={true}
+                  style={{ marginLeft: 0 }}
                 >
                   {codeSended ? t('VerifyCode') : t('SendCode')}
                 </Button>

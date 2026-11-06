@@ -99,6 +99,7 @@ const useStyles = makeStyles((theme) => ({
     color: theme?.navigator?.navItem?.linkActiveColor,
     marginTop: theme.spacing(3),
     marginBottom: theme.spacing(7),
+    marginLeft: 0, // stacked under the element details, not in a button row
     '& img': {
       marginRight: theme.spacing(3),
     },

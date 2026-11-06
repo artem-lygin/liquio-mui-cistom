@@ -177,8 +177,7 @@ const styles = (theme) => ({
   },
   tagsWrap: {
     marginTop: theme.spacing(5),
-    display: 'flex',
-    gap: theme.spacing(2)
+    display: 'flex'
   },
   iconBtn: {
     border: '1px solid #797979',

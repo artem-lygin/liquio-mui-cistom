@@ -80,6 +80,7 @@ class TwoFactorModal extends React.Component {
             color="primary"
             disabled={false}
             autoFocus={true}
+            style={{ marginLeft: 0 }}
           >
             {t('VerifyCode')}
           </Button>
@@ -110,6 +111,7 @@ class TwoFactorModal extends React.Component {
           color="primary"
           disabled={false}
           autoFocus={true}
+          style={{ marginLeft: 0 }}
         >
           {t('SendSMS')}
         </Button>

@@ -43,6 +43,8 @@ const styles = {
     alignItems: 'center',
   },
   actionWrapper: {
+    // Full-width row button: never takes the theme's button gap.
+    marginLeft: 0,
     display: 'flex',
     justifyContent: 'space-between',
     alignItems: 'center',

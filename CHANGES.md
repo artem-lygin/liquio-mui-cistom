@@ -285,7 +285,23 @@ uses `packages/front-core/theme.js`, which has only one change so far (see Typog
   - `MuiButton.containedPrimary` had `marginRight: 4`. No other variant or color had one, so a Contained Primary button sat 4px further from its neighbour than any other button.
   - `MuiTab.root` had `marginRight: 8`.
 
-  Neither was a design decision. MUI itself gives buttons no margin: spacing between them comes from their container (for example `DialogActions`/`CardActions` put 8px on the left of every child but the first). A per-size default gap for buttons is planned; see "Worth addressing". _(2026-11-04)_
+  Neither was a design decision. MUI itself gives buttons no margin: spacing between them comes from their container (for example `DialogActions`/`CardActions` put 8px on the left of every child but the first). The per-size default gap that replaces them is the next entry. _(2026-11-05)_
+- **Added `theme.buttonGap`** (`{ small: 2, medium: 3, large: 4 }` spacing units, so 8/12/16px at `spacing: 4`): the default space between buttons in a row, app-wide. Every Button and Icon Button that has something before it in its parent gets that gap as a left margin, by its own size:
+  - a left-aligned row starts flush, since the first button has no margin;
+  - a right-aligned row ending in a button gets its gap from whatever sits to its left;
+  - a disabled button wrapped in a `<span>` for its Tooltip (MUI's documented pattern) counts the span's position instead.
+
+  Applied in `MuiButton.root` and `MuiIconButton.root` through one `buttonGap()` helper in `theme.js`, reading the size from `ownerState`. The selector is wrapped in `:where()`, so it adds no specificity beyond the button's own class: an inline style or a local `makeStyles` margin still overrides it (admin uses `StyledEngineProvider injectFirst`, so local JSS wins ties). An `sx` margin does not: it lands in the button's main style block, which emotion emits before this separate rule. To opt a button out, use `style={{ marginLeft: 0 }}` or a class.
+
+  Skipped inside MUI composites that lay out their own buttons: `ButtonGroup`, `InputAdornment`, a field's bare `endAdornment` (`.MuiInputBase-root > *`), Autocomplete's clear/open buttons, the date pickers' header, toolbar and clock (`@mui/x-date-pickers` 5.0.11), and `TablePagination`'s arrows.
+
+  `MuiDialogActions` and `MuiCardActions` now default to `disableSpacing`, since MUI's own flat 8px between their children would otherwise override the per-size gap.
+
+  Cleanup of spots that already spaced their buttons or would now look wrong:
+  - **Removed duplicate spacing** (container gaps and local button margins between buttons), so the theme's gap is the only source. Admin: Workflows toolbar (16px gap), Workflow tags toolbar (24px), header tags row, Cabinet menu (Stack spacing; its hidden file input moved after the buttons so the first button is really first), Message templates (`margin: 12` now vertical only), QR templates, Mocks, Workflow page toolbar and icon buttons (the journal button sits in a Link, so the Link carries `theme.buttonGap.large`), Unit, Workflow versions, Workflow categories, Journal list, Import units/registers/number templates, Kibana and Report templates (first-button indents dropped, so those rows start flush), Process schema. Front-core: `DataTableToolbar` (its 6px now spaces only non-button children), `DataGridPremium` toolbar, `ConfirmDialog`, `ErrorScreen`, the schema editor's Create group/snippet dialogs, BpmnAi options. **These front-core components also render in cabinet**, whose theme has no `buttonGap`, so each removed margin is kept when `theme.buttonGap` is absent. P7SForm and the Payment elements were left as they were: core cabinet flows with little admin reach.
+  - **Opted out stacked buttons** (`marginLeft: 0`): buttons placed under other content rather than in a row, which the rule can't tell apart from a row. Workflow settings and Task action rows, the copy-element button, file library Add grant, Edit HTML, import buttons, Statistics Apply, Settings, Unit Upload CSV; front-core code editors' action rows and cursor-positioned code button, snippet list, details Close, BpmnAi Regenerate, Debug tools, the profile dialogs' buttons, and the media previews' Download.
+  - Known side effect: in list-page toolbars a button right after a non-button (e.g. Reload after the search field) gets the toolbar's 6px plus the gap.
+  - **Style Guide:** the Buttons row, the icon-button group, the toolbar's edit-mode buttons and the Text field "Basic" case dropped their gaps; the description's "More" button opts out. _(2026-11-05)_
 - **Added `theme.buttonIconSize`** (`{ small: 20, medium: 20, large: 24 }`): the Figma
   design system (Liquio AdminPanel Design System) uses 20px icons at small and medium and
   24px at large, in both Button (startIcon/endIcon) and Icon Button. Replaces MUI's own
@@ -861,13 +877,7 @@ uses `packages/front-core/theme.js`, which has only one change so far (see Typog
 
 ## Worth addressing (known issues found, not yet fixed)
 
-- **Buttons have no default spacing between them.** The plan is a per-size gap token (a "preset"), applied as a left margin on any button that has something before it, so:
-  - a row starting with a button has no margin on that first button;
-  - a right-aligned row ending with a button gets that button's margin from its left neighbour.
-
-  Not done yet. Open questions:
-  - the values per size;
-  - whether it applies app-wide (which means removing existing container gaps, e.g. the Workflows toolbar's 16px gap and MUI's 8px in `DialogActions`) or only in row containers. _(2026-11-04)_
+- **Table action cells now space their icon buttons.** Rows of icon buttons in a table cell (e.g. Journal's actions column, about 10 large icons in a `padding="none"` cell, and the actions columns of File library, Message templates, QR templates, Users, Keys, Workflows, Cabinet menu, Mocks) had no spacing before `theme.buttonGap` and now get 8–16px between icons. Not yet checked whether the wider cells fit their columns. Open question: keep the gap there, or exclude `.MuiTableCell-root`. _(2026-11-05)_
 
 - **Text field rollout follow-ups** (from making the Text field admin-wide; not yet done):
   - The Style Guide's separate Autocomplete and Combo box sections, and their token tables,

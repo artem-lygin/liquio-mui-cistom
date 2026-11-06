@@ -196,6 +196,39 @@ const buttonPadding = (theme, size, border) => {
   return `${vertical}px ${horizontal}px`;
 };
 
+// Default spacing between buttons in a row, per size (theme.buttonGap, in spacing units).
+// A Button or Icon Button that has anything before it gets that gap as a left margin, so:
+// a left-aligned row starts flush (the first button has no margin), and a right-aligned row
+// ending in a button gets its gap from whatever sits to its left.
+// Skipped inside MUI's own composites that already lay out their buttons (button groups, input
+// adornments, Autocomplete's clear/open buttons, date picker headers, table pagination).
+// Every selector is wrapped in :where(), so the rule adds no specificity beyond the button's
+// own class: an inline style or a local makeStyles margin still overrides it (admin's
+// injectFirst puts JSS after emotion). An `sx` margin does NOT: sx lands in the button's main
+// style block, which emotion emits before this separate rule, so equal specificity loses.
+const BUTTON_GAP_EXCLUDED = [
+  '.MuiButtonGroup-root > *',
+  '.MuiInputAdornment-root *',
+  // An IconButton passed straight as a field's endAdornment, with no InputAdornment around it.
+  '.MuiInputBase-root > *',
+  '.MuiAutocomplete-endAdornment *',
+  '.MuiPickersArrowSwitcher-root *',
+  '.MuiPickersCalendarHeader-root *',
+  '.MuiPickersToolbar-root *',
+  '.MuiClock-root *',
+  '.MuiTablePagination-actions *'
+];
+// A disabled button inside a Tooltip is wrapped in a <span> (MUI's documented pattern, since a
+// disabled button fires no events), so the span's position in the row counts instead.
+const buttonGap = (theme, size) => {
+  const excluded = BUTTON_GAP_EXCLUDED.map((selector) => `:where(:not(${selector}))`).join('');
+  return {
+    [`&:where(:not(:first-child))${excluded}, :where(span:not(:first-child)) > &:where(:only-child)${excluded}`]: {
+      marginLeft: theme.spacing(theme.buttonGap[['small', 'large'].includes(size) ? size : 'medium'])
+    }
+  };
+};
+
 const baseTheme = {
   breakpoints: {
     keys: ['xs', 'sm', 'md', 'lg', 'xl'],
@@ -352,12 +385,13 @@ const baseTheme = {
       // follow it: an SvgIcon left at its default fontSize="medium" would otherwise stay a
       // fixed 24px whatever the button's size. Explicit fontSize="small"/"large" is left alone.
       // With buttonIconPadding, an icon button comes out at exactly buttonHeight per size.
-      root: ({ theme }) => ({
+      root: ({ theme, ownerState }) => ({
         padding: 8,
         fontSize: theme.buttonIconSize.medium,
         '& .MuiSvgIcon-fontSizeMedium': {
           fontSize: 'inherit'
-        }
+        },
+        ...buttonGap(theme, ownerState?.size)
       }),
       // Mirrors Button's own per-size padding scale (theme.buttonIconPadding) instead of
       // MUI's default icon-button padding steps, so Icon Button and Button read as the same
@@ -388,7 +422,8 @@ const baseTheme = {
       })
     },
     MuiButton: {
-      root: {
+      root: ({ theme, ownerState }) => ({
+        ...buttonGap(theme, ownerState?.size),
         minWidth: 32,
         // A Button's icons always follow its label color, in every variant. Needed because
         // the global MuiSvgIcon.root.fill override (above) would otherwise paint every
@@ -401,7 +436,7 @@ const baseTheme = {
         '& .MuiButton-startIcon svg, & .MuiButton-endIcon svg': {
           fill: 'currentColor'
         }
-      },
+      }),
       // theme.typography.button is the single source of truth for the Buttons label
       // typography. MUI's own Button.js hardcodes a different fontSize per size by default
       // (13px/15px for small/large via pxToRem, overriding the token) — medium is the only
@@ -924,6 +959,14 @@ const baseTheme = {
     MuiTab: {
       disableRipple: true
     },
+    // Buttons space themselves (theme.buttonGap), so the action bars' own flat 8px margin
+    // between children is turned off; it would otherwise override the per-size gap.
+    MuiDialogActions: {
+      disableSpacing: true
+    },
+    MuiCardActions: {
+      disableSpacing: true
+    },
     // The Text field's label sits above the field permanently, so it is always "shrunk".
     // This also matters for placeholders: MUI hides an empty field's placeholder while its
     // label is unshrunk (it expects the label to be sitting where the text goes).
@@ -1235,6 +1278,10 @@ const baseTheme = {
   // Icon Button: 20px for small and medium, 24px for large. Icon Button's padding above plus
   // this size gives exactly buttonHeight (6+20+6 = 32, 8+20+8 = 36, 9+24+9 = 42).
   buttonIconSize: { small: 20, medium: 20, large: 24 },
+  // Default gap between buttons in a row, in spacing units (8/12/16px at spacing: 4). Applied
+  // as the left margin of every Button and Icon Button that isn't first in its row; see
+  // buttonGap() at the top of this file.
+  buttonGap: { small: 2, medium: 3, large: 4 },
   // Button / Primary's fixed per-size height from the Figma design system (see the comment
   // above MuiButton.sizeSmall for why it's a fixed minHeight rather than content-derived).
   // A token rather than three literals inside MuiButton.sizeX because it's no longer

@@ -129,6 +129,7 @@ const ProfileLayout = ({
         disabled={saving}
         onClick={handleSave}
         className={classes.button}
+        style={{ marginLeft: 0 }}
       >
         {t('SaveButton')}
       </Button>

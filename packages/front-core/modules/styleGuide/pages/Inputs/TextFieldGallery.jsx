@@ -143,7 +143,8 @@ export const TextFieldCases = ({ size, state, showHelperText }) => {
   return (
     <Grid>
       <Case title="Basic" where="New workflow dialog → Workflow name (shown next to a button of the same size)">
-        <div style={{ display: 'flex', gap: 12, alignItems: 'flex-start' }}>
+        {/* No gap: the button's own per-size left margin (theme.buttonGap) spaces it from the field. */}
+        <div style={{ display: 'flex', alignItems: 'flex-start' }}>
           <TextField
             size={size}
             label="Workflow name"

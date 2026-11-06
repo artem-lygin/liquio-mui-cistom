@@ -34,7 +34,8 @@ const withStyles = makeStyles((theme) => ({
   saveAction: {
     backgroundColor: '#BB86FC',
     color: '#000000',
-    marginLeft: 15,
+    // Cabinet's theme has no buttonGap, so it keeps this spacing; admin's buttons space themselves.
+    ...(theme.buttonGap ? {} : { marginLeft: 15 }),
     '&:hover': {
       backgroundColor: '#BB86FC',
       color: '#000000'

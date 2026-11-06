@@ -72,6 +72,7 @@ const useStyles = makeStyles((theme) => ({
     width: 'calc(100% + 17px)',
     position: 'relative',
     left: -8,
+    marginLeft: 0, // stacked full-width rows, not a button row: no theme button gap
     '&:hover': {
       backgroundColor: '#2e2e2e',
     },

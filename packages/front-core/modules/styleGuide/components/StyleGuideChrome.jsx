@@ -22,7 +22,7 @@ const StyleGuideChrome = ({ activeId, subNav, children }) => {
             Style Guide
           </Typography>
           {editMode ? (
-            <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
+            <div style={{ display: 'flex', alignItems: 'center' }}>
               <Button variant="outlined" disabled={isEmpty(draft)} onClick={resetDraft}>
                 Reset draft
               </Button>

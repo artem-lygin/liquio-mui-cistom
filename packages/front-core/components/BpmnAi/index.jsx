@@ -88,7 +88,7 @@ allowedTags.forEach((tag) => {
   options.allowedAttributes[tag] = allowedAttributes;
 });
 
-const useStyles = makeStyles(() => ({
+const useStyles = makeStyles((theme) => ({
   root: {
     position: 'absolute',
     bottom: 24,
@@ -431,6 +431,8 @@ const useStyles = makeStyles(() => ({
     }
   },
   regenerateButton: {
+    // Centred under the error message, not in a row: no theme button gap.
+    marginLeft: 0,
     color: '#d9d9e3',
     fontSize: '.875rem',
     lineHeight: '1.25rem',
@@ -459,13 +461,14 @@ const useStyles = makeStyles(() => ({
     flexDirection: 'row'
   },
   interactiveOptionsButton: {
+    // Cabinet's theme has no buttonGap, so it keeps this spacing; admin's buttons space themselves.
+    ...(theme.buttonGap ? {} : { marginRight: 8 }),
     color: 'white',
     fontSize: 12,
     fontWeight: 500,
     lineHeight: '14px',
     borderRadius: 4,
     backgroundColor: '#616FFF',
-    marginRight: 8,
     padding: '11px 12px',
     textTransform: 'none',
     '&:hover': {

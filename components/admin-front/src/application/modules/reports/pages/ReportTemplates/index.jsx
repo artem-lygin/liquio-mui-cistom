@@ -105,7 +105,6 @@ const ReportListPage = ({ t, actions }) => {
           <Button
             color="primary"
             variant="contained"
-            style={{ marginLeft: 10 }}
             onClick={() => setOpenCreateNewDialog(true)}
           >
             {t('CreateNew')}

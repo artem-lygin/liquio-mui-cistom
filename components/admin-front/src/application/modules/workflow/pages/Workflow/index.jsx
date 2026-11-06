@@ -119,11 +119,9 @@ const styles = (theme) => ({
   },
   toolbar: {
     paddingLeft: theme.spacing(3),
-    '& > *': {
-      marginRight: theme.spacing(3)
-    },
-    '& > :last-child': {
-      marginRight: 0
+    // Buttons space themselves (theme.buttonGap); this only spaces the other items.
+    '& > * + :not(.MuiButtonBase-root)': {
+      marginLeft: theme.spacing(3)
     }
   },
   saveButtonIcon: {
@@ -138,10 +136,13 @@ const styles = (theme) => ({
     fill: theme.navigator.navItem.linkActiveColor
   },
   iconWrapper: {
-    marginLeft: theme.spacing(4),
     '&:hover': {
       backgroundColor: theme.buttonHoverBg
     }
+  },
+  // The journal button sits inside a Link, so the Link carries the button's gap.
+  journalLink: {
+    marginLeft: theme.spacing(theme.buttonGap.large)
   },
   changeNameWrapper: {
     display: 'flex',
@@ -1179,7 +1180,10 @@ class WorkflowPage extends ModulePage {
               </IconButton>
             </Tooltip>
 
-            <Link to={`/workflow/journal#workflowTemplateId=${workflow?.id}`}>
+            <Link
+              to={`/workflow/journal#workflowTemplateId=${workflow?.id}`}
+              className={classes.journalLink}
+            >
               <Tooltip title={t('JournalView')}>
                 <IconButton size="large" className={classes.iconWrapper}>
                   <img src={ListIcon} alt="list icon" width={21} />

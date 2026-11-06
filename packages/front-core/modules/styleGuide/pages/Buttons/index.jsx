@@ -125,7 +125,8 @@ const ButtonsPageContent = () => {
         }
       >
         <MeasureOverlay enabled={measureEnabled}>
-          <div style={{ display: 'flex', gap: 28, alignItems: 'center', flexWrap: 'wrap' }}>
+          {/* No gap: every button after the first gets the theme's per-size left margin (theme.buttonGap). */}
+          <div style={{ display: 'flex', alignItems: 'center', flexWrap: 'wrap' }}>
             {['contained', 'outlined', 'text'].map((variant) => (
               <Button
                 key={variant}
@@ -140,7 +141,7 @@ const ButtonsPageContent = () => {
                 {variant[0].toUpperCase() + variant.slice(1)}
               </Button>
             ))}
-            <div style={{ display: 'flex', gap: 8, marginLeft: 'auto' }}>
+            <div style={{ display: 'flex', marginLeft: 'auto' }}>
               {ICON_BUTTON_EXAMPLES.map((example) => (
                 <Tooltip key={example.key} title={example.label}>
                   {/* A disabled button fires no mouse events, so the tooltip listens on this span. */}

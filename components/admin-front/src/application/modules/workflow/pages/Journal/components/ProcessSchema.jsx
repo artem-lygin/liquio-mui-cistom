@@ -9,11 +9,7 @@ import AccountTreeIcon from '@mui/icons-material/AccountTree';
 import { BPMNViewer } from 'components/BpmnSchema';
 import FullScreenDialog from 'components/FullScreenDialog';
 
-const styles = (theme) => ({
-  button: {
-    marginRight: theme.spacing(1),
-  },
-});
+const styles = () => ({});
 
 const ProcessSchema = ({ classes, process, data }) => {
   const [open, setOpen] = React.useState(false);
@@ -30,7 +26,6 @@ const ProcessSchema = ({ classes, process, data }) => {
     <>
       <IconButton
         variant="outlined"
-        className={classes.button}
         onClick={() => setOpen(true)}
         size="large"
       >

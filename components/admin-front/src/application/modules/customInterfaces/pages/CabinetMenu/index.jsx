@@ -1,5 +1,5 @@
 import React from "react";
-import { Button, Stack } from "@mui/material";
+import { Button } from "@mui/material";
 import AddIcon from "@mui/icons-material/Add";
 import FileDownloadOutlinedIcon from "@mui/icons-material/FileDownloadOutlined";
 import FileUploadOutlinedIcon from "@mui/icons-material/FileUploadOutlined";
@@ -20,19 +20,11 @@ const CabinetMenuToolbar = React.memo(({
   const importInputRef = React.useRef(null);
 
   return (
-    <Stack direction="row" spacing={1.5}>
+    // Buttons space themselves (theme.buttonGap); the hidden file input goes last so the
+    // first button really is the row's first child.
+    <div style={{ display: "flex" }}>
       {canEdit ? (
         <>
-          <input
-            ref={importInputRef}
-            type="file"
-            accept="application/json,.json"
-            onChange={(event) => {
-              onImportFile(event.target.files?.[0]);
-              event.target.value = null;
-            }}
-            hidden={true}
-          />
           <Button
             color="primary"
             variant="outlined"
@@ -62,7 +54,19 @@ const CabinetMenuToolbar = React.memo(({
           {t("ImportFromFile")}
         </Button>
       ) : null}
-    </Stack>
+      {canEdit ? (
+        <input
+          ref={importInputRef}
+          type="file"
+          accept="application/json,.json"
+          onChange={(event) => {
+            onImportFile(event.target.files?.[0]);
+            event.target.value = null;
+          }}
+          hidden={true}
+        />
+      ) : null}
+    </div>
   );
 });
 

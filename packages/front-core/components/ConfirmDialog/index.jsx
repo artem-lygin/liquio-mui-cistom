@@ -23,7 +23,8 @@ const withMobileDialog = () => (WrappedComponent) => (props) => (
 const styles = (theme) => ({
   closeIcon: {
     ...(theme.confirmDialogCloseIcon || {}),
-    marginLeft: 16,
+    // Cabinet's theme has no buttonGap, so it keeps this spacing; admin's buttons space themselves.
+    ...(theme.buttonGap ? {} : { marginLeft: 16 }),
     '&:focus-visible': {
       outline: '3px solid #0073E6'
     }
@@ -38,7 +39,8 @@ const styles = (theme) => ({
     flex: 1
   },
   acceptButton: {
-    marginLeft: '20px',
+    // Cabinet's theme has no buttonGap, so it keeps this spacing; admin's buttons space themselves.
+    ...(theme.buttonGap ? {} : { marginLeft: '20px' }),
     padding: '18px 44px',
     ...(theme.confirmDialogAcceptButton || {}),
     '&:focus-visible': {

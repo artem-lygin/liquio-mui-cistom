@@ -31,6 +31,8 @@ const Media = ({ setId, classes, handleDownload, format, name, url }) => (
     <Button
       color="yellow"
       className={classes.pdfDownload}
+      // Sits under the preview, not in a row: no theme button gap.
+      style={{ marginLeft: 0 }}
       onClick={handleDownload}
       setId={(elementName) => setId(`download-${elementName}`)}
     >

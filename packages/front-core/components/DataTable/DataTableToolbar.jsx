@@ -25,7 +25,9 @@ const styles = (theme) => ({
       paddingBottom: 0,
       flexWrap: 'wrap'
     },
-    '& > *': {
+    // With theme.buttonGap (admin) buttons space themselves and only other children keep the
+    // 6px; cabinet's theme has no buttonGap, so there every child keeps it.
+    [theme.buttonGap ? '& > :not(.MuiButton-root):not(.MuiIconButton-root)' : '& > *']: {
       marginRight: 6
     },
     '&:last-child': {

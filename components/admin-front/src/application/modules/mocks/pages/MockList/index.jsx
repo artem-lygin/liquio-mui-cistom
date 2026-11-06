@@ -711,9 +711,6 @@ const EnabledMockPage = ({ actions, location, title }) => {
                                                               )}
                                                             >
                                                               <IconButton
-                                                                className={
-                                                                  classes.actionIcon
-                                                                }
                                                                 onClick={() =>
                                                                   setDeleteConfirm(
                                                                     {

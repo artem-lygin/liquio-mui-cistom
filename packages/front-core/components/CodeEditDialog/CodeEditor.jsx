@@ -80,6 +80,8 @@ const styles = (theme) => ({
   },
   codeButton: {
     position: 'absolute',
+    // Placed at the cursor via `left`: a theme button gap would shift it off the cursor.
+    marginLeft: 0,
     color: '#ffffff'
   },
   editorContainer: {

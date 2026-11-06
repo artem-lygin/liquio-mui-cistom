@@ -43,7 +43,8 @@ const useStyles = makeStyles((theme) => ({
   selectedFiltersClear: {
     display: 'flex',
     alignItems: 'center',
-    gap: 8,
+    // Cabinet's theme has no buttonGap, so it keeps this spacing; admin's buttons space themselves.
+    ...(theme.buttonGap ? {} : { gap: 8 }),
   },
   selectedFiltersItem: {
     maxWidth: '452px',
@@ -79,16 +80,12 @@ const useStyles = makeStyles((theme) => ({
     alignItems: 'center',
     justifyContent: 'space-between',
     paddingTop: 3,
-    '& > *': {
-      marginRight: theme.spacing(1),
-    },
+    // Cabinet's theme has no buttonGap, so it keeps this spacing; admin's buttons space themselves.
+    ...(theme.buttonGap ? {} : { '& > *': { marginRight: theme.spacing(1) } }),
     [theme.breakpoints.down('md')]: {
       flexWrap: 'wrap',
-      gap: theme.spacing(1),
       width: '100%',
-      '& > *': {
-        marginRight: 0,
-      },
+      ...(theme.buttonGap ? {} : { gap: theme.spacing(1), '& > *': { marginRight: 0 } }),
       '& > .MuiInputBase-root': {
         flex: 1,
       },
@@ -96,7 +93,8 @@ const useStyles = makeStyles((theme) => ({
   },
   toolbarSettings: {
     display: 'flex',
-    gap: 8,
+    // Cabinet's theme has no buttonGap, so it keeps this spacing; admin's buttons space themselves.
+    ...(theme.buttonGap ? {} : { gap: 8 }),
   },
   toolbarQuickFilter: {
     backgroundColor:

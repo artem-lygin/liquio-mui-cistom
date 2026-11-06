@@ -45,7 +45,6 @@ import BlocksAccess from './components/BlocksAccess';
 
 const styles = (theme) => ({
   iconWrapper: {
-    marginLeft: theme.spacing(4),
     '&:hover': {
       backgroundColor: theme.buttonHoverBg
     }
@@ -685,6 +684,8 @@ class UnitPage extends ModulePage {
                 variant="contained"
                 color="primary"
                 onClick={this.startPreparing}
+                // Stacked under the form, not in a button row: no theme button gap.
+                style={{ marginLeft: 0 }}
                 startIcon={<SvgIcon component={SymbolDownload} inheritViewBox={true} />}
               >
                 {t('UploadCSV')}

@@ -102,6 +102,7 @@ class PhoneEditModal extends React.Component {
             color="primary"
             disabled={!!error || !code}
             autoFocus={true}
+            style={{ marginLeft: 0 }}
           >
             {t('VerifyCode')}
           </Button>
@@ -148,6 +149,7 @@ class PhoneEditModal extends React.Component {
             color="primary"
             disabled={!!error || !phone || phone.length < 12}
             autoFocus={true}
+            style={{ marginLeft: 0 }}
           >
             {t('SavePhone')}
           </Button>
@@ -158,6 +160,7 @@ class PhoneEditModal extends React.Component {
             color="primary"
             disabled={!!error || !phone || phone.length < 12}
             autoFocus={true}
+            style={{ marginLeft: 0 }}
           >
             {t('SendSMS')}
           </Button>

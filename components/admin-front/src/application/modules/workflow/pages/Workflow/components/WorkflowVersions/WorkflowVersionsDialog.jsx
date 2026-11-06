@@ -69,9 +69,6 @@ const withStyles = makeStyles((theme) => ({
       backgroundColor: theme.buttonHoverBg,
     },
   },
-  createNewBtn: {
-    marginLeft: theme.spacing(3),
-  },
 }));
 
 const WorkflowVersionsDialog = ({
@@ -147,7 +144,6 @@ const WorkflowVersionsDialog = ({
               <Button
                 variant="contained"
                 color="primary"
-                className={classes.createNewBtn}
                 onClick={() => setOpenNewVersionDialog(true)}
               >
                 {t('CreateNewVersion')}

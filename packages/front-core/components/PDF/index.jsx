@@ -127,6 +127,8 @@ class PdfDocument extends Component {
             variant="contained"
             color="yellow"
             className={classes.pdfDownload}
+            // Sits under the preview, not in a row: no theme button gap.
+            style={{ marginLeft: 0 }}
             onClick={this.downloadPdf}
             id={setId('download-button')}
             setId={(elementName) => setId(`download-${elementName}`)}

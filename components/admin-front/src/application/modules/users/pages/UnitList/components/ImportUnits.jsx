@@ -15,11 +15,7 @@ import Message from 'components/Snackbars/Message';
 import ConfirmDialog from 'components/ConfirmDialog';
 import parseFile from 'helpers/parseFile';
 
-const styles = () => ({
-  actionBtn: {
-    marginLeft: 16,
-  },
-});
+const styles = () => ({});
 
 const ROWS_PER_PAGE = 1000;
 
@@ -103,7 +99,7 @@ class ImportUnits extends React.Component {
   };
 
   render() {
-    const { t, classes } = this.props;
+    const { t } = this.props;
     const { openConfirmDialog, filesInfo } = this.state;
 
     return (
@@ -111,7 +107,6 @@ class ImportUnits extends React.Component {
         <Button
           variant="contained"
           color="primary"
-          className={classes.actionBtn}
           onClick={this.handleUploadClick}
           startIcon={<SvgIcon component={SymbolDownload} inheritViewBox={true} />}
         >

@@ -59,13 +59,9 @@ const styles = (theme) => ({
   selectedHeader: {
     display: 'flex',
     alignItems: 'center',
-    '& > button': {
-      marginLeft: theme.spacing(3),
-    },
   },
   iconButton: {
     marginRight: 0,
-    marginLeft: theme.spacing(1),
   },
 });
 

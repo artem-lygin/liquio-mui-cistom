@@ -53,7 +53,9 @@ const styles = () => ({
   createButton: {
     display: 'flex',
     alignSelf: 'flex-start',
-    margin: 12,
+    // Vertical only: the space between the buttons comes from theme.buttonGap.
+    marginTop: 12,
+    marginBottom: 12,
   },
   actionButton: {
     marginLeft: 10,
@@ -434,7 +436,7 @@ const MessageTemplatesList = ({
             variant="outlined"
             color="primary"
             onClick={handleOpenEditor}
-            style={{ marginTop: 20 }}
+            style={{ marginTop: 20, marginLeft: 0 }}
           >
             {t('EditHTML')}
           </Button>

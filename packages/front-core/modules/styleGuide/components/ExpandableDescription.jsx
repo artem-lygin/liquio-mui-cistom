@@ -37,7 +37,8 @@ const ExpandableDescription = ({ children }) => {
         <Button
           size="small"
           onClick={() => setExpanded((value) => !value)}
-          style={{ marginTop: 4, padding: 0, minWidth: 'auto', textTransform: 'none' }}
+          // Stacked under the text, not in a row: no theme button gap.
+          style={{ marginTop: 4, marginLeft: 0, padding: 0, minWidth: 'auto', textTransform: 'none' }}
         >
           {expanded ? 'Less' : 'More'}
         </Button>

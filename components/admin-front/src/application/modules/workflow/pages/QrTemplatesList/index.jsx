@@ -74,9 +74,6 @@ const styles = () => ({
     alignSelf: 'flex-start',
     margin: 12,
   },
-  actionButton: {
-    marginLeft: 10,
-  },
   flex: {
     display: 'flex',
   },
@@ -257,7 +254,6 @@ const QrTemplatesList = ({
           <Tooltip title={t('DeleteTemplate')}>
             <IconButton
               onClick={() => handleDeleteOpen(row)}
-              className={classes.actionButton}
               size="large"
             >
               <DeleteOutlinedIcon />

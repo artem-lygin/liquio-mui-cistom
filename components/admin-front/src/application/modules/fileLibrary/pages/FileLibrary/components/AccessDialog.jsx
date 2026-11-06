@@ -205,7 +205,8 @@ const AccessDialog = ({
             </FormControl>
           </Box>
         ))}
-        <Button sx={{ mt: 2 }} onClick={onAddGrant}>
+        {/* Stacked under the grant rows, not in a button row: no theme button gap. */}
+        <Button sx={{ mt: 2 }} style={{ marginLeft: 0 }} onClick={onAddGrant}>
           {t('AddGrant')}
         </Button>
       </DialogContent>

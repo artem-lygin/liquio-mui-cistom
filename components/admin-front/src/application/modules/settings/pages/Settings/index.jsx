@@ -15,6 +15,7 @@ const styles = (theme) => ({
   },
   button: {
     marginTop: theme.spacing(5),
+    marginLeft: 0, // stacked under the description, not in a button row
   },
 });
 

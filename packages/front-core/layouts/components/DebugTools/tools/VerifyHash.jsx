@@ -10,6 +10,8 @@ const useStyles = makeStyles((theme) => ({
     padding: 16,
     '& > *': {
       marginBottom: theme.spacing(2),
+      // Stacked one per line: no theme button gap.
+      marginLeft: 0,
     },
   },
 }));

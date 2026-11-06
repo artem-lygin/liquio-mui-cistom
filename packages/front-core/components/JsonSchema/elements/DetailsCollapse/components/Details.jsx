@@ -11,6 +11,8 @@ const styles = () => ({
     paddingBottom: 16,
   },
   detailButton: {
+    // Sits under the collapsed content, not in a row: no theme button gap.
+    marginLeft: 0,
     maxWidth: 640,
     borderRadius: 0,
     padding: 8,

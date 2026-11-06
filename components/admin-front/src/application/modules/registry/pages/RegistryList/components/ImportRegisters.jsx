@@ -30,12 +30,10 @@ const styles = (theme) => ({
   actionBtn: {
     marginTop: theme.spacing(5),
     marginBottom: theme.spacing(5),
+    marginLeft: 0, // stacked under the options, not in a button row
   },
   title: {
     paddingBottom: 0,
-  },
-  importBtn: {
-    marginLeft: theme.spacing(3),
   },
 });
 
@@ -149,7 +147,6 @@ class ImportRegisters extends React.Component {
           variant="contained"
           color="primary"
           onClick={this.handleOpenImportDialog}
-          className={classes.importBtn}
           startIcon={<SvgIcon component={SymbolDownload} inheritViewBox={true} />}
         >
           {t('ImportRegisters')}

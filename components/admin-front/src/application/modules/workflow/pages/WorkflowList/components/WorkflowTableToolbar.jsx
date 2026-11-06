@@ -53,7 +53,6 @@ const styles = (theme) => ({
   },
   buttonsWrapper: {
     display: 'flex',
-    gap: theme.spacing(4),
     '& button': {
       flex: 1
     },
