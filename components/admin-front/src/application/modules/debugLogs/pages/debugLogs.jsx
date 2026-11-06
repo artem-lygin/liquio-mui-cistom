@@ -24,13 +24,20 @@ const DebugLogs = ({ title, location, loading }) => {
     ws.current.onerror = (event) => console.error('WebSocket error observed:', event);
 
     ws.current.onmessage = (message) => {
-      const packet = JSON.parse(message.data);
+      // Not every message is JSON: the server greets with plain text ("user connected").
+      let packet;
+      try {
+        packet = JSON.parse(message.data);
+      } catch (error) {
+        console.log(message.data);
+        return;
+      }
 
-      if (packet.info) {
+      if (packet?.info) {
         console.log(packet.info);
       }
 
-      if (packet.error) {
+      if (packet?.error) {
         console.error(packet.error);
       }
     };
