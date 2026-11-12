@@ -39,7 +39,7 @@ const LABELS = {
   create: 'Create',
   createCommit: 'Create commit',
   createVersion: 'Create version',
-  versionsOnly: 'Versions only'
+  onlyReleases: 'Only releases'
 };
 
 // navigator.clipboard only exists in secure contexts; the dev hosts are plain http, so
@@ -159,13 +159,13 @@ const columns = [
   }
 ];
 
-// A version tag is any tag other than 'current' (e.g. '1.2').
-const hasVersionTag = (commit) => (commit.tags || []).some((tag) => tag !== 'current');
+// A release is a commit with a version tag, i.e. any tag other than 'current' (e.g. '1.2').
+const isRelease = (commit) => (commit.tags || []).some((tag) => tag !== 'current');
 
-// Toolbar, right of search: the "Versions only" filter, then Create (the row's single
+// Toolbar, right of search: the "Only releases" filter, then Create (the row's single
 // contained action, last per the admin toolbar convention). Create opens a menu; both
 // options are stubs for now.
-const CommitsToolbar = ({ versionsOnly, onVersionsOnlyChange }) => {
+const CommitsToolbar = ({ onlyReleases, onOnlyReleasesChange }) => {
   const [anchorEl, setAnchorEl] = React.useState(null);
   const close = () => setAnchorEl(null);
 
@@ -174,11 +174,11 @@ const CommitsToolbar = ({ versionsOnly, onVersionsOnlyChange }) => {
       <FormControlLabel
         control={
           <Switch
-            checked={versionsOnly}
-            onChange={(event) => onVersionsOnlyChange(event.target.checked)}
+            checked={onlyReleases}
+            onChange={(event) => onOnlyReleasesChange(event.target.checked)}
           />
         }
-        label={LABELS.versionsOnly}
+        label={LABELS.onlyReleases}
       />
       <Button
         variant="contained"
@@ -207,12 +207,12 @@ const CommitsToolbar = ({ versionsOnly, onVersionsOnlyChange }) => {
 const WorkflowCommitsPage = ({ location, match }) => {
   const { workflowId } = match.params;
   const [rowsSelected, setRowsSelected] = React.useState([]);
-  const [versionsOnly, setVersionsOnly] = React.useState(false);
+  const [onlyReleases, setOnlyReleases] = React.useState(false);
 
-  const commits = versionsOnly ? mockCommits.filter(hasVersionTag) : mockCommits;
+  const commits = onlyReleases ? mockCommits.filter(isRelease) : mockCommits;
 
   const renderToolbar = () => (
-    <CommitsToolbar versionsOnly={versionsOnly} onVersionsOnlyChange={setVersionsOnly} />
+    <CommitsToolbar onlyReleases={onlyReleases} onOnlyReleasesChange={setOnlyReleases} />
   );
 
   // Row click target (the commit page) is the next PoC step.
@@ -224,13 +224,24 @@ const WorkflowCommitsPage = ({ location, match }) => {
       title={LABELS.title}
       backButton={`/workflow/${workflowId}`}
     >
-      {/* DataTable renders a row's first column as <th scope="row">, but its row-hover rule
-          only recolours <td>, so Committed (the primary column) stayed unhighlighted. PoC-local
-          fix, same token as DataTableRow's hover rule; the shared component is theme-project
-          territory (main). */}
+      {/* PoC-local overrides of the shared DataTable (the component itself is theme-project
+          territory, on main):
+          - Row hover: DataTable renders a row's first column as <th scope="row">, but its
+            row-hover rule only recolours <td>, so Committed (the primary column) stayed
+            unhighlighted. Same token as DataTableRow's hover rule.
+          - Search: compact by default instead of filling the toolbar; it widens while focused
+            or holding a query, so it stays comfortable to type in. */}
       <Box
         sx={(theme) => ({
-          '& tbody tr:hover > th': { color: `${theme.dataTableHoverColor} !important` }
+          '& tbody tr:hover > th': { color: `${theme.dataTableHoverColor} !important` },
+          '& .MuiToolbar-root > div:has(> .MuiInputBase-root)': {
+            flex: '0 0 auto',
+            width: theme.spacing(60),
+            transition: theme.transitions.create('width'),
+            '&:focus-within, &:has(input:not(:placeholder-shown))': {
+              width: theme.spacing(100)
+            }
+          }
         })}
       >
         <DataTableStated
