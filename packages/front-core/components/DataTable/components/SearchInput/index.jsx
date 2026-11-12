@@ -2,7 +2,6 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import { translate } from 'react-translate';
 import { ClickAwayListener } from '@mui/material';
-import SearchIcon from '@mui/icons-material/Search';
 import withStyles from '@mui/styles/withStyles';
 
 import InputComponent from 'components/DataTable/components/SearchInput/InputComponent';
@@ -37,7 +36,6 @@ const SearchInput = ({
   actions,
   darkTheme,
   searchPlaceholder,
-  searchIcon,
   updateOnChangeSearch = true
 }) => {
   const [anchorEl, setAnchorEl] = React.useState(null);
@@ -109,10 +107,7 @@ const SearchInput = ({
             onKeyPress={onKeyPress}
             onFocus={onFocus}
             startAdornment={
-              <>
-                {/* PoC (poc/git-version-control): opt-in leading icon, see DataTable searchIcon. */}
-                {searchIcon ? <SearchIcon fontSize="small" color="action" sx={{ mr: 2 }} /> : null}
-                <FilterChips
+              <FilterChips
                 filters={filters}
                 onClose={handleClose}
                 filterHandlers={filterHandlers}
@@ -121,8 +116,7 @@ const SearchInput = ({
                   setAnchorEl(currentTarget);
                   setActiveFilter(filterName);
                 }}
-                />
-              </>
+              />
             }
           />
           <FilterHandlers

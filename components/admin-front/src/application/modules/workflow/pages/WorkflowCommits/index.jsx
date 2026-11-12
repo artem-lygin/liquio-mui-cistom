@@ -17,8 +17,6 @@ import {
 import HistoryIcon from '@mui/icons-material/History';
 import ContentCopyIcon from '@mui/icons-material/ContentCopy';
 import AddIcon from '@mui/icons-material/Add';
-import KeyboardArrowDownIcon from '@mui/icons-material/KeyboardArrowDown';
-import KeyboardArrowUpIcon from '@mui/icons-material/KeyboardArrowUp';
 
 import LeftSidebarLayout from 'layouts/LeftSidebar';
 import DataTableStated from 'components/DataTable/DataTableStated';
@@ -41,11 +39,7 @@ const LABELS = {
   create: 'Create',
   createCommit: 'Create commit',
   createVersion: 'Create version',
-  onlyReleases: 'Only releases',
-  expand: 'Show details',
-  collapse: 'Hide details',
-  commitMessage: 'Commit message',
-  releaseComment: (version) => `Release ${version} comment`
+  onlyReleases: 'Only releases'
 };
 
 // navigator.clipboard only exists in secure contexts; the dev hosts are plain http, so
@@ -98,57 +92,11 @@ const ShaCell = ({ sha }) => {
   );
 };
 
-// The table shows only the subject (first line) of a commit message; the full message and
-// the release comment can be any length, so they live in the expanded row.
-const getSubject = (message) => (message || '').split('\n')[0];
-
-const getReleaseVersion = (commit) => (commit.tags || []).find((tag) => tag !== 'current');
-
-const DetailsSection = ({ title, text }) => (
-  <Box>
-    <Typography variant="subtitle2" color="text.secondary" gutterBottom={true}>
-      {title}
-    </Typography>
-    {/* Long-form text: capped line length so it stays readable on wide screens. */}
-    <Typography variant="body2" component="div" whiteSpace="pre-wrap" maxWidth="100ch">
-      {text}
-    </Typography>
-  </Box>
-);
-
-const CommitDetails = ({ commit }) => (
-  <Stack spacing={4} py={2}>
-    <DetailsSection title={LABELS.commitMessage} text={commit.message} />
-    {commit.releaseComment ? (
-      <DetailsSection
-        title={LABELS.releaseComment(getReleaseVersion(commit))}
-        text={commit.releaseComment}
-      />
-    ) : null}
-  </Stack>
-);
-
-// An expand toggle comes first. Committed (date + author) leads as the row's human-readable name; the SHA is technical,
+// Committed (date + author) leads as the row's human-readable name; the SHA is technical,
 // so it sits on the right. Message is the only flexible column: it takes the remaining
 // width and is cut to one line with an ellipsis (fixedTable layout). Every other column is
 // sized to its content.
-const getColumns = ({ expandedRows, onToggleExpand }) => [
-  {
-    id: 'expand',
-    width: 56,
-    padding: 'checkbox',
-    disableClick: true,
-    render: (value, { id }) => {
-      const expanded = expandedRows.includes(id);
-      return (
-        <Tooltip title={expanded ? LABELS.collapse : LABELS.expand}>
-          <IconButton aria-expanded={expanded} onClick={() => onToggleExpand(id)}>
-            {expanded ? <KeyboardArrowUpIcon /> : <KeyboardArrowDownIcon />}
-          </IconButton>
-        </Tooltip>
-      );
-    }
-  },
+const columns = [
   {
     id: 'committedAt',
     name: LABELS.committedAt,
@@ -166,8 +114,8 @@ const getColumns = ({ expandedRows, onToggleExpand }) => [
     id: 'message',
     name: LABELS.message,
     render: (value) => (
-      <Typography variant="inherit" component="div" noWrap={true}>
-        {getSubject(value)}
+      <Typography variant="inherit" component="div" noWrap={true} title={value}>
+        {value}
       </Typography>
     )
   },
@@ -260,12 +208,6 @@ const WorkflowCommitsPage = ({ location, match }) => {
   const { workflowId } = match.params;
   const [rowsSelected, setRowsSelected] = React.useState([]);
   const [onlyReleases, setOnlyReleases] = React.useState(false);
-  const [expandedRows, setExpandedRows] = React.useState([]);
-
-  const onToggleExpand = (id) =>
-    setExpandedRows((rows) =>
-      rows.includes(id) ? rows.filter((rowId) => rowId !== id) : [...rows, id]
-    );
 
   const commits = onlyReleases ? mockCommits.filter(isRelease) : mockCommits;
 
@@ -307,11 +249,7 @@ const WorkflowCommitsPage = ({ location, match }) => {
           darkTheme={true}
           fixedTable={true}
           checkable={true}
-          columns={getColumns({ expandedRows, onToggleExpand })}
-          expandedRows={expandedRows}
-          renderExpandedRow={(commit) => <CommitDetails commit={commit} />}
-          expandedRowOffset={1}
-          searchIcon={true}
+          columns={columns}
           data={commits}
           CustomToolbar={renderToolbar}
           rowsSelected={rowsSelected}

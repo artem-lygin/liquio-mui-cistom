@@ -331,7 +331,6 @@ class DataTable extends React.Component {
 
   renderBody = () => {
     const {
-      classes,
       maxTextRows,
       t,
       data,
@@ -353,10 +352,7 @@ class DataTable extends React.Component {
       warningRows,
       errorRows,
       multiple,
-      controls,
-      expandedRows,
-      renderExpandedRow,
-      expandedRowOffset
+      controls
     } = this.props;
     const { grouping, fullscreen } = this.state;
 
@@ -384,10 +380,8 @@ class DataTable extends React.Component {
       const disabled =
         !selectable || (!multiple && rowsSelected?.length > 0 && !rowsSelected.includes(row.id));
       const disableClick = row?.meta?.isClickable === false;
-      const rowId = row.id || row.value;
-      const expanded = Boolean(renderExpandedRow) && (expandedRows || []).includes(rowId);
 
-      const dataRow = (
+      return (
         <DataTableRow
           t={t}
           key={key}
@@ -420,34 +414,6 @@ class DataTable extends React.Component {
           sortableEnabled={Boolean(controls?.sortableRows)}
           dragHandleColumnId={controls?.rowDragHandleColumnId}
         />
-      );
-
-      if (!expanded) return dataRow;
-
-      // PoC (poc/git-version-control): opt-in expandable rows. A full-width detail row
-      // right under the row, for content too long for a cell (see renderExpandedRow).
-      const visibleColumns = (columns || []).filter(
-        ({ id }) => !(hiddenColumns || []).includes(id)
-      );
-
-      // Leading cells (the checkbox column, then `expandedRowOffset` columns) stay empty, so
-      // the detail content lines up with the column after them.
-      const offset = (checkable ? 1 : 0) + (expandedRowOffset || 0);
-      const cellClassName = classNames({ [classes.cellDark]: darkTheme });
-
-      return (
-        <React.Fragment key={key}>
-          {dataRow}
-          <TableRow>
-            {offset ? <TableCell colSpan={offset} className={cellClassName} /> : null}
-            <TableCell
-              colSpan={visibleColumns.length + (checkable ? 1 : 0) - offset}
-              className={cellClassName}
-            >
-              {renderExpandedRow(row)}
-            </TableCell>
-          </TableRow>
-        </React.Fragment>
       );
     };
 
@@ -790,14 +756,7 @@ DataTable.propTypes = {
   maxHeight: PropTypes.number,
   hiddenRows: PropTypes.array,
   multiple: PropTypes.bool,
-  panel: PropTypes.bool,
-  // PoC (poc/git-version-control), opt-in: ids of expanded rows, and the detail content
-  // rendered full-width under each of them.
-  expandedRows: PropTypes.array,
-  renderExpandedRow: PropTypes.func,
-  expandedRowOffset: PropTypes.number,
-  // PoC, opt-in: leading search icon in the toolbar's search input.
-  searchIcon: PropTypes.bool
+  panel: PropTypes.bool
 };
 
 DataTable.defaultProps = {
