@@ -92,6 +92,15 @@ const ShaCell = ({ sha }) => {
   );
 };
 
+// Commit messages can be any length (subject line, blank line, body). The table shows just
+// the subject; "…" marks that it's trimmed, either because the message has more lines or
+// (via noWrap) because the subject itself overflows the cell. The full text goes on the
+// commit page.
+const getMessagePreview = (message = '') => {
+  const [subject, ...rest] = message.split('\n');
+  return rest.join('').trim() ? `${subject} …` : subject;
+};
+
 // Committed (date + author) leads as the row's human-readable name; the SHA is technical,
 // so it sits on the right. Message is the only flexible column: it takes the remaining
 // width and is cut to one line with an ellipsis (fixedTable layout). Every other column is
@@ -114,8 +123,8 @@ const columns = [
     id: 'message',
     name: LABELS.message,
     render: (value) => (
-      <Typography variant="inherit" component="div" noWrap={true} title={value}>
-        {value}
+      <Typography variant="inherit" component="div" noWrap={true}>
+        {getMessagePreview(value)}
       </Typography>
     )
   },
