@@ -1,3 +1,35 @@
+# THIS BRANCH: `poc/git-version-control` — a PoC, never merged into `main`
+
+This worktree is a **proof of concept**, not the theme project: it mocks up "git version
+control" interfaces that are being developed in the real product. Nothing here may reach
+`main` (and through it the product).
+
+- **Branch rules:** work only on `poc/git-version-control`. Bring theme work in with
+  `git merge main` when wanted; **never** merge, cherry-pick or PR this branch into `main`.
+- **Mock, don't build backend:** stub data on the front end (fixtures, fake services, local
+  state). Don't change backend services, migrations or `docker-compose.yml`. The Docker
+  backend is shared with the theme work on `main`, so anything saved through real APIs lands
+  in the same database: prefer mocks over real writes.
+- **App:** admin-front only, unless the user says otherwise.
+- **Theme:** use the existing theme and components as they are. Theme changes belong to the
+  theme project on `main`, not here; if the PoC needs one, ask first.
+- **Where it runs:** the same Windows PC as the theme work, in a second worktree, so both are
+  live at once:
+
+  | | Theme project (`main`) | This PoC |
+  |---|---|---|
+  | Mac worktree | `~/orca/liquio-mui-cistom` | `~/orca/workspaces/liquio-mui-cistom/poc-git-version-control` |
+  | PC worktree | `C:/Users/artem/orca/liquio-mui-cistom` | `C:/Users/artem/orca/liquio-poc-git-version-control` |
+  | admin-front dev server | `PORT=8082` → `admin.liquio.local` | `PORT=8092` → `poc-admin.liquio.local` |
+
+  To get a change live: commit and push this branch, then ask the `windows-pc` agent (same
+  Orca environment as below) to `git pull` **in the PoC worktree** and, for a
+  `packages/front-core` change, restart the **8092** server. Never touch the 8082/8081
+  servers or the `main` worktree from here. Everything else in the "Dev environment" section
+  below applies unchanged (never build locally, `npm install` not `npm ci`, short messages).
+
+---
+
 # Working on this repo — theme project
 
 This fork's active work is a **design-system/theme overhaul** for `admin-front` and
