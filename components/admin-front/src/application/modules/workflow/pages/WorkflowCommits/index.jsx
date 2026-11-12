@@ -1,7 +1,7 @@
 // PoC (poc/git-version-control): the workflow's git commit history, replacing the
 // "Process versions" dialog. Front-end only: rows come from ./mocks/commits.
 import React from 'react';
-import { Chip, IconButton, Tooltip, Typography } from '@mui/material';
+import { Chip, IconButton, Stack, Tooltip, Typography } from '@mui/material';
 import HistoryIcon from '@mui/icons-material/History';
 
 import LeftSidebarLayout from 'layouts/LeftSidebar';
@@ -17,7 +17,7 @@ const LABELS = {
   sha: 'SHA',
   message: 'Message',
   committedAt: 'Committed',
-  version: 'Version',
+  tags: 'Tags',
   actions: 'Actions',
   restore: 'Restore'
 };
@@ -33,6 +33,24 @@ const columns = [
       <Typography variant="inherit" fontFamily="monospace">
         {value}
       </Typography>
+    )
+  },
+  {
+    id: 'tags',
+    name: LABELS.tags,
+    width: 160,
+    // Git tags: a process version and/or 'current' (the version the workflow runs now).
+    render: (tags) => (
+      <Stack direction="row" spacing={1}>
+        {(tags || []).map((tag) => (
+          <Chip
+            key={tag}
+            size="small"
+            label={tag}
+            color={tag === 'current' ? 'primary' : 'default'}
+          />
+        ))}
+      </Stack>
     )
   },
   {
@@ -56,12 +74,6 @@ const columns = [
         </Typography>
       </>
     )
-  },
-  {
-    id: 'version',
-    name: LABELS.version,
-    width: 100,
-    render: (value) => (value ? <Chip size="small" label={value} /> : null)
   },
   {
     id: 'actions',
