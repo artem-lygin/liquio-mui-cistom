@@ -4,6 +4,7 @@ import ContactlessIcon from '@mui/icons-material/Contactless';
 
 import WorkflowListPage from './pages/WorkflowList';
 import WorkflowPage from './pages/Workflow';
+import WorkflowCommitsPage from './pages/WorkflowCommits';
 import NumberTemplateListPage from './pages/NumberTemplateList';
 import MessageTemplatesList from './pages/MessageTemplatesList';
 import QrTemplatesList from './pages/QrTemplatesList';
@@ -217,6 +218,15 @@ export default function getWorkflowModule() {
         title: 'WorkflowProcesses',
         access: {
           userHasUnit: [1000003, 1000001, 1000000041]
+        }
+      },
+      {
+        // PoC (poc/git-version-control): git commit history, mock data only.
+        path: '/workflow/:workflowId/commits',
+        component: WorkflowCommitsPage,
+        title: 'WorkflowCommits',
+        access: {
+          userHasUnit: [1000000042, 1000002, 1000000043, 1000003, 1000015, 100002, 100003]
         }
       },
       {
