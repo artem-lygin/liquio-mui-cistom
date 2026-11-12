@@ -1,9 +1,22 @@
 // PoC (poc/git-version-control): the workflow's git commit history, replacing the
 // "Process versions" dialog. Front-end only: rows come from ./mocks/commits.
 import React from 'react';
-import { Box, Chip, IconButton, Stack, Tooltip, Typography } from '@mui/material';
+import {
+  Box,
+  Button,
+  Chip,
+  FormControlLabel,
+  IconButton,
+  Menu,
+  MenuItem,
+  Stack,
+  Switch,
+  Tooltip,
+  Typography
+} from '@mui/material';
 import HistoryIcon from '@mui/icons-material/History';
 import ContentCopyIcon from '@mui/icons-material/ContentCopy';
+import AddIcon from '@mui/icons-material/Add';
 
 import LeftSidebarLayout from 'layouts/LeftSidebar';
 import DataTableStated from 'components/DataTable/DataTableStated';
@@ -22,7 +35,11 @@ const LABELS = {
   actions: 'Actions',
   restore: 'Restore',
   copySha: 'Copy SHA',
-  copied: 'Copied'
+  copied: 'Copied',
+  create: 'Create',
+  createCommit: 'Create commit',
+  createVersion: 'Create version',
+  versionsOnly: 'Versions only'
 };
 
 // navigator.clipboard only exists in secure contexts; the dev hosts are plain http, so
@@ -142,9 +159,61 @@ const columns = [
   }
 ];
 
+// A version tag is any tag other than 'current' (e.g. '1.2').
+const hasVersionTag = (commit) => (commit.tags || []).some((tag) => tag !== 'current');
+
+// Toolbar, right of search: the "Versions only" filter, then Create (the row's single
+// contained action, last per the admin toolbar convention). Create opens a menu; both
+// options are stubs for now.
+const CommitsToolbar = ({ versionsOnly, onVersionsOnlyChange }) => {
+  const [anchorEl, setAnchorEl] = React.useState(null);
+  const close = () => setAnchorEl(null);
+
+  return (
+    <>
+      <FormControlLabel
+        control={
+          <Switch
+            checked={versionsOnly}
+            onChange={(event) => onVersionsOnlyChange(event.target.checked)}
+          />
+        }
+        label={LABELS.versionsOnly}
+      />
+      <Button
+        variant="contained"
+        color="primary"
+        startIcon={<AddIcon />}
+        onClick={(event) => setAnchorEl(event.currentTarget)}
+        aria-haspopup="menu"
+        aria-expanded={Boolean(anchorEl)}
+      >
+        {LABELS.create}
+      </Button>
+      <Menu
+        anchorEl={anchorEl}
+        open={Boolean(anchorEl)}
+        onClose={close}
+        anchorOrigin={{ vertical: 'bottom', horizontal: 'right' }}
+        transformOrigin={{ vertical: 'top', horizontal: 'right' }}
+      >
+        <MenuItem onClick={close}>{LABELS.createCommit}</MenuItem>
+        <MenuItem onClick={close}>{LABELS.createVersion}</MenuItem>
+      </Menu>
+    </>
+  );
+};
+
 const WorkflowCommitsPage = ({ location, match }) => {
   const { workflowId } = match.params;
   const [rowsSelected, setRowsSelected] = React.useState([]);
+  const [versionsOnly, setVersionsOnly] = React.useState(false);
+
+  const commits = versionsOnly ? mockCommits.filter(hasVersionTag) : mockCommits;
+
+  const renderToolbar = () => (
+    <CommitsToolbar versionsOnly={versionsOnly} onVersionsOnlyChange={setVersionsOnly} />
+  );
 
   // Row click target (the commit page) is the next PoC step.
   const handleRowClick = () => {};
@@ -155,25 +224,36 @@ const WorkflowCommitsPage = ({ location, match }) => {
       title={LABELS.title}
       backButton={`/workflow/${workflowId}`}
     >
-      <DataTableStated
-        panel={true}
-        darkTheme={true}
-        fixedTable={true}
-        checkable={true}
-        columns={columns}
-        data={mockCommits}
-        rowsSelected={rowsSelected}
-        actions={{ onRowsSelect: setRowsSelected }}
-        onRowClick={handleRowClick}
-        controls={{
-          pagination: true,
-          toolbar: true,
-          search: true,
-          header: true,
-          refresh: false,
-          bottomPagination: true
-        }}
-      />
+      {/* DataTable renders a row's first column as <th scope="row">, but its row-hover rule
+          only recolours <td>, so Committed (the primary column) stayed unhighlighted. PoC-local
+          fix, same token as DataTableRow's hover rule; the shared component is theme-project
+          territory (main). */}
+      <Box
+        sx={(theme) => ({
+          '& tbody tr:hover > th': { color: `${theme.dataTableHoverColor} !important` }
+        })}
+      >
+        <DataTableStated
+          panel={true}
+          darkTheme={true}
+          fixedTable={true}
+          checkable={true}
+          columns={columns}
+          data={commits}
+          CustomToolbar={renderToolbar}
+          rowsSelected={rowsSelected}
+          actions={{ onRowsSelect: setRowsSelected }}
+          onRowClick={handleRowClick}
+          controls={{
+            pagination: true,
+            toolbar: true,
+            search: true,
+            header: true,
+            refresh: false,
+            bottomPagination: true
+          }}
+        />
+      </Box>
     </LeftSidebarLayout>
   );
 };
