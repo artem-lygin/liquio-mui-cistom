@@ -1,7 +1,6 @@
 // PoC (poc/git-version-control): the workflow's git commit history, replacing the
 // "Process versions" dialog. Front-end only: rows come from ./mocks/commits.
 import React from 'react';
-import { useTranslate } from 'react-translate';
 import { Chip, IconButton, Tooltip, Typography } from '@mui/material';
 import HistoryIcon from '@mui/icons-material/History';
 
@@ -11,62 +10,78 @@ import TimeLabel from 'components/Label/Time';
 
 import mockCommits from './mocks/commits';
 
-// Long messages/author names are cut to one line with an ellipsis (fixedTable layout).
-const Truncated = ({ children }) => (
-  <Typography variant="inherit" component="div" noWrap={true} title={children}>
-    {children}
-  </Typography>
-);
+// PoC copy is plain English on purpose: the app's English strings live in front-core's
+// en-GB.js (theme project territory), so translation keys here would render raw.
+const LABELS = {
+  title: 'Commits',
+  sha: 'SHA',
+  message: 'Message',
+  committedAt: 'Committed',
+  version: 'Version',
+  actions: 'Actions',
+  restore: 'Restore'
+};
 
-const WorkflowCommitsPage = ({ location, title, match }) => {
-  const t = useTranslate('WorkflowCommitsPage');
+// Message is the only flexible column: it takes the remaining width and is cut to one
+// line with an ellipsis (fixedTable layout). Every other column is sized to its content.
+const columns = [
+  {
+    id: 'sha',
+    name: LABELS.sha,
+    width: 120,
+    render: (value) => (
+      <Typography variant="inherit" fontFamily="monospace">
+        {value}
+      </Typography>
+    )
+  },
+  {
+    id: 'message',
+    name: LABELS.message,
+    render: (value) => (
+      <Typography variant="inherit" component="div" noWrap={true} title={value}>
+        {value}
+      </Typography>
+    )
+  },
+  {
+    id: 'committedAt',
+    name: LABELS.committedAt,
+    width: 220,
+    render: (value, { author }) => (
+      <>
+        <TimeLabel date={value} />
+        <Typography variant="body2" color="text.secondary" noWrap={true} title={author}>
+          by {author}
+        </Typography>
+      </>
+    )
+  },
+  {
+    id: 'version',
+    name: LABELS.version,
+    width: 100,
+    render: (value) => (value ? <Chip size="small" label={value} /> : null)
+  },
+  {
+    id: 'actions',
+    name: LABELS.actions,
+    width: 88,
+    align: 'right',
+    disableClick: true,
+    render: () => (
+      <Tooltip title={LABELS.restore}>
+        <IconButton>
+          <HistoryIcon />
+        </IconButton>
+      </Tooltip>
+    )
+  }
+];
+
+const WorkflowCommitsPage = ({ location, match }) => {
   const { workflowId } = match.params;
   const [rowsSelected, setRowsSelected] = React.useState([]);
-
-  const columns = [
-    {
-      id: 'sha',
-      name: t('Sha'),
-      width: 160,
-      render: (value) => <Typography variant="inherit" fontFamily="monospace">{value}</Typography>
-    },
-    {
-      id: 'message',
-      name: t('Message'),
-      render: (value) => <Truncated>{value}</Truncated>
-    },
-    {
-      id: 'author',
-      name: t('Author'),
-      render: (value) => <Truncated>{value}</Truncated>
-    },
-    {
-      id: 'createdAt',
-      name: t('Date'),
-      width: 200,
-      render: (value) => <TimeLabel date={value} />
-    },
-    {
-      id: 'version',
-      name: t('Version'),
-      width: 160,
-      render: (value) => (value ? <Chip size="small" label={value} /> : null)
-    },
-    {
-      id: 'actions',
-      name: t('Actions'),
-      width: 80,
-      align: 'right',
-      disableClick: true,
-      render: () => (
-        <Tooltip title={t('Restore')}>
-          <IconButton>
-            <HistoryIcon />
-          </IconButton>
-        </Tooltip>
-      )
-    }
-  ];
 
   // Row click target (the commit page) is the next PoC step.
   const handleRowClick = () => {};
@@ -74,7 +89,7 @@ const WorkflowCommitsPage = ({ location, title, match }) => {
   return (
     <LeftSidebarLayout
       location={location}
-      title={t(title)}
+      title={LABELS.title}
       backButton={`/workflow/${workflowId}`}
     >
       <DataTableStated

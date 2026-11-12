@@ -224,7 +224,7 @@ export default function getWorkflowModule() {
         // PoC (poc/git-version-control): git commit history, mock data only.
         path: '/workflow/:workflowId/commits',
         component: WorkflowCommitsPage,
-        title: 'WorkflowCommits',
+        title: 'Commits',
         access: {
           userHasUnit: [1000000042, 1000002, 1000000043, 1000003, 1000015, 100002, 100003]
         }

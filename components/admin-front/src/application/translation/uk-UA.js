@@ -31,17 +31,6 @@ export default {
     KeyList: 'Ключі реєстру',
     RegistryMetricsTitle: 'Метрики реєстрів',
     TranslationsPageTitle: 'Переклади',
-    WorkflowCommits: 'Коміти',
-  },
-  WorkflowCommitsPage: {
-    WorkflowCommits: 'Коміти',
-    Sha: 'SHA',
-    Message: 'Повідомлення',
-    Author: 'Автор',
-    Date: 'Дата',
-    Version: 'Версія',
-    Actions: 'Дії',
-    Restore: 'Відновити'
   },
   DataTable: {
     ...ua.DataTable,
