@@ -117,6 +117,7 @@ const DataTableToolbar = (props) => {
     bottomToolbar,
     darkTheme,
     searchPlaceholder,
+    searchIcon,
     loading,
     updateOnChangeSearch = true,
     OnSelectActions = false,
@@ -175,6 +176,7 @@ const DataTableToolbar = (props) => {
               filterHandlers={filterHandlers}
               darkTheme={darkTheme}
               searchPlaceholder={searchPlaceholder}
+              searchIcon={searchIcon}
               updateOnChangeSearch={updateOnChangeSearch}
             />
           ) : null}
