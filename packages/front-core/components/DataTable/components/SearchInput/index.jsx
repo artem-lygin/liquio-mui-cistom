@@ -111,7 +111,7 @@ const SearchInput = ({
             startAdornment={
               <>
                 {/* PoC (poc/git-version-control): opt-in leading icon, see DataTable searchIcon. */}
-                {searchIcon ? <SearchIcon fontSize="small" color="action" /> : null}
+                {searchIcon ? <SearchIcon fontSize="small" color="action" sx={{ mr: 2 }} /> : null}
                 <FilterChips
                 filters={filters}
                 onClose={handleClose}

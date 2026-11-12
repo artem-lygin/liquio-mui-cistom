@@ -355,7 +355,8 @@ class DataTable extends React.Component {
       multiple,
       controls,
       expandedRows,
-      renderExpandedRow
+      renderExpandedRow,
+      expandedRowOffset
     } = this.props;
     const { grouping, fullscreen } = this.state;
 
@@ -429,13 +430,19 @@ class DataTable extends React.Component {
         ({ id }) => !(hiddenColumns || []).includes(id)
       );
 
+      // Leading cells (the checkbox column, then `expandedRowOffset` columns) stay empty, so
+      // the detail content lines up with the column after them.
+      const offset = (checkable ? 1 : 0) + (expandedRowOffset || 0);
+      const cellClassName = classNames({ [classes.cellDark]: darkTheme });
+
       return (
         <React.Fragment key={key}>
           {dataRow}
           <TableRow>
+            {offset ? <TableCell colSpan={offset} className={cellClassName} /> : null}
             <TableCell
-              colSpan={visibleColumns.length + (checkable ? 1 : 0)}
-              className={classNames({ [classes.cellDark]: darkTheme })}
+              colSpan={visibleColumns.length + (checkable ? 1 : 0) - offset}
+              className={cellClassName}
             >
               {renderExpandedRow(row)}
             </TableCell>
@@ -788,6 +795,7 @@ DataTable.propTypes = {
   // rendered full-width under each of them.
   expandedRows: PropTypes.array,
   renderExpandedRow: PropTypes.func,
+  expandedRowOffset: PropTypes.number,
   // PoC, opt-in: leading search icon in the toolbar's search input.
   searchIcon: PropTypes.bool
 };

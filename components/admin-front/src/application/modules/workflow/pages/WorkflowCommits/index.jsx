@@ -109,7 +109,8 @@ const DetailsSection = ({ title, text }) => (
     <Typography variant="subtitle2" color="text.secondary" gutterBottom={true}>
       {title}
     </Typography>
-    <Typography variant="body2" component="div" whiteSpace="pre-wrap">
+    {/* Long-form text: capped line length so it stays readable on wide screens. */}
+    <Typography variant="body2" component="div" whiteSpace="pre-wrap" maxWidth="100ch">
       {text}
     </Typography>
   </Box>
@@ -309,6 +310,7 @@ const WorkflowCommitsPage = ({ location, match }) => {
           columns={getColumns({ expandedRows, onToggleExpand })}
           expandedRows={expandedRows}
           renderExpandedRow={(commit) => <CommitDetails commit={commit} />}
+          expandedRowOffset={1}
           searchIcon={true}
           data={commits}
           CustomToolbar={renderToolbar}
