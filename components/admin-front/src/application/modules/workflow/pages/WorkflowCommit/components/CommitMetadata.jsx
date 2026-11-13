@@ -15,8 +15,11 @@ import TimeLabel from 'components/Label/Time';
 
 import ShaCopy from '../../WorkflowCommits/components/ShaCopy';
 
-const Row = ({ label, children }) => (
+// Details row: label + value. Every row after the first starts with a full-width divider
+// (spanning both grid columns), so the grid's rowGap sits on both sides of it.
+const Row = ({ label, children, first = false }) => (
   <>
+    {first ? null : <Divider sx={{ gridColumn: '1 / -1' }} />}
     <Typography variant="body2" color="text.secondary">
       {label}
     </Typography>
@@ -118,7 +121,7 @@ const CommitMetadata = ({ commit }) => {
             columnGap={4}
             rowGap={4}
           >
-            <Row label="Author">
+            <Row label="Author" first={true}>
               <Typography variant="body2">{commit.author}</Typography>
             </Row>
             <Row label="Committed">
