@@ -14,7 +14,7 @@ import LeftSidebarLayout from 'layouts/LeftSidebar';
 
 import mockCommits from '../WorkflowCommits/mocks/commits';
 import { getCompareFiles } from '../WorkflowCommit/mocks/files';
-import { CommitRow } from '../WorkflowCommit/components/CommitMetadata';
+import { CommitRowGroup } from '../WorkflowCommit/components/CommitMetadata';
 import CommitViewer from '../WorkflowCommit/components/CommitViewer';
 
 const WorkflowComparePage = ({ location, match }) => {
@@ -56,9 +56,12 @@ const WorkflowComparePage = ({ location, match }) => {
               </Tooltip>
             </Box>
             <Box flex={1} minWidth={0}>
-              <CommitRow key={baseSha} age={ageOf(base)} commit={base} />
-              <Divider />
-              <CommitRow key={targetSha} age={ageOf(target)} commit={target} />
+              <CommitRowGroup
+                rows={[
+                  { commit: base, age: ageOf(base) },
+                  { commit: target, age: ageOf(target) }
+                ]}
+              />
             </Box>
           </Paper>
           <CommitViewer

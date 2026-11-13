@@ -42,7 +42,10 @@ const VERSION_BUTTON_GAP = 5;
 // One commit's row plus its release comment (when open), without a panel around it, so the
 // compare page can stack two of them in one panel. Each row expands on its own.
 // `age` ('Newer' / 'Older', compare page only) adds a pill after the date and author.
-export const CommitRow = ({ commit, age }) => {
+// `aligned` (inside CommitRowGroup): the row joins the group's grid as a subgrid, so every
+// column is exactly as wide as in the other rows, and the version column is kept even when
+// this commit has no tags.
+export const CommitRow = ({ commit, age, aligned = false }) => {
   const [open, setOpen] = React.useState(false);
   const tags = commit.tags || [];
   const version = tags.find((tag) => tag !== 'current');
@@ -54,9 +57,14 @@ export const CommitRow = ({ commit, age }) => {
   let commentTooltip = 'Version has no comment';
   if (comment) commentTooltip = open ? 'Hide release comment' : 'Show release comment';
 
+  const rowLayout = aligned
+    ? { display: 'grid', gridTemplateColumns: 'subgrid', gridColumn: '1 / -1' }
+    : { display: 'flex', gap: GROUP_GAP };
+  const fullWidth = aligned ? { gridColumn: '1 / -1' } : undefined;
+
   return (
     <>
-      <Box display="flex" alignItems="center" gap={GROUP_GAP} p={4}>
+      <Box alignItems="center" p={4} {...rowLayout}>
         {/* Date and author on one line. TimeLabel reserves a min-width for table columns;
             dropped here so "by" follows the date directly. */}
         <Stack direction="row" spacing={1} alignItems="center" flexShrink={0}>
@@ -131,6 +139,12 @@ export const CommitRow = ({ commit, age }) => {
             <Divider orientation="vertical" flexItem={true} />
           </>
         ) : null}
+        {!tags.length && aligned ? (
+          <>
+            <Box />
+            <Divider orientation="vertical" flexItem={true} />
+          </>
+        ) : null}
         {/* Restore, always last on the right, after its own divider. Wrapped so it's the
             first child of its box: the theme's buttonGap would otherwise add a margin on top of
             the row's column gap. */}
@@ -147,8 +161,8 @@ export const CommitRow = ({ commit, age }) => {
       </Box>
       {comment && open ? (
         <>
-          <Divider />
-          <Box p={4}>
+          <Divider sx={fullWidth} />
+          <Box p={4} sx={fullWidth}>
             <Typography variant="body2" color="text.secondary" gutterBottom={true}>
               Release comment · version {version}
             </Typography>
@@ -161,6 +175,22 @@ export const CommitRow = ({ commit, age }) => {
     </>
   );
 };
+
+// Rows of several commits (compare page) as one table: a grid whose columns every row shares
+// via subgrid: date + author | divider | message | SHA | divider | version | divider | restore.
+// Only the message column flexes; the others are as wide as their widest cell.
+const GROUP_COLUMNS = 'auto auto minmax(0, 1fr) auto auto auto auto auto';
+
+export const CommitRowGroup = ({ rows }) => (
+  <Box display="grid" gridTemplateColumns={GROUP_COLUMNS} columnGap={GROUP_GAP}>
+    {rows.map(({ commit, age }, index) => (
+      <React.Fragment key={commit.sha}>
+        {index ? <Divider sx={{ gridColumn: '1 / -1' }} /> : null}
+        <CommitRow commit={commit} age={age} aligned={true} />
+      </React.Fragment>
+    ))}
+  </Box>
+);
 
 // The commit page's metadata card: one commit row in a panel.
 const CommitMetadata = ({ commit }) => (
