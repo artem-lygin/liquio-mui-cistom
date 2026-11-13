@@ -1,25 +1,20 @@
-// PoC (poc/git-version-control): compare two commits picked in the commits table. Both
-// commits' metadata cards on top (base, then target), then the same commit viewer as the
-// commit page, opened on Show difference. The older commit is always the base, whichever
-// order the two were picked in. Front-end only: commits and files come from mocks.
+// PoC (poc/git-version-control): compare two commits picked in the commits table. One panel
+// on top with both commits' rows ("Base", then "Compared with", divided), and a swap button
+// on its left that flips them, so the diff can be read either way (what was added since the
+// older one, or what was removed relative to the newer one). Then the same commit viewer as
+// the commit page, opened on Show difference. From the table the older commit is the base;
+// swapping just reverses the URL. Front-end only: commits and files come from mocks.
 import React from 'react';
-import { Stack, Typography } from '@mui/material';
+import { Box, Divider, IconButton, Paper, Stack, Tooltip, Typography } from '@mui/material';
+import SwapIcon from '@mui/icons-material/SwapVert';
 
+import { history } from 'store';
 import LeftSidebarLayout from 'layouts/LeftSidebar';
 
 import mockCommits from '../WorkflowCommits/mocks/commits';
 import { getCompareFiles } from '../WorkflowCommit/mocks/files';
-import CommitMetadata from '../WorkflowCommit/components/CommitMetadata';
+import { CommitRow } from '../WorkflowCommit/components/CommitMetadata';
 import CommitViewer from '../WorkflowCommit/components/CommitViewer';
-
-const Side = ({ label, commit }) => (
-  <Stack spacing={2}>
-    <Typography variant="body2" color="text.secondary">
-      {label}
-    </Typography>
-    <CommitMetadata commit={commit} />
-  </Stack>
-);
 
 const WorkflowComparePage = ({ location, match }) => {
   const { workflowId, baseSha, targetSha } = match.params;
@@ -30,6 +25,9 @@ const WorkflowComparePage = ({ location, match }) => {
     [base, target, baseSha, targetSha]
   );
 
+  const handleSwap = () =>
+    history.push(`/workflow/${workflowId}/commits/compare/${targetSha}/${baseSha}`);
+
   return (
     <LeftSidebarLayout
       location={location}
@@ -38,10 +36,30 @@ const WorkflowComparePage = ({ location, match }) => {
     >
       {base && target ? (
         <Stack spacing={4}>
-          <Side label="Base" commit={base} />
-          <Side label="Compared with" commit={target} />
+          <Paper elevation={2} sx={{ display: 'flex', overflow: 'hidden' }}>
+            <Box
+              display="flex"
+              alignItems="center"
+              px={2}
+              borderRight={1}
+              borderColor="divider"
+              flexShrink={0}
+            >
+              <Tooltip title="Swap base and compared">
+                <IconButton onClick={handleSwap}>
+                  <SwapIcon />
+                </IconButton>
+              </Tooltip>
+            </Box>
+            <Box flex={1} minWidth={0}>
+              <CommitRow key={baseSha} label="Base" commit={base} />
+              <Divider />
+              <CommitRow key={targetSha} label="Compared with" commit={target} />
+            </Box>
+          </Paper>
           <CommitViewer
-            key={`${baseSha}..${targetSha}`}
+            // Same key both ways round: swapping keeps the selected file and the diff toggle.
+            key={[baseSha, targetSha].sort().join('..')}
             files={files}
             base={base}
             target={target}

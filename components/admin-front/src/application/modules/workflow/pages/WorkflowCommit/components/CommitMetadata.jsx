@@ -39,7 +39,13 @@ const GROUP_GAP = 8;
 // Gap between the version tags and the release comment button, in spacing units.
 const VERSION_BUTTON_GAP = 5;
 
-const CommitMetadata = ({ commit }) => {
+// Width of the optional role label ("Base", "Compared with") on the compare page, so the
+// two rows' columns start at the same x.
+const LABEL_WIDTH = 112;
+
+// One commit's row plus its release comment (when open), without a panel around it, so the
+// compare page can stack two of them in one panel. Each row expands on its own.
+export const CommitRow = ({ commit, label }) => {
   const [open, setOpen] = React.useState(false);
   const tags = commit.tags || [];
   const version = tags.find((tag) => tag !== 'current');
@@ -52,8 +58,13 @@ const CommitMetadata = ({ commit }) => {
   if (comment) commentTooltip = open ? 'Hide release comment' : 'Show release comment';
 
   return (
-    <Paper elevation={2} sx={{ overflow: 'hidden' }}>
+    <>
       <Box display="flex" alignItems="center" gap={GROUP_GAP} p={4}>
+        {label ? (
+          <Typography variant="subtitle2" width={LABEL_WIDTH} flexShrink={0}>
+            {label}
+          </Typography>
+        ) : null}
         {/* Date and author on one line. TimeLabel reserves a min-width for table columns;
             dropped here so "by" follows the date directly. */}
         <Stack direction="row" spacing={1} alignItems="center" flexShrink={0}>
@@ -147,8 +158,15 @@ const CommitMetadata = ({ commit }) => {
           </Box>
         </>
       ) : null}
-    </Paper>
+    </>
   );
 };
+
+// The commit page's metadata card: one commit row in a panel.
+const CommitMetadata = ({ commit }) => (
+  <Paper elevation={2} sx={{ overflow: 'hidden' }}>
+    <CommitRow commit={commit} />
+  </Paper>
+);
 
 export default CommitMetadata;
