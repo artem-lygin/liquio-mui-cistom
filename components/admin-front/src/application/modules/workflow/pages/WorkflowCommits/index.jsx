@@ -40,7 +40,7 @@ const LABELS = {
   restore: 'Restore',
   restoreCurrent: 'This is the current version',
   createVersion: 'Create version',
-  onlyReleases: 'With versions',
+  onlyReleases: 'Releases only',
   compare: 'Compare',
   compareTooltip: 'Compare selected commits',
   compareHint: 'Select two commits to compare'
@@ -149,11 +149,14 @@ const columns = [
 
 
 // Toolbar, right of search, in two groups split by a divider:
-// - View settings: the "With versions" filter (label left of its switch).
+// - View settings: the "Releases only" filter (label left of its switch).
 // - Actions: Compare (outlined button, enabled only while exactly two commits are checked).
 // There's no Create button: versions are created per row (see the actions column).
 const ViewSettings = ({ onlyReleases, onOnlyReleasesChange }) => (
+  // mr 0: MUI gives a start-placed label a -11px right margin (to pull the switch flush with
+  // the edge), which left the switch almost touching the divider after it.
   <FormControlLabel
+    sx={{ mr: 0 }}
     labelPlacement="start"
     control={
       <Switch
