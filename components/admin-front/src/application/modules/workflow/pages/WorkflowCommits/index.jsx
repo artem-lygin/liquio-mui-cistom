@@ -139,15 +139,13 @@ const columns = [
 
 
 // Toolbar, right of search, in two groups split by a divider:
-// - View settings: the "Releases only" filter (label left of its switch).
+// - View settings: the "Releases only" filter (switch, then its label).
 // - Actions: Compare (outlined button, enabled only while exactly two commits are checked).
 // There's no Create button: versions are created per row (see the actions column).
 const ViewSettings = ({ onlyReleases, onOnlyReleasesChange }) => (
-  // mr 0: MUI gives a start-placed label a -11px right margin (to pull the switch flush with
-  // the edge), which left the switch almost touching the divider after it.
+  // Switch first, label after it (MUI's default placement; its label keeps MUI's 16px right
+  // margin before the divider).
   <FormControlLabel
-    sx={{ mr: 0 }}
-    labelPlacement="start"
     control={
       <Switch
         size="small"
@@ -162,7 +160,9 @@ const ViewSettings = ({ onlyReleases, onOnlyReleasesChange }) => (
 const CommitsToolbar = ({ onlyReleases, onOnlyReleasesChange, onCompare }) => (
   <>
     <ViewSettings onlyReleases={onlyReleases} onOnlyReleasesChange={onOnlyReleasesChange} />
-    <Divider orientation="vertical" variant="middle" flexItem={true} sx={{ mx: 4 }} />
+    {/* Divider: 16px + the label's own 16px on the left = 32px; 20px + the theme's 12px
+        buttonGap before Compare on the right = 32px, so it sits centred between them. */}
+    <Divider orientation="vertical" variant="middle" flexItem={true} sx={{ ml: 4, mr: 5 }} />
     <Tooltip title={onCompare ? LABELS.compareTooltip : LABELS.compareHint}>
       {/* span: a disabled button fires no events, so the tooltip needs a wrapper. */}
       <span>
