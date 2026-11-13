@@ -1,11 +1,18 @@
-// PoC (poc/git-version-control): commit metadata card. One row per field; tags and the
-// release comment only appear when the commit has them.
+// PoC (poc/git-version-control): commit metadata card, in two modes.
+// - Compact (default): one row of columns (author, committed, SHA, message subject, tags).
+// - Details: one row per field, with the full message and the release comment. The release
+//   comment only appears here.
+// "Details" toggles the mode; "Restore" sits on the right in both (mock only, no action yet).
 import React from 'react';
-import { Box, Chip, Link, Paper, Stack, Typography } from '@mui/material';
+import { Box, Button, Chip, IconButton, Paper, Stack, Tooltip, Typography } from '@mui/material';
+import HistoryIcon from '@mui/icons-material/History';
+import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
+import ExpandLessIcon from '@mui/icons-material/ExpandLess';
 
 import TimeLabel from 'components/Label/Time';
 
 import ShaCopy from '../../WorkflowCommits/components/ShaCopy';
+import getMessagePreview from '../../WorkflowCommits/messagePreview';
 
 const Row = ({ label, children }) => (
   <>
@@ -16,6 +23,18 @@ const Row = ({ label, children }) => (
   </>
 );
 
+// Compact column: small label above a one-line value.
+const Column = ({ label, children, grow = false }) => (
+  <Box minWidth={0} flex={grow ? '1 1 0' : '0 0 auto'}>
+    <Typography variant="caption" component="div" color="text.secondary">
+      {label}
+    </Typography>
+    <Typography variant="body2" component="div" noWrap={true}>
+      {children}
+    </Typography>
+  </Box>
+);
+
 // Long-form text (message, release comment): keeps line breaks, capped line length.
 const LongText = ({ children }) => (
   <Typography variant="body2" component="div" whiteSpace="pre-wrap" maxWidth="100ch">
@@ -23,107 +42,95 @@ const LongText = ({ children }) => (
   </Typography>
 );
 
-// Release comment can be long: show the first `lines` lines, then "Show more" to expand.
-// The toggle only appears when the text actually overflows the clamp.
-const ClampedText = ({ children, lines = 3 }) => {
-  const ref = React.useRef(null);
-  const [expanded, setExpanded] = React.useState(false);
-  const [overflows, setOverflows] = React.useState(false);
-
-  React.useLayoutEffect(() => {
-    const node = ref.current;
-    if (!node || expanded) return undefined;
-    const measure = () => setOverflows(node.scrollHeight > node.clientHeight + 1);
-    measure();
-    const observer = new ResizeObserver(measure);
-    observer.observe(node);
-    return () => observer.disconnect();
-  }, [children, expanded, lines]);
-
-  return (
-    <Box maxWidth="100ch">
-      <Typography
-        ref={ref}
-        variant="body2"
-        component="div"
-        whiteSpace="pre-wrap"
-        sx={
-          expanded
-            ? undefined
-            : {
-                display: '-webkit-box',
-                WebkitBoxOrient: 'vertical',
-                WebkitLineClamp: lines,
-                overflow: 'hidden'
-              }
-        }
-      >
-        {children}
-      </Typography>
-      {overflows || expanded ? (
-        <Link
-          component="button"
-          type="button"
-          variant="body2"
-          onClick={() => setExpanded((value) => !value)}
-          sx={{ mt: 1 }}
-        >
-          {expanded ? 'Show less' : 'Show more'}
-        </Link>
-      ) : null}
-    </Box>
-  );
-};
+const Tags = ({ tags }) => (
+  <Stack direction="row" spacing={1}>
+    {tags.map((tag) => (
+      <Chip key={tag} size="small" label={tag} color={tag === 'current' ? 'primary' : 'default'} />
+    ))}
+  </Stack>
+);
 
 const CommitMetadata = ({ commit }) => {
+  const [details, setDetails] = React.useState(false);
   const tags = commit.tags || [];
   const version = tags.find((tag) => tag !== 'current');
 
+  const actions = (
+    <Stack direction="row" spacing={1} alignItems="center" flexShrink={0}>
+      <Button
+        onClick={() => setDetails((value) => !value)}
+        endIcon={details ? <ExpandLessIcon /> : <ExpandMoreIcon />}
+      >
+        Details
+      </Button>
+      <Tooltip title="Restore">
+        <IconButton>
+          <HistoryIcon />
+        </IconButton>
+      </Tooltip>
+    </Stack>
+  );
+
   return (
     <Paper elevation={2}>
-      <Box
-        display="grid"
-        gridTemplateColumns="160px minmax(0, 1fr)"
-        alignItems="baseline"
-        columnGap={4}
-        rowGap={4}
-        p={4}
-      >
-        <Row label="Author">
-          <Typography variant="body2">{commit.author}</Typography>
-        </Row>
-        <Row label="Committed">
-          <Typography variant="body2" component="div">
-            <TimeLabel date={commit.committedAt} />
-          </Typography>
-        </Row>
-        <Row label="SHA">
-          <Typography variant="body2" component="div">
-            <ShaCopy sha={commit.sha} />
-          </Typography>
-        </Row>
-        <Row label="Message">
-          <LongText>{commit.message}</LongText>
-        </Row>
-        {tags.length ? (
-          <Row label="Tags">
-            <Stack direction="row" spacing={1}>
-              {tags.map((tag) => (
-                <Chip
-                  key={tag}
-                  size="small"
-                  label={tag}
-                  color={tag === 'current' ? 'primary' : 'default'}
-                />
-              ))}
-            </Stack>
-          </Row>
-        ) : null}
-        {version && commit.releaseComment ? (
-          <Row label="Release comment">
-            <ClampedText>{commit.releaseComment}</ClampedText>
-          </Row>
-        ) : null}
+      <Box display="flex" alignItems={details ? 'flex-start' : 'center'} gap={4} p={4}>
+        {details ? (
+          <Box
+            flex="1 1 0"
+            minWidth={0}
+            display="grid"
+            gridTemplateColumns="160px minmax(0, 1fr)"
+            alignItems="baseline"
+            columnGap={4}
+            rowGap={4}
+          >
+            <Row label="Author">
+              <Typography variant="body2">{commit.author}</Typography>
+            </Row>
+            <Row label="Committed">
+              <Typography variant="body2" component="div">
+                <TimeLabel date={commit.committedAt} />
+              </Typography>
+            </Row>
+            <Row label="SHA">
+              <Typography variant="body2" component="div">
+                <ShaCopy sha={commit.sha} />
+              </Typography>
+            </Row>
+            <Row label="Message">
+              <LongText>{commit.message}</LongText>
+            </Row>
+            {tags.length ? (
+              <Row label="Tags">
+                <Tags tags={tags} />
+              </Row>
+            ) : null}
+            {version && commit.releaseComment ? (
+              <Row label="Release comment">
+                <LongText>{commit.releaseComment}</LongText>
+              </Row>
+            ) : null}
+          </Box>
+        ) : (
+          <Box flex="1 1 0" minWidth={0} display="flex" alignItems="flex-start" gap={4}>
+            <Column label="Author">{commit.author}</Column>
+            <Column label="Committed">
+              <TimeLabel date={commit.committedAt} />
+            </Column>
+            <Column label="SHA">
+              <ShaCopy sha={commit.sha} />
+            </Column>
+            <Column label="Message" grow={true}>
+              {getMessagePreview(commit.message)}
+            </Column>
+            {tags.length ? (
+              <Column label="Tags">
+                <Tags tags={tags} />
+              </Column>
+            ) : null}
+          </Box>
+        )}
+        {actions}
       </Box>
     </Paper>
   );

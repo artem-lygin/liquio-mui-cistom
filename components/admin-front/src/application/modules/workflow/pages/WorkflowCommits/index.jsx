@@ -24,6 +24,7 @@ import TimeLabel from 'components/Label/Time';
 
 import mockCommits from './mocks/commits';
 import ShaCopy from './components/ShaCopy';
+import getMessagePreview from './messagePreview';
 
 // PoC copy is plain English on purpose: the app's English strings live in front-core's
 // en-GB.js (theme project territory), so translation keys here would render raw.
@@ -39,15 +40,6 @@ const LABELS = {
   createCommit: 'Create commit',
   createVersion: 'Create version',
   onlyReleases: 'Only releases'
-};
-
-// Commit messages can be any length (subject line, blank line, body). The table shows just
-// the subject; "…" marks that it's trimmed, either because the message has more lines or
-// (via noWrap) because the subject itself overflows the cell. The full text goes on the
-// commit page.
-const getMessagePreview = (message = '') => {
-  const [subject, ...rest] = message.split('\n');
-  return rest.join('').trim() ? `${subject} …` : subject;
 };
 
 // Committed (date + author) leads as the row's human-readable name; the SHA is technical,
