@@ -1,9 +1,9 @@
 // PoC (poc/git-version-control): commit metadata card. One row laid out like a row of the
 // commits table: committed date "by <author>", the message (up to two lines), then
-// "Version" + tags, SHA and actions (Restore, release comment).
+// "Version" + tags, SHA and actions (release comment, Restore).
 // The release comment button expands the card to show the version's release comment under the
-// row; clicking it again (or the row) hides it. A commit without a version, or a version with
-// no comment, gets the crossed-out icon, disabled.
+// row; clicking it again hides it. A version with no comment gets the crossed-out icon,
+// disabled; a commit that isn't a version has no comment button at all.
 import React from 'react';
 import { Box, Chip, Divider, IconButton, Paper, Stack, Tooltip, Typography } from '@mui/material';
 import HistoryIcon from '@mui/icons-material/History';
@@ -44,36 +44,12 @@ const CommitMetadata = ({ commit }) => {
   const comment = version ? commit.releaseComment : null;
   const toggle = () => setOpen((value) => !value);
 
-  // With a comment, the whole row is a toggle too (hover highlight, Enter/Space). The comment
-  // area itself isn't, so its text can be selected.
-  const rowProps = comment
-    ? {
-        role: 'button',
-        tabIndex: 0,
-        'aria-expanded': open,
-        onClick: toggle,
-        onKeyDown: (event) => {
-          if (event.target !== event.currentTarget) return;
-          if (event.key === 'Enter' || event.key === ' ') {
-            event.preventDefault();
-            toggle();
-          }
-        },
-        sx: {
-          cursor: 'pointer',
-          '&:hover': { backgroundColor: 'action.hover' },
-          '&:focus-visible': { backgroundColor: 'action.focus', outline: 'none' }
-        }
-      }
-    : {};
-
-  let commentTooltip = 'Not a version';
+  let commentTooltip = 'Version has no comment';
   if (comment) commentTooltip = open ? 'Hide release comment' : 'Show release comment';
-  else if (version) commentTooltip = 'Version has no comment';
 
   return (
     <Paper elevation={2} sx={{ overflow: 'hidden' }}>
-      <Box display="flex" alignItems="center" gap={GROUP_GAP} p={4} {...rowProps}>
+      <Box display="flex" alignItems="center" gap={GROUP_GAP} p={4}>
         {/* Date and author on one line. TimeLabel reserves a min-width for table columns;
             dropped here so "by" follows the date directly. */}
         <Stack direction="row" spacing={1} alignItems="center" flexShrink={0}>
@@ -118,31 +94,28 @@ const CommitMetadata = ({ commit }) => {
           <ShaCopy sha={commit.sha} />
         </Typography>
         <Divider orientation="vertical" flexItem={true} />
-        {/* Restore, then the release comment button at the far right. No own spacing: the
-            theme's buttonGap puts the gap between them. Clicks here don't reach the row. */}
-        <Box
-          display="flex"
-          alignItems="center"
-          flexShrink={0}
-          onClick={(event) => event.stopPropagation()}
-        >
+        {/* Release comment button (versions only), then Restore, always at the far right.
+            No own spacing: the theme's buttonGap puts the gap between them. */}
+        <Box display="flex" alignItems="center" flexShrink={0}>
+          {version ? (
+            <Tooltip title={commentTooltip}>
+              {/* span: a disabled button fires no events, so the tooltip needs a wrapper. */}
+              <span>
+                <IconButton
+                  onClick={toggle}
+                  disabled={!comment}
+                  aria-expanded={comment ? open : undefined}
+                  color={open ? 'primary' : 'default'}
+                >
+                  {comment ? <CommentIcon /> : <NoCommentIcon />}
+                </IconButton>
+              </span>
+            </Tooltip>
+          ) : null}
           <Tooltip title="Restore">
             <IconButton>
               <HistoryIcon />
             </IconButton>
-          </Tooltip>
-          <Tooltip title={commentTooltip}>
-            {/* span: a disabled button fires no events, so the tooltip needs a wrapper. */}
-            <span>
-              <IconButton
-                onClick={toggle}
-                disabled={!comment}
-                aria-expanded={comment ? open : undefined}
-                color={open ? 'primary' : 'default'}
-              >
-                {comment ? <CommentIcon /> : <NoCommentIcon />}
-              </IconButton>
-            </span>
           </Tooltip>
         </Box>
       </Box>
