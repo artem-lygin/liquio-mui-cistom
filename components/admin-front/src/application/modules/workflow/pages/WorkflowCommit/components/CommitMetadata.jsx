@@ -3,9 +3,10 @@
 //   "by <author>", the message (up to two lines), then "Version" + tags, SHA and actions.
 // - Details: one row per field, with the full message and the release comment. The release
 //   comment only appears here.
-// "Details" toggles the mode; "Restore" sits on the right in both (mock only, no action yet).
+// Click the compact row (or the chevron) to expand; the chevron collapses. Restore sits left of
+// the chevron in both modes (mock only, no action yet).
 import React from 'react';
-import { Box, Button, Chip, IconButton, Paper, Stack, Tooltip, Typography } from '@mui/material';
+import { Box, Chip, IconButton, Paper, Stack, Tooltip, Typography } from '@mui/material';
 import HistoryIcon from '@mui/icons-material/History';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import ExpandLessIcon from '@mui/icons-material/ExpandLess';
@@ -57,26 +58,56 @@ const CommitMetadata = ({ commit }) => {
   const tags = commit.tags || [];
   const version = tags.find((tag) => tag !== 'current');
 
+  const toggle = () => setDetails((value) => !value);
+
+  // Compact: the whole card is the toggle (hover highlight, click or Enter/Space to expand).
+  // Details: only the chevron collapses it, so the full text can be selected and copied.
+  const rowProps = details
+    ? {}
+    : {
+        role: 'button',
+        tabIndex: 0,
+        'aria-expanded': false,
+        onClick: toggle,
+        onKeyDown: (event) => {
+          if (event.target === event.currentTarget && (event.key === 'Enter' || event.key === ' ')) {
+            event.preventDefault();
+            toggle();
+          }
+        },
+        sx: {
+          cursor: 'pointer',
+          '&:hover': { backgroundColor: 'action.hover' },
+          '&:focus-visible': { backgroundColor: 'action.focus', outline: 'none' }
+        }
+      };
+
   const actions = (
-    // No own spacing: the theme's buttonGap puts the gap between Details and Restore.
-    <Box display="flex" alignItems="center" flexShrink={0}>
-      <Button
-        onClick={() => setDetails((value) => !value)}
-        endIcon={details ? <ExpandLessIcon /> : <ExpandMoreIcon />}
-      >
-        Details
-      </Button>
+    // Restore, then the chevron at the far right. No own spacing: the theme's buttonGap puts
+    // the gap between them. Clicks here don't reach the row toggle.
+    <Box display="flex" alignItems="center" flexShrink={0} onClick={(event) => event.stopPropagation()}>
       <Tooltip title="Restore">
         <IconButton>
           <HistoryIcon />
+        </IconButton>
+      </Tooltip>
+      <Tooltip title={details ? 'Hide details' : 'Show details'}>
+        <IconButton onClick={toggle} aria-expanded={details}>
+          {details ? <ExpandLessIcon /> : <ExpandMoreIcon />}
         </IconButton>
       </Tooltip>
     </Box>
   );
 
   return (
-    <Paper elevation={2}>
-      <Box display="flex" alignItems={details ? 'flex-start' : 'center'} gap={GROUP_GAP} p={4}>
+    <Paper elevation={2} sx={{ overflow: 'hidden' }}>
+      <Box
+        display="flex"
+        alignItems={details ? 'flex-start' : 'center'}
+        gap={GROUP_GAP}
+        p={4}
+        {...rowProps}
+      >
         {details ? (
           <Box
             flex="1 1 0"
