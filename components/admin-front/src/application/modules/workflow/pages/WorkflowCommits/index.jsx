@@ -5,11 +5,9 @@ import {
   Box,
   Chip,
   Divider,
-  FormControlLabel,
   Button,
   IconButton,
   Stack,
-  Switch,
   Tooltip,
   Typography
 } from '@mui/material';
@@ -24,6 +22,7 @@ import TimeLabel from 'components/Label/Time';
 
 import mockCommits from './mocks/commits';
 import ShaCopy from './components/ShaCopy';
+import SwitchLabel from './components/SwitchLabel';
 import tagLabel from './tagLabel';
 import { canCreateVersion, versionTooltip, isRelease } from './versions';
 import getMessagePreview from './messagePreview';
@@ -146,18 +145,12 @@ const columns = [
 // - Actions: Compare (outlined button, enabled only while exactly two commits are checked).
 // There's no Create button: versions are created per row (see the actions column).
 const ViewSettings = ({ onlyReleases, onOnlyReleasesChange }) => (
-  // Switch first, label after it. mr 0: the toolbar's gap does the spacing, not MUI's
-  // default 16px label margin.
-  <FormControlLabel
-    sx={{ mr: 0 }}
-    control={
-      <Switch
-        size="small"
-        checked={onlyReleases}
-        onChange={(event) => onOnlyReleasesChange(event.target.checked)}
-      />
-    }
+  // mr 0: the toolbar's gap does the spacing, not MUI's default 16px label margin.
+  <SwitchLabel
     label={LABELS.onlyReleases}
+    checked={onlyReleases}
+    onChange={onOnlyReleasesChange}
+    sx={{ mr: 0 }}
   />
 );
 

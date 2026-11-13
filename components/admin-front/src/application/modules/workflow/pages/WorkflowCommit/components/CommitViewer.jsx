@@ -10,9 +10,11 @@
 // The editor shows the file at `target`, or (Show difference) a git-style inline diff
 // base -> target, with removed lines in red and added lines in green.
 import React from 'react';
-import { Box, Divider, FormControlLabel, Paper, Switch, Typography } from '@mui/material';
+import { Box, Divider, Paper, Typography } from '@mui/material';
 
 import Editor, { DiffEditor } from 'components/Editor';
+
+import SwitchLabel from '../../WorkflowCommits/components/SwitchLabel';
 
 import CommitFileTree, { STATUSES, buildTree, flattenTree } from './CommitFileTree';
 
@@ -139,16 +141,7 @@ const CommitViewer = ({ files, base, target, defaultShowDiff = false }) => {
               )}
             </Typography>
           </Box>
-          <FormControlLabel
-            control={
-              <Switch
-                size="small"
-                checked={showDiff}
-                onChange={(event) => setShowDiff(event.target.checked)}
-              />
-            }
-            label="Show difference"
-          />
+          <SwitchLabel label="Show difference" checked={showDiff} onChange={setShowDiff} />
         </TitleBar>
         <Box flex={1} minHeight={0}>
           <FilePreview file={selectedFile} showDiff={showDiff} />
