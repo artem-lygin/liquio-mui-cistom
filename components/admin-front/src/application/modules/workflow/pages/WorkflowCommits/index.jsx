@@ -25,7 +25,7 @@ import TimeLabel from 'components/Label/Time';
 import mockCommits from './mocks/commits';
 import ShaCopy from './components/ShaCopy';
 import tagLabel from './tagLabel';
-import { NEXT_VERSION, canCreateVersion, isRelease } from './versions';
+import { canCreateVersion, versionTooltip, isRelease } from './versions';
 import getMessagePreview from './messagePreview';
 
 // PoC copy is plain English on purpose: the app's English strings live in front-core's
@@ -86,13 +86,14 @@ const columns = [
     render: (tags) => (
       <Stack direction="row" spacing={1}>
         {(tags || []).map((tag) => (
-          <Chip
-            key={tag}
-            size="small"
-            variant="outlined"
-            label={tagLabel(tag)}
-            color={tag === 'current' ? 'primary' : 'default'}
-          />
+          <Tooltip key={tag} title={versionTooltip(tag) || ''}>
+            <Chip
+              size="small"
+              variant="outlined"
+              label={tagLabel(tag)}
+              color={tag === 'current' ? 'primary' : 'default'}
+            />
+          </Tooltip>
         ))}
       </Stack>
     )
@@ -117,7 +118,7 @@ const columns = [
       return (
         <>
           {canCreateVersion(commit) ? (
-            <Tooltip title={`${LABELS.createVersion} ${NEXT_VERSION}`}>
+            <Tooltip title={LABELS.createVersion}>
               <IconButton>
                 <TagIcon />
               </IconButton>

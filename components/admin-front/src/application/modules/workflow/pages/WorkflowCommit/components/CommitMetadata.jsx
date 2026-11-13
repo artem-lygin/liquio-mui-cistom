@@ -16,19 +16,20 @@ import TimeLabel from 'components/Label/Time';
 
 import ShaCopy from '../../WorkflowCommits/components/ShaCopy';
 import tagLabel from '../../WorkflowCommits/tagLabel';
-import { NEXT_VERSION, canCreateVersion } from '../../WorkflowCommits/versions';
+import { canCreateVersion, versionTooltip } from '../../WorkflowCommits/versions';
 
 // Outlined pills, the same style as in the commits table.
 const Tags = ({ tags }) => (
   <Stack direction="row" spacing={1}>
     {tags.map((tag) => (
-      <Chip
-        key={tag}
-        size="small"
-        variant="outlined"
-        label={tagLabel(tag)}
-        color={tag === 'current' ? 'primary' : 'default'}
-      />
+      <Tooltip key={tag} title={versionTooltip(tag) || ''}>
+        <Chip
+          size="small"
+          variant="outlined"
+          label={tagLabel(tag)}
+          color={tag === 'current' ? 'primary' : 'default'}
+        />
+      </Tooltip>
     ))}
   </Stack>
 );
@@ -163,7 +164,7 @@ export const CommitRow = ({ commit, newer = false, aligned = false }) => {
             the row's column gap; between the two buttons it gives the usual 12px. */}
         <Box display="flex" justifyContent="flex-end" flexShrink={0}>
           {canCreateVersion(commit) ? (
-            <Tooltip title={`Create version ${NEXT_VERSION}`}>
+            <Tooltip title="Create version">
               <IconButton>
                 <TagIcon />
               </IconButton>
