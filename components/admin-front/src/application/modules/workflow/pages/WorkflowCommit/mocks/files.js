@@ -258,31 +258,32 @@ const genericChanges = [
 
 const languageOf = (path) => (path.endsWith('.bpmn') ? 'xml' : 'json');
 
-// Every file of the project at this commit, with its status and before/after content:
-// status is 'added' | 'modified' | 'deleted' | null (unchanged).
-export const getCommitFiles = (sha) => {
+// The project after a commit: the first commit in history is the base project, every other
+// commit is the base project with its own change set applied. (Mock history: the states
+// aren't cumulative, but each pair of commits still differs in a plausible way.)
+const snapshot = (sha) => {
   const position = mockCommits.findIndex((commit) => commit.sha === sha);
   const base = baseFiles();
-
-  // The first commit in history adds the whole project.
-  if (position === mockCommits.length - 1) {
-    return Object.entries(base).map(([path, content]) => ({
-      path,
-      status: 'added',
-      before: null,
-      after: content,
-      language: languageOf(path)
-    }));
-  }
+  if (position === mockCommits.length - 1) return base;
 
   const changes =
     position <= 0 ? latestChanges() : genericChanges[position % genericChanges.length]();
+  const result = { ...base, ...changes };
+  Object.keys(result).forEach((path) => {
+    if (result[path] === null) delete result[path];
+  });
+  return result;
+};
 
-  const paths = [...new Set([...Object.keys(base), ...Object.keys(changes)])];
+// Two project states -> one file list: the union of both trees, each file with its content on
+// each side (null where it doesn't exist) and its git status:
+// 'added' | 'modified' | 'deleted' | null (unchanged).
+const diffFiles = (beforeFiles, afterFiles) => {
+  const paths = [...new Set([...Object.keys(beforeFiles), ...Object.keys(afterFiles)])];
 
   return paths.map((path) => {
-    const before = base[path] ?? null;
-    const after = path in changes ? changes[path] : before;
+    const before = beforeFiles[path] ?? null;
+    const after = afterFiles[path] ?? null;
     let status = null;
     if (before === null && after !== null) status = 'added';
     else if (before !== null && after === null) status = 'deleted';
@@ -291,3 +292,14 @@ export const getCommitFiles = (sha) => {
     return { path, status, before, after, language: languageOf(path) };
   });
 };
+
+// A commit against the previous one. The first commit adds the whole project.
+export const getCommitFiles = (sha) => {
+  const position = mockCommits.findIndex((commit) => commit.sha === sha);
+  const parent = mockCommits[position + 1];
+  return diffFiles(parent ? baseFiles() : {}, snapshot(sha));
+};
+
+// Any two commits: base -> target.
+export const getCompareFiles = (baseSha, targetSha) =>
+  diffFiles(snapshot(baseSha), snapshot(targetSha));

@@ -16,6 +16,7 @@ import {
 } from '@mui/material';
 import HistoryIcon from '@mui/icons-material/History';
 import AddIcon from '@mui/icons-material/Add';
+import CompareIcon from '@mui/icons-material/CompareArrows';
 
 import { history } from 'store';
 import LeftSidebarLayout from 'layouts/LeftSidebar';
@@ -39,7 +40,8 @@ const LABELS = {
   create: 'Create',
   createCommit: 'Create commit',
   createVersion: 'Create version',
-  onlyReleases: 'Only releases'
+  onlyReleases: 'Only releases',
+  compare: 'Compare'
 };
 
 // Committed (date + author) leads as the row's human-readable name; the SHA is technical,
@@ -112,15 +114,20 @@ const columns = [
 // A release is a commit with a version tag, i.e. any tag other than 'current' (e.g. '1.2').
 const isRelease = (commit) => (commit.tags || []).some((tag) => tag !== 'current');
 
-// Toolbar, right of search: the "Only releases" filter, then Create (the row's single
-// contained action, last per the admin toolbar convention). Create opens a menu; both
-// options are stubs for now.
-const CommitsToolbar = ({ onlyReleases, onOnlyReleasesChange }) => {
+// Toolbar, right of search: Compare (only while exactly two commits are checked), the
+// "Only releases" filter, then Create (the row's single contained action, last per the admin
+// toolbar convention). Create opens a menu; both options are stubs for now.
+const CommitsToolbar = ({ onlyReleases, onOnlyReleasesChange, onCompare }) => {
   const [anchorEl, setAnchorEl] = React.useState(null);
   const close = () => setAnchorEl(null);
 
   return (
     <>
+      {onCompare ? (
+        <Button variant="outlined" startIcon={<CompareIcon />} onClick={onCompare}>
+          {LABELS.compare}
+        </Button>
+      ) : null}
       <FormControlLabel
         control={
           <Switch
@@ -161,8 +168,22 @@ const WorkflowCommitsPage = ({ location, match }) => {
 
   const commits = onlyReleases ? mockCommits.filter(isRelease) : mockCommits;
 
+  // Compare takes exactly two commits: once two are checked, the other checkboxes are
+  // disabled (and there's no select-all). The older commit becomes the base.
+  const canCompare = rowsSelected.length === 2;
+  const isRowSelectable = (commit) =>
+    rowsSelected.length < 2 || rowsSelected.includes(commit.id);
+  const handleCompare = () => {
+    const [target, base] = mockCommits.filter((commit) => rowsSelected.includes(commit.id));
+    history.push(`/workflow/${workflowId}/commits/compare/${base.sha}/${target.sha}`);
+  };
+
   const renderToolbar = () => (
-    <CommitsToolbar onlyReleases={onlyReleases} onOnlyReleasesChange={setOnlyReleases} />
+    <CommitsToolbar
+      onlyReleases={onlyReleases}
+      onOnlyReleasesChange={setOnlyReleases}
+      onCompare={canCompare ? handleCompare : null}
+    />
   );
 
   const handleRowClick = (commit) => history.push(`/workflow/${workflowId}/commits/${commit.sha}`);
@@ -202,13 +223,14 @@ const WorkflowCommitsPage = ({ location, match }) => {
           data={commits}
           CustomToolbar={renderToolbar}
           rowsSelected={rowsSelected}
-          actions={{ onRowsSelect: setRowsSelected }}
+          actions={{ onRowsSelect: setRowsSelected, isRowSelectable }}
           onRowClick={handleRowClick}
           controls={{
             pagination: true,
             toolbar: true,
             search: true,
             header: true,
+            selectAllButton: false,
             refresh: false,
             bottomPagination: true
           }}

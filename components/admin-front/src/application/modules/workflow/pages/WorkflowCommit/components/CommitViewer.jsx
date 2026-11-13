@@ -80,12 +80,12 @@ const Sha = ({ children }) => (
   </Typography>
 );
 
-const CommitViewer = ({ files, base, target }) => {
+const CommitViewer = ({ files, base, target, defaultShowDiff = false }) => {
   const tree = React.useMemo(() => buildTree(files), [files]);
   const [selectedPath, setSelectedPath] = React.useState(
     () => (flattenTree(tree).find((file) => file.status) || {}).path || ''
   );
-  const [showDiff, setShowDiff] = React.useState(false);
+  const [showDiff, setShowDiff] = React.useState(defaultShowDiff);
 
   const selectedFile = files.find((file) => file.path === selectedPath);
   const status = selectedFile && STATUSES[selectedFile.status];
