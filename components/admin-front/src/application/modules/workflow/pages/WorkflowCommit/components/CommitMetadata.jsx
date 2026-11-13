@@ -1,6 +1,6 @@
 // PoC (poc/git-version-control): commit metadata card, in two modes.
-// - Compact (default): one unlabeled row: SHA, message subject, then tags on the right.
-//   Committed date and author aren't here: they're the page title and the "by …" line.
+// - Compact (default): one unlabeled row: SHA, message subject, then author (person icon)
+//   and tags on the right. The committed date isn't here: it's the page title.
 // - Details: one row per field, with the full message and the release comment. The release
 //   comment only appears here.
 // "Details" toggles the mode; "Restore" sits on the right in both (mock only, no action yet).
@@ -9,6 +9,7 @@ import { Box, Button, Chip, IconButton, Paper, Stack, Tooltip, Typography } from
 import HistoryIcon from '@mui/icons-material/History';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import ExpandLessIcon from '@mui/icons-material/ExpandLess';
+import PersonIcon from '@mui/icons-material/PersonOutline';
 
 import TimeLabel from 'components/Label/Time';
 
@@ -108,6 +109,12 @@ const CommitMetadata = ({ commit }) => {
             <Typography variant="body2" flex="1 1 0" minWidth={0} noWrap={true}>
               {getMessagePreview(commit.message)}
             </Typography>
+            <Stack direction="row" spacing={1} alignItems="center" flexShrink={0}>
+              <PersonIcon fontSize="small" color="action" />
+              <Typography variant="body2" noWrap={true}>
+                {commit.author}
+              </Typography>
+            </Stack>
             {tags.length ? <Tags tags={tags} /> : null}
           </Box>
         )}
