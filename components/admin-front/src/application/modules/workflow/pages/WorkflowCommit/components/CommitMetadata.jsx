@@ -38,6 +38,11 @@ const MESSAGE_CLAMP = {
 const GROUP_GAP = 8;
 // Gap between the version tags and the release comment button, in spacing units.
 const VERSION_BUTTON_GAP = 5;
+// Pressed state of the release comment toggle.
+const TOGGLE_ON = {
+  backgroundColor: 'action.selected',
+  '&:hover': { backgroundColor: 'action.selected' }
+};
 
 // One commit's row plus its release comment (when open), without a panel around it, so the
 // compare page can stack two of them in one panel. Each row expands on its own.
@@ -123,11 +128,14 @@ export const CommitRow = ({ commit, age, aligned = false }) => {
                   <Tooltip title={commentTooltip}>
                     {/* span: a disabled button fires no events, so the tooltip needs a wrapper. */}
                     <span>
+                      {/* A toggle: while the comment is open the button stays pressed (primary
+                          icon on the theme's "selected" background, also on hover). */}
                       <IconButton
                         onClick={toggle}
                         disabled={!comment}
-                        aria-expanded={comment ? open : undefined}
+                        aria-pressed={comment ? open : undefined}
                         color={open ? 'primary' : 'default'}
+                        sx={open ? TOGGLE_ON : undefined}
                       >
                         {comment ? <CommentIcon /> : <NoCommentIcon />}
                       </IconButton>
