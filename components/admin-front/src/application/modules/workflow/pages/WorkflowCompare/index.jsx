@@ -1,7 +1,8 @@
 // PoC (poc/git-version-control): compare two commits picked in the commits table. One panel
-// on top with both commits' rows ("Base", then "Compared with", divided), and a swap button
-// on its left that flips them, so the diff can be read either way (what was added since the
-// older one, or what was removed relative to the newer one). Then the same commit viewer as
+// on top with both commits' rows (the diff goes from the top one to the bottom one), each with
+// a "Newer" / "Older" pill instead of base/compared terms, and a swap button on its left that
+// flips them, so the diff can be read either way (what was added since the older one, or what
+// was removed relative to the newer one). Then the same commit viewer as
 // the commit page, opened on Show difference. From the table the older commit is the base;
 // swapping just reverses the URL. Front-end only: commits and files come from mocks.
 import React from 'react';
@@ -25,6 +26,9 @@ const WorkflowComparePage = ({ location, match }) => {
     [base, target, baseSha, targetSha]
   );
 
+  const newerSha = base && target && base.committedAt > target.committedAt ? baseSha : targetSha;
+  const ageOf = (commit) => (commit.sha === newerSha ? 'Newer' : 'Older');
+
   const handleSwap = () =>
     history.push(`/workflow/${workflowId}/commits/compare/${targetSha}/${baseSha}`);
 
@@ -45,16 +49,16 @@ const WorkflowComparePage = ({ location, match }) => {
               borderColor="divider"
               flexShrink={0}
             >
-              <Tooltip title="Swap base and compared">
+              <Tooltip title="Swap order">
                 <IconButton onClick={handleSwap}>
                   <SwapIcon />
                 </IconButton>
               </Tooltip>
             </Box>
             <Box flex={1} minWidth={0}>
-              <CommitRow key={baseSha} label="Base" commit={base} />
+              <CommitRow key={baseSha} age={ageOf(base)} commit={base} />
               <Divider />
-              <CommitRow key={targetSha} label="Compared with" commit={target} />
+              <CommitRow key={targetSha} age={ageOf(target)} commit={target} />
             </Box>
           </Paper>
           <CommitViewer

@@ -39,13 +39,10 @@ const GROUP_GAP = 8;
 // Gap between the version tags and the release comment button, in spacing units.
 const VERSION_BUTTON_GAP = 5;
 
-// Width of the optional role label ("Base", "Compared with") on the compare page, so the
-// two rows' columns start at the same x.
-const LABEL_WIDTH = 112;
-
 // One commit's row plus its release comment (when open), without a panel around it, so the
 // compare page can stack two of them in one panel. Each row expands on its own.
-export const CommitRow = ({ commit, label }) => {
+// `age` ('Newer' / 'Older', compare page only) adds a pill after the date and author.
+export const CommitRow = ({ commit, age }) => {
   const [open, setOpen] = React.useState(false);
   const tags = commit.tags || [];
   const version = tags.find((tag) => tag !== 'current');
@@ -60,11 +57,6 @@ export const CommitRow = ({ commit, label }) => {
   return (
     <>
       <Box display="flex" alignItems="center" gap={GROUP_GAP} p={4}>
-        {label ? (
-          <Typography variant="subtitle2" width={LABEL_WIDTH} flexShrink={0}>
-            {label}
-          </Typography>
-        ) : null}
         {/* Date and author on one line. TimeLabel reserves a min-width for table columns;
             dropped here so "by" follows the date directly. */}
         <Stack direction="row" spacing={1} alignItems="center" flexShrink={0}>
@@ -80,6 +72,14 @@ export const CommitRow = ({ commit, label }) => {
               by {commit.author}
             </Box>
           </Typography>
+          {age ? (
+            <Chip
+              size="small"
+              label={age}
+              color={age === 'Newer' ? 'primary' : 'default'}
+              variant="outlined"
+            />
+          ) : null}
         </Stack>
         <Divider orientation="vertical" flexItem={true} />
         <Typography
