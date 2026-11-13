@@ -14,6 +14,7 @@ import NoCommentIcon from '@mui/icons-material/CommentsDisabledOutlined';
 import TimeLabel from 'components/Label/Time';
 
 import ShaCopy from '../../WorkflowCommits/components/ShaCopy';
+import tagLabel from '../../WorkflowCommits/tagLabel';
 
 // Outlined pills, the same style as in the commits table.
 const Tags = ({ tags }) => (
@@ -23,7 +24,7 @@ const Tags = ({ tags }) => (
         key={tag}
         size="small"
         variant="outlined"
-        label={tag}
+        label={tagLabel(tag)}
         color={tag === 'current' ? 'primary' : 'default'}
       />
     ))}

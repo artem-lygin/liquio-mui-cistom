@@ -23,6 +23,7 @@ import TimeLabel from 'components/Label/Time';
 
 import mockCommits from './mocks/commits';
 import ShaCopy from './components/ShaCopy';
+import tagLabel from './tagLabel';
 import getMessagePreview from './messagePreview';
 
 // PoC copy is plain English on purpose: the app's English strings live in front-core's
@@ -98,7 +99,7 @@ const columns = [
             key={tag}
             size="small"
             variant="outlined"
-            label={tag}
+            label={tagLabel(tag)}
             color={tag === 'current' ? 'primary' : 'default'}
           />
         ))}
