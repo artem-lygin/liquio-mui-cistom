@@ -1,6 +1,6 @@
 // PoC (poc/git-version-control): commit metadata card, in two modes.
 // - Compact (default): one row laid out like a row of the commits table: committed date with
-//   "by <author>", the message (up to two lines), then "Version" + tags, SHA and actions.
+//   "by <author>" on one line, the message (up to two lines), then "Version" + tags, SHA and actions.
 // - Details: one row per field, with the full message and the release comment. The release
 //   comment only appears here.
 // Click the compact row (or the chevron) to expand; the chevron collapses. Restore sits left of
@@ -150,14 +150,21 @@ const CommitMetadata = ({ commit }) => {
           </Box>
         ) : (
           <Box flex="1 1 0" minWidth={0} display="flex" alignItems="center" gap={GROUP_GAP}>
-            <Box flexShrink={0}>
-              <Typography variant="body2" component="div">
-                <TimeLabel date={commit.committedAt} />
-              </Typography>
-              <Typography variant="body2" color="text.secondary" noWrap={true}>
+            {/* Date and author on one line. TimeLabel reserves a min-width for table
+                columns; dropped here so "by" follows the date directly. */}
+            <Typography
+              variant="body2"
+              component="div"
+              flexShrink={0}
+              noWrap={true}
+              sx={{ '& > span:first-of-type': { minWidth: 0 } }}
+            >
+              <TimeLabel date={commit.committedAt} />{' '}
+              <Box component="span" color="text.secondary">
                 by {commit.author}
-              </Typography>
-            </Box>
+              </Box>
+            </Typography>
+            <Divider orientation="vertical" flexItem={true} />
             <Typography
               variant="body2"
               component="div"
