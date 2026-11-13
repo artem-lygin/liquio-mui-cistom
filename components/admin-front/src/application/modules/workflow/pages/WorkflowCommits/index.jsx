@@ -77,12 +77,14 @@ const columns = [
     name: LABELS.tags,
     width: 160,
     // Git tags: a process version and/or 'current' (the version the workflow runs now).
+    // Outlined pills, the same style as the Newer/Older pills on the compare page.
     render: (tags) => (
       <Stack direction="row" spacing={1}>
         {(tags || []).map((tag) => (
           <Chip
             key={tag}
             size="small"
+            variant="outlined"
             label={tag}
             color={tag === 'current' ? 'primary' : 'default'}
           />
