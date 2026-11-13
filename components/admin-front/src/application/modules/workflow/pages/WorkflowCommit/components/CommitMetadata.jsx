@@ -1,6 +1,6 @@
 // PoC (poc/git-version-control): commit metadata card. One row laid out like a row of the
 // commits table: committed date "by <author>", the message (up to two lines), then
-// "Version" + tags, SHA and actions (release comment, Restore).
+// SHA, the version group ("Version" + tags + release comment button) and Restore.
 // The release comment button expands the card to show the version's release comment under the
 // row; clicking it again hides it. A version with no comment gets the crossed-out icon,
 // disabled; a commit that isn't a version has no comment button at all.
@@ -77,41 +77,46 @@ const CommitMetadata = ({ commit }) => {
         >
           {compactMessage(commit.message)}
         </Typography>
-        {tags.length ? (
-          <>
-            <Stack direction="row" spacing={2} alignItems="center" flexShrink={0}>
-              {version ? (
-                <Typography variant="body2" color="text.secondary">
-                  Version
-                </Typography>
-              ) : null}
-              <Tags tags={tags} />
-            </Stack>
-            <Divider orientation="vertical" flexItem={true} />
-          </>
-        ) : null}
         <Typography variant="body2" component="div" flexShrink={0}>
           <ShaCopy sha={commit.sha} />
         </Typography>
         <Divider orientation="vertical" flexItem={true} />
-        {/* Release comment button (versions only), then Restore, always at the far right.
-            No own spacing: the theme's buttonGap puts the gap between them. */}
-        <Box display="flex" alignItems="center" flexShrink={0}>
-          {version ? (
-            <Tooltip title={commentTooltip}>
-              {/* span: a disabled button fires no events, so the tooltip needs a wrapper. */}
-              <span>
-                <IconButton
-                  onClick={toggle}
-                  disabled={!comment}
-                  aria-expanded={comment ? open : undefined}
-                  color={open ? 'primary' : 'default'}
-                >
-                  {comment ? <CommentIcon /> : <NoCommentIcon />}
-                </IconButton>
-              </span>
-            </Tooltip>
-          ) : null}
+        {tags.length ? (
+          <>
+            {/* Version group: "Version" + tags, then the release comment button (versions
+                only). The theme's buttonGap spaces the button from the tags. */}
+            <Box display="flex" alignItems="center" flexShrink={0}>
+              <Stack direction="row" spacing={2} alignItems="center">
+                {version ? (
+                  <Typography variant="body2" color="text.secondary">
+                    Version
+                  </Typography>
+                ) : null}
+                <Tags tags={tags} />
+              </Stack>
+              {version ? (
+                <Tooltip title={commentTooltip}>
+                  {/* span: a disabled button fires no events, so the tooltip needs a wrapper. */}
+                  <span>
+                    <IconButton
+                      onClick={toggle}
+                      disabled={!comment}
+                      aria-expanded={comment ? open : undefined}
+                      color={open ? 'primary' : 'default'}
+                    >
+                      {comment ? <CommentIcon /> : <NoCommentIcon />}
+                    </IconButton>
+                  </span>
+                </Tooltip>
+              ) : null}
+            </Box>
+            <Divider orientation="vertical" flexItem={true} />
+          </>
+        ) : null}
+        {/* Restore, always last on the right, after its own divider. Wrapped so it's the
+            first child of its box: the theme's buttonGap would otherwise add a margin on top of
+            the row's column gap. */}
+        <Box display="flex" flexShrink={0}>
           <Tooltip title="Restore">
             <IconButton>
               <HistoryIcon />
