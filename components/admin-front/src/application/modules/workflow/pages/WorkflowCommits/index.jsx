@@ -143,9 +143,10 @@ const columns = [
 // - Actions: Compare (outlined button, enabled only while exactly two commits are checked).
 // There's no Create button: versions are created per row (see the actions column).
 const ViewSettings = ({ onlyReleases, onOnlyReleasesChange }) => (
-  // Switch first, label after it (MUI's default placement; its label keeps MUI's 16px right
-  // margin before the divider).
+  // Switch first, label after it. mr 0: the toolbar's gap does the spacing, not MUI's
+  // default 16px label margin.
   <FormControlLabel
+    sx={{ mr: 0 }}
     control={
       <Switch
         size="small"
@@ -157,26 +158,33 @@ const ViewSettings = ({ onlyReleases, onOnlyReleasesChange }) => (
   />
 );
 
+// Gap on each side of the divider, in spacing units (32px).
+const TOOLBAR_GROUP_GAP = 8;
+
+// Everything sits in one Box of its own: DataTableToolbar gives each direct non-button child
+// a 6px right margin with a selector that outranks local margins, so spacing set on the
+// divider itself never applied. Inside the Box only its gap spaces the items. Compare is
+// wrapped too, so it's the first child of its box and the theme's buttonGap doesn't add on top.
 const CommitsToolbar = ({ onlyReleases, onOnlyReleasesChange, onCompare }) => (
-  <>
+  <Box display="flex" alignItems="center" alignSelf="stretch" gap={TOOLBAR_GROUP_GAP}>
     <ViewSettings onlyReleases={onlyReleases} onOnlyReleasesChange={onOnlyReleasesChange} />
-    {/* Divider: 16px + the label's own 16px on the left; 32px (+ the theme's buttonGap, if it
-        applies) before Compare on the right, which needs the extra room to read as separate. */}
-    <Divider orientation="vertical" variant="middle" flexItem={true} sx={{ ml: 4, mr: 8 }} />
-    <Tooltip title={onCompare ? LABELS.compareTooltip : LABELS.compareHint}>
-      {/* span: a disabled button fires no events, so the tooltip needs a wrapper. */}
-      <span>
-        <Button
-          variant="outlined"
-          startIcon={<CompareIcon />}
-          disabled={!onCompare}
-          onClick={onCompare || undefined}
-        >
-          {LABELS.compare}
-        </Button>
-      </span>
-    </Tooltip>
-  </>
+    <Divider orientation="vertical" variant="middle" flexItem={true} />
+    <Box display="flex">
+      <Tooltip title={onCompare ? LABELS.compareTooltip : LABELS.compareHint}>
+        {/* span: a disabled button fires no events, so the tooltip needs a wrapper. */}
+        <span>
+          <Button
+            variant="outlined"
+            startIcon={<CompareIcon />}
+            disabled={!onCompare}
+            onClick={onCompare || undefined}
+          >
+            {LABELS.compare}
+          </Button>
+        </span>
+      </Tooltip>
+    </Box>
+  </Box>
 );
 
 const WorkflowCommitsPage = ({ location, match }) => {
