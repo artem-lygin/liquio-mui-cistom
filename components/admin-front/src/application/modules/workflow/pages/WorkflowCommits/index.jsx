@@ -37,6 +37,7 @@ const LABELS = {
   tags: 'Tags',
   actions: 'Actions',
   restore: 'Restore',
+  restoreCurrent: 'This is the current version',
   create: 'Create',
   createCommit: 'Create commit',
   createVersion: 'Create version',
@@ -101,13 +102,20 @@ const columns = [
     width: 88,
     align: 'right',
     disableClick: true,
-    render: () => (
-      <Tooltip title={LABELS.restore}>
-        <IconButton>
-          <HistoryIcon />
-        </IconButton>
-      </Tooltip>
-    )
+    // The current version can't be restored to: disabled, with the reason in the tooltip
+    // (span: a disabled button fires no events, so the tooltip needs a wrapper).
+    render: (value, commit) => {
+      const isCurrent = (commit.tags || []).includes('current');
+      return (
+        <Tooltip title={isCurrent ? LABELS.restoreCurrent : LABELS.restore}>
+          <span>
+            <IconButton disabled={isCurrent}>
+              <HistoryIcon />
+            </IconButton>
+          </span>
+        </Tooltip>
+      );
+    }
   }
 ];
 

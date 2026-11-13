@@ -44,6 +44,8 @@ const CommitMetadata = ({ commit }) => {
   const tags = commit.tags || [];
   const version = tags.find((tag) => tag !== 'current');
   const comment = version ? commit.releaseComment : null;
+  // Can't restore to the version the workflow already runs.
+  const isCurrent = tags.includes('current');
   const toggle = () => setOpen((value) => !value);
 
   let commentTooltip = 'Version has no comment';
@@ -122,10 +124,13 @@ const CommitMetadata = ({ commit }) => {
             first child of its box: the theme's buttonGap would otherwise add a margin on top of
             the row's column gap. */}
         <Box display="flex" flexShrink={0}>
-          <Tooltip title="Restore">
-            <IconButton>
-              <HistoryIcon />
-            </IconButton>
+          <Tooltip title={isCurrent ? 'This is the current version' : 'Restore'}>
+            {/* span: a disabled button fires no events, so the tooltip needs a wrapper. */}
+            <span>
+              <IconButton disabled={isCurrent}>
+                <HistoryIcon />
+              </IconButton>
+            </span>
           </Tooltip>
         </Box>
       </Box>
