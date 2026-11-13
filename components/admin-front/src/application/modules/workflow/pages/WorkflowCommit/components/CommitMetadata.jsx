@@ -80,7 +80,7 @@ const CommitMetadata = ({ commit }) => {
           {compactMessage(commit.message)}
         </Typography>
         <Typography variant="body2" component="div" flexShrink={0}>
-          <ShaCopy sha={commit.sha} />
+          <ShaCopy sha={commit.sha} iconStart={true} />
         </Typography>
         <Divider orientation="vertical" flexItem={true} />
         {tags.length ? (
