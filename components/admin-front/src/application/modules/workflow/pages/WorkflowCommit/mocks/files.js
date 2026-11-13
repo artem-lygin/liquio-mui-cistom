@@ -184,8 +184,9 @@ const withChange = (source, update) => {
   return json(value);
 };
 
-// The latest commit: matches its message (signing order, payment timer, unit assignment,
+// Release 1.3 (e005c6c9): matches its message (signing order, payment timer, unit assignment,
 // split decision form, removed "Legacy export" gateway).
+const RELEASE_1_3_SHA = 'e005c6c9';
 const latestChanges = () => ({
   'xmlBpmnSchema.bpmn': BPMN_AFTER,
   'tasks/1610124002.json': withChange(tasks[1610124002], (task) => {
@@ -267,7 +268,9 @@ const snapshot = (sha) => {
   if (position === mockCommits.length - 1) return base;
 
   const changes =
-    position <= 0 ? latestChanges() : genericChanges[position % genericChanges.length]();
+    sha === RELEASE_1_3_SHA
+      ? latestChanges()
+      : genericChanges[position % genericChanges.length]();
   const result = { ...base, ...changes };
   Object.keys(result).forEach((path) => {
     if (result[path] === null) delete result[path];

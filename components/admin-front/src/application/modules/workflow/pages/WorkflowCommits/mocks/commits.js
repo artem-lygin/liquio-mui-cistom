@@ -21,7 +21,34 @@ Known issues:
 
 Rollback: release 1.2 stays available. Restoring it does not affect applications already in progress, but new applications will again use the old signing order.`;
 
+// Newest first. The four commits above 1.3 aren't versioned yet: any of them can become the
+// next version (1.4).
 const commits = [
+  {
+    sha: '7b2f4d1a',
+    message:
+      'Save workflowTemplates 161 via editor. The reminder e-mail now uses the new template header.',
+    author: 'Daniel Hughes',
+    committedAt: '2026-11-10T15:12:00'
+  },
+  {
+    sha: 'c91e3f08',
+    message: 'Save workflowTemplates 161 via MCP',
+    author: 'MCP Editor',
+    committedAt: '2026-11-06T11:40:00'
+  },
+  {
+    sha: '3fa6b2c5',
+    message: 'Manual backup workflowTemplates 161',
+    author: 'Sophie Turner',
+    committedAt: '2026-11-03T09:25:00'
+  },
+  {
+    sha: '58d0e7b2',
+    message: 'Save workflowTemplates 161 via editor. Faster loading of the notification preview.',
+    author: 'Emily Carter',
+    committedAt: '2026-10-30T17:05:00'
+  },
   {
     sha: 'e005c6c9',
     message: 'Save workflowTemplates 161 via editor. Signing moved before submission to the registry.',

@@ -3,20 +3,17 @@
 import React from 'react';
 import {
   Box,
-  Button,
   Chip,
   Divider,
   FormControlLabel,
   IconButton,
-  Menu,
-  MenuItem,
   Stack,
   Switch,
   Tooltip,
   Typography
 } from '@mui/material';
 import HistoryIcon from '@mui/icons-material/History';
-import AddIcon from '@mui/icons-material/Add';
+import TagIcon from '@mui/icons-material/LocalOfferOutlined';
 import CompareIcon from '@mui/icons-material/CompareArrows';
 
 import { history } from 'store';
@@ -40,8 +37,6 @@ const LABELS = {
   actions: 'Actions',
   restore: 'Restore',
   restoreCurrent: 'This is the current version',
-  create: 'Create',
-  createCommit: 'Create commit',
   createVersion: 'Create version',
   onlyReleases: 'With versions',
   compare: 'Compare selected commits',
@@ -52,6 +47,18 @@ const LABELS = {
 // own column, so rows stay one line); the SHA is technical, so it sits on the right. Message is the only flexible column: it takes the remaining
 // width and is cut to one line with an ellipsis (fixedTable layout). Every other column is
 // sized to its content.
+// A release is a commit with a version tag, i.e. any tag other than 'current' (e.g. '1.2').
+const isRelease = (commit) => (commit.tags || []).some((tag) => tag !== 'current');
+
+// Versions only move forward: only commits after the latest version (newer than it, i.e.
+// above it in the newest-first list) can become the next version, which is the latest
+// version's minor number + 1 (1.3 -> 1.4). Mock only; creating it is a stub for now.
+const LATEST_VERSION_INDEX = mockCommits.findIndex(isRelease);
+const LATEST_VERSION = mockCommits[LATEST_VERSION_INDEX].tags.find((tag) => tag !== 'current');
+const NEXT_VERSION = LATEST_VERSION.replace(/\d+$/, (minor) => String(Number(minor) + 1));
+const canCreateVersion = (commit) =>
+  mockCommits.findIndex((item) => item.sha === commit.sha) < LATEST_VERSION_INDEX;
+
 const columns = [
   {
     id: 'committedAt',
@@ -107,34 +114,41 @@ const columns = [
   {
     id: 'actions',
     name: LABELS.actions,
-    width: 88,
+    width: 136,
     align: 'right',
     disableClick: true,
+    // Create version (only on commits after the latest version), then Restore, always last.
     // The current version can't be restored to: disabled, with the reason in the tooltip
     // (span: a disabled button fires no events, so the tooltip needs a wrapper).
     render: (value, commit) => {
       const isCurrent = (commit.tags || []).includes('current');
       return (
-        <Tooltip title={isCurrent ? LABELS.restoreCurrent : LABELS.restore}>
-          <span>
-            <IconButton disabled={isCurrent}>
-              <HistoryIcon />
-            </IconButton>
-          </span>
-        </Tooltip>
+        <>
+          {canCreateVersion(commit) ? (
+            <Tooltip title={`${LABELS.createVersion} ${NEXT_VERSION}`}>
+              <IconButton>
+                <TagIcon />
+              </IconButton>
+            </Tooltip>
+          ) : null}
+          <Tooltip title={isCurrent ? LABELS.restoreCurrent : LABELS.restore}>
+            <span>
+              <IconButton disabled={isCurrent}>
+                <HistoryIcon />
+              </IconButton>
+            </span>
+          </Tooltip>
+        </>
       );
     }
   }
 ];
 
-// A release is a commit with a version tag, i.e. any tag other than 'current' (e.g. '1.2').
-const isRelease = (commit) => (commit.tags || []).some((tag) => tag !== 'current');
 
 // Toolbar, right of search, in two groups split by a divider:
 // - View settings: the "With versions" filter (label left of its switch).
-// - Actions: Compare (icon button, enabled only while exactly two commits are checked), then
-//   Create (the row's single contained action, last per the admin toolbar convention).
-//   Create opens a menu; both options are stubs for now.
+// - Actions: Compare (icon button, enabled only while exactly two commits are checked).
+// There's no Create button: versions are created per row (see the actions column).
 const ViewSettings = ({ onlyReleases, onOnlyReleasesChange }) => (
   <FormControlLabel
     labelPlacement="start"
@@ -149,45 +163,20 @@ const ViewSettings = ({ onlyReleases, onOnlyReleasesChange }) => (
   />
 );
 
-const CommitsToolbar = ({ onlyReleases, onOnlyReleasesChange, onCompare }) => {
-  const [anchorEl, setAnchorEl] = React.useState(null);
-  const close = () => setAnchorEl(null);
-
-  return (
-    <>
-      <ViewSettings onlyReleases={onlyReleases} onOnlyReleasesChange={onOnlyReleasesChange} />
-      <Divider orientation="vertical" variant="middle" flexItem={true} sx={{ mx: 4 }} />
-      <Tooltip title={onCompare ? LABELS.compare : LABELS.compareHint}>
-        {/* span: a disabled button fires no events, so the tooltip needs a wrapper. */}
-        <span>
-          <IconButton disabled={!onCompare} onClick={onCompare || undefined}>
-            <CompareIcon />
-          </IconButton>
-        </span>
-      </Tooltip>
-      <Button
-        variant="contained"
-        color="primary"
-        startIcon={<AddIcon />}
-        onClick={(event) => setAnchorEl(event.currentTarget)}
-        aria-haspopup="menu"
-        aria-expanded={Boolean(anchorEl)}
-      >
-        {LABELS.create}
-      </Button>
-      <Menu
-        anchorEl={anchorEl}
-        open={Boolean(anchorEl)}
-        onClose={close}
-        anchorOrigin={{ vertical: 'bottom', horizontal: 'right' }}
-        transformOrigin={{ vertical: 'top', horizontal: 'right' }}
-      >
-        <MenuItem onClick={close}>{LABELS.createCommit}</MenuItem>
-        <MenuItem onClick={close}>{LABELS.createVersion}</MenuItem>
-      </Menu>
-    </>
-  );
-};
+const CommitsToolbar = ({ onlyReleases, onOnlyReleasesChange, onCompare }) => (
+  <>
+    <ViewSettings onlyReleases={onlyReleases} onOnlyReleasesChange={onOnlyReleasesChange} />
+    <Divider orientation="vertical" variant="middle" flexItem={true} sx={{ mx: 4 }} />
+    <Tooltip title={onCompare ? LABELS.compare : LABELS.compareHint}>
+      {/* span: a disabled button fires no events, so the tooltip needs a wrapper. */}
+      <span>
+        <IconButton disabled={!onCompare} onClick={onCompare || undefined}>
+          <CompareIcon />
+        </IconButton>
+      </span>
+    </Tooltip>
+  </>
+);
 
 const WorkflowCommitsPage = ({ location, match }) => {
   const { workflowId } = match.params;
