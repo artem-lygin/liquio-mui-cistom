@@ -6,6 +6,7 @@ import {
   Chip,
   Divider,
   FormControlLabel,
+  Button,
   IconButton,
   Stack,
   Switch,
@@ -40,7 +41,8 @@ const LABELS = {
   restoreCurrent: 'This is the current version',
   createVersion: 'Create version',
   onlyReleases: 'With versions',
-  compare: 'Compare selected commits',
+  compare: 'Compare',
+  compareTooltip: 'Compare selected commits',
   compareHint: 'Select two commits to compare'
 };
 
@@ -90,7 +92,7 @@ const columns = [
     id: 'tags',
     name: LABELS.tags,
     width: 160,
-    // Git tags: a process version and/or 'current' (the version the workflow runs now).
+    // Git tags: a process version and/or 'current' (what the workflow runs now).
     // Outlined pills.
     render: (tags) => (
       <Stack direction="row" spacing={1}>
@@ -148,7 +150,7 @@ const columns = [
 
 // Toolbar, right of search, in two groups split by a divider:
 // - View settings: the "With versions" filter (label left of its switch).
-// - Actions: Compare (icon button, enabled only while exactly two commits are checked).
+// - Actions: Compare (outlined button, enabled only while exactly two commits are checked).
 // There's no Create button: versions are created per row (see the actions column).
 const ViewSettings = ({ onlyReleases, onOnlyReleasesChange }) => (
   <FormControlLabel
@@ -168,12 +170,17 @@ const CommitsToolbar = ({ onlyReleases, onOnlyReleasesChange, onCompare }) => (
   <>
     <ViewSettings onlyReleases={onlyReleases} onOnlyReleasesChange={onOnlyReleasesChange} />
     <Divider orientation="vertical" variant="middle" flexItem={true} sx={{ mx: 4 }} />
-    <Tooltip title={onCompare ? LABELS.compare : LABELS.compareHint}>
+    <Tooltip title={onCompare ? LABELS.compareTooltip : LABELS.compareHint}>
       {/* span: a disabled button fires no events, so the tooltip needs a wrapper. */}
       <span>
-        <IconButton disabled={!onCompare} onClick={onCompare || undefined}>
-          <CompareIcon />
-        </IconButton>
+        <Button
+          variant="outlined"
+          startIcon={<CompareIcon />}
+          disabled={!onCompare}
+          onClick={onCompare || undefined}
+        >
+          {LABELS.compare}
+        </Button>
       </span>
     </Tooltip>
   </>

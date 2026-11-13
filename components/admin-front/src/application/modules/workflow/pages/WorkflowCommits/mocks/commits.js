@@ -4,7 +4,8 @@
 //   automatically), so it's one line: a phrase or a couple of sentences. No length limit, and
 //   a line break is possible but rare.
 // - `tags`: the commit's git tags: a process version (e.g. '1.2') and/or 'current' (the
-//   version the workflow runs now). A commit with a version tag is a release.
+//   commit the workflow runs now: the latest commit, versioned or not). A commit with a
+//   version tag is a release.
 // - `releaseComment`: a release's own notes, separate from the commit message, also any length.
 
 const RELEASE_1_3_COMMENT = `Release 1.3 is the version approved by the registry team on 27 October.
@@ -22,14 +23,15 @@ Known issues:
 Rollback: release 1.2 stays available. Restoring it does not affect applications already in progress, but new applications will again use the old signing order.`;
 
 // Newest first. The four commits above 1.3 aren't versioned yet: any of them can become the
-// next version (1.4).
+// next version (1.4). The newest one is current.
 const commits = [
   {
     sha: '7b2f4d1a',
     message:
       'Save workflowTemplates 161 via editor. The reminder e-mail now uses the new template header.',
     author: 'Daniel Hughes',
-    committedAt: '2026-11-10T15:12:00'
+    committedAt: '2026-11-10T15:12:00',
+    tags: ['current']
   },
   {
     sha: 'c91e3f08',
@@ -54,7 +56,7 @@ const commits = [
     message: 'Save workflowTemplates 161 via editor. Signing moved before submission to the registry.',
     author: 'Oliver Bennett',
     committedAt: '2026-10-27T16:34:00',
-    tags: ['1.3', 'current'],
+    tags: ['1.3'],
     releaseComment: RELEASE_1_3_COMMENT
   },
   {
