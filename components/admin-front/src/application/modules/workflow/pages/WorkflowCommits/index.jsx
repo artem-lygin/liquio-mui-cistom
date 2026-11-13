@@ -5,6 +5,7 @@ import {
   Box,
   Button,
   Chip,
+  Divider,
   FormControlLabel,
   IconButton,
   Menu,
@@ -41,8 +42,9 @@ const LABELS = {
   create: 'Create',
   createCommit: 'Create commit',
   createVersion: 'Create version',
-  onlyReleases: 'Only releases',
-  compare: 'Compare'
+  onlyReleases: 'With versions',
+  compare: 'Compare selected commits',
+  compareHint: 'Select two commits to compare'
 };
 
 // Committed (date + author) leads as the row's human-readable name; the SHA is technical,
@@ -124,8 +126,8 @@ const columns = [
 // A release is a commit with a version tag, i.e. any tag other than 'current' (e.g. '1.2').
 const isRelease = (commit) => (commit.tags || []).some((tag) => tag !== 'current');
 
-// Toolbar, right of search: Compare (only while exactly two commits are checked), the
-// "Only releases" filter, then Create (the row's single contained action, last per the admin
+// Toolbar, right of search: Compare (icon button, enabled only while exactly two commits are
+// checked), a divider, the "With versions" filter (label left of its switch), then Create (the row's single contained action, last per the admin
 // toolbar convention). Create opens a menu; both options are stubs for now.
 const CommitsToolbar = ({ onlyReleases, onOnlyReleasesChange, onCompare }) => {
   const [anchorEl, setAnchorEl] = React.useState(null);
@@ -133,12 +135,17 @@ const CommitsToolbar = ({ onlyReleases, onOnlyReleasesChange, onCompare }) => {
 
   return (
     <>
-      {onCompare ? (
-        <Button variant="outlined" startIcon={<CompareIcon />} onClick={onCompare}>
-          {LABELS.compare}
-        </Button>
-      ) : null}
+      <Tooltip title={onCompare ? LABELS.compare : LABELS.compareHint}>
+        {/* span: a disabled button fires no events, so the tooltip needs a wrapper. */}
+        <span>
+          <IconButton disabled={!onCompare} onClick={onCompare || undefined}>
+            <CompareIcon />
+          </IconButton>
+        </span>
+      </Tooltip>
+      <Divider orientation="vertical" variant="middle" flexItem={true} sx={{ mx: 4 }} />
       <FormControlLabel
+        labelPlacement="start"
         control={
           <Switch
             checked={onlyReleases}
