@@ -7,6 +7,7 @@
 import React from 'react';
 import { Box, Chip, Divider, IconButton, Paper, Stack, Tooltip, Typography } from '@mui/material';
 import HistoryIcon from '@mui/icons-material/History';
+import TagIcon from '@mui/icons-material/LocalOfferOutlined';
 import CalendarIcon from '@mui/icons-material/CalendarTodayOutlined';
 import CommentIcon from '@mui/icons-material/CommentOutlined';
 import NoCommentIcon from '@mui/icons-material/CommentsDisabledOutlined';
@@ -15,6 +16,7 @@ import TimeLabel from 'components/Label/Time';
 
 import ShaCopy from '../../WorkflowCommits/components/ShaCopy';
 import tagLabel from '../../WorkflowCommits/tagLabel';
+import { NEXT_VERSION, canCreateVersion } from '../../WorkflowCommits/versions';
 
 // Outlined pills, the same style as in the commits table.
 const Tags = ({ tags }) => (
@@ -155,10 +157,18 @@ export const CommitRow = ({ commit, newer = false, aligned = false }) => {
             <Divider orientation="vertical" flexItem={true} />
           </>
         ) : null}
-        {/* Restore, always last on the right, after its own divider. Wrapped so it's the
+        {/* Create version (only on commits after the latest version; stub), then Restore,
+            always last on the right, after its own divider. Wrapped so the first button is the
             first child of its box: the theme's buttonGap would otherwise add a margin on top of
-            the row's column gap. */}
-        <Box display="flex" flexShrink={0}>
+            the row's column gap; between the two buttons it gives the usual 12px. */}
+        <Box display="flex" justifyContent="flex-end" flexShrink={0}>
+          {canCreateVersion(commit) ? (
+            <Tooltip title={`Create version ${NEXT_VERSION}`}>
+              <IconButton>
+                <TagIcon />
+              </IconButton>
+            </Tooltip>
+          ) : null}
           <Tooltip title={isCurrent ? 'This is the current version' : 'Restore'}>
             {/* span: a disabled button fires no events, so the tooltip needs a wrapper. */}
             <span>

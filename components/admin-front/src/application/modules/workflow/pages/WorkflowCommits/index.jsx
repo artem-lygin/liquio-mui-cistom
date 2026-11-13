@@ -25,6 +25,7 @@ import TimeLabel from 'components/Label/Time';
 import mockCommits from './mocks/commits';
 import ShaCopy from './components/ShaCopy';
 import tagLabel from './tagLabel';
+import { NEXT_VERSION, canCreateVersion, isRelease } from './versions';
 import getMessagePreview from './messagePreview';
 
 // PoC copy is plain English on purpose: the app's English strings live in front-core's
@@ -47,21 +48,9 @@ const LABELS = {
 };
 
 // Committed (date) leads as the row's human-readable name, then Message and Author (its
-// own column, so rows stay one line); the SHA is technical, so it sits on the right. Message is the only flexible column: it takes the remaining
-// width and is cut to one line with an ellipsis (fixedTable layout). Every other column is
-// sized to its content.
-// A release is a commit with a version tag, i.e. any tag other than 'current' (e.g. '1.2').
-const isRelease = (commit) => (commit.tags || []).some((tag) => tag !== 'current');
-
-// Versions only move forward: only commits after the latest version (newer than it, i.e.
-// above it in the newest-first list) can become the next version, which is the latest
-// version's minor number + 1 (1.3 -> 1.4). Mock only; creating it is a stub for now.
-const LATEST_VERSION_INDEX = mockCommits.findIndex(isRelease);
-const LATEST_VERSION = mockCommits[LATEST_VERSION_INDEX].tags.find((tag) => tag !== 'current');
-const NEXT_VERSION = LATEST_VERSION.replace(/\d+$/, (minor) => String(Number(minor) + 1));
-const canCreateVersion = (commit) =>
-  mockCommits.findIndex((item) => item.sha === commit.sha) < LATEST_VERSION_INDEX;
-
+// own column, so rows stay one line); the SHA is technical, so it sits on the right. Message
+// is the only flexible column: it takes the remaining width and is cut to one line with an
+// ellipsis (fixedTable layout). Every other column is sized to its content.
 const columns = [
   {
     id: 'committedAt',
