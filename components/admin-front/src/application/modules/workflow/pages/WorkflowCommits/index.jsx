@@ -136,6 +136,7 @@ const ViewSettings = ({ onlyReleases, onOnlyReleasesChange }) => (
     labelPlacement="start"
     control={
       <Switch
+        size="small"
         checked={onlyReleases}
         onChange={(event) => onOnlyReleasesChange(event.target.checked)}
       />
