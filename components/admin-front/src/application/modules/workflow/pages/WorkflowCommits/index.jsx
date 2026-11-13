@@ -160,9 +160,9 @@ const ViewSettings = ({ onlyReleases, onOnlyReleasesChange }) => (
 const CommitsToolbar = ({ onlyReleases, onOnlyReleasesChange, onCompare }) => (
   <>
     <ViewSettings onlyReleases={onlyReleases} onOnlyReleasesChange={onOnlyReleasesChange} />
-    {/* Divider: 16px + the label's own 16px on the left = 32px; 20px + the theme's 12px
-        buttonGap before Compare on the right = 32px, so it sits centred between them. */}
-    <Divider orientation="vertical" variant="middle" flexItem={true} sx={{ ml: 4, mr: 5 }} />
+    {/* Divider: 16px + the label's own 16px on the left; 32px (+ the theme's buttonGap, if it
+        applies) before Compare on the right, which needs the extra room to read as separate. */}
+    <Divider orientation="vertical" variant="middle" flexItem={true} sx={{ ml: 4, mr: 8 }} />
     <Tooltip title={onCompare ? LABELS.compareTooltip : LABELS.compareHint}>
       {/* span: a disabled button fires no events, so the tooltip needs a wrapper. */}
       <span>
