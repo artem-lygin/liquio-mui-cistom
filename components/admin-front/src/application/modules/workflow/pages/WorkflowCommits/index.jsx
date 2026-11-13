@@ -5,7 +5,6 @@ import {
   Box,
   Button,
   Chip,
-  Divider,
   FormControlLabel,
   IconButton,
   Menu,
@@ -126,10 +125,27 @@ const columns = [
 // A release is a commit with a version tag, i.e. any tag other than 'current' (e.g. '1.2').
 const isRelease = (commit) => (commit.tags || []).some((tag) => tag !== 'current');
 
-// Toolbar, right of search: Compare (icon button, enabled only while exactly two commits are
-// checked), a divider, the "With versions" filter (label left of its switch), then Create
-// (the row's single contained action, last per the admin toolbar convention). Create opens a menu; both options are stubs for now.
-const CommitsToolbar = ({ onlyReleases, onOnlyReleasesChange, onCompare }) => {
+// Toolbar, split in two groups:
+// - Left, right after search: view settings, i.e. the "With versions" filter (label left of
+//   its switch). Passed to DataTable as OnSelectActions, its one slot in the left (search)
+//   part of the admin toolbar; despite the name it's always shown.
+// - Right: actions. Compare (icon button, enabled only while exactly two commits are
+//   checked), then Create (the row's single contained action, last per the admin toolbar
+//   convention). Create opens a menu; both options are stubs for now.
+const ViewSettings = ({ onlyReleases, onOnlyReleasesChange }) => (
+  <FormControlLabel
+    labelPlacement="start"
+    control={
+      <Switch
+        checked={onlyReleases}
+        onChange={(event) => onOnlyReleasesChange(event.target.checked)}
+      />
+    }
+    label={LABELS.onlyReleases}
+  />
+);
+
+const CommitsToolbar = ({ onCompare }) => {
   const [anchorEl, setAnchorEl] = React.useState(null);
   const close = () => setAnchorEl(null);
 
@@ -143,17 +159,6 @@ const CommitsToolbar = ({ onlyReleases, onOnlyReleasesChange, onCompare }) => {
           </IconButton>
         </span>
       </Tooltip>
-      <Divider orientation="vertical" variant="middle" flexItem={true} sx={{ mx: 4 }} />
-      <FormControlLabel
-        labelPlacement="start"
-        control={
-          <Switch
-            checked={onlyReleases}
-            onChange={(event) => onOnlyReleasesChange(event.target.checked)}
-          />
-        }
-        label={LABELS.onlyReleases}
-      />
       <Button
         variant="contained"
         color="primary"
@@ -196,11 +201,10 @@ const WorkflowCommitsPage = ({ location, match }) => {
   };
 
   const renderToolbar = () => (
-    <CommitsToolbar
-      onlyReleases={onlyReleases}
-      onOnlyReleasesChange={setOnlyReleases}
-      onCompare={canCompare ? handleCompare : null}
-    />
+    <CommitsToolbar onCompare={canCompare ? handleCompare : null} />
+  );
+  const renderViewSettings = () => (
+    <ViewSettings onlyReleases={onlyReleases} onOnlyReleasesChange={setOnlyReleases} />
   );
 
   const handleRowClick = (commit) => history.push(`/workflow/${workflowId}/commits/${commit.sha}`);
@@ -239,6 +243,7 @@ const WorkflowCommitsPage = ({ location, match }) => {
           columns={columns}
           data={commits}
           CustomToolbar={renderToolbar}
+          OnSelectActions={renderViewSettings}
           rowsSelected={rowsSelected}
           actions={{ onRowsSelect: setRowsSelected, isRowSelectable }}
           onRowClick={handleRowClick}
