@@ -1,38 +1,19 @@
-// PoC (poc/git-version-control): commit metadata card, in two modes.
-// - Compact (default): one row laid out like a row of the commits table: committed date with
-//   "by <author>" on one line, the message (up to two lines), then "Version" + tags, SHA and actions.
-// - Details: one row per field, with the full message and the release comment. The release
-//   comment only appears here.
-// Click the compact row (or the chevron) to expand; the chevron collapses. Restore sits left of
-// the chevron in both modes (mock only, no action yet).
+// PoC (poc/git-version-control): commit metadata card. One row laid out like a row of the
+// commits table: committed date "by <author>", the message (up to two lines), then
+// "Version" + tags, SHA and actions (Restore, release comment).
+// The release comment button expands the card to show the version's release comment under the
+// row; clicking it again (or the row) hides it. A commit without a version, or a version with
+// no comment, gets the crossed-out icon, disabled.
 import React from 'react';
 import { Box, Chip, Divider, IconButton, Paper, Stack, Tooltip, Typography } from '@mui/material';
 import HistoryIcon from '@mui/icons-material/History';
-import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
-import ExpandLessIcon from '@mui/icons-material/ExpandLess';
+import CalendarIcon from '@mui/icons-material/CalendarTodayOutlined';
+import CommentIcon from '@mui/icons-material/CommentOutlined';
+import NoCommentIcon from '@mui/icons-material/CommentsDisabledOutlined';
 
 import TimeLabel from 'components/Label/Time';
 
 import ShaCopy from '../../WorkflowCommits/components/ShaCopy';
-
-// Details row: label + value. Every row after the first starts with a full-width divider
-// (spanning both grid columns), so the grid's rowGap sits on both sides of it.
-const Row = ({ label, children, first = false }) => (
-  <>
-    {first ? null : <Divider sx={{ gridColumn: '1 / -1' }} />}
-    <Typography variant="body2" color="text.secondary">
-      {label}
-    </Typography>
-    <Box minWidth={0}>{children}</Box>
-  </>
-);
-
-// Long-form text (message, release comment): keeps line breaks, capped line length.
-const LongText = ({ children }) => (
-  <Typography variant="body2" component="div" whiteSpace="pre-wrap" maxWidth="100ch">
-    {children}
-  </Typography>
-);
 
 const Tags = ({ tags }) => (
   <Stack direction="row" spacing={1}>
@@ -52,28 +33,28 @@ const MESSAGE_CLAMP = {
   overflow: 'hidden'
 };
 
-// Gap between the compact row's columns (date, message, tags, SHA, actions), in spacing
-// units: wider than the gap inside a group so each group reads as a separate item.
+// Gap between the row's columns (date, message, tags, SHA, actions), in spacing units:
+// wider than the gap inside a group so each group reads as a separate item.
 const GROUP_GAP = 8;
 
 const CommitMetadata = ({ commit }) => {
-  const [details, setDetails] = React.useState(false);
+  const [open, setOpen] = React.useState(false);
   const tags = commit.tags || [];
   const version = tags.find((tag) => tag !== 'current');
+  const comment = version ? commit.releaseComment : null;
+  const toggle = () => setOpen((value) => !value);
 
-  const toggle = () => setDetails((value) => !value);
-
-  // Compact: the whole card is the toggle (hover highlight, click or Enter/Space to expand).
-  // Details: only the chevron collapses it, so the full text can be selected and copied.
-  const rowProps = details
-    ? {}
-    : {
+  // With a comment, the whole row is a toggle too (hover highlight, Enter/Space). The comment
+  // area itself isn't, so its text can be selected.
+  const rowProps = comment
+    ? {
         role: 'button',
         tabIndex: 0,
-        'aria-expanded': false,
+        'aria-expanded': open,
         onClick: toggle,
         onKeyDown: (event) => {
-          if (event.target === event.currentTarget && (event.key === 'Enter' || event.key === ' ')) {
+          if (event.target !== event.currentTarget) return;
+          if (event.key === 'Enter' || event.key === ' ') {
             event.preventDefault();
             toggle();
           }
@@ -83,117 +64,101 @@ const CommitMetadata = ({ commit }) => {
           '&:hover': { backgroundColor: 'action.hover' },
           '&:focus-visible': { backgroundColor: 'action.focus', outline: 'none' }
         }
-      };
+      }
+    : {};
 
-  const actions = (
-    // Restore, then the chevron at the far right. No own spacing: the theme's buttonGap puts
-    // the gap between them. Clicks here don't reach the row toggle.
-    <Box display="flex" alignItems="center" flexShrink={0} onClick={(event) => event.stopPropagation()}>
-      <Tooltip title="Restore">
-        <IconButton>
-          <HistoryIcon />
-        </IconButton>
-      </Tooltip>
-      <Tooltip title={details ? 'Hide details' : 'Show details'}>
-        <IconButton onClick={toggle} aria-expanded={details}>
-          {details ? <ExpandLessIcon /> : <ExpandMoreIcon />}
-        </IconButton>
-      </Tooltip>
-    </Box>
-  );
+  let commentTooltip = 'Not a version';
+  if (comment) commentTooltip = open ? 'Hide release comment' : 'Show release comment';
+  else if (version) commentTooltip = 'Version has no comment';
 
   return (
     <Paper elevation={2} sx={{ overflow: 'hidden' }}>
-      <Box
-        display="flex"
-        alignItems={details ? 'flex-start' : 'center'}
-        gap={GROUP_GAP}
-        p={4}
-        {...rowProps}
-      >
-        {details ? (
-          <Box
-            flex="1 1 0"
-            minWidth={0}
-            display="grid"
-            gridTemplateColumns="160px minmax(0, 1fr)"
-            alignItems="baseline"
-            columnGap={4}
-            rowGap={4}
+      <Box display="flex" alignItems="center" gap={GROUP_GAP} p={4} {...rowProps}>
+        {/* Date and author on one line. TimeLabel reserves a min-width for table columns;
+            dropped here so "by" follows the date directly. */}
+        <Stack direction="row" spacing={1} alignItems="center" flexShrink={0}>
+          <CalendarIcon fontSize="small" color="action" />
+          <Typography
+            variant="body2"
+            component="div"
+            noWrap={true}
+            sx={{ '& > span:first-of-type': { minWidth: 0 } }}
           >
-            <Row label="Author" first={true}>
-              <Typography variant="body2">{commit.author}</Typography>
-            </Row>
-            <Row label="Committed">
-              <Typography variant="body2" component="div">
-                <TimeLabel date={commit.committedAt} />
-              </Typography>
-            </Row>
-            <Row label="SHA">
-              <Typography variant="body2" component="div">
-                <ShaCopy sha={commit.sha} />
-              </Typography>
-            </Row>
-            <Row label="Message">
-              <LongText>{commit.message}</LongText>
-            </Row>
-            {tags.length ? (
-              <Row label="Tags">
-                <Tags tags={tags} />
-              </Row>
-            ) : null}
-            {version && commit.releaseComment ? (
-              <Row label="Release comment">
-                <LongText>{commit.releaseComment}</LongText>
-              </Row>
-            ) : null}
-          </Box>
-        ) : (
-          <Box flex="1 1 0" minWidth={0} display="flex" alignItems="center" gap={GROUP_GAP}>
-            {/* Date and author on one line. TimeLabel reserves a min-width for table
-                columns; dropped here so "by" follows the date directly. */}
-            <Typography
-              variant="body2"
-              component="div"
-              flexShrink={0}
-              noWrap={true}
-              sx={{ '& > span:first-of-type': { minWidth: 0 } }}
-            >
-              <TimeLabel date={commit.committedAt} />{' '}
-              <Box component="span" color="text.secondary">
-                by {commit.author}
-              </Box>
-            </Typography>
+            <TimeLabel date={commit.committedAt} />{' '}
+            <Box component="span" color="text.secondary">
+              by {commit.author}
+            </Box>
+          </Typography>
+        </Stack>
+        <Divider orientation="vertical" flexItem={true} />
+        <Typography
+          variant="body2"
+          component="div"
+          flex="1 1 0"
+          minWidth={0}
+          whiteSpace="pre-line"
+          sx={MESSAGE_CLAMP}
+        >
+          {compactMessage(commit.message)}
+        </Typography>
+        {tags.length ? (
+          <>
+            <Stack direction="row" spacing={2} alignItems="center" flexShrink={0}>
+              {version ? (
+                <Typography variant="body2" color="text.secondary">
+                  Version
+                </Typography>
+              ) : null}
+              <Tags tags={tags} />
+            </Stack>
             <Divider orientation="vertical" flexItem={true} />
-            <Typography
-              variant="body2"
-              component="div"
-              flex="1 1 0"
-              minWidth={0}
-              whiteSpace="pre-line"
-              sx={MESSAGE_CLAMP}
-            >
-              {compactMessage(commit.message)}
+          </>
+        ) : null}
+        <Typography variant="body2" component="div" flexShrink={0}>
+          <ShaCopy sha={commit.sha} />
+        </Typography>
+        <Divider orientation="vertical" flexItem={true} />
+        {/* Restore, then the release comment button at the far right. No own spacing: the
+            theme's buttonGap puts the gap between them. Clicks here don't reach the row. */}
+        <Box
+          display="flex"
+          alignItems="center"
+          flexShrink={0}
+          onClick={(event) => event.stopPropagation()}
+        >
+          <Tooltip title="Restore">
+            <IconButton>
+              <HistoryIcon />
+            </IconButton>
+          </Tooltip>
+          <Tooltip title={commentTooltip}>
+            {/* span: a disabled button fires no events, so the tooltip needs a wrapper. */}
+            <span>
+              <IconButton
+                onClick={toggle}
+                disabled={!comment}
+                aria-expanded={comment ? open : undefined}
+                color={open ? 'primary' : 'default'}
+              >
+                {comment ? <CommentIcon /> : <NoCommentIcon />}
+              </IconButton>
+            </span>
+          </Tooltip>
+        </Box>
+      </Box>
+      {comment && open ? (
+        <>
+          <Divider />
+          <Box p={4}>
+            <Typography variant="body2" color="text.secondary" gutterBottom={true}>
+              Release comment · version {version}
             </Typography>
-            {tags.length ? (
-              <Stack direction="row" spacing={2} alignItems="center" flexShrink={0}>
-                {version ? (
-                  <Typography variant="body2" color="text.secondary">
-                    Version
-                  </Typography>
-                ) : null}
-                <Tags tags={tags} />
-              </Stack>
-            ) : null}
-            {tags.length ? <Divider orientation="vertical" flexItem={true} /> : null}
-            <Typography variant="body2" component="div" flexShrink={0}>
-              <ShaCopy sha={commit.sha} />
+            <Typography variant="body2" component="div" whiteSpace="pre-wrap" maxWidth="100ch">
+              {comment}
             </Typography>
           </Box>
-        )}
-        {details ? null : <Divider orientation="vertical" flexItem={true} />}
-        {actions}
-      </Box>
+        </>
+      ) : null}
     </Paper>
   );
 };
