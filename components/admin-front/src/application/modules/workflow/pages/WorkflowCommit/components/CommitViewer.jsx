@@ -1,6 +1,14 @@
-// PoC (poc/git-version-control): commit viewer. Project tree on the left, the selected
-// file on the right: its content at this commit, or (Show difference) a git-style inline
-// diff against the previous commit, with removed lines in red and added lines in green.
+// PoC (poc/git-version-control): commit viewer, comparing two states of the project:
+// `base` (by default the previous commit) and `target` (the commit being viewed). Later the
+// same viewer compares any two commits picked in the commits table, so it never assumes they
+// share a file structure: `files` is the union of both trees, and each file carries its
+// content on each side (`before` = base, `after` = target, null where it doesn't exist) and
+// its git status (added / modified / deleted / unchanged).
+//
+// Layout: the file tree is a left panel of its own; the right panel is the editor with its own
+// title bar (file path + git status, the compared commits, Show difference).
+// The editor shows the file at `target`, or (Show difference) a git-style inline diff
+// base -> target, with removed lines in red and added lines in green.
 import React from 'react';
 import { Box, Divider, FormControlLabel, Paper, Switch, Typography } from '@mui/material';
 
@@ -54,7 +62,25 @@ const FilePreview = ({ file, showDiff }) => {
   );
 };
 
-const CommitViewer = ({ files }) => {
+// Both panels' title bars share one height so their dividers line up.
+const TITLE_BAR_HEIGHT = 56;
+
+const TitleBar = ({ children }) => (
+  <>
+    <Box display="flex" alignItems="center" gap={4} px={4} minHeight={TITLE_BAR_HEIGHT}>
+      {children}
+    </Box>
+    <Divider />
+  </>
+);
+
+const Sha = ({ children }) => (
+  <Typography component="span" variant="inherit" fontFamily="monospace">
+    {children}
+  </Typography>
+);
+
+const CommitViewer = ({ files, base, target }) => {
   const tree = React.useMemo(() => buildTree(files), [files]);
   const [selectedPath, setSelectedPath] = React.useState(
     () => (flattenTree(tree).find((file) => file.status) || {}).path || ''
@@ -63,38 +89,64 @@ const CommitViewer = ({ files }) => {
 
   const selectedFile = files.find((file) => file.path === selectedPath);
   const status = selectedFile && STATUSES[selectedFile.status];
+  const changedCount = files.filter((file) => file.status).length;
 
   return (
-    <Paper elevation={2}>
-      <Box display="flex" alignItems="center" gap={4} px={4} py={2}>
-        <Typography variant="body2" fontFamily="monospace" noWrap={true} flex={1}>
-          {selectedPath}
-          {status ? (
-            <Typography component="span" variant="inherit" color={status.color}>
-              {` · ${status.label}`}
-            </Typography>
-          ) : null}
-        </Typography>
-        <FormControlLabel
-          control={
-            <Switch checked={showDiff} onChange={(event) => setShowDiff(event.target.checked)} />
-          }
-          label="Show difference"
-        />
-      </Box>
-      <Divider />
-      <Box display="flex" height="70vh" minHeight={480}>
-        <Box
-          width={320}
-          flexShrink={0}
-          overflow="auto"
-          py={2}
-          borderRight={1}
-          borderColor="divider"
-        >
+    <Paper elevation={2} sx={{ display: 'flex', height: '70vh', minHeight: 480, overflow: 'hidden' }}>
+      {/* Left panel: the project tree (union of base and target). */}
+      <Box
+        width={320}
+        flexShrink={0}
+        display="flex"
+        flexDirection="column"
+        borderRight={1}
+        borderColor="divider"
+      >
+        <TitleBar>
+          <Typography variant="subtitle2" flex={1}>
+            Files
+          </Typography>
+          <Typography variant="body2" color="text.secondary">
+            {changedCount} changed
+          </Typography>
+        </TitleBar>
+        <Box flex={1} minHeight={0} overflow="auto" py={2}>
           <CommitFileTree tree={tree} selectedPath={selectedPath} onSelect={setSelectedPath} />
         </Box>
-        <Box flex={1} minWidth={0}>
+      </Box>
+
+      {/* Right panel: the selected file's title bar, then the editor. */}
+      <Box flex={1} minWidth={0} display="flex" flexDirection="column">
+        <TitleBar>
+          <Box flex={1} minWidth={0}>
+            <Typography variant="body2" fontFamily="monospace" noWrap={true}>
+              {selectedPath || 'No file selected'}
+              {status ? (
+                <Typography component="span" variant="inherit" color={status.color}>
+                  {` · ${status.label}`}
+                </Typography>
+              ) : null}
+            </Typography>
+            <Typography variant="caption" component="div" color="text.secondary" noWrap={true}>
+              {showDiff && base ? (
+                <>
+                  <Sha>{base.sha}</Sha> → <Sha>{target.sha}</Sha>
+                </>
+              ) : (
+                <>
+                  at <Sha>{target.sha}</Sha>
+                </>
+              )}
+            </Typography>
+          </Box>
+          <FormControlLabel
+            control={
+              <Switch checked={showDiff} onChange={(event) => setShowDiff(event.target.checked)} />
+            }
+            label="Show difference"
+          />
+        </TitleBar>
+        <Box flex={1} minHeight={0}>
           <FilePreview file={selectedFile} showDiff={showDiff} />
         </Box>
       </Box>
