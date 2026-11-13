@@ -31,7 +31,7 @@ import getMessagePreview from './messagePreview';
 // PoC copy is plain English on purpose: the app's English strings live in front-core's
 // en-GB.js (theme project territory), so translation keys here would render raw.
 const LABELS = {
-  title: 'Versions',
+  title: 'Workflow versions',
   sha: 'SHA',
   message: 'Message',
   committedAt: 'Committed',
