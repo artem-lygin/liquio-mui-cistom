@@ -15,7 +15,7 @@ import TimeLabel from 'components/Label/Time';
 
 import ShaCopy from '../../WorkflowCommits/components/ShaCopy';
 
-// Outlined pills, the same style as the commits table and the Newer/Older pills.
+// Outlined pills, the same style as in the commits table.
 const Tags = ({ tags }) => (
   <Stack direction="row" spacing={1}>
     {tags.map((tag) => (
@@ -53,11 +53,12 @@ const TOGGLE_ON = {
 
 // One commit's row plus its release comment (when open), without a panel around it, so the
 // compare page can stack two of them in one panel. Each row expands on its own.
-// `age` ('Newer' / 'Older', compare page only) adds a pill after the date and author.
+// `newer` (compare page only) marks the newer of the two commits with a filled "Newer" pill
+// after the date and author; the older one gets none.
 // `aligned` (inside CommitRowGroup): the row joins the group's grid as a subgrid, so every
 // column is exactly as wide as in the other rows, and the version column is kept even when
 // this commit has no tags.
-export const CommitRow = ({ commit, age, aligned = false }) => {
+export const CommitRow = ({ commit, newer = false, aligned = false }) => {
   const [open, setOpen] = React.useState(false);
   const tags = commit.tags || [];
   const version = tags.find((tag) => tag !== 'current');
@@ -92,14 +93,7 @@ export const CommitRow = ({ commit, age, aligned = false }) => {
               by {commit.author}
             </Box>
           </Typography>
-          {age ? (
-            <Chip
-              size="small"
-              label={age}
-              color={age === 'Newer' ? 'primary' : 'default'}
-              variant="outlined"
-            />
-          ) : null}
+          {newer ? <Chip size="small" label="Newer" color="primary" /> : null}
         </Stack>
         <Divider orientation="vertical" flexItem={true} />
         <Typography
@@ -198,10 +192,10 @@ const GROUP_COLUMNS = 'auto auto minmax(0, 1fr) auto auto auto auto auto';
 
 export const CommitRowGroup = ({ rows }) => (
   <Box display="grid" gridTemplateColumns={GROUP_COLUMNS} columnGap={GROUP_GAP}>
-    {rows.map(({ commit, age }, index) => (
+    {rows.map(({ commit, newer }, index) => (
       <React.Fragment key={commit.sha}>
         {index ? <Divider sx={{ gridColumn: '1 / -1' }} /> : null}
-        <CommitRow commit={commit} age={age} aligned={true} />
+        <CommitRow commit={commit} newer={newer} aligned={true} />
       </React.Fragment>
     ))}
   </Box>

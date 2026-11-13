@@ -1,6 +1,6 @@
 // PoC (poc/git-version-control): compare two commits picked in the commits table. One panel
 // on top with both commits' rows (the diff goes from the top one to the bottom one), each with
-// a "Newer" / "Older" pill instead of base/compared terms, and a swap button on its left that
+// the newer one marked with a "Newer" pill instead of base/compared terms, and a swap button on its left that
 // flips them, so the diff can be read either way (what was added since the older one, or what
 // was removed relative to the newer one). Then the same commit viewer as
 // the commit page, opened on Show difference. From the table the older commit is the base;
@@ -27,7 +27,6 @@ const WorkflowComparePage = ({ location, match }) => {
   );
 
   const newerSha = base && target && base.committedAt > target.committedAt ? baseSha : targetSha;
-  const ageOf = (commit) => (commit.sha === newerSha ? 'Newer' : 'Older');
 
   const handleSwap = () =>
     history.push(`/workflow/${workflowId}/commits/compare/${targetSha}/${baseSha}`);
@@ -58,8 +57,8 @@ const WorkflowComparePage = ({ location, match }) => {
             <Box flex={1} minWidth={0}>
               <CommitRowGroup
                 rows={[
-                  { commit: base, age: ageOf(base) },
-                  { commit: target, age: ageOf(target) }
+                  { commit: base, newer: baseSha === newerSha },
+                  { commit: target, newer: targetSha === newerSha }
                 ]}
               />
             </Box>
