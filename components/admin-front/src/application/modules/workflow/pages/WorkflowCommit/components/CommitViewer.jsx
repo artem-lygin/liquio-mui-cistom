@@ -141,7 +141,11 @@ const CommitViewer = ({ files, base, target, defaultShowDiff = false }) => {
           </Box>
           <FormControlLabel
             control={
-              <Switch checked={showDiff} onChange={(event) => setShowDiff(event.target.checked)} />
+              <Switch
+                size="small"
+                checked={showDiff}
+                onChange={(event) => setShowDiff(event.target.checked)}
+              />
             }
             label="Show difference"
           />
