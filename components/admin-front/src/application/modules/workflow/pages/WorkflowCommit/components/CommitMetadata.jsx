@@ -1,6 +1,6 @@
 // PoC (poc/git-version-control): commit metadata card, in two modes.
-// - Compact (default): one unlabeled row: SHA, message subject, then author (person icon)
-//   and tags on the right. The committed date isn't here: it's the page title.
+// - Compact (default): one row laid out like a row of the commits table: committed date with
+//   "by <author>", the message (up to two lines), then "Version" + tags, SHA and actions.
 // - Details: one row per field, with the full message and the release comment. The release
 //   comment only appears here.
 // "Details" toggles the mode; "Restore" sits on the right in both (mock only, no action yet).
@@ -9,12 +9,10 @@ import { Box, Button, Chip, IconButton, Paper, Stack, Tooltip, Typography } from
 import HistoryIcon from '@mui/icons-material/History';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import ExpandLessIcon from '@mui/icons-material/ExpandLess';
-import PersonIcon from '@mui/icons-material/PersonOutline';
 
 import TimeLabel from 'components/Label/Time';
 
 import ShaCopy from '../../WorkflowCommits/components/ShaCopy';
-import getMessagePreview from '../../WorkflowCommits/messagePreview';
 
 const Row = ({ label, children }) => (
   <>
@@ -40,7 +38,17 @@ const Tags = ({ tags }) => (
   </Stack>
 );
 
-// Gap between the compact row's groups (SHA + message, author, tags, actions), in spacing
+// Compact message: subject and body on consecutive lines (git's blank separator line
+// dropped), cut to two lines with an ellipsis.
+const compactMessage = (message = '') => message.replace(/\n\s*\n/g, '\n').trim();
+const MESSAGE_CLAMP = {
+  display: '-webkit-box',
+  WebkitBoxOrient: 'vertical',
+  WebkitLineClamp: 2,
+  overflow: 'hidden'
+};
+
+// Gap between the compact row's columns (date, message, tags, SHA, actions), in spacing
 // units: wider than the gap inside a group so each group reads as a separate item.
 const GROUP_GAP = 8;
 
@@ -108,21 +116,37 @@ const CommitMetadata = ({ commit }) => {
           </Box>
         ) : (
           <Box flex="1 1 0" minWidth={0} display="flex" alignItems="center" gap={GROUP_GAP}>
-            <Box flex="1 1 0" minWidth={0} display="flex" alignItems="center" gap={4}>
-              <Typography variant="body2" component="div" flexShrink={0}>
-                <ShaCopy sha={commit.sha} />
+            <Box flexShrink={0}>
+              <Typography variant="body2" component="div">
+                <TimeLabel date={commit.committedAt} />
               </Typography>
-              <Typography variant="body2" flex="1 1 0" minWidth={0} noWrap={true}>
-                {getMessagePreview(commit.message)}
+              <Typography variant="body2" color="text.secondary" noWrap={true}>
+                by {commit.author}
               </Typography>
             </Box>
-            <Stack direction="row" spacing={1} alignItems="center" flexShrink={0}>
-              <PersonIcon fontSize="small" color="action" />
-              <Typography variant="body2" noWrap={true}>
-                {commit.author}
-              </Typography>
-            </Stack>
-            {tags.length ? <Tags tags={tags} /> : null}
+            <Typography
+              variant="body2"
+              component="div"
+              flex="1 1 0"
+              minWidth={0}
+              whiteSpace="pre-line"
+              sx={MESSAGE_CLAMP}
+            >
+              {compactMessage(commit.message)}
+            </Typography>
+            {tags.length ? (
+              <Stack direction="row" spacing={2} alignItems="center" flexShrink={0}>
+                {version ? (
+                  <Typography variant="body2" color="text.secondary">
+                    Version
+                  </Typography>
+                ) : null}
+                <Tags tags={tags} />
+              </Stack>
+            ) : null}
+            <Typography variant="body2" component="div" flexShrink={0}>
+              <ShaCopy sha={commit.sha} />
+            </Typography>
           </Box>
         )}
         {actions}

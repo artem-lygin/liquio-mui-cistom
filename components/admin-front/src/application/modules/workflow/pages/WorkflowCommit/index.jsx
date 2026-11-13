@@ -1,12 +1,11 @@
 // PoC (poc/git-version-control): a single commit of a workflow, opened from the commits
-// table. Titled by its commit date, then the metadata card,
+// table. Metadata card on top,
 // then the commit viewer (project tree + file content/diff).
 // Front-end only: the commit and its files come from mocks.
 import React from 'react';
 import { Stack, Typography } from '@mui/material';
 
 import LeftSidebarLayout from 'layouts/LeftSidebar';
-import TimeLabel from 'components/Label/Time';
 
 import mockCommits from '../WorkflowCommits/mocks/commits';
 import { getCommitFiles } from './mocks/files';
@@ -21,7 +20,7 @@ const WorkflowCommitPage = ({ location, match }) => {
   return (
     <LeftSidebarLayout
       location={location}
-      title={commit ? <TimeLabel date={commit.committedAt} /> : `Commit ${sha}`}
+      title="Commit details"
       backButton={`/workflow/${workflowId}/commits`}
     >
       {commit ? (
