@@ -127,8 +127,8 @@ const columns = [
 const isRelease = (commit) => (commit.tags || []).some((tag) => tag !== 'current');
 
 // Toolbar, right of search: Compare (icon button, enabled only while exactly two commits are
-// checked), a divider, the "With versions" filter (label left of its switch), then Create (the row's single contained action, last per the admin
-// toolbar convention). Create opens a menu; both options are stubs for now.
+// checked), a divider, the "With versions" filter (label left of its switch), then Create
+// (the row's single contained action, last per the admin toolbar convention). Create opens a menu; both options are stubs for now.
 const CommitsToolbar = ({ onlyReleases, onOnlyReleasesChange, onCompare }) => {
   const [anchorEl, setAnchorEl] = React.useState(null);
   const close = () => setAnchorEl(null);
