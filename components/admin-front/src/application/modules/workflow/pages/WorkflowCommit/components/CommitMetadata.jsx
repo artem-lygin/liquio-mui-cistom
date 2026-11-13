@@ -1,5 +1,6 @@
 // PoC (poc/git-version-control): commit metadata card, in two modes.
-// - Compact (default): one row of columns (author, committed, SHA, message subject, tags).
+// - Compact (default): one unlabeled row: SHA, message subject, then tags on the right.
+//   Committed date and author aren't here: they're the page title and the "by …" line.
 // - Details: one row per field, with the full message and the release comment. The release
 //   comment only appears here.
 // "Details" toggles the mode; "Restore" sits on the right in both (mock only, no action yet).
@@ -21,18 +22,6 @@ const Row = ({ label, children }) => (
     </Typography>
     <Box minWidth={0}>{children}</Box>
   </>
-);
-
-// Compact column: small label above a one-line value.
-const Column = ({ label, children, grow = false }) => (
-  <Box minWidth={0} flex={grow ? '1 1 0' : '0 0 auto'}>
-    <Typography variant="caption" component="div" color="text.secondary">
-      {label}
-    </Typography>
-    <Typography variant="body2" component="div" noWrap={true}>
-      {children}
-    </Typography>
-  </Box>
 );
 
 // Long-form text (message, release comment): keeps line breaks, capped line length.
@@ -112,22 +101,14 @@ const CommitMetadata = ({ commit }) => {
             ) : null}
           </Box>
         ) : (
-          <Box flex="1 1 0" minWidth={0} display="flex" alignItems="flex-start" gap={4}>
-            <Column label="Author">{commit.author}</Column>
-            <Column label="Committed">
-              <TimeLabel date={commit.committedAt} />
-            </Column>
-            <Column label="SHA">
+          <Box flex="1 1 0" minWidth={0} display="flex" alignItems="center" gap={4}>
+            <Typography variant="body2" component="div" flexShrink={0}>
               <ShaCopy sha={commit.sha} />
-            </Column>
-            <Column label="Message" grow={true}>
+            </Typography>
+            <Typography variant="body2" flex="1 1 0" minWidth={0} noWrap={true}>
               {getMessagePreview(commit.message)}
-            </Column>
-            {tags.length ? (
-              <Column label="Tags">
-                <Tags tags={tags} />
-              </Column>
-            ) : null}
+            </Typography>
+            {tags.length ? <Tags tags={tags} /> : null}
           </Box>
         )}
         {actions}
