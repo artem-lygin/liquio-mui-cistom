@@ -36,6 +36,8 @@ const MESSAGE_CLAMP = {
 // Gap between the row's columns (date, message, tags, SHA, actions), in spacing units:
 // wider than the gap inside a group so each group reads as a separate item.
 const GROUP_GAP = 8;
+// Gap between the version tags and the release comment button, in spacing units.
+const VERSION_BUTTON_GAP = 5;
 
 const CommitMetadata = ({ commit }) => {
   const [open, setOpen] = React.useState(false);
@@ -84,8 +86,9 @@ const CommitMetadata = ({ commit }) => {
         {tags.length ? (
           <>
             {/* Version group: "Version" + tags, then the release comment button (versions
-                only). The theme's buttonGap spaces the button from the tags. */}
-            <Box display="flex" alignItems="center" flexShrink={0}>
+                only), set a bit further apart than the theme's 12px buttonGap. The button's
+                span is wrapped in a Box (first child there), so buttonGap doesn't add on top. */}
+            <Box display="flex" alignItems="center" gap={VERSION_BUTTON_GAP} flexShrink={0}>
               <Stack direction="row" spacing={2} alignItems="center">
                 {version ? (
                   <Typography variant="body2" color="text.secondary">
@@ -95,19 +98,21 @@ const CommitMetadata = ({ commit }) => {
                 <Tags tags={tags} />
               </Stack>
               {version ? (
-                <Tooltip title={commentTooltip}>
-                  {/* span: a disabled button fires no events, so the tooltip needs a wrapper. */}
-                  <span>
-                    <IconButton
-                      onClick={toggle}
-                      disabled={!comment}
-                      aria-expanded={comment ? open : undefined}
-                      color={open ? 'primary' : 'default'}
-                    >
-                      {comment ? <CommentIcon /> : <NoCommentIcon />}
-                    </IconButton>
-                  </span>
-                </Tooltip>
+                <Box display="flex">
+                  <Tooltip title={commentTooltip}>
+                    {/* span: a disabled button fires no events, so the tooltip needs a wrapper. */}
+                    <span>
+                      <IconButton
+                        onClick={toggle}
+                        disabled={!comment}
+                        aria-expanded={comment ? open : undefined}
+                        color={open ? 'primary' : 'default'}
+                      >
+                        {comment ? <CommentIcon /> : <NoCommentIcon />}
+                      </IconButton>
+                    </span>
+                  </Tooltip>
+                </Box>
               ) : null}
             </Box>
             <Divider orientation="vertical" flexItem={true} />
