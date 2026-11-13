@@ -10,13 +10,18 @@
 // The editor shows the file at `target`, or (Show difference) a git-style inline diff
 // base -> target, with removed lines in red and added lines in green.
 import React from 'react';
-import { Box, Divider, Paper, Typography } from '@mui/material';
+import { Box, Divider, Link, Paper, Tooltip, Typography } from '@mui/material';
 
 import Editor, { DiffEditor } from 'components/Editor';
 
 import SwitchLabel from '../../WorkflowCommits/components/SwitchLabel';
 
-import CommitFileTree, { STATUSES, buildTree, flattenTree } from './CommitFileTree';
+import CommitFileTree, {
+  STATUSES,
+  buildTree,
+  changedFolders,
+  flattenTree
+} from './CommitFileTree';
 
 const READ_ONLY = { readOnly: true };
 // renderSideBySide: false -> one column, like `git diff`.
@@ -88,6 +93,11 @@ const CommitViewer = ({ files, base, target, defaultShowDiff = false }) => {
     () => (flattenTree(tree).find((file) => file.status) || {}).path || ''
   );
   const [showDiff, setShowDiff] = React.useState(defaultShowDiff);
+  // Open folders: starts with every folder that holds a change. "N changed" opens them again
+  // (keeping any others the user opened), so every changed file is visible.
+  const [expanded, setExpanded] = React.useState(() => changedFolders(tree));
+  const revealChanged = () =>
+    setExpanded((current) => [...new Set([...current, ...changedFolders(tree)])]);
 
   const selectedFile = files.find((file) => file.path === selectedPath);
   const status = selectedFile && STATUSES[selectedFile.status];
@@ -108,12 +118,27 @@ const CommitViewer = ({ files, base, target, defaultShowDiff = false }) => {
           <Typography variant="subtitle2" flex={1}>
             Files
           </Typography>
-          <Typography variant="body2" color="text.secondary">
-            {changedCount} changed
-          </Typography>
+          <Tooltip title="Show all changed files">
+            <Link
+              component="button"
+              type="button"
+              variant="body2"
+              color="text.secondary"
+              underline="hover"
+              onClick={revealChanged}
+            >
+              {changedCount} changed
+            </Link>
+          </Tooltip>
         </TitleBar>
         <Box flex={1} minHeight={0} overflow="auto" py={2}>
-          <CommitFileTree tree={tree} selectedPath={selectedPath} onSelect={setSelectedPath} />
+          <CommitFileTree
+            tree={tree}
+            selectedPath={selectedPath}
+            onSelect={setSelectedPath}
+            expanded={expanded}
+            onExpandedChange={setExpanded}
+          />
         </Box>
       </Box>
 

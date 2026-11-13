@@ -52,7 +52,8 @@ export const buildTree = (files) => {
 export const flattenTree = (node) =>
   node.children ? node.children.flatMap(flattenTree) : [node.file];
 
-const changedFolders = (node) =>
+// Paths of every folder that contains a change (expanding them shows every changed file).
+export const changedFolders = (node) =>
   node.children
     ? [...(node.hasChanges && node.path ? [node.path] : []), ...node.children.flatMap(changedFolders)]
     : [];
@@ -96,8 +97,9 @@ const renderNode = (node) => (
   </TreeItem>
 );
 
-const CommitFileTree = ({ tree, selectedPath, onSelect }) => {
-  const [expanded, setExpanded] = React.useState(() => changedFolders(tree));
+// `expanded` / `onExpandedChange`: the open folders, owned by the viewer so its "N changed"
+// button can reveal every changed file.
+const CommitFileTree = ({ tree, selectedPath, onSelect, expanded, onExpandedChange }) => {
   const filePaths = React.useMemo(
     () => new Set(flattenTree(tree).map((file) => file.path)),
     [tree]
@@ -108,7 +110,7 @@ const CommitFileTree = ({ tree, selectedPath, onSelect }) => {
       defaultCollapseIcon={<ExpandMoreIcon />}
       defaultExpandIcon={<ChevronRightIcon />}
       expanded={expanded}
-      onNodeToggle={(event, nodeIds) => setExpanded(nodeIds)}
+      onNodeToggle={(event, nodeIds) => onExpandedChange(nodeIds)}
       selected={selectedPath}
       // Folders only expand/collapse; selecting is for files.
       onNodeSelect={(event, nodeId) => filePaths.has(nodeId) && onSelect(nodeId)}
