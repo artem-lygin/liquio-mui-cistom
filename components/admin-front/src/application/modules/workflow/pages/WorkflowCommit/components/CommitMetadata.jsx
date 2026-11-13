@@ -1,6 +1,6 @@
 // PoC (poc/git-version-control): commit metadata card. One row laid out like a row of the
 // commits table: committed date "by <author>", the message (up to two lines), then
-// SHA, the version group ("Version" + tags + release comment button) and Restore.
+// SHA, the version group ("Release" + tags + release comment button) and Restore.
 // The release comment button expands the card to show the version's release comment under the
 // row; clicking it again hides it. A version with no comment gets the crossed-out icon,
 // disabled; a commit that isn't a version has no comment button at all.
@@ -116,14 +116,14 @@ export const CommitRow = ({ commit, newer = false, aligned = false }) => {
         <Divider orientation="vertical" flexItem={true} />
         {tags.length ? (
           <>
-            {/* Version group: "Version" + tags, then the release comment button (versions
+            {/* Version group: "Release" + tags, then the release comment button (versions
                 only), set a bit further apart than the theme's 12px buttonGap. The button's
                 span is wrapped in a Box (first child there), so buttonGap doesn't add on top. */}
             <Box display="flex" alignItems="center" gap={VERSION_BUTTON_GAP} flexShrink={0}>
               <Stack direction="row" spacing={2} alignItems="center">
                 {version ? (
                   <Typography variant="body2" color="text.secondary">
-                    Version
+                    Release
                   </Typography>
                 ) : null}
                 <Tags tags={tags} />
