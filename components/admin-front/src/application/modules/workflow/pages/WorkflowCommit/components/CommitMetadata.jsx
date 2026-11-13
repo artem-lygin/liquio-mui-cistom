@@ -6,7 +6,7 @@
 // Click the compact row (or the chevron) to expand; the chevron collapses. Restore sits left of
 // the chevron in both modes (mock only, no action yet).
 import React from 'react';
-import { Box, Chip, IconButton, Paper, Stack, Tooltip, Typography } from '@mui/material';
+import { Box, Chip, Divider, IconButton, Paper, Stack, Tooltip, Typography } from '@mui/material';
 import HistoryIcon from '@mui/icons-material/History';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import ExpandLessIcon from '@mui/icons-material/ExpandLess';
@@ -39,8 +39,8 @@ const Tags = ({ tags }) => (
   </Stack>
 );
 
-// Compact message: subject and body on consecutive lines (git's blank separator line
-// dropped), cut to two lines with an ellipsis.
+// Compact message, cut to two lines with an ellipsis. Messages are normally one line; a rare
+// line break is kept, but empty lines are dropped.
 const compactMessage = (message = '') => message.replace(/\n\s*\n/g, '\n').trim();
 const MESSAGE_CLAMP = {
   display: '-webkit-box',
@@ -175,11 +175,13 @@ const CommitMetadata = ({ commit }) => {
                 <Tags tags={tags} />
               </Stack>
             ) : null}
+            {tags.length ? <Divider orientation="vertical" flexItem={true} /> : null}
             <Typography variant="body2" component="div" flexShrink={0}>
               <ShaCopy sha={commit.sha} />
             </Typography>
           </Box>
         )}
+        {details ? null : <Divider orientation="vertical" flexItem={true} />}
         {actions}
       </Box>
     </Paper>
