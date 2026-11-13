@@ -5,6 +5,7 @@ import {
   Box,
   Button,
   Chip,
+  Divider,
   FormControlLabel,
   IconButton,
   Menu,
@@ -125,13 +126,11 @@ const columns = [
 // A release is a commit with a version tag, i.e. any tag other than 'current' (e.g. '1.2').
 const isRelease = (commit) => (commit.tags || []).some((tag) => tag !== 'current');
 
-// Toolbar, split in two groups:
-// - Left, right after search: view settings, i.e. the "With versions" filter (label left of
-//   its switch). Passed to DataTable as OnSelectActions, its one slot in the left (search)
-//   part of the admin toolbar; despite the name it's always shown.
-// - Right: actions. Compare (icon button, enabled only while exactly two commits are
-//   checked), then Create (the row's single contained action, last per the admin toolbar
-//   convention). Create opens a menu; both options are stubs for now.
+// Toolbar, right of search, in two groups split by a divider:
+// - View settings: the "With versions" filter (label left of its switch).
+// - Actions: Compare (icon button, enabled only while exactly two commits are checked), then
+//   Create (the row's single contained action, last per the admin toolbar convention).
+//   Create opens a menu; both options are stubs for now.
 const ViewSettings = ({ onlyReleases, onOnlyReleasesChange }) => (
   <FormControlLabel
     labelPlacement="start"
@@ -145,12 +144,14 @@ const ViewSettings = ({ onlyReleases, onOnlyReleasesChange }) => (
   />
 );
 
-const CommitsToolbar = ({ onCompare }) => {
+const CommitsToolbar = ({ onlyReleases, onOnlyReleasesChange, onCompare }) => {
   const [anchorEl, setAnchorEl] = React.useState(null);
   const close = () => setAnchorEl(null);
 
   return (
     <>
+      <ViewSettings onlyReleases={onlyReleases} onOnlyReleasesChange={onOnlyReleasesChange} />
+      <Divider orientation="vertical" variant="middle" flexItem={true} sx={{ mx: 4 }} />
       <Tooltip title={onCompare ? LABELS.compare : LABELS.compareHint}>
         {/* span: a disabled button fires no events, so the tooltip needs a wrapper. */}
         <span>
@@ -201,10 +202,11 @@ const WorkflowCommitsPage = ({ location, match }) => {
   };
 
   const renderToolbar = () => (
-    <CommitsToolbar onCompare={canCompare ? handleCompare : null} />
-  );
-  const renderViewSettings = () => (
-    <ViewSettings onlyReleases={onlyReleases} onOnlyReleasesChange={setOnlyReleases} />
+    <CommitsToolbar
+      onlyReleases={onlyReleases}
+      onOnlyReleasesChange={setOnlyReleases}
+      onCompare={canCompare ? handleCompare : null}
+    />
   );
 
   const handleRowClick = (commit) => history.push(`/workflow/${workflowId}/commits/${commit.sha}`);
@@ -243,7 +245,6 @@ const WorkflowCommitsPage = ({ location, match }) => {
           columns={columns}
           data={commits}
           CustomToolbar={renderToolbar}
-          OnSelectActions={renderViewSettings}
           rowsSelected={rowsSelected}
           actions={{ onRowsSelect: setRowsSelected, isRowSelectable }}
           onRowClick={handleRowClick}
