@@ -31,7 +31,7 @@ import getMessagePreview from './messagePreview';
 // PoC copy is plain English on purpose: the app's English strings live in front-core's
 // en-GB.js (theme project territory), so translation keys here would render raw.
 const LABELS = {
-  title: 'Commits',
+  title: 'Versions',
   sha: 'SHA',
   message: 'Message',
   committedAt: 'Committed',
@@ -39,12 +39,11 @@ const LABELS = {
   tags: 'Tags',
   actions: 'Actions',
   restore: 'Restore',
-  restoreCurrent: 'This is the current version',
   createVersion: 'Create version',
   onlyReleases: 'Releases only',
   compare: 'Compare',
-  compareTooltip: 'Compare selected commits',
-  compareHint: 'Select two commits to compare'
+  compareTooltip: 'Compare selected versions',
+  compareHint: 'Select two versions to compare'
 };
 
 // Committed (date) leads as the row's human-readable name, then Message and Author (its
@@ -111,8 +110,6 @@ const columns = [
     align: 'right',
     disableClick: true,
     // Create version (only on commits after the latest version), then Restore, always last.
-    // The current version can't be restored to: disabled, with the reason in the tooltip
-    // (span: a disabled button fires no events, so the tooltip needs a wrapper).
     render: (value, commit) => {
       const isCurrent = (commit.tags || []).includes('current');
       return (
@@ -124,13 +121,19 @@ const columns = [
               </IconButton>
             </Tooltip>
           ) : null}
-          <Tooltip title={isCurrent ? LABELS.restoreCurrent : LABELS.restore}>
-            <span>
-              <IconButton disabled={isCurrent}>
+          {isCurrent ? (
+            // No Restore on the current commit; this invisible copy keeps its slot, so Create
+            // version lines up with the other rows.
+            <IconButton disabled={true} aria-hidden={true} tabIndex={-1} sx={{ visibility: 'hidden' }}>
+              <HistoryIcon />
+            </IconButton>
+          ) : (
+            <Tooltip title={LABELS.restore}>
+              <IconButton>
                 <HistoryIcon />
               </IconButton>
-            </span>
-          </Tooltip>
+            </Tooltip>
+          )}
         </>
       );
     }

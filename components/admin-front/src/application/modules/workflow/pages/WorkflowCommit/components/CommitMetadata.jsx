@@ -67,7 +67,7 @@ export const CommitRow = ({ commit, newer = false, aligned = false }) => {
   const tags = commit.tags || [];
   const version = tags.find((tag) => tag !== 'current');
   const comment = version ? commit.releaseComment : null;
-  // Can't restore to the version the workflow already runs.
+  // The commit the workflow already runs: nothing to restore to.
   const isCurrent = tags.includes('current');
   const toggle = () => setOpen((value) => !value);
 
@@ -170,14 +170,19 @@ export const CommitRow = ({ commit, newer = false, aligned = false }) => {
               </IconButton>
             </Tooltip>
           ) : null}
-          <Tooltip title={isCurrent ? 'This is the current version' : 'Restore'}>
-            {/* span: a disabled button fires no events, so the tooltip needs a wrapper. */}
-            <span>
-              <IconButton disabled={isCurrent}>
+          {isCurrent ? (
+            // No Restore on the current commit; this invisible copy keeps its slot, so Create
+            // version lines up with the other rows.
+            <IconButton disabled={true} aria-hidden={true} tabIndex={-1} sx={{ visibility: 'hidden' }}>
+              <HistoryIcon />
+            </IconButton>
+          ) : (
+            <Tooltip title="Restore">
+              <IconButton>
                 <HistoryIcon />
               </IconButton>
-            </span>
-          </Tooltip>
+            </Tooltip>
+          )}
         </Box>
       </Box>
       {comment && open ? (

@@ -24,7 +24,7 @@ const WorkflowCommitPage = ({ location, match }) => {
   return (
     <LeftSidebarLayout
       location={location}
-      title="Commit details"
+      title="Version details"
       backButton={`/workflow/${workflowId}/commits`}
     >
       {commit ? (

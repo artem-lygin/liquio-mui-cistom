@@ -34,7 +34,7 @@ const WorkflowComparePage = ({ location, match }) => {
   return (
     <LeftSidebarLayout
       location={location}
-      title="Compare commits"
+      title="Compare versions"
       backButton={`/workflow/${workflowId}/commits`}
     >
       {base && target ? (

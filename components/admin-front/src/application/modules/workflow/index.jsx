@@ -227,7 +227,7 @@ export default function getWorkflowModule() {
         // the single-commit route, which would otherwise match "compare" as a SHA.
         path: '/workflow/:workflowId/commits/compare/:baseSha/:targetSha',
         component: WorkflowComparePage,
-        title: 'Compare commits',
+        title: 'Compare versions',
         access: {
           userHasUnit: [1000000042, 1000002, 1000000043, 1000003, 1000015, 100002, 100003]
         }
@@ -236,7 +236,7 @@ export default function getWorkflowModule() {
         // PoC (poc/git-version-control): a single commit, mock data only.
         path: '/workflow/:workflowId/commits/:sha',
         component: WorkflowCommitPage,
-        title: 'Commit',
+        title: 'Version',
         access: {
           userHasUnit: [1000000042, 1000002, 1000000043, 1000003, 1000015, 100002, 100003]
         }
@@ -245,7 +245,7 @@ export default function getWorkflowModule() {
         // PoC (poc/git-version-control): git commit history, mock data only.
         path: '/workflow/:workflowId/commits',
         component: WorkflowCommitsPage,
-        title: 'Commits',
+        title: 'Versions',
         access: {
           userHasUnit: [1000000042, 1000002, 1000000043, 1000003, 1000015, 100002, 100003]
         }
