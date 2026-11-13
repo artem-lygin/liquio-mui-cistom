@@ -71,7 +71,7 @@ export const CommitRow = ({ commit, newer = false, aligned = false }) => {
   const isCurrent = tags.includes('current');
   const toggle = () => setOpen((value) => !value);
 
-  let commentTooltip = 'Version has no comment';
+  let commentTooltip = 'Release has no comment';
   if (comment) commentTooltip = open ? 'Hide release comment' : 'Show release comment';
 
   const rowLayout = aligned
