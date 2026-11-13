@@ -40,13 +40,18 @@ const Tags = ({ tags }) => (
   </Stack>
 );
 
+// Gap between the compact row's groups (SHA + message, author, tags, actions), in spacing
+// units: wider than the gap inside a group so each group reads as a separate item.
+const GROUP_GAP = 8;
+
 const CommitMetadata = ({ commit }) => {
   const [details, setDetails] = React.useState(false);
   const tags = commit.tags || [];
   const version = tags.find((tag) => tag !== 'current');
 
   const actions = (
-    <Stack direction="row" spacing={1} alignItems="center" flexShrink={0}>
+    // No own spacing: the theme's buttonGap puts the gap between Details and Restore.
+    <Box display="flex" alignItems="center" flexShrink={0}>
       <Button
         onClick={() => setDetails((value) => !value)}
         endIcon={details ? <ExpandLessIcon /> : <ExpandMoreIcon />}
@@ -58,12 +63,12 @@ const CommitMetadata = ({ commit }) => {
           <HistoryIcon />
         </IconButton>
       </Tooltip>
-    </Stack>
+    </Box>
   );
 
   return (
     <Paper elevation={2}>
-      <Box display="flex" alignItems={details ? 'flex-start' : 'center'} gap={4} p={4}>
+      <Box display="flex" alignItems={details ? 'flex-start' : 'center'} gap={GROUP_GAP} p={4}>
         {details ? (
           <Box
             flex="1 1 0"
@@ -102,13 +107,15 @@ const CommitMetadata = ({ commit }) => {
             ) : null}
           </Box>
         ) : (
-          <Box flex="1 1 0" minWidth={0} display="flex" alignItems="center" gap={4}>
-            <Typography variant="body2" component="div" flexShrink={0}>
-              <ShaCopy sha={commit.sha} />
-            </Typography>
-            <Typography variant="body2" flex="1 1 0" minWidth={0} noWrap={true}>
-              {getMessagePreview(commit.message)}
-            </Typography>
+          <Box flex="1 1 0" minWidth={0} display="flex" alignItems="center" gap={GROUP_GAP}>
+            <Box flex="1 1 0" minWidth={0} display="flex" alignItems="center" gap={4}>
+              <Typography variant="body2" component="div" flexShrink={0}>
+                <ShaCopy sha={commit.sha} />
+              </Typography>
+              <Typography variant="body2" flex="1 1 0" minWidth={0} noWrap={true}>
+                {getMessagePreview(commit.message)}
+              </Typography>
+            </Box>
             <Stack direction="row" spacing={1} alignItems="center" flexShrink={0}>
               <PersonIcon fontSize="small" color="action" />
               <Typography variant="body2" noWrap={true}>
