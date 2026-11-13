@@ -24,13 +24,17 @@ const FilePreview = ({ file, showDiff }) => {
   if (!file) return <EmptyState>Select a file to see its content.</EmptyState>;
 
   if (showDiff) {
+    // One DiffEditor that updates in place (no key per file), and it doesn't dispose its
+    // models on unmount: remounting/disposing makes @monaco-editor/react throw "TextModel got
+    // disposed before DiffEditorWidget model got reset".
     return (
       <DiffEditor
-        key={file.path}
         language={file.language}
         original={file.before || ''}
         modified={file.after || ''}
         options={DIFF_OPTIONS}
+        keepCurrentOriginalModel={true}
+        keepCurrentModifiedModel={true}
       />
     );
   }
