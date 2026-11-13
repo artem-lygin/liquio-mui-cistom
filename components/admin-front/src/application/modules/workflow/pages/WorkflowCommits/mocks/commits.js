@@ -1,24 +1,11 @@
 // PoC (poc/git-version-control): stub git history for a workflow. There is no backend for
 // commits yet, so every workflow shows this same list.
-// - `message`: full git commit message, any length (up to ~5,000 chars): a subject line,
-//   then an optional body after a blank line, as in git.
+// - `message`: full git commit message: a subject line, then an optional body after a blank
+//   line, as in git. Messages are generated automatically, so they are mostly short, but
+//   there is no length limit.
 // - `tags`: the commit's git tags: a process version (e.g. '1.2') and/or 'current' (the
 //   version the workflow runs now). A commit with a version tag is a release.
 // - `releaseComment`: a release's own notes, separate from the commit message, also any length.
-
-const LONG_BODY = `Reworked the document-signing branch of the process after the October review.
-
-What changed:
-- The applicant now signs the application form before it is sent to the registry, not after. The old order let unsigned applications reach the registry when the signing service timed out.
-- Added a timer event (48 hours) on the "Awaiting payment" task. When it fires, the process sends a reminder and, after a second 48 hours, cancels the application with status "Expired".
-- The "Check documents" task is now assigned to the unit's document officers instead of a single named user, so applications no longer get stuck while that person is on leave.
-- Split the large "Prepare decision" form into three steps (summary, decision, notification text). Each step validates on its own, so officers see errors earlier.
-- Removed the unused "Legacy export" gateway and its two outgoing flows.
-
-Migration notes:
-Applications already waiting on "Awaiting payment" keep their current deadline. The new timer applies only to applications that reach this task after the release.
-
-Tested on stage with the 40 sample applications from the regression set; all of them completed or expired as expected.`;
 
 const RELEASE_1_3_COMMENT = `Release 1.3 is the version approved by the registry team on 27 October.
 
@@ -37,7 +24,7 @@ Rollback: release 1.2 stays available. Restoring it does not affect applications
 const commits = [
   {
     sha: 'e005c6c9',
-    message: `Save workflowTemplates 161 via editor\n\n${LONG_BODY}`,
+    message: 'Save workflowTemplates 161 via editor\n\nSigning moved before submission to the registry.',
     author: 'Oliver Bennett',
     committedAt: '2026-10-27T16:34:00',
     tags: ['1.3', 'current'],
