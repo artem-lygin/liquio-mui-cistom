@@ -35,6 +35,7 @@ const LABELS = {
   sha: 'SHA',
   message: 'Message',
   committedAt: 'Committed',
+  author: 'Author',
   tags: 'Tags',
   actions: 'Actions',
   restore: 'Restore',
@@ -47,23 +48,16 @@ const LABELS = {
   compareHint: 'Select two commits to compare'
 };
 
-// Committed (date + author) leads as the row's human-readable name; the SHA is technical,
-// so it sits on the right. Message is the only flexible column: it takes the remaining
+// Committed (date) leads as the row's human-readable name, then Message and Author (its
+// own column, so rows stay one line); the SHA is technical, so it sits on the right. Message is the only flexible column: it takes the remaining
 // width and is cut to one line with an ellipsis (fixedTable layout). Every other column is
 // sized to its content.
 const columns = [
   {
     id: 'committedAt',
     name: LABELS.committedAt,
-    width: 220,
-    render: (value, { author }) => (
-      <>
-        <TimeLabel date={value} />
-        <Typography variant="body2" color="text.secondary" noWrap={true} title={author}>
-          by {author}
-        </Typography>
-      </>
-    )
+    width: 180,
+    render: (value) => <TimeLabel date={value} />
   },
   {
     id: 'message',
@@ -71,6 +65,16 @@ const columns = [
     render: (value) => (
       <Typography variant="inherit" component="div" noWrap={true}>
         {getMessagePreview(value)}
+      </Typography>
+    )
+  },
+  {
+    id: 'author',
+    name: LABELS.author,
+    width: 180,
+    render: (value) => (
+      <Typography variant="inherit" component="div" noWrap={true} title={value}>
+        {value}
       </Typography>
     )
   },
