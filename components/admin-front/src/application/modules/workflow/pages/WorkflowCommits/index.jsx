@@ -15,14 +15,15 @@ import {
   Typography
 } from '@mui/material';
 import HistoryIcon from '@mui/icons-material/History';
-import ContentCopyIcon from '@mui/icons-material/ContentCopy';
 import AddIcon from '@mui/icons-material/Add';
 
+import { history } from 'store';
 import LeftSidebarLayout from 'layouts/LeftSidebar';
 import DataTableStated from 'components/DataTable/DataTableStated';
 import TimeLabel from 'components/Label/Time';
 
 import mockCommits from './mocks/commits';
+import ShaCopy from './components/ShaCopy';
 
 // PoC copy is plain English on purpose: the app's English strings live in front-core's
 // en-GB.js (theme project territory), so translation keys here would render raw.
@@ -34,62 +35,10 @@ const LABELS = {
   tags: 'Tags',
   actions: 'Actions',
   restore: 'Restore',
-  copySha: 'Copy SHA',
-  copied: 'Copied',
   create: 'Create',
   createCommit: 'Create commit',
   createVersion: 'Create version',
   onlyReleases: 'Only releases'
-};
-
-// navigator.clipboard only exists in secure contexts; the dev hosts are plain http, so
-// fall back to a hidden textarea + execCommand there.
-const copyText = (text) => {
-  if (navigator.clipboard && window.isSecureContext) {
-    return navigator.clipboard.writeText(text);
-  }
-  const textarea = document.createElement('textarea');
-  textarea.value = text;
-  textarea.setAttribute('readonly', '');
-  textarea.style.position = 'fixed';
-  textarea.style.opacity = '0';
-  document.body.appendChild(textarea);
-  textarea.select();
-  document.execCommand('copy');
-  document.body.removeChild(textarea);
-  return Promise.resolve();
-};
-
-// SHA with a copy button that appears while the cell is hovered (or the button focused).
-const ShaCell = ({ sha }) => {
-  const [copied, setCopied] = React.useState(false);
-
-  const handleCopy = (event) => {
-    event.stopPropagation(); // don't trigger the row click
-    copyText(sha).then(() => setCopied(true));
-  };
-
-  return (
-    <Box
-      display="flex"
-      alignItems="center"
-      gap={1}
-      sx={{
-        '& .copy-sha': { visibility: 'hidden' },
-        '&:hover .copy-sha, & .copy-sha:focus-visible': { visibility: 'visible' }
-      }}
-      onMouseLeave={() => setCopied(false)}
-    >
-      <Typography variant="inherit" fontFamily="monospace">
-        {sha}
-      </Typography>
-      <Tooltip title={copied ? LABELS.copied : LABELS.copySha}>
-        <IconButton className="copy-sha" size="small" onClick={handleCopy}>
-          <ContentCopyIcon fontSize="inherit" />
-        </IconButton>
-      </Tooltip>
-    </Box>
-  );
 };
 
 // Commit messages can be any length (subject line, blank line, body). The table shows just
@@ -150,7 +99,7 @@ const columns = [
     id: 'sha',
     name: LABELS.sha,
     width: 152,
-    render: (value) => <ShaCell sha={value} />
+    render: (value) => <ShaCopy sha={value} />
   },
   {
     id: 'actions',
@@ -224,8 +173,7 @@ const WorkflowCommitsPage = ({ location, match }) => {
     <CommitsToolbar onlyReleases={onlyReleases} onOnlyReleasesChange={setOnlyReleases} />
   );
 
-  // Row click target (the commit page) is the next PoC step.
-  const handleRowClick = () => {};
+  const handleRowClick = (commit) => history.push(`/workflow/${workflowId}/commits/${commit.sha}`);
 
   return (
     <LeftSidebarLayout
