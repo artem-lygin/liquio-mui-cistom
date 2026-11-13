@@ -15,10 +15,17 @@ import TimeLabel from 'components/Label/Time';
 
 import ShaCopy from '../../WorkflowCommits/components/ShaCopy';
 
+// Outlined pills, the same style as the commits table and the Newer/Older pills.
 const Tags = ({ tags }) => (
   <Stack direction="row" spacing={1}>
     {tags.map((tag) => (
-      <Chip key={tag} size="small" label={tag} color={tag === 'current' ? 'primary' : 'default'} />
+      <Chip
+        key={tag}
+        size="small"
+        variant="outlined"
+        label={tag}
+        color={tag === 'current' ? 'primary' : 'default'}
+      />
     ))}
   </Stack>
 );
