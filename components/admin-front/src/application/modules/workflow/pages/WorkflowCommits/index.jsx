@@ -80,11 +80,11 @@ const columns = [
     name: LABELS.tags,
     width: 160,
     // Git tags: a process version and/or 'current' (what the workflow runs now).
-    // Outlined pills.
-    render: (tags) => (
+    // Outlined pills. A version's tooltip also says when and by whom it was created.
+    render: (tags, commit) => (
       <Stack direction="row" spacing={1}>
         {(tags || []).map((tag) => (
-          <Tooltip key={tag} title={versionTooltip(tag) || ''}>
+          <Tooltip key={tag} title={versionTooltip(tag, commit) || ''}>
             <Chip
               size="small"
               variant="outlined"

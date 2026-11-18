@@ -7,6 +7,8 @@
 //   commit the workflow runs now: the latest commit, versioned or not). A commit with a
 //   version tag is a release.
 // - `releaseComment`: a release's own notes, separate from the commit message, also any length.
+// - `versionCreatedBy` / `versionCreatedAt`: who made the commit a version, and when. A version
+//   is created later than its commit, often by someone else (e.g. the person approving it).
 
 const RELEASE_1_3_COMMENT = `Release 1.3 is the version approved by the registry team on 27 October.
 
@@ -57,6 +59,8 @@ const commits = [
     author: 'Oliver Bennett',
     committedAt: '2026-10-27T16:34:00',
     tags: ['1.3'],
+    versionCreatedBy: 'Anna Kovalenko',
+    versionCreatedAt: '2026-10-28T10:15:00',
     releaseComment: RELEASE_1_3_COMMENT
   },
   {
@@ -72,6 +76,8 @@ const commits = [
     author: 'Sophie Turner',
     committedAt: '2026-10-21T12:21:10',
     tags: ['1.2'],
+    versionCreatedBy: 'Oliver Bennett',
+    versionCreatedAt: '2026-10-21T14:02:00',
     releaseComment:
       'Release 1.2: the version used in production from 21 October until release 1.3. Kept as the rollback point for the signing changes.'
   },
@@ -105,7 +111,9 @@ const commits = [
     message: 'Manual backup workflowTemplates 161',
     author: 'Oliver Bennett',
     committedAt: '2026-10-21T11:57:00',
-    tags: ['1.1']
+    tags: ['1.1'],
+    versionCreatedBy: 'Anna Kovalenko',
+    versionCreatedAt: '2026-10-21T12:00:00'
   },
   {
     sha: '89cd3102',
@@ -132,6 +140,8 @@ const commits = [
     author: 'Oliver Bennett',
     committedAt: '2026-10-20T17:45:00',
     tags: ['1.0'],
+    versionCreatedBy: 'Anna Kovalenko',
+    versionCreatedAt: '2026-10-20T18:30:00',
     releaseComment: 'First release of the process. Approved for the pilot in two regional offices.'
   },
   {
@@ -152,6 +162,13 @@ const commits = [
     author: 'Oliver Bennett',
     committedAt: '2026-10-20T10:00:00'
   }
-].map((commit) => ({ id: commit.sha, tags: [], releaseComment: null, ...commit }));
+].map((commit) => ({
+  id: commit.sha,
+  tags: [],
+  releaseComment: null,
+  versionCreatedBy: null,
+  versionCreatedAt: null,
+  ...commit
+}));
 
 export default commits;

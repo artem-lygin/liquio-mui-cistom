@@ -1,6 +1,7 @@
 // PoC (poc/git-version-control): commit metadata card. One row laid out like a row of the
 // commits table: committed date "by <author>", the message (up to two lines), then
-// SHA, the version group ("Release" + tags + release comment button) and Restore.
+// SHA, the version group ("Release" + tags, the version's creation date "by <initiator>",
+// release comment button) and Restore.
 // The release comment button expands the card to show the version's release comment under the
 // row; clicking it again hides it. A version with no comment gets the crossed-out icon,
 // disabled; a commit that isn't a version has no comment button at all.
@@ -19,10 +20,10 @@ import tagLabel from '../../WorkflowCommits/tagLabel';
 import { canCreateVersion, versionTooltip } from '../../WorkflowCommits/versions';
 
 // Outlined pills, the same style as in the commits table.
-const Tags = ({ tags }) => (
+const Tags = ({ tags, commit }) => (
   <Stack direction="row" spacing={1}>
     {tags.map((tag) => (
-      <Tooltip key={tag} title={versionTooltip(tag) || ''}>
+      <Tooltip key={tag} title={versionTooltip(tag, commit) || ''}>
         <Chip
           size="small"
           variant="outlined"
@@ -126,7 +127,25 @@ export const CommitRow = ({ commit, newer = false, aligned = false }) => {
                     Release
                   </Typography>
                 ) : null}
-                <Tags tags={tags} />
+                <Tags tags={tags} commit={commit} />
+                {/* When the version was created and by whom: laid out like the commit's own
+                    "date by author", since a version is made later and often by someone else. */}
+                {version && (commit.versionCreatedAt || commit.versionCreatedBy) ? (
+                  <Typography
+                    variant="body2"
+                    component="div"
+                    noWrap={true}
+                    sx={{ '& > span:first-of-type': { minWidth: 0 } }}
+                  >
+                    {commit.versionCreatedAt ? <TimeLabel date={commit.versionCreatedAt} /> : null}
+                    {commit.versionCreatedAt && commit.versionCreatedBy ? ' ' : null}
+                    {commit.versionCreatedBy ? (
+                      <Box component="span" color="text.secondary">
+                        by {commit.versionCreatedBy}
+                      </Box>
+                    ) : null}
+                  </Typography>
+                ) : null}
               </Stack>
               {version ? (
                 <Box display="flex">
