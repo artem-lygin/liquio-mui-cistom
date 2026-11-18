@@ -17,11 +17,13 @@ import CompareIcon from '@mui/icons-material/CompareArrows';
 
 import { history } from 'store';
 import LeftSidebarLayout from 'layouts/LeftSidebar';
-import DataTableStated from 'components/DataTable/DataTableStated';
+import DataTable from 'components/DataTable';
 import TimeLabel from 'components/Label/Time';
 
 import mockCommits from './mocks/commits';
 import ShaCopy from './components/ShaCopy';
+import CommitGraph, { graphWidth } from './components/CommitGraph';
+import layoutGraph from './graph';
 import SwitchLabel from './components/SwitchLabel';
 import tagLabel from './tagLabel';
 import { canCreateVersion, versionTooltip, isRelease } from './versions';
@@ -45,10 +47,20 @@ const LABELS = {
   compareHint: 'Select two versions to compare'
 };
 
-// Committed (date) leads as the row's human-readable name, then Message and Author (its
-// own column, so rows stay one line); the SHA is technical, so it sits on the right. Message
-// is the only flexible column: it takes the remaining width and is cut to one line with an
-// ellipsis (fixedTable layout). Every other column is sized to its content.
+// The commit graph comes first, right after the checkbox: branches as lanes, each commit a
+// dot on its lane. Then Committed (date) as the row's human-readable name, Message and Author
+// (its own column, so rows stay one line); the SHA is technical, so it sits on the right.
+// Message is the only flexible column: it takes the remaining width and is cut to one line
+// with an ellipsis (fixedTable layout). Every other column is sized to its content.
+const graphColumn = (graph) => ({
+  id: 'graph',
+  name: '',
+  width: graphWidth(graph.lanes),
+  // The graph is drawn over the whole cell (see CommitGraph), so the cell is its frame.
+  sx: { position: 'relative' },
+  render: (value, commit) => <CommitGraph node={graph.nodes.get(commit.sha)} lanes={graph.lanes} />
+});
+
 const columns = [
   {
     id: 'committedAt',
@@ -183,12 +195,35 @@ const CommitsToolbar = ({ onlyReleases, onOnlyReleasesChange, onCompare }) => (
   </Box>
 );
 
+// What the search box matches: the fields shown in the row.
+const searchText = (commit) =>
+  [commit.sha, commit.message, commit.author, ...(commit.tags || []).map(tagLabel)]
+    .join(' ')
+    .toUpperCase();
+
 const WorkflowCommitsPage = ({ location, match }) => {
   const { workflowId } = match.params;
   const [rowsSelected, setRowsSelected] = React.useState([]);
   const [onlyReleases, setOnlyReleases] = React.useState(false);
+  // Search and paging are kept here rather than in DataTableStated, so the graph can be laid
+  // out over exactly the rows that pass the filters, before the list is cut into pages.
+  const [search, setSearch] = React.useState('');
+  const [page, setPage] = React.useState(1);
+  const [rowsPerPage, setRowsPerPage] = React.useState(10);
 
-  const commits = onlyReleases ? mockCommits.filter(isRelease) : mockCommits;
+  const commits = React.useMemo(() => {
+    const query = search.trim().toUpperCase();
+    return mockCommits
+      .filter((commit) => !onlyReleases || isRelease(commit))
+      .filter((commit) => !query || searchText(commit).includes(query));
+  }, [onlyReleases, search]);
+
+  const graph = React.useMemo(() => layoutGraph(commits, mockCommits), [commits]);
+  const tableColumns = React.useMemo(() => [graphColumn(graph), ...columns], [graph]);
+
+  // Back to the first page whenever the filters change the list.
+  React.useEffect(() => setPage(1), [onlyReleases, search, rowsPerPage]);
+  const pageRows = commits.slice((page - 1) * rowsPerPage, page * rowsPerPage);
 
   // Compare takes exactly two commits: once two are checked, the other checkboxes are
   // disabled (and there's no select-all). The older commit becomes the base.
@@ -219,8 +254,9 @@ const WorkflowCommitsPage = ({ location, match }) => {
       {/* PoC-local overrides of the shared DataTable (the component itself is theme-project
           territory, on main):
           - Row hover: DataTable renders a row's first column as <th scope="row">, but its
-            row-hover rule only recolours <td>, so Committed (the primary column) stayed
-            unhighlighted. Same token as DataTableRow's hover rule.
+            row-hover rule only recolours <td>. The first column is the graph now (no text),
+            so this only matters if a text column moves first again. Same token as
+            DataTableRow's hover rule.
           - Search: compact by default instead of filling the toolbar; it widens while focused
             or holding a query, so it stays comfortable to type in. */}
       <Box
@@ -236,16 +272,26 @@ const WorkflowCommitsPage = ({ location, match }) => {
           }
         })}
       >
-        <DataTableStated
+        <DataTable
           panel={true}
           darkTheme={true}
           fixedTable={true}
           checkable={true}
-          columns={columns}
-          data={commits}
+          columns={tableColumns}
+          data={pageRows}
+          page={page}
+          search={search}
+          count={commits.length}
+          rowsPerPage={rowsPerPage}
           CustomToolbar={renderToolbar}
           rowsSelected={rowsSelected}
-          actions={{ onRowsSelect: setRowsSelected, isRowSelectable }}
+          actions={{
+            onRowsSelect: setRowsSelected,
+            isRowSelectable,
+            onChangePage: (index) => setPage(index + 1),
+            onSearchChange: setSearch,
+            onChangeRowsPerPage: setRowsPerPage
+          }}
           onRowClick={handleRowClick}
           controls={{
             pagination: true,

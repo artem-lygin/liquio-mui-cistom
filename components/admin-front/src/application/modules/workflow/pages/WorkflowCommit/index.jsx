@@ -14,11 +14,10 @@ import CommitViewer from './components/CommitViewer';
 
 const WorkflowCommitPage = ({ location, match }) => {
   const { workflowId, sha } = match.params;
-  const position = mockCommits.findIndex((item) => item.sha === sha);
-  const commit = mockCommits[position];
-  // Compared against the previous commit (the next one in the newest-first list); the first
-  // commit has none. Later the commits table can pick any two commits for base and target.
-  const base = mockCommits[position + 1] || null;
+  const commit = mockCommits.find((item) => item.sha === sha);
+  // Compared against its parent (the first one, for a merge); the first commit has none.
+  const parentSha = commit?.parents?.[0];
+  const base = mockCommits.find((item) => item.sha === parentSha) || null;
   const files = React.useMemo(() => getCommitFiles(sha), [sha]);
 
   return (

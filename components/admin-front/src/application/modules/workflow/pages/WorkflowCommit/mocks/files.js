@@ -296,11 +296,11 @@ const diffFiles = (beforeFiles, afterFiles) => {
   });
 };
 
-// A commit against the previous one. The first commit adds the whole project.
+// A commit against its parent. The first commit (no parent) adds the whole project.
 export const getCommitFiles = (sha) => {
-  const position = mockCommits.findIndex((commit) => commit.sha === sha);
-  const parent = mockCommits[position + 1];
-  return diffFiles(parent ? baseFiles() : {}, snapshot(sha));
+  const commit = mockCommits.find((item) => item.sha === sha);
+  const hasParent = !!commit?.parents?.length;
+  return diffFiles(hasParent ? baseFiles() : {}, snapshot(sha));
 };
 
 // Any two commits: base -> target.

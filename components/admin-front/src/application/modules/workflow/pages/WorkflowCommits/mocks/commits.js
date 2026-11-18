@@ -7,6 +7,9 @@
 //   commit the workflow runs now: the latest commit, versioned or not). A commit with a
 //   version tag is a release.
 // - `releaseComment`: a release's own notes, separate from the commit message, also any length.
+// - `parents`: SHAs of the commit's parents (git's parent links). Main-line commits get the
+//   next main-line commit as their parent automatically; branch commits list theirs. A
+//   commit with several children is where a branch starts; the list draws them as a graph.
 // - `versionCreatedBy` / `versionCreatedAt`: who made the commit a version, and when. A version
 //   is created later than its commit, often by someone else (e.g. the person approving it).
 
@@ -24,9 +27,9 @@ Known issues:
 
 Rollback: release 1.2 stays available. Restoring it does not affect applications already in progress, but new applications will again use the old signing order.`;
 
-// Newest first. The four commits above 1.3 aren't versioned yet: any of them can become the
-// next version (1.4). The newest one is current.
-const commits = [
+// The main line, newest first. The four commits above 1.3 aren't versioned yet: any of them
+// can become the next version (1.4). The newest one is current.
+const mainLine = [
   {
     sha: '7b2f4d1a',
     message:
@@ -162,13 +165,63 @@ const commits = [
     author: 'Oliver Bennett',
     committedAt: '2026-10-20T10:00:00'
   }
-].map((commit) => ({
-  id: commit.sha,
-  tags: [],
-  releaseComment: null,
-  versionCreatedBy: null,
-  versionCreatedAt: null,
-  ...commit
-}));
+];
+
+// Side branches, up to two levels deep: a hotfix branch off release 1.2, an experiment
+// branched off that hotfix, and a draft branched off the main line after 1.3. None of them
+// is merged back.
+const branches = [
+  {
+    sha: '0f3b8e64',
+    message: 'Save workflowTemplates 161 via editor. Draft: the decision form as a single page.',
+    author: 'Emily Carter',
+    committedAt: '2026-11-04T13:15:00',
+    parents: ['58d0e7b2']
+  },
+  {
+    sha: 'b81f6a3d',
+    message: 'Save workflowTemplates 161 via editor. Hotfix on 1.2: corrected the reminder text.',
+    author: 'Sophie Turner',
+    committedAt: '2026-10-24T15:40:00',
+    parents: ['4c7d19e2']
+  },
+  {
+    sha: 'e2a95c07',
+    message:
+      'Save workflowTemplates 161 via MCP. Experiment on the hotfix: reminder after 24 hours instead of 48.',
+    author: 'MCP Editor',
+    committedAt: '2026-10-23T16:20:00',
+    parents: ['4c7d19e2']
+  },
+  {
+    sha: '4c7d19e2',
+    message:
+      'Save workflowTemplates 161 via editor. Hotfix on 1.2: the payment reminder was sent twice.',
+    author: 'Sophie Turner',
+    committedAt: '2026-10-23T10:05:00',
+    parents: ['362aa7e4']
+  }
+];
+
+// One history, newest first (children always come before their parents).
+const commits = [
+  ...mainLine.map((commit, index) => ({
+    parents: mainLine[index + 1] ? [mainLine[index + 1].sha] : [],
+    ...commit
+  })),
+  ...branches
+]
+  .sort((a, b) => b.committedAt.localeCompare(a.committedAt))
+  .map((commit) => ({
+    id: commit.sha,
+    tags: [],
+    releaseComment: null,
+    versionCreatedBy: null,
+    versionCreatedAt: null,
+    ...commit
+  }));
+
+// SHAs of the main line (the branch versions are created on).
+export const mainLineShas = new Set(mainLine.map((commit) => commit.sha));
 
 export default commits;
