@@ -3,9 +3,10 @@
 // Lines are an SVG stretched to the row's height (strokes stay 2px whatever the stretch);
 // the dot is a separate element, so it stays round.
 //
-// Every lane is the same dim gray (grey 800, kept quiet so the table reads first). While a row is hovered, its commit's ancestry (the lines and
-// dots it comes from, down to the first commit) turns almost white; `highlighted` is that set
-// of SHAs (empty when nothing is hovered).
+// Every lane is the same dim gray (grey 800, kept quiet so the table reads first). While a
+// row is hovered, its commit's ancestry (the lines and dots it comes from, down to the first
+// commit) turns almost white; `highlighted` is that set of SHAs (empty when nothing is
+// hovered).
 import React from 'react';
 import { Box } from '@mui/material';
 import { useTheme } from '@mui/material/styles';
