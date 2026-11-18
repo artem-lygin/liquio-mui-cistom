@@ -23,7 +23,7 @@ import TimeLabel from 'components/Label/Time';
 import mockCommits from './mocks/commits';
 import ShaCopy from './components/ShaCopy';
 import CommitGraph, { graphWidth } from './components/CommitGraph';
-import layoutGraph from './graph';
+import layoutGraph, { ancestry } from './graph';
 import SwitchLabel from './components/SwitchLabel';
 import tagLabel from './tagLabel';
 import { canCreateVersion, versionTooltip, isRelease } from './versions';
@@ -52,14 +52,28 @@ const LABELS = {
 // (its own column, so rows stay one line); the SHA is technical, so it sits on the right.
 // Message is the only flexible column: it takes the remaining width and is cut to one line
 // with an ellipsis (fixedTable layout). Every other column is sized to its content.
-const graphColumn = (graph) => ({
+const graphColumn = (graph, highlighted) => ({
   id: 'graph',
   name: '',
   width: graphWidth(graph.lanes),
   // The graph is drawn over the whole cell (see CommitGraph), so the cell is its frame.
   sx: { position: 'relative' },
-  render: (value, commit) => <CommitGraph node={graph.nodes.get(commit.sha)} lanes={graph.lanes} />
+  render: (value, commit) => (
+    <CommitGraph
+      sha={commit.sha}
+      node={graph.nodes.get(commit.sha)}
+      lanes={graph.lanes}
+      highlighted={highlighted}
+    />
+  )
 });
+
+// The SHA of the table row under the pointer (read off its graph cell), or null.
+const rowShaAt = (target) =>
+  target
+    .closest?.('tbody tr')
+    ?.querySelector('[data-commit-sha]')
+    ?.getAttribute('data-commit-sha') || null;
 
 const columns = [
   {
@@ -219,7 +233,17 @@ const WorkflowCommitsPage = ({ location, match }) => {
   }, [onlyReleases, search]);
 
   const graph = React.useMemo(() => layoutGraph(commits, mockCommits), [commits]);
-  const tableColumns = React.useMemo(() => [graphColumn(graph), ...columns], [graph]);
+  // Hovering a row highlights its commit's ancestry in the graph.
+  const [hoveredSha, setHoveredSha] = React.useState(null);
+  const highlighted = React.useMemo(() => ancestry(graph, hoveredSha), [graph, hoveredSha]);
+  const tableColumns = React.useMemo(
+    () => [graphColumn(graph, highlighted), ...columns],
+    [graph, highlighted]
+  );
+  const handleMouseOver = (event) => {
+    const sha = rowShaAt(event.target);
+    if (sha !== hoveredSha) setHoveredSha(sha);
+  };
 
   // Back to the first page whenever the filters change the list.
   React.useEffect(() => setPage(1), [onlyReleases, search, rowsPerPage]);
@@ -260,6 +284,8 @@ const WorkflowCommitsPage = ({ location, match }) => {
           - Search: compact by default instead of filling the toolbar; it widens while focused
             or holding a query, so it stays comfortable to type in. */}
       <Box
+        onMouseOver={handleMouseOver}
+        onMouseLeave={() => setHoveredSha(null)}
         sx={(theme) => ({
           '& tbody tr:hover > th': { color: `${theme.dataTableHoverColor} !important` },
           '& .MuiToolbar-root > div:has(> .MuiInputBase-root)': {

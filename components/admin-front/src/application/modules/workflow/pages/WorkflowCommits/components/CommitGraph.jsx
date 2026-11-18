@@ -2,6 +2,10 @@
 // Drawn over the whole table cell, padding included, so lines meet the rows above and below.
 // Lines are an SVG stretched to the row's height (strokes stay 2px whatever the stretch);
 // the dot is a separate element, so it stays round.
+//
+// Every lane is the same gray. While a row is hovered, its commit's ancestry (the lines and
+// dots it comes from, down to the first commit) turns almost white; `highlighted` is that set
+// of SHAs (empty when nothing is hovered).
 import React from 'react';
 import { Box } from '@mui/material';
 import { useTheme } from '@mui/material/styles';
@@ -15,42 +19,48 @@ export const graphWidth = (lanes) => EDGE * 2 + Math.max(lanes, 1) * LANE;
 
 const laneX = (lane) => EDGE + LANE / 2 + lane * LANE;
 
-// One color per lane, from the palette, repeating after four lanes.
-const laneColors = (theme) => [
-  theme.palette.primary.main,
-  theme.palette.info.main,
-  theme.palette.success.main,
-  theme.palette.warning.main
-];
-
-const CommitGraph = ({ node, lanes }) => {
+const CommitGraph = ({ sha, node, lanes, highlighted }) => {
   const theme = useTheme();
   if (!node) return null;
 
-  const colors = laneColors(theme);
-  const color = (lane) => colors[lane % colors.length];
+  const restColor = theme.palette.grey[700];
+  const highlightColor = theme.palette.text.primary;
+  const isOn = (from) => highlighted.has(from);
   const x = laneX(node.lane);
   const width = graphWidth(lanes);
 
-  // viewBox height 100: 0 is the row's top edge, 50 the dot, 100 the bottom edge.
+  // viewBox height 100: 0 is the row's top edge, 50 the dot, 100 the bottom edge. Each line
+  // carries the commit it leads down from, which decides whether it's highlighted.
   const paths = [
-    ...node.through.map((lane) => ({ lane, d: `M ${laneX(lane)} 0 V 100` })),
-    node.top ? { lane: node.lane, d: `M ${x} 0 V 50` } : null,
-    node.bottom ? { lane: node.lane, d: `M ${x} 50 V 100` } : null,
+    ...node.through.map(({ lane, from }) => ({ from, d: `M ${laneX(lane)} 0 V 100` })),
+    node.top ? { from: node.top, d: `M ${x} 0 V 50` } : null,
+    node.bottom ? { from: sha, d: `M ${x} 50 V 100` } : null,
     // A child on another lane: from the top of its lane into the dot.
-    ...node.joins.map((lane) => ({
-      lane,
+    ...node.joins.map(({ lane, from }) => ({
+      from,
       d: `M ${laneX(lane)} 0 C ${laneX(lane)} 35, ${x} 15, ${x} 50`
     })),
     // A merge's extra parent: from the dot down to that parent's lane.
     ...node.forks.map((lane) => ({
-      lane,
+      from: sha,
       d: `M ${x} 50 C ${x} 85, ${laneX(lane)} 65, ${laneX(lane)} 100`
     }))
-  ].filter(Boolean);
+  ]
+    .filter(Boolean)
+    // Highlighted lines last, so they're drawn over gray ones where lines meet.
+    .sort((a, b) => Number(isOn(a.from)) - Number(isOn(b.from)));
 
   return (
-    <Box position="absolute" top={0} bottom={0} left={0} width={width} aria-hidden={true}>
+    // data-commit-sha: lets the page tell which row the pointer is over.
+    <Box
+      position="absolute"
+      top={0}
+      bottom={0}
+      left={0}
+      width={width}
+      aria-hidden={true}
+      data-commit-sha={sha}
+    >
       <svg
         width={width}
         height="100%"
@@ -58,12 +68,12 @@ const CommitGraph = ({ node, lanes }) => {
         preserveAspectRatio="none"
         style={{ display: 'block', overflow: 'visible' }}
       >
-        {paths.map(({ lane, d }) => (
+        {paths.map(({ from, d }) => (
           <path
             key={d}
             d={d}
             fill="none"
-            stroke={color(lane)}
+            stroke={isOn(from) ? highlightColor : restColor}
             strokeWidth={2}
             vectorEffect="non-scaling-stroke"
           />
@@ -76,7 +86,7 @@ const CommitGraph = ({ node, lanes }) => {
         width={DOT}
         height={DOT}
         borderRadius="50%"
-        bgcolor={color(node.lane)}
+        bgcolor={isOn(sha) ? highlightColor : restColor}
         sx={{ transform: 'translate(-50%, -50%)' }}
       />
     </Box>
