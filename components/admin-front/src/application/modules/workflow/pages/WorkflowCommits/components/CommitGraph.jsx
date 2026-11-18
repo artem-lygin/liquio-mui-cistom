@@ -3,7 +3,7 @@
 // Lines are an SVG stretched to the row's height (strokes stay 2px whatever the stretch);
 // the dot is a separate element, so it stays round.
 //
-// Every lane is the same gray. While a row is hovered, its commit's ancestry (the lines and
+// Every lane is the same dim gray (grey 800, kept quiet so the table reads first). While a row is hovered, its commit's ancestry (the lines and
 // dots it comes from, down to the first commit) turns almost white; `highlighted` is that set
 // of SHAs (empty when nothing is hovered).
 import React from 'react';
@@ -23,7 +23,7 @@ const CommitGraph = ({ sha, node, lanes, highlighted }) => {
   const theme = useTheme();
   if (!node) return null;
 
-  const restColor = theme.palette.grey[700];
+  const restColor = theme.palette.grey[800];
   const highlightColor = theme.palette.text.primary;
   const isOn = (from) => highlighted.has(from);
   const x = laneX(node.lane);
