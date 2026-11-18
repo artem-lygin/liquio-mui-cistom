@@ -12,11 +12,14 @@ const styles = (theme) => ({
   categoryWrapper: {
     display: 'block',
   },
+  // Very light separation between sidebar items: palette.divider, the same hairline MUI
+  // uses for Divider/list/table lines. The Accordion is rendered `square` (below) so the
+  // theme's rounded-Paper border (5% white on all four sides) never reaches it — that rule
+  // is more specific than this class and used to replace this bottom line.
   accordionRoot: {
-    borderRadius: '0 !important',
     background: 'transparent',
     boxShadow: 'none',
-    borderBottom: theme.navigator.borderBottom,
+    borderBottom: `1px solid ${theme.palette.divider}`,
   },
   detailsRoot: {
     display: 'block',
@@ -75,6 +78,7 @@ const KibanaNavigation = (props) => {
   return (
     <li className={classes.categoryWrapper}>
       <Accordion
+        square
         classes={{
           root: classes.accordionRoot,
           rounded: classes.accordionRounded,

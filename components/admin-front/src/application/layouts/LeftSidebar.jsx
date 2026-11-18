@@ -36,7 +36,10 @@ const styles = (theme) => ({
     // TreeListItem), so reusing either here risked flattening those too. palette.background.
     // paper has no such hidden consumers for this purpose.
     backgroundColor: theme.palette.background.paper,
-    borderRight: theme.navigator.drawerPaper.borderRight,
+    // Light separation from the content: palette.divider, not the hard theme.borderColor.
+    // The content area is heading toward its own Paper container, which will carry the
+    // separation itself.
+    borderRight: `1px solid ${theme.palette.divider}`,
     position: 'inherit',
   },
   appContent: {

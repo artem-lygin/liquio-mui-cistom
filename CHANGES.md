@@ -57,8 +57,9 @@ uses `packages/front-core/theme.js`, which has only one change so far (see Typog
   designer's direction. Was the light-mode `rgba(0, 0, 0, 0.12)`, i.e. black and invisible
   on `#0c0c0c`. MUI reads it for `Divider`, list/menu item dividers, table cell borders,
   dialog dividers and similar hairlines, so those lines now show. It's a different token
-  from `theme.borderColor` (`#4E4E4E`, the sidebar/header separators and the Text field's
-  resting border), which is unchanged. _(2026-11-03)_
+  from `theme.borderColor` (`#4E4E4E`, the hard line under the header and the Text field's
+  resting border). The left sidebar's item separators and right edge now use
+  `palette.divider` too (see Layout → shell separators). _(2026-11-18)_
 - **Removed a dead `overrides.MuiDrawer.paper.backgroundColor: '#232f3d'`.** Traced it in
   `packages/front-core/layouts/LeftSidebar.jsx`: the app's real navigation `Drawer` already
   overrides its own paper color locally (`classes={{ paper: classes.drawerPaper }}` →
@@ -799,6 +800,31 @@ uses `packages/front-core/theme.js`, which has only one change so far (see Typog
     theme differs, so it's a separate pass. _(2026-11-03)_
 
 ## Layout
+
+- **Shell separators: one hard line under the header, light lines everywhere else in the
+  shell.** Before, admin's shell drew lines in four different colors:
+  - the header's bottom and inner lines: their own `rgba(255, 255, 255, 0.25)` literal
+    (`theme.header.middle.border`);
+  - the sidebar's right edge and single-link menu items: `#4E4E4E` (`theme.borderColor`);
+  - expandable menu groups: 5% white on all four sides. They're MUI `Accordion`s, which
+    are Papers, and the theme's rounded-Paper border (`MuiPaper.root`
+    `&.MuiPaper-rounded`) outranks the menu's own class, so it replaced their `#4E4E4E`
+    bottom line. `borderRadius: '0 !important'` squared the corners but left the Paper
+    "rounded" as far as MUI was concerned;
+  - MUI's own dividers: `palette.divider` (10% white).
+
+  Now, at the product designer's direction:
+  - **Header bottom edge** reads `theme.borderColor` live: the one hard line, separating
+    the header from the rest of the app. The header's *inner* dividers (title block, right
+    block) still use `theme.header.middle.border` and weren't touched.
+  - **Sidebar item separators** (single links and groups, plus the Kibana module's
+    navigation, which reuses the same pattern) read `palette.divider` live. The group
+    Accordions are rendered `square`, so the Paper border no longer applies to them.
+  - **Sidebar right edge** reads `palette.divider` live: light, since the content area is
+    heading toward its own Paper container, which will carry that separation itself.
+  - Removed the now-unused `theme.header.borderBottom`, `theme.navigator.borderBottom` and
+    `theme.navigator.drawerPaper` keys, so there's no copy of either color left to drift.
+  _(2026-11-18)_
 
 - **Left sidebar is now elevation zero** — two separate tokens needed fixing, not one.
   `leftSidebarBg` (top-level, `#404040` → `BACKGROUND_PAPER`) only feeds front-core's shared

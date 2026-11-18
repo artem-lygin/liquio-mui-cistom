@@ -13,11 +13,10 @@ const BACKGROUND_PAPER = '#0c0c0c';
 const INPUT_SURFACE_LIGHTEN = 0.14;
 const INPUT_SURFACE_BG = lighten(BACKGROUND_PAPER, INPUT_SURFACE_LIGHTEN);
 
-// The system's one subtle-separator-line color — already named as such via the top-level
-// borderColor key below, but header.borderBottom and navigator.borderBottom/
-// drawerPaper.borderRight each independently hardcoded their own copy instead of reading it,
-// and one had silently drifted to '#4E4E4F' (one hex digit off). Consolidated onto this one
-// constant so there's a single source again.
+// The hard separator-line color, exposed as the top-level borderColor key below. Shell
+// lines read theme.borderColor live: the header's bottom edge is the one hard line.
+// Sidebar item separators and the sidebar's right edge use the light palette.divider
+// instead (read live in layouts/), so there are no per-component copies of either.
 const BORDER_COLOR = '#4E4E4E';
 
 // ── Text field ───────────────────────────────────────────────────────────────────────────
@@ -1319,7 +1318,6 @@ const baseTheme = {
     padding: 0,
     textColor: 'rgba(255, 255, 255, 0.87)',
     background: '#212121',
-    borderBottom: `1px solid ${BORDER_COLOR}`,
     leftTitle: {
       color: 'rgba(255, 255, 255, 0.87)'
     },
@@ -1354,12 +1352,6 @@ const baseTheme = {
     // theme.leftSidebarBg (below) instead, in its own local layouts/LeftSidebar.jsx.
     sidebarBg: '#404040',
     fillIcon: 'rgba(255, 255, 255, 0.6)',
-    // Was '#4E4E4F' — one hex digit off from the other three copies of this same line color,
-    // a silent drift now resolved by sharing BORDER_COLOR instead of its own literal.
-    borderBottom: `1px solid ${BORDER_COLOR}`,
-    drawerPaper: {
-      borderRight: `1px solid ${BORDER_COLOR}`
-    },
     navItem: {
       linkActiveBg: 'rgba(187, 134, 252, 0.08)',
       linkActiveColor: '#BB86FC'

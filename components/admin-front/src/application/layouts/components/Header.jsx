@@ -60,7 +60,8 @@ const styles = (theme) => ({
     display: 'flex',
     alignItems: 'center',
     flex: '0 1 100%',
-    borderBottom: theme.header.middle.border,
+    // The one hard line in the shell: header vs. everything below it.
+    borderBottom: `1px solid ${theme.borderColor}`,
     backgroundColor: theme.header.background,
     [theme.breakpoints.down('lg')]: {
       justifyContent: 'space-between'

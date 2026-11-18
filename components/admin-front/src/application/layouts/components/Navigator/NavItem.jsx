@@ -17,7 +17,7 @@ const styles = (theme) => ({
     textDecoration: 'none',
     '& > div': {
       padding: theme.spacing(5, 4),
-      borderBottom: theme.navigator.borderBottom,
+      borderBottom: `1px solid ${theme.palette.divider}`,
       '&:hover': {
         background: theme.navigator.navItem.linkActiveBg,
       },
@@ -37,11 +37,14 @@ const styles = (theme) => ({
   emptyChildren: {
     display: 'none',
   },
+  // Very light separation between sidebar items: palette.divider, the same hairline MUI
+  // uses for Divider/list/table lines. The Accordion is rendered `square` (below) so the
+  // theme's rounded-Paper border (5% white on all four sides) never reaches it — that rule
+  // is more specific than this class and used to replace this bottom line.
   accordionRoot: {
-    borderRadius: '0 !important',
     background: 'transparent',
     boxShadow: 'none',
-    borderBottom: theme.navigator.borderBottom,
+    borderBottom: `1px solid ${theme.palette.divider}`,
   },
   detailsRoot: {
     display: 'block',
@@ -100,6 +103,7 @@ const NavItem = (props) => {
     <li className={classes.categoryWrapper}>
       {childs && Array.isArray(childs) && childs.length ? (
         <Accordion
+          square
           classes={{
             root: classes.accordionRoot,
             rounded: classes.accordionRounded,
