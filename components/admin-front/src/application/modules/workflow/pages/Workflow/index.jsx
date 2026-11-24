@@ -632,6 +632,9 @@ class WorkflowPage extends ModulePage {
 
     if (!this.modeler) return;
 
+    // this.modeler isn't state, so re-render once it exists — the sidebar's comment pins need it.
+    this.setState({ modelerReady: true });
+
     const {
       actions,
       match: {
@@ -946,6 +949,23 @@ class WorkflowPage extends ModulePage {
     event.returnValue = '';
   };
 
+  // Select an element by id from outside the canvas (e.g. a comment's element link): highlight
+  // it on the canvas, bring it into view, and run the same path as a click on it.
+  selectElementById = (elementId) => {
+    if (!this.modeler) return;
+    const element = this.modeler.get('elementRegistry').get(elementId);
+    if (!element) return;
+
+    this.modeler.get('selection').select(element);
+
+    const canvas = this.modeler.get('canvas');
+    if (typeof canvas.scrollToElement === 'function') {
+      canvas.scrollToElement(element);
+    }
+
+    this.onElementSelect(element);
+  };
+
   onElementSelect = (event) => {
     const { actions, events, gateways, tasks } = this.props;
     const { type, id } = event;
@@ -1085,6 +1105,7 @@ class WorkflowPage extends ModulePage {
                 setBusy={this.setBusy}
                 blockHotkeysEvent={this.blockHotkeysEvent}
                 isPristine={isPristine}
+                onSelectElement={this.selectElementById}
               />
             </Toolbar>
           </AppBar>

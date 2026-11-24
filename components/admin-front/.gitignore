@@ -31,3 +31,5 @@ npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
 .npm
+# Dev-server mock data (workflow comments PoC)
+/.dev-data

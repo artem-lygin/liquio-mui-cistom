@@ -32,6 +32,81 @@ const registerBakeThemeEndpoint = (app) => {
   });
 };
 
+// Dev-only mock backend for workflow comments (PoC). There is no real comments API yet, so the
+// dev server stands in for one: comments live in a gitignored JSON file next to this config,
+// keyed by workflow id. Nothing in the real backend or the BPMN schema is touched. The client
+// (modules/workflow/pages/Workflow/comments/api.js) falls back to localStorage when this
+// endpoint isn't there (e.g. a production build).
+const WORKFLOW_COMMENTS_PATH = path.resolve(__dirname, '.dev-data/workflow-comments.json');
+
+const readComments = () => {
+  try {
+    return JSON.parse(fs.readFileSync(WORKFLOW_COMMENTS_PATH, 'utf8') || '{}');
+  } catch (error) {
+    return {};
+  }
+};
+
+const writeComments = (data) => {
+  fs.mkdirSync(path.dirname(WORKFLOW_COMMENTS_PATH), { recursive: true });
+  fs.writeFileSync(WORKFLOW_COMMENTS_PATH, `${JSON.stringify(data, null, 2)}\n`);
+};
+
+const sendJson = (res, status, payload) => {
+  res.statusCode = status;
+  res.setHeader('Content-Type', 'application/json');
+  res.end(JSON.stringify(payload));
+};
+
+const registerWorkflowCommentsEndpoint = (app) => {
+  app.get('/__dev/workflow-comments/:workflowId', (req, res) => {
+    sendJson(res, 200, readComments()[req.params.workflowId] || []);
+  });
+
+  app.post('/__dev/workflow-comments/:workflowId', (req, res) => {
+    let body = '';
+    req.on('data', (chunk) => {
+      body += chunk;
+    });
+    req.on('end', () => {
+      try {
+        const { text, author, anchor } = JSON.parse(body || '{}');
+        if (!text || !String(text).trim()) {
+          sendJson(res, 400, { error: 'text is required' });
+          return;
+        }
+        const data = readComments();
+        const { workflowId } = req.params;
+        const comment = {
+          id: `${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 8)}`,
+          workflowId,
+          text: String(text).trim(),
+          author: author || null,
+          createdAt: new Date().toISOString(),
+          anchor: anchor || null
+        };
+        data[workflowId] = [...(data[workflowId] || []), comment];
+        writeComments(data);
+        sendJson(res, 201, comment);
+      } catch (error) {
+        sendJson(res, 500, { error: error.message });
+      }
+    });
+  });
+
+  app.delete('/__dev/workflow-comments/:workflowId/:commentId', (req, res) => {
+    try {
+      const data = readComments();
+      const { workflowId, commentId } = req.params;
+      data[workflowId] = (data[workflowId] || []).filter(({ id }) => id !== commentId);
+      writeComments(data);
+      sendJson(res, 200, { ok: true });
+    } catch (error) {
+      sendJson(res, 500, { error: error.message });
+    }
+  });
+};
+
 module.exports = {
   eslint: {
     enable: false
@@ -40,6 +115,7 @@ module.exports = {
     const previousSetupMiddlewares = devServerConfig.setupMiddlewares;
     devServerConfig.setupMiddlewares = (middlewares, devServer) => {
       registerBakeThemeEndpoint(devServer.app);
+      registerWorkflowCommentsEndpoint(devServer.app);
       return previousSetupMiddlewares ? previousSetupMiddlewares(middlewares, devServer) : middlewares;
     };
     return devServerConfig;
