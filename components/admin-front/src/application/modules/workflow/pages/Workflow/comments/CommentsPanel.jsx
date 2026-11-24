@@ -76,7 +76,10 @@ const useStyles = makeStyles((theme) => ({
   // Place: a 20px icon (the theme's button-icon size) + label, no pill.
   place: {
     ...theme.typography.caption,
-    display: 'inline-flex',
+    // Block-level flex (sized to content) so a plain span and a ButtonBase sit on the same
+    // line box — inline-flex let the span inherit the card's taller line height.
+    display: 'flex',
+    width: 'fit-content',
     alignItems: 'center',
     gap: theme.spacing(1),
     maxWidth: '100%',
