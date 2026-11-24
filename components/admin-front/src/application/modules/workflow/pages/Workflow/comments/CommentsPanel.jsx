@@ -51,7 +51,10 @@ const useStyles = makeStyles((theme) => ({
     transition: theme.transitions.create(['background-color', 'border-color'])
   },
   itemHighlighted: {
-    borderColor: theme.palette.primary.main,
+    // Matches the theme's own `&.MuiPaper-rounded` border rule, which otherwise wins.
+    '&.MuiPaper-rounded': {
+      borderColor: theme.palette.primary.main
+    },
     backgroundColor: alpha(theme.palette.primary.main, theme.palette.action.selectedOpacity)
   },
   text: {
