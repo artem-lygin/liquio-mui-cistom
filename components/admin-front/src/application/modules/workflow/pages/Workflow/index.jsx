@@ -770,13 +770,20 @@ class WorkflowPage extends ModulePage {
     });
 
     this.queue.push(async () => {
-      await actions.storeWorkflowData(workflowId, {
+      const stored = await actions.storeWorkflowData(workflowId, {
         ...workflow,
         description: description || undefined,
         workflowTemplateCategoryId: workflowTemplateCategoryId || null
       });
 
       await this.handleSave();
+
+      // The PUT response replaces the stored workflow but, unlike GET, carries no
+      // lastWorkflowHistory — so the "last changes" label vanished after every save. Re-read
+      // it (the save may also have created a new version) to show who/when it really is now.
+      if (!(stored instanceof Error)) {
+        await actions.requestWorkflow(workflowId);
+      }
     });
   };
 
