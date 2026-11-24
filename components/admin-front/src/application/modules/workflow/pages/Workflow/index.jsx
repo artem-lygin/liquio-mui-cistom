@@ -127,9 +127,10 @@ const styles = (theme) => ({
   saveButtonIcon: {
     marginRight: theme.spacing(1)
   },
-  // Sits beside the sidebar's Save button, one step below the body text it used to be.
+  // Sits beside the sidebar's Save button, a step below the toolbar's 14px text it inherited
+  // before. body2 (0.875rem → 12.25px at this app's 14px root), not caption (10.5px: too small).
   historyText: {
-    ...theme.typography.caption,
+    ...theme.typography.body2,
     color: theme.palette.text.primary,
     display: 'flex',
     alignItems: 'center'
