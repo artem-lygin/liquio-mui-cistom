@@ -107,6 +107,110 @@ const registerWorkflowCommentsEndpoint = (app) => {
   });
 };
 
+// Dev-only mock backend for a workflow's documentation link (PoC): at most one per workflow,
+// { url, title, author, createdAt }, in a gitignored JSON file like the comments above.
+// Without a title, the page's own <title> is fetched server-side (no CORS here), falling back
+// to the URL's hostname.
+const WORKFLOW_DOCS_PATH = path.resolve(__dirname, '.dev-data/workflow-docs.json');
+
+const readDocs = () => {
+  try {
+    return JSON.parse(fs.readFileSync(WORKFLOW_DOCS_PATH, 'utf8') || '{}');
+  } catch (error) {
+    return {};
+  }
+};
+
+const writeDocs = (data) => {
+  fs.mkdirSync(path.dirname(WORKFLOW_DOCS_PATH), { recursive: true });
+  fs.writeFileSync(WORKFLOW_DOCS_PATH, `${JSON.stringify(data, null, 2)}\n`);
+};
+
+const decodeEntities = (text) =>
+  text
+    .replace(/&amp;/g, '&')
+    .replace(/&lt;/g, '<')
+    .replace(/&gt;/g, '>')
+    .replace(/&quot;/g, '"')
+    .replace(/&#39;|&apos;/g, "'")
+    .replace(/&#(\d+);/g, (match, code) => String.fromCharCode(Number(code)));
+
+const fetchPageTitle = async (url) => {
+  const controller = new AbortController();
+  const timer = setTimeout(() => controller.abort(), 5000);
+  try {
+    const response = await fetch(url, { signal: controller.signal, redirect: 'follow' });
+    const html = (await response.text()).slice(0, 200000);
+    const match = html.match(/<title[^>]*>([\s\S]*?)<\/title>/i);
+    const title = match && decodeEntities(match[1].replace(/\s+/g, ' ').trim());
+    return title || null;
+  } catch (error) {
+    return null;
+  } finally {
+    clearTimeout(timer);
+  }
+};
+
+const registerWorkflowDocsEndpoint = (app) => {
+  app.get('/__dev/workflow-docs/:workflowId', (req, res) => {
+    sendJson(res, 200, readDocs()[req.params.workflowId] || null);
+  });
+
+  app.put('/__dev/workflow-docs/:workflowId', (req, res) => {
+    let body = '';
+    req.on('data', (chunk) => {
+      body += chunk;
+    });
+    req.on('end', async () => {
+      try {
+        const { url, title, author } = JSON.parse(body || '{}');
+        let parsed;
+        try {
+          parsed = new URL(String(url || '').trim());
+        } catch (error) {
+          parsed = null;
+        }
+        if (!parsed || !['http:', 'https:'].includes(parsed.protocol)) {
+          sendJson(res, 400, { error: 'A valid http(s) URL is required' });
+          return;
+        }
+        const { workflowId } = req.params;
+        if (readDocs()[workflowId]) {
+          sendJson(res, 409, { error: 'This workflow already has a documentation link' });
+          return;
+        }
+        const doc = {
+          workflowId,
+          url: parsed.href,
+          title:
+            (title && String(title).trim()) ||
+            (await fetchPageTitle(parsed.href)) ||
+            parsed.hostname,
+          author: author || null,
+          createdAt: new Date().toISOString()
+        };
+        const data = readDocs();
+        data[workflowId] = doc;
+        writeDocs(data);
+        sendJson(res, 201, doc);
+      } catch (error) {
+        sendJson(res, 500, { error: error.message });
+      }
+    });
+  });
+
+  app.delete('/__dev/workflow-docs/:workflowId', (req, res) => {
+    try {
+      const data = readDocs();
+      delete data[req.params.workflowId];
+      writeDocs(data);
+      sendJson(res, 200, { ok: true });
+    } catch (error) {
+      sendJson(res, 500, { error: error.message });
+    }
+  });
+};
+
 module.exports = {
   eslint: {
     enable: false
@@ -116,6 +220,7 @@ module.exports = {
     devServerConfig.setupMiddlewares = (middlewares, devServer) => {
       registerBakeThemeEndpoint(devServer.app);
       registerWorkflowCommentsEndpoint(devServer.app);
+      registerWorkflowDocsEndpoint(devServer.app);
       return previousSetupMiddlewares ? previousSetupMiddlewares(middlewares, devServer) : middlewares;
     };
     return devServerConfig;

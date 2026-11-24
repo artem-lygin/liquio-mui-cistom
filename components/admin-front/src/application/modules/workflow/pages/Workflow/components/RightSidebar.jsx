@@ -36,6 +36,7 @@ import CommentsPanel from '../comments/CommentsPanel';
 import useWorkflowComments from '../comments/useWorkflowComments';
 import useCommentOverlays from '../comments/useCommentOverlays';
 import CommentPins from '../comments/CommentPins';
+import { useWorkflowDocumentation, toAuthor } from '../comments/documentation';
 
 const MODE_PROPERTIES = 'properties';
 const MODE_COMMENTS = 'comments';
@@ -163,16 +164,6 @@ const getCommentTarget = (selection) => {
   return target && target.parent ? target : null;
 };
 
-const getCurrentUser = (info) => {
-  if (!info) return null;
-  const name =
-    info.name ||
-    [info.last_name, info.first_name].filter(Boolean).join(' ') ||
-    info.email ||
-    null;
-  return { id: info.userId || info.id || null, name };
-};
-
 const RightSidebar = ({
   t,
   handleSaveWorkflow,
@@ -199,9 +190,10 @@ const RightSidebar = ({
   const [open, setOpen] = React.useState(true);
   const [mode, setMode] = React.useState(MODE_PROPERTIES);
   const userInfo = useSelector(({ auth }) => auth && auth.info);
-  const currentUser = React.useMemo(() => getCurrentUser(userInfo), [userInfo]);
+  const currentUser = React.useMemo(() => toAuthor(userInfo), [userInfo]);
   const { comments, loading: commentsLoading, error: commentsError, addComment, removeComment } =
     useWorkflowComments(workflowId);
+  const documentation = useWorkflowDocumentation(workflowId);
   const commentTarget = getCommentTarget(selection);
   const [mounted, setMounter] = React.useState(true);
   const [errors, setErrors] = React.useState([]);
@@ -361,6 +353,10 @@ const RightSidebar = ({
                   onAdd={addComment}
                   onRemove={removeComment}
                   onSelectElement={onSelectElement}
+                  documentation={documentation.doc}
+                  documentationError={documentation.error}
+                  onAttachDocumentation={documentation.attach}
+                  onRemoveDocumentation={documentation.remove}
                 />
               ) : (
                 <>

@@ -16,17 +16,17 @@ const STORAGE_KEY = 'workflowComments';
 
 let useLocalFallback = false;
 
-const readLocal = () => {
+export const readLocal = (key = STORAGE_KEY) => {
   try {
-    return JSON.parse(window.localStorage.getItem(STORAGE_KEY) || '{}');
+    return JSON.parse(window.localStorage.getItem(key) || '{}');
   } catch (error) {
     return {};
   }
 };
 
-const writeLocal = (data) => {
+export const writeLocal = (data, key = STORAGE_KEY) => {
   try {
-    window.localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
+    window.localStorage.setItem(key, JSON.stringify(data));
   } catch (error) {
     // storage unavailable — comments just won't survive a reload
   }
@@ -55,7 +55,7 @@ const localApi = {
   }
 };
 
-const request = async (url, options) => {
+export const request = async (url, options) => {
   const response = await fetch(url, {
     ...options,
     headers: { 'Content-Type': 'application/json' }
@@ -71,11 +71,15 @@ const request = async (url, options) => {
   }
 
   const payload = await response.json();
-  if (!response.ok) throw new Error(payload.error || response.statusText);
+  if (!response.ok) {
+    const error = new Error((payload && payload.error) || response.statusText);
+    error.status = response.status;
+    throw error;
+  }
   return payload;
 };
 
-const withFallback =
+export const withFallback =
   (remote, local) =>
   async (...args) => {
     if (useLocalFallback) return local(...args);

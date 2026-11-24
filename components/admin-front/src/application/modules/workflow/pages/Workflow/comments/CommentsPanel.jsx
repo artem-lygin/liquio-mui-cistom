@@ -5,8 +5,12 @@ import moment from 'moment';
 import {
   Button,
   ButtonBase,
+  Checkbox,
   Chip,
+  FormControlLabel,
   IconButton,
+  Menu,
+  MenuItem,
   Paper,
   TextField,
   Tooltip,
@@ -18,6 +22,9 @@ import DeleteOutlineIcon from '@mui/icons-material/DeleteOutline';
 import PlaceOutlinedIcon from '@mui/icons-material/PlaceOutlined';
 import AccountTreeOutlinedIcon from '@mui/icons-material/AccountTreeOutlined';
 import AddIcon from '@mui/icons-material/Add';
+import LinkIcon from '@mui/icons-material/Link';
+import MoreVertIcon from '@mui/icons-material/MoreVert';
+import { parseDocumentationUrl } from './documentation';
 
 const useStyles = makeStyles((theme) => ({
   composer: {
@@ -139,6 +146,42 @@ const useStyles = makeStyles((theme) => ({
     flexShrink: 0,
     marginLeft: 'auto'
   },
+  // The documentation card, pinned above the comments.
+  docHeader: {
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    gap: theme.spacing(1)
+  },
+  docMenuButton: {
+    flexShrink: 0
+  },
+  docTitle: {
+    ...theme.typography.body2,
+    display: 'block',
+    marginTop: theme.spacing(1.5),
+    fontWeight: theme.typography.fontWeightMedium,
+    color: theme.palette.primary.main,
+    textDecoration: 'none',
+    wordBreak: 'break-word',
+    '&:hover, &:focus-visible': {
+      textDecoration: 'underline'
+    }
+  },
+  docUrl: {
+    ...theme.typography.caption,
+    color: theme.palette.text.secondary,
+    overflow: 'hidden',
+    textOverflow: 'ellipsis',
+    whiteSpace: 'nowrap'
+  },
+  docCheckbox: {
+    marginLeft: 0,
+    marginRight: 0,
+    '& .MuiFormControlLabel-label': {
+      ...theme.typography.body2
+    }
+  },
   date: {
     color: theme.palette.text.secondary
   },
@@ -166,6 +209,60 @@ const toAnchor = (element) => ({
   elementName: element.businessObject?.name || null
 });
 
+const DocumentationCard = ({ t, doc, classes, onRemove }) => {
+  const [menuAnchor, setMenuAnchor] = React.useState(null);
+
+  return (
+    <Paper elevation={COMMENT_ELEVATION} className={classes.item}>
+      <div className={classes.docHeader}>
+        <span className={classes.place}>
+          <LinkIcon />
+          <span>{t('Documentation')}</span>
+        </span>
+        <IconButton
+          className={classes.docMenuButton}
+          size="small"
+          aria-label={t('DocumentationActions')}
+          onClick={({ currentTarget }) => setMenuAnchor(currentTarget)}
+        >
+          <MoreVertIcon fontSize="small" />
+        </IconButton>
+        <Menu anchorEl={menuAnchor} open={!!menuAnchor} onClose={() => setMenuAnchor(null)}>
+          <MenuItem
+            onClick={() => {
+              setMenuAnchor(null);
+              onRemove();
+            }}
+          >
+            {t('RemoveDocumentation')}
+          </MenuItem>
+        </Menu>
+      </div>
+
+      <a className={classes.docTitle} href={doc.url} target="_blank" rel="noopener noreferrer">
+        {doc.title}
+      </a>
+      <div className={classes.docUrl} title={doc.url}>
+        {doc.url}
+      </div>
+
+      <div className={classes.itemFooter}>
+        <span className={classes.author} title={doc.author?.name || ''}>
+          {doc.author?.name || t('UnknownAuthor')}
+        </span>
+        <span className={classes.time}>{moment(doc.createdAt).format('DD.MM.YYYY HH:mm')}</span>
+      </div>
+    </Paper>
+  );
+};
+
+DocumentationCard.propTypes = {
+  t: PropTypes.func.isRequired,
+  doc: PropTypes.object.isRequired,
+  classes: PropTypes.object.isRequired,
+  onRemove: PropTypes.func.isRequired
+};
+
 const CommentsPanel = ({
   t,
   comments,
@@ -176,10 +273,15 @@ const CommentsPanel = ({
   currentUser,
   onAdd,
   onRemove,
-  onSelectElement
+  onSelectElement,
+  documentation,
+  documentationError,
+  onAttachDocumentation,
+  onRemoveDocumentation
 }) => {
   const classes = useStyles();
   const [text, setText] = React.useState('');
+  const [asDocumentation, setAsDocumentation] = React.useState(false);
   const [attach, setAttach] = React.useState(true);
   const [submitting, setSubmitting] = React.useState(false);
   const firstHighlightedRef = React.useRef(null);
@@ -219,9 +321,25 @@ const CommentsPanel = ({
     return element ? elementLabel(element) : anchor.elementName || anchor.elementId;
   };
 
+  // A comment that is just one link can become the workflow's documentation link instead —
+  // only while the workflow has none (one per workflow; remove the old one first).
+  const documentationUrl = documentation ? null : parseDocumentationUrl(text);
+  const submitAsDocumentation = !!documentationUrl && asDocumentation;
+
   const handleSubmit = async () => {
     if (!text.trim() || submitting) return;
     setSubmitting(true);
+
+    if (submitAsDocumentation) {
+      const attached = await onAttachDocumentation({ url: documentationUrl, author: currentUser });
+      setSubmitting(false);
+      if (attached) {
+        setText('');
+        setAsDocumentation(false);
+      }
+      return;
+    }
+
     const created = await onAdd({
       text,
       author: currentUser,
@@ -262,7 +380,21 @@ const CommentsPanel = ({
           onKeyDown={handleKeyDown}
         />
 
-        {selection ? (
+        {documentationUrl ? (
+          <FormControlLabel
+            className={classes.docCheckbox}
+            control={
+              <Checkbox
+                size="small"
+                checked={asDocumentation}
+                onChange={({ target: { checked } }) => setAsDocumentation(checked)}
+              />
+            }
+            label={t('Documentation')}
+          />
+        ) : null}
+
+        {selection && !submitAsDocumentation ? (
           <div>
             {attach ? (
               <Chip
@@ -288,7 +420,11 @@ const CommentsPanel = ({
 
         <div className={classes.composerActions}>
           <Typography variant="caption" className={classes.date}>
-            {selection && attach ? t('CommentOnElement') : t('CommentOnWorkflow')}
+            {submitAsDocumentation
+              ? t('DocumentationLinkHint')
+              : selection && attach
+                ? t('CommentOnElement')
+                : t('CommentOnWorkflow')}
           </Typography>
           <Button
             variant="contained"
@@ -297,23 +433,34 @@ const CommentsPanel = ({
             onClick={handleSubmit}
             disabled={!text.trim() || submitting}
           >
-            {t('AddComment')}
+            {submitAsDocumentation ? t('AttachDocumentation') : t('AddComment')}
           </Button>
         </div>
 
-        {error ? (
+        {error || documentationError ? (
           <Typography variant="caption" className={classes.error}>
-            {error.message}
+            {(error || documentationError).message}
           </Typography>
         ) : null}
       </div>
 
-      {loading ? null : sorted.length === 0 ? (
-        <Typography variant="body2" className={classes.empty}>
-          {t('NoComments')}
-        </Typography>
-      ) : (
+      {loading ? null : (
         <div className={classes.list}>
+          {documentation ? (
+            <DocumentationCard
+              t={t}
+              doc={documentation}
+              classes={classes}
+              onRemove={onRemoveDocumentation}
+            />
+          ) : null}
+
+          {sorted.length === 0 ? (
+            <Typography variant="body2" className={classes.empty}>
+              {t('NoComments')}
+            </Typography>
+          ) : null}
+
           {sorted.map((comment) => {
             const { id, text: body, author, createdAt, anchor } = comment;
             const highlighted = !!(anchor && selectedId && anchor.elementId === selectedId);
@@ -396,7 +543,11 @@ CommentsPanel.propTypes = {
   currentUser: PropTypes.object,
   onAdd: PropTypes.func.isRequired,
   onRemove: PropTypes.func.isRequired,
-  onSelectElement: PropTypes.func.isRequired
+  onSelectElement: PropTypes.func.isRequired,
+  documentation: PropTypes.object,
+  documentationError: PropTypes.object,
+  onAttachDocumentation: PropTypes.func.isRequired,
+  onRemoveDocumentation: PropTypes.func.isRequired
 };
 
 CommentsPanel.defaultProps = {
@@ -404,7 +555,9 @@ CommentsPanel.defaultProps = {
   error: null,
   selection: null,
   modeler: null,
-  currentUser: null
+  currentUser: null,
+  documentation: null,
+  documentationError: null
 };
 
 export default CommentsPanel;

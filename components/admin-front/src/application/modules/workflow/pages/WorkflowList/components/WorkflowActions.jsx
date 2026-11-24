@@ -18,6 +18,7 @@ import ConfirmDialog from 'components/ConfirmDialog';
 import DeleteWorkflow from './DeleteWorkflow';
 import SubscribeWorkflow from './SubscribeWorkflow';
 import CopyWorkflow from './CopyWorkflow';
+import WorkflowDocumentation from './WorkflowDocumentation';
 import { getConfig } from 'core/helpers/configLoader';
 
 const userHasUnit = [1000000043, 1000003, 100003];
@@ -123,6 +124,11 @@ const WorkflowActions = ({
                 actions={actions}
                 userInfo={userInfo}
                 subscribeEnabled={subscribeEnabled}
+              />
+              <WorkflowDocumentation
+                workflow={workflow}
+                menuOpen={isMenuOpen}
+                closeMenu={handleClose}
               />
               <CopyWorkflow workflow={workflow} />
               <DeleteWorkflow workflow={workflow} actions={actions} />
