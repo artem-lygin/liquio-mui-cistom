@@ -38,7 +38,6 @@ const useStyles = makeStyles((theme) => ({
   root: {
     width: 300,
     height: '100%',
-    borderLeft: `1px solid ${theme.borderColor}`,
     paddingLeft: theme.spacing(3),
     paddingBottom: theme.spacing(2),
     paddingTop: theme.spacing(2),
@@ -46,7 +45,7 @@ const useStyles = makeStyles((theme) => ({
   },
   header: {
     display: 'flex',
-    justifyContent: 'space-between',
+    justifyContent: 'flex-end',
   },
   // Stretch, not center: the collapse toggle is sized by height: 100%.
   headerControls: {
@@ -55,6 +54,9 @@ const useStyles = makeStyles((theme) => ({
     gap: theme.spacing(2),
   },
   modeSwitch: {
+    alignSelf: 'center',
+  },
+  saveButton: {
     alignSelf: 'center',
   },
   iconWrapper: {
@@ -274,24 +276,25 @@ const RightSidebar = ({
   return (
     <div className={classes.root}>
       <div className={classes.header}>
-        <Button
-          variant="contained"
-          color="primary"
-          onClick={handleSaveAction}
-          disabled={isPristine}
-        >
-          {busy || savingElement ? (
-            <CircularProgress size={16} className={classes.fillSvg} />
-          ) : null}
-
-          {saved && error
-            ? t('SavedWithError')
-            : busy
-              ? t('Saving')
-              : t('Save')}
-        </Button>
-
         <div className={classes.headerControls}>
+          <Button
+            className={classes.saveButton}
+            variant="contained"
+            color="primary"
+            onClick={handleSaveAction}
+            disabled={isPristine}
+          >
+            {busy || savingElement ? (
+              <CircularProgress size={16} className={classes.fillSvg} />
+            ) : null}
+
+            {saved && error
+              ? t('SavedWithError')
+              : busy
+                ? t('Saving')
+                : t('Save')}
+          </Button>
+
           <ToggleButtonGroup
             className={classes.modeSwitch}
             size="small"
