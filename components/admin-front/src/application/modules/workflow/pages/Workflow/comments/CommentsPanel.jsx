@@ -23,7 +23,14 @@ const useStyles = makeStyles((theme) => ({
     display: 'flex',
     alignItems: 'center',
     justifyContent: 'space-between',
-    gap: theme.spacing(2)
+    gap: theme.spacing(2),
+    '& > :first-child': {
+      flex: 1,
+      minWidth: 0
+    },
+    '& > button': {
+      flexShrink: 0
+    }
   },
   anchorChip: {
     maxWidth: '100%'

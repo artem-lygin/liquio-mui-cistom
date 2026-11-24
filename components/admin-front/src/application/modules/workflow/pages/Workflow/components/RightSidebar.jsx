@@ -48,9 +48,10 @@ const useStyles = makeStyles((theme) => ({
     display: 'flex',
     justifyContent: 'space-between',
   },
+  // Stretch, not center: the collapse toggle is sized by height: 100%.
   headerControls: {
     display: 'flex',
-    alignItems: 'center',
+    alignItems: 'stretch',
     gap: theme.spacing(2),
   },
   modeSwitch: {

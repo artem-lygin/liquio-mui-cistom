@@ -68,7 +68,9 @@ const useCommentOverlays = ({ modeler, comments, selectedElementId, onPinClick }
         const element = elementRegistry.get(elementId);
         if (!element) return; // element was deleted — the comment stays, unpinned
         overlays.add(element, OVERLAY_TYPE, {
-          position: element.waypoints ? { top: -12, left: 0 } : { top: -12, right: 12 },
+          // Top-left: bpmn-js's context pad (the selected element's tool palette) owns the
+          // top-right corner.
+          position: { top: -12, left: -12 },
           html: createPin(theme, count, elementId === selectedElementId, () =>
             onPinClickRef.current(elementId)
           )
