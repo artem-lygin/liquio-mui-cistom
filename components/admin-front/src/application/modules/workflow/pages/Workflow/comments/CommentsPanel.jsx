@@ -18,7 +18,6 @@ import {
 } from '@mui/material';
 import { alpha } from '@mui/material/styles';
 import { makeStyles } from '@mui/styles';
-import DeleteOutlineIcon from '@mui/icons-material/DeleteOutline';
 import PlaceOutlinedIcon from '@mui/icons-material/PlaceOutlined';
 import AccountTreeOutlinedIcon from '@mui/icons-material/AccountTreeOutlined';
 import AddIcon from '@mui/icons-material/Add';
@@ -120,7 +119,7 @@ const useStyles = makeStyles((theme) => ({
       textDecoration: 'line-through'
     }
   },
-  // Last row: author (truncated) · time, delete pinned to the card's bottom-right corner.
+  // Last row: author (truncated) · time.
   itemFooter: {
     display: 'flex',
     alignItems: 'center',
@@ -142,18 +141,15 @@ const useStyles = makeStyles((theme) => ({
     flexShrink: 0,
     whiteSpace: 'nowrap'
   },
-  deleteButton: {
-    flexShrink: 0,
-    marginLeft: 'auto'
-  },
-  // The documentation card, pinned above the comments.
-  docHeader: {
+  // First row of every card: place (or the documentation label) + the 3-dot menu, top-right.
+  cardHeader: {
     display: 'flex',
     alignItems: 'center',
     justifyContent: 'space-between',
-    gap: theme.spacing(1)
+    gap: theme.spacing(1),
+    minWidth: 0
   },
-  docMenuButton: {
+  cardMenuButton: {
     flexShrink: 0
   },
   docTitle: {
@@ -209,52 +205,71 @@ const toAnchor = (element) => ({
   elementName: element.businessObject?.name || null
 });
 
-const DocumentationCard = ({ t, doc, classes, onRemove }) => {
+// The card's top-right 3-dot menu — one action (remove), shared by comments and the doc card.
+const CardMenu = ({ classes, label, actionLabel, onAction }) => {
   const [menuAnchor, setMenuAnchor] = React.useState(null);
 
   return (
-    <Paper elevation={COMMENT_ELEVATION} className={classes.item}>
-      <div className={classes.docHeader}>
-        <span className={classes.place}>
-          <LinkIcon />
-          <span>{t('Documentation')}</span>
-        </span>
-        <IconButton
-          className={classes.docMenuButton}
-          size="small"
-          aria-label={t('DocumentationActions')}
-          onClick={({ currentTarget }) => setMenuAnchor(currentTarget)}
+    <>
+      <IconButton
+        className={classes.cardMenuButton}
+        size="small"
+        aria-label={label}
+        onClick={({ currentTarget }) => setMenuAnchor(currentTarget)}
+      >
+        <MoreVertIcon fontSize="small" />
+      </IconButton>
+      <Menu anchorEl={menuAnchor} open={!!menuAnchor} onClose={() => setMenuAnchor(null)}>
+        <MenuItem
+          onClick={() => {
+            setMenuAnchor(null);
+            onAction();
+          }}
         >
-          <MoreVertIcon fontSize="small" />
-        </IconButton>
-        <Menu anchorEl={menuAnchor} open={!!menuAnchor} onClose={() => setMenuAnchor(null)}>
-          <MenuItem
-            onClick={() => {
-              setMenuAnchor(null);
-              onRemove();
-            }}
-          >
-            {t('RemoveDocumentation')}
-          </MenuItem>
-        </Menu>
-      </div>
-
-      <a className={classes.docTitle} href={doc.url} target="_blank" rel="noopener noreferrer">
-        {doc.title}
-      </a>
-      <div className={classes.docUrl} title={doc.url}>
-        {doc.url}
-      </div>
-
-      <div className={classes.itemFooter}>
-        <span className={classes.author} title={doc.author?.name || ''}>
-          {doc.author?.name || t('UnknownAuthor')}
-        </span>
-        <span className={classes.time}>{moment(doc.createdAt).format('DD.MM.YYYY HH:mm')}</span>
-      </div>
-    </Paper>
+          {actionLabel}
+        </MenuItem>
+      </Menu>
+    </>
   );
 };
+
+CardMenu.propTypes = {
+  classes: PropTypes.object.isRequired,
+  label: PropTypes.string.isRequired,
+  actionLabel: PropTypes.string.isRequired,
+  onAction: PropTypes.func.isRequired
+};
+
+const DocumentationCard = ({ t, doc, classes, onRemove }) => (
+  <Paper elevation={COMMENT_ELEVATION} className={classes.item}>
+    <div className={classes.cardHeader}>
+      <span className={classes.place}>
+        <LinkIcon />
+        <span>{t('Documentation')}</span>
+      </span>
+      <CardMenu
+        classes={classes}
+        label={t('DocumentationActions')}
+        actionLabel={t('RemoveDocumentation')}
+        onAction={onRemove}
+      />
+    </div>
+
+    <a className={classes.docTitle} href={doc.url} target="_blank" rel="noopener noreferrer">
+      {doc.title}
+    </a>
+    <div className={classes.docUrl} title={doc.url}>
+      {doc.url}
+    </div>
+
+    <div className={classes.itemFooter}>
+      <span className={classes.author} title={doc.author?.name || ''}>
+        {doc.author?.name || t('UnknownAuthor')}
+      </span>
+      <span className={classes.time}>{moment(doc.createdAt).format('DD.MM.YYYY HH:mm')}</span>
+    </div>
+  </Paper>
+);
 
 DocumentationCard.propTypes = {
   t: PropTypes.func.isRequired,
@@ -477,31 +492,39 @@ const CommentsPanel = ({
                   [classes.itemHighlighted]: highlighted
                 })}
               >
-                {anchor ? (
-                  <Tooltip title={exists ? shortType(anchor.elementType) : t('ElementRemoved')}>
-                    {exists ? (
-                      <ButtonBase
-                        className={classNames(classes.place, classes.placeLink, {
-                          [classes.placeActive]: highlighted
-                        })}
-                        onClick={() => onSelectElement(anchor.elementId)}
-                      >
-                        <PlaceOutlinedIcon />
-                        <span>{anchorLabel(anchor)}</span>
-                      </ButtonBase>
-                    ) : (
-                      <span className={classNames(classes.place, classes.placeRemoved)}>
-                        <PlaceOutlinedIcon />
-                        <span>{anchorLabel(anchor)}</span>
-                      </span>
-                    )}
-                  </Tooltip>
-                ) : (
-                  <span className={classes.place}>
-                    <AccountTreeOutlinedIcon />
-                    <span>{t('WholeWorkflow')}</span>
-                  </span>
-                )}
+                <div className={classes.cardHeader}>
+                  {anchor ? (
+                    <Tooltip title={exists ? shortType(anchor.elementType) : t('ElementRemoved')}>
+                      {exists ? (
+                        <ButtonBase
+                          className={classNames(classes.place, classes.placeLink, {
+                            [classes.placeActive]: highlighted
+                          })}
+                          onClick={() => onSelectElement(anchor.elementId)}
+                        >
+                          <PlaceOutlinedIcon />
+                          <span>{anchorLabel(anchor)}</span>
+                        </ButtonBase>
+                      ) : (
+                        <span className={classNames(classes.place, classes.placeRemoved)}>
+                          <PlaceOutlinedIcon />
+                          <span>{anchorLabel(anchor)}</span>
+                        </span>
+                      )}
+                    </Tooltip>
+                  ) : (
+                    <span className={classes.place}>
+                      <AccountTreeOutlinedIcon />
+                      <span>{t('WholeWorkflow')}</span>
+                    </span>
+                  )}
+                  <CardMenu
+                    classes={classes}
+                    label={t('CommentActions')}
+                    actionLabel={t('DeleteComment')}
+                    onAction={() => onRemove(id)}
+                  />
+                </div>
 
                 <Typography variant="body2" className={classes.text}>
                   {body}
@@ -514,15 +537,6 @@ const CommentsPanel = ({
                   <span className={classes.time}>
                     {moment(createdAt).format('DD.MM.YYYY HH:mm')}
                   </span>
-                  <Tooltip title={t('DeleteComment')}>
-                    <IconButton
-                      className={classes.deleteButton}
-                      size="small"
-                      onClick={() => onRemove(id)}
-                    >
-                      <DeleteOutlineIcon fontSize="small" />
-                    </IconButton>
-                  </Tooltip>
                 </div>
               </Paper>
             );

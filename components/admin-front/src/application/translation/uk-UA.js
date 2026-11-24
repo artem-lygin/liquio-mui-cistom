@@ -139,6 +139,7 @@ export default {
     NoComments: 'Коментарів ще немає',
     UnknownAuthor: 'Невідомий автор',
     DeleteComment: 'Видалити коментар',
+    CommentActions: 'Дії з коментарем',
     ElementRemoved: 'Елемент видалено зі схеми',
     WholeWorkflow: 'Процес',
     OneComment: '1 коментар',

@@ -3253,6 +3253,7 @@ export default {
     NoComments: 'No comments yet',
     UnknownAuthor: 'Unknown author',
     DeleteComment: 'Delete comment',
+    CommentActions: 'Comment actions',
     ElementRemoved: 'Element removed from the schema',
     WholeWorkflow: 'Workflow',
     OneComment: '1 comment',
