@@ -2,7 +2,7 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import classNames from 'classnames';
 import moment from 'moment';
-import { Button, Chip, IconButton, TextField, Tooltip, Typography } from '@mui/material';
+import { Button, Chip, IconButton, Paper, TextField, Tooltip, Typography } from '@mui/material';
 import { alpha } from '@mui/material/styles';
 import { makeStyles } from '@mui/styles';
 import DeleteOutlineIcon from '@mui/icons-material/DeleteOutline';
@@ -44,10 +44,10 @@ const useStyles = makeStyles((theme) => ({
     flexDirection: 'column',
     gap: theme.spacing(2)
   },
+  // A Paper at COMMENT_ELEVATION: surface, shadow, radius and hairline border all come from
+  // the theme (MuiPaper override + dark-mode elevation overlay).
   item: {
     padding: theme.spacing(2),
-    borderRadius: theme.shape.borderRadius,
-    border: `1px solid ${theme.palette.divider}`,
     transition: theme.transitions.create(['background-color', 'border-color'])
   },
   itemHighlighted: {
@@ -99,6 +99,8 @@ const useStyles = makeStyles((theme) => ({
     color: theme.palette.error.main
   }
 }));
+
+const COMMENT_ELEVATION = 3;
 
 const shortType = (type = '') => type.replace(/^bpmn:/, '');
 
@@ -243,8 +245,9 @@ const CommentsPanel = ({
             if (assignRef) highlightedRefAssigned = true;
 
             return (
-              <div
+              <Paper
                 key={id}
+                elevation={COMMENT_ELEVATION}
                 ref={assignRef ? firstHighlightedRef : undefined}
                 className={classNames(classes.item, {
                   [classes.itemHighlighted]: highlighted
@@ -300,7 +303,7 @@ const CommentsPanel = ({
                     </IconButton>
                   </Tooltip>
                 </div>
-              </div>
+              </Paper>
             );
           })}
         </div>
