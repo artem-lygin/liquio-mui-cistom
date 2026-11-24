@@ -68,10 +68,11 @@ const useStyles = makeStyles((theme) => ({
     backgroundPosition: '50% 50%',
     cursor: 'pointer',
     transition: '.2s ease-in-out',
-    transform: 'rotate(180deg)',
+    // The chevron points up natively: left (expand) when collapsed, right (collapse) when open.
+    transform: 'rotate(-90deg)',
   },
   iconRotate: {
-    transform: 'rotate(0deg)',
+    transform: 'rotate(90deg)',
   },
   body: {
     position: 'absolute',
