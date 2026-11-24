@@ -238,7 +238,13 @@ const CommentsPanel = ({
     }
   };
 
-  const sorted = [...comments].sort((a, b) => b.createdAt.localeCompare(a.createdAt));
+  // Newest first. With an element selected, that element's comments come first (newest
+  // first among them), then everything else (newest first).
+  const isOnSelected = ({ anchor }) => !!(selectedId && anchor && anchor.elementId === selectedId);
+  const sorted = [...comments].sort(
+    (a, b) =>
+      Number(isOnSelected(b)) - Number(isOnSelected(a)) || b.createdAt.localeCompare(a.createdAt)
+  );
   let highlightedRefAssigned = false;
 
   return (
