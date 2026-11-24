@@ -32,8 +32,12 @@ const useStyles = makeStyles((theme) => ({
       flexShrink: 0
     }
   },
+  // The place pill (composer and cards): body2-size text, a step under MUI Chip's own 13px.
   anchorChip: {
-    maxWidth: '100%'
+    maxWidth: '100%',
+    '& .MuiChip-label': {
+      fontSize: theme.typography.body2.fontSize
+    }
   },
   list: {
     display: 'flex',
@@ -50,34 +54,45 @@ const useStyles = makeStyles((theme) => ({
     borderColor: theme.palette.primary.main,
     backgroundColor: alpha(theme.palette.primary.main, theme.palette.action.selectedOpacity)
   },
-  itemHeader: {
-    display: 'flex',
-    alignItems: 'flex-start',
-    justifyContent: 'space-between',
-    gap: theme.spacing(1)
-  },
-  itemMeta: {
-    minWidth: 0
-  },
-  author: {
-    color: theme.palette.text.primary,
-    overflow: 'hidden',
-    textOverflow: 'ellipsis'
-  },
-  date: {
-    color: theme.palette.text.secondary
-  },
   text: {
     color: theme.palette.text.primary,
     whiteSpace: 'pre-wrap',
-    wordBreak: 'break-word',
-    marginTop: theme.spacing(1)
+    wordBreak: 'break-word'
   },
   itemAnchor: {
     marginTop: theme.spacing(1.5)
   },
+  // Last row: author (truncated) · time, delete pinned to the card's bottom-right corner.
+  itemFooter: {
+    display: 'flex',
+    alignItems: 'center',
+    gap: theme.spacing(1),
+    marginTop: theme.spacing(1.5)
+  },
+  author: {
+    ...theme.typography.body2,
+    fontWeight: theme.typography.fontWeightMedium,
+    color: theme.palette.text.primary,
+    minWidth: 0,
+    overflow: 'hidden',
+    textOverflow: 'ellipsis',
+    whiteSpace: 'nowrap'
+  },
+  time: {
+    ...theme.typography.body2,
+    color: theme.palette.text.secondary,
+    flexShrink: 0,
+    whiteSpace: 'nowrap'
+  },
+  deleteButton: {
+    flexShrink: 0,
+    marginLeft: 'auto'
+  },
   removedAnchor: {
     textDecoration: 'line-through'
+  },
+  date: {
+    color: theme.palette.text.secondary
   },
   empty: {
     color: theme.palette.text.secondary
@@ -237,22 +252,6 @@ const CommentsPanel = ({
                   [classes.itemHighlighted]: highlighted
                 })}
               >
-                <div className={classes.itemHeader}>
-                  <div className={classes.itemMeta}>
-                    <Typography variant="subtitle2" className={classes.author} noWrap>
-                      {author?.name || t('UnknownAuthor')}
-                    </Typography>
-                    <Typography variant="caption" className={classes.date}>
-                      {moment(createdAt).format('DD.MM.YYYY HH:mm')}
-                    </Typography>
-                  </div>
-                  <Tooltip title={t('DeleteComment')}>
-                    <IconButton size="small" onClick={() => onRemove(id)}>
-                      <DeleteOutlineIcon fontSize="small" />
-                    </IconButton>
-                  </Tooltip>
-                </div>
-
                 <Typography variant="body2" className={classes.text}>
                   {body}
                 </Typography>
@@ -284,6 +283,24 @@ const CommentsPanel = ({
                       label={t('WholeWorkflow')}
                     />
                   )}
+                </div>
+
+                <div className={classes.itemFooter}>
+                  <span className={classes.author} title={author?.name || ''}>
+                    {author?.name || t('UnknownAuthor')}
+                  </span>
+                  <span className={classes.time}>
+                    {moment(createdAt).format('DD.MM.YYYY HH:mm')}
+                  </span>
+                  <Tooltip title={t('DeleteComment')}>
+                    <IconButton
+                      className={classes.deleteButton}
+                      size="small"
+                      onClick={() => onRemove(id)}
+                    >
+                      <DeleteOutlineIcon fontSize="small" />
+                    </IconButton>
+                  </Tooltip>
                 </div>
               </div>
             );
