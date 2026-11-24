@@ -18,14 +18,14 @@ const createPin = (theme, count, selected, onClick) => {
   Object.assign(pin.style, {
     display: 'flex',
     alignItems: 'center',
-    gap: theme.spacing(0.5),
-    padding: theme.spacing(0.25, 0.75),
+    gap: theme.spacing(0.75),
+    padding: theme.spacing(0.75, 1.25),
     border: 'none',
     borderRadius: `${theme.shape.borderRadius}px`,
     background: theme.palette.primary.main,
     color: theme.palette.primary.contrastText,
-    fontFamily: theme.typography.caption.fontFamily,
-    fontSize: theme.typography.caption.fontSize,
+    fontFamily: theme.typography.body2.fontFamily,
+    fontSize: theme.typography.body2.fontSize,
     fontWeight: theme.typography.fontWeightMedium,
     lineHeight: 1,
     cursor: 'pointer',
@@ -34,7 +34,7 @@ const createPin = (theme, count, selected, onClick) => {
       ? `0 0 0 2px ${theme.palette.background.paper}, 0 0 0 4px ${theme.palette.primary.main}`
       : theme.shadows[2]
   });
-  pin.innerHTML = `<svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="${ICON_PATH}"/></svg><span>${count}</span>`;
+  pin.innerHTML = `<svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="${ICON_PATH}"/></svg><span>${count}</span>`;
   pin.addEventListener('click', (event) => {
     event.stopPropagation();
     onClick();
@@ -70,7 +70,7 @@ const useCommentOverlays = ({ modeler, comments, selectedElementId, onPinClick }
         overlays.add(element, OVERLAY_TYPE, {
           // Top-left: bpmn-js's context pad (the selected element's tool palette) owns the
           // top-right corner.
-          position: { top: -12, left: -12 },
+          position: { top: -18, left: -18 },
           html: createPin(theme, count, elementId === selectedElementId, () =>
             onPinClickRef.current(elementId)
           )
