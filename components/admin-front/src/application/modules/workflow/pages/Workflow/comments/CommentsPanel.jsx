@@ -103,7 +103,7 @@ const useStyles = makeStyles((theme) => ({
   }
 }));
 
-const COMMENT_ELEVATION = 3;
+const COMMENT_ELEVATION = 4;
 
 const shortType = (type = '') => type.replace(/^bpmn:/, '');
 
