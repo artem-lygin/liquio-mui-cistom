@@ -183,6 +183,19 @@ const CommentsPanel = ({
   const [attach, setAttach] = React.useState(true);
   const [submitting, setSubmitting] = React.useState(false);
   const firstHighlightedRef = React.useRef(null);
+  const [, refreshFromDiagram] = React.useReducer((x) => x + 1, 0);
+
+  // Element names are read live from the diagram (below), so re-render when it changes: a
+  // rename, delete or undo on the canvas, or a re-import.
+  React.useEffect(() => {
+    if (!modeler) return undefined;
+    modeler.on('elements.changed', refreshFromDiagram);
+    modeler.on('import.done', refreshFromDiagram);
+    return () => {
+      modeler.off('elements.changed', refreshFromDiagram);
+      modeler.off('import.done', refreshFromDiagram);
+    };
+  }, [modeler]);
 
   const selectedId = selection?.id || null;
 
@@ -195,8 +208,16 @@ const CommentsPanel = ({
     }
   }, [selectedId]);
 
-  const elementExists = (elementId) =>
-    !!(modeler && modeler.get('elementRegistry').get(elementId));
+  const getElement = (elementId) => (modeler ? modeler.get('elementRegistry').get(elementId) : null);
+
+  const elementExists = (elementId) => !!getElement(elementId);
+
+  // The element's current name, so a renamed element reads the same on every comment. The
+  // name stored with the comment is only a fallback for an element deleted from the schema.
+  const anchorLabel = (anchor) => {
+    const element = getElement(anchor.elementId);
+    return element ? elementLabel(element) : anchor.elementName || anchor.elementId;
+  };
 
   const handleSubmit = async () => {
     if (!text.trim() || submitting) return;
@@ -313,12 +334,12 @@ const CommentsPanel = ({
                         onClick={() => onSelectElement(anchor.elementId)}
                       >
                         <PlaceOutlinedIcon />
-                        <span>{anchor.elementName || anchor.elementId}</span>
+                        <span>{anchorLabel(anchor)}</span>
                       </ButtonBase>
                     ) : (
                       <span className={classNames(classes.place, classes.placeRemoved)}>
                         <PlaceOutlinedIcon />
-                        <span>{anchor.elementName || anchor.elementId}</span>
+                        <span>{anchorLabel(anchor)}</span>
                       </span>
                     )}
                   </Tooltip>
