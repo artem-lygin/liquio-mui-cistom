@@ -20,7 +20,6 @@ import { alpha } from '@mui/material/styles';
 import { makeStyles } from '@mui/styles';
 import PlaceOutlinedIcon from '@mui/icons-material/PlaceOutlined';
 import AccountTreeOutlinedIcon from '@mui/icons-material/AccountTreeOutlined';
-import AddIcon from '@mui/icons-material/Add';
 import LinkIcon from '@mui/icons-material/Link';
 import MoreVertIcon from '@mui/icons-material/MoreVert';
 import { parseDocumentationUrl } from './documentation';
@@ -177,9 +176,6 @@ const useStyles = makeStyles((theme) => ({
     '& .MuiFormControlLabel-label': {
       ...theme.typography.body2
     }
-  },
-  date: {
-    color: theme.palette.text.secondary
   },
   empty: {
     color: theme.palette.text.secondary
@@ -383,6 +379,10 @@ const CommentsPanel = ({
   return (
     <div>
       <div className={classes.composer}>
+        <Typography variant="subtitle2" component="h3">
+          {t('NewCommentTitle')}
+        </Typography>
+
         <TextField
           multiline
           minRows={3}
@@ -395,23 +395,23 @@ const CommentsPanel = ({
           onKeyDown={handleKeyDown}
         />
 
-        {documentationUrl ? (
-          <FormControlLabel
-            className={classes.docCheckbox}
-            control={
-              <Checkbox
-                size="small"
-                checked={asDocumentation}
-                onChange={({ target: { checked } }) => setAsDocumentation(checked)}
-              />
-            }
-            label={t('Documentation')}
-          />
-        ) : null}
-
-        {selection && !submitAsDocumentation ? (
+        {/* Under the input: where the comment goes (a pill) — or, when the input is a bare
+            link, the Documentation checkbox in its place — and the submit button. */}
+        <div className={classes.composerActions}>
           <div>
-            {attach ? (
+            {documentationUrl ? (
+              <FormControlLabel
+                className={classes.docCheckbox}
+                control={
+                  <Checkbox
+                    size="small"
+                    checked={asDocumentation}
+                    onChange={({ target: { checked } }) => setAsDocumentation(checked)}
+                  />
+                }
+                label={t('Documentation')}
+              />
+            ) : selection && attach ? (
               <Chip
                 className={classes.anchorChip}
                 size="small"
@@ -421,26 +421,20 @@ const CommentsPanel = ({
                 onDelete={() => setAttach(false)}
               />
             ) : (
-              <Chip
-                className={classes.anchorChip}
-                size="small"
-                variant="outlined"
-                icon={<AddIcon />}
-                label={t('CommentAttachTo', { name: elementLabel(selection) })}
-                onClick={() => setAttach(true)}
-              />
+              <Tooltip
+                title={selection ? t('CommentAttachTo', { name: elementLabel(selection) }) : ''}
+              >
+                <Chip
+                  className={classes.anchorChip}
+                  size="small"
+                  variant="outlined"
+                  icon={<AccountTreeOutlinedIcon />}
+                  label={t('WholeWorkflow')}
+                  onClick={selection ? () => setAttach(true) : undefined}
+                />
+              </Tooltip>
             )}
           </div>
-        ) : null}
-
-        <div className={classes.composerActions}>
-          <Typography variant="caption" className={classes.date}>
-            {submitAsDocumentation
-              ? t('DocumentationLinkHint')
-              : selection && attach
-                ? t('CommentOnElement')
-                : t('CommentOnWorkflow')}
-          </Typography>
           <Button
             variant="contained"
             color="primary"
