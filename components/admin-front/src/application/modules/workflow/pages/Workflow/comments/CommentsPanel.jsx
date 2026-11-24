@@ -57,9 +57,7 @@ const useStyles = makeStyles((theme) => ({
   text: {
     color: theme.palette.text.primary,
     whiteSpace: 'pre-wrap',
-    wordBreak: 'break-word'
-  },
-  itemAnchor: {
+    wordBreak: 'break-word',
     marginTop: theme.spacing(1.5)
   },
   // Last row: author (truncated) · time, delete pinned to the card's bottom-right corner.
@@ -252,11 +250,7 @@ const CommentsPanel = ({
                   [classes.itemHighlighted]: highlighted
                 })}
               >
-                <Typography variant="body2" className={classes.text}>
-                  {body}
-                </Typography>
-
-                <div className={classes.itemAnchor}>
+                <div>
                   {anchor ? (
                     <Tooltip title={exists ? shortType(anchor.elementType) : t('ElementRemoved')}>
                       <span>
@@ -284,6 +278,10 @@ const CommentsPanel = ({
                     />
                   )}
                 </div>
+
+                <Typography variant="body2" className={classes.text}>
+                  {body}
+                </Typography>
 
                 <div className={classes.itemFooter}>
                   <span className={classes.author} title={author?.name || ''}>
