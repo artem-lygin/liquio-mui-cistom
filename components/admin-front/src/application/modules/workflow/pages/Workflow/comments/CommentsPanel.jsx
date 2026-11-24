@@ -2,7 +2,16 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import classNames from 'classnames';
 import moment from 'moment';
-import { Button, Chip, IconButton, Paper, TextField, Tooltip, Typography } from '@mui/material';
+import {
+  Button,
+  ButtonBase,
+  Chip,
+  IconButton,
+  Paper,
+  TextField,
+  Tooltip,
+  Typography
+} from '@mui/material';
 import { alpha } from '@mui/material/styles';
 import { makeStyles } from '@mui/styles';
 import DeleteOutlineIcon from '@mui/icons-material/DeleteOutline';
@@ -32,7 +41,7 @@ const useStyles = makeStyles((theme) => ({
       flexShrink: 0
     }
   },
-  // The place pill (composer and cards): body2-size text, a step under MUI Chip's own 13px.
+  // The composer's attach chip: body2-size text, a step under MUI Chip's own 13px.
   anchorChip: {
     maxWidth: '100%',
     '& .MuiChip-label': {
@@ -63,6 +72,44 @@ const useStyles = makeStyles((theme) => ({
     wordBreak: 'break-word',
     marginTop: theme.spacing(1.5)
   },
+  // Card metadata (place, author, time) is caption-size: one step under the comment text.
+  // Place: a 20px icon (the theme's button-icon size) + label, no pill.
+  place: {
+    ...theme.typography.caption,
+    display: 'inline-flex',
+    alignItems: 'center',
+    gap: theme.spacing(1),
+    maxWidth: '100%',
+    color: theme.palette.text.secondary,
+    '& .MuiSvgIcon-root': {
+      fontSize: theme.buttonIconSize.medium,
+      flexShrink: 0
+    },
+    '& > span': {
+      minWidth: 0,
+      overflow: 'hidden',
+      textOverflow: 'ellipsis',
+      whiteSpace: 'nowrap'
+    }
+  },
+  placeLink: {
+    borderRadius: theme.shape.borderRadius,
+    '&:hover, &.Mui-focusVisible': {
+      color: theme.palette.text.primary
+    }
+  },
+  placeActive: {
+    color: theme.palette.primary.main,
+    '&:hover, &.Mui-focusVisible': {
+      color: theme.palette.primary.main
+    }
+  },
+  placeRemoved: {
+    color: theme.palette.text.disabled,
+    '& > span': {
+      textDecoration: 'line-through'
+    }
+  },
   // Last row: author (truncated) · time, delete pinned to the card's bottom-right corner.
   itemFooter: {
     display: 'flex',
@@ -71,7 +118,7 @@ const useStyles = makeStyles((theme) => ({
     marginTop: theme.spacing(1.5)
   },
   author: {
-    ...theme.typography.body2,
+    ...theme.typography.caption,
     fontWeight: theme.typography.fontWeightMedium,
     color: theme.palette.text.primary,
     minWidth: 0,
@@ -80,7 +127,7 @@ const useStyles = makeStyles((theme) => ({
     whiteSpace: 'nowrap'
   },
   time: {
-    ...theme.typography.body2,
+    ...theme.typography.caption,
     color: theme.palette.text.secondary,
     flexShrink: 0,
     whiteSpace: 'nowrap'
@@ -88,9 +135,6 @@ const useStyles = makeStyles((theme) => ({
   deleteButton: {
     flexShrink: 0,
     marginLeft: 'auto'
-  },
-  removedAnchor: {
-    textDecoration: 'line-through'
   },
   date: {
     color: theme.palette.text.secondary
@@ -256,34 +300,31 @@ const CommentsPanel = ({
                   [classes.itemHighlighted]: highlighted
                 })}
               >
-                <div>
-                  {anchor ? (
-                    <Tooltip title={exists ? shortType(anchor.elementType) : t('ElementRemoved')}>
-                      <span>
-                        <Chip
-                          className={classNames(classes.anchorChip, {
-                            [classes.removedAnchor]: !exists
-                          })}
-                          size="small"
-                          variant={highlighted ? 'filled' : 'outlined'}
-                          color={highlighted ? 'primary' : 'default'}
-                          icon={<PlaceOutlinedIcon />}
-                          label={anchor.elementName || anchor.elementId}
-                          onClick={exists ? () => onSelectElement(anchor.elementId) : undefined}
-                          disabled={!exists}
-                        />
+                {anchor ? (
+                  <Tooltip title={exists ? shortType(anchor.elementType) : t('ElementRemoved')}>
+                    {exists ? (
+                      <ButtonBase
+                        className={classNames(classes.place, classes.placeLink, {
+                          [classes.placeActive]: highlighted
+                        })}
+                        onClick={() => onSelectElement(anchor.elementId)}
+                      >
+                        <PlaceOutlinedIcon />
+                        <span>{anchor.elementName || anchor.elementId}</span>
+                      </ButtonBase>
+                    ) : (
+                      <span className={classNames(classes.place, classes.placeRemoved)}>
+                        <PlaceOutlinedIcon />
+                        <span>{anchor.elementName || anchor.elementId}</span>
                       </span>
-                    </Tooltip>
-                  ) : (
-                    <Chip
-                      className={classes.anchorChip}
-                      size="small"
-                      variant="outlined"
-                      icon={<AccountTreeOutlinedIcon />}
-                      label={t('WholeWorkflow')}
-                    />
-                  )}
-                </div>
+                    )}
+                  </Tooltip>
+                ) : (
+                  <span className={classes.place}>
+                    <AccountTreeOutlinedIcon />
+                    <span>{t('WholeWorkflow')}</span>
+                  </span>
+                )}
 
                 <Typography variant="body2" className={classes.text}>
                   {body}

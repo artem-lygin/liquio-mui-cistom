@@ -3254,7 +3254,7 @@ export default {
     UnknownAuthor: 'Unknown author',
     DeleteComment: 'Delete comment',
     ElementRemoved: 'Element removed from the schema',
-    WholeWorkflow: 'Whole workflow',
+    WholeWorkflow: 'Workflow',
     CollapsePanel: 'Collapse panel',
     ExpandPanel: 'Expand panel',
     'editorSettings': 'Editor settings (monaco-editor)',

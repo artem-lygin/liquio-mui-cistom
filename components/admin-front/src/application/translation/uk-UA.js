@@ -140,7 +140,7 @@ export default {
     UnknownAuthor: 'Невідомий автор',
     DeleteComment: 'Видалити коментар',
     ElementRemoved: 'Елемент видалено зі схеми',
-    WholeWorkflow: 'Весь процес',
+    WholeWorkflow: 'Процес',
     CollapsePanel: 'Згорнути панель',
     ExpandPanel: 'Розгорнути панель',
     EventType: 'Тип події',
