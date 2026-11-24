@@ -23,9 +23,10 @@ import {
   toAuthor
 } from '../../Workflow/comments/documentation';
 
-// Workflow-list 3-dot menu item (PoC): "Add documentation" opens a dialog for the URL and an
-// optional title (left empty, the page's own title is used). A workflow has at most one link;
-// once it has one, the item opens it instead. It's removed from the workflow's comments panel.
+// Workflow-list 3-dot menu item (PoC): "Add documentation" opens a dialog for the URL alone
+// (the title is the page's own, fetched when attaching). A workflow has at most one link;
+// once it has one, the item reads "Documentation" and opens it. It's removed from the
+// workflow's comments panel.
 
 const useStyles = makeStyles((theme) => ({
   content: {
@@ -44,7 +45,6 @@ const WorkflowDocumentation = ({ workflow, menuOpen, closeMenu }) => {
   const [doc, setDoc] = React.useState(undefined); // undefined: not loaded yet
   const [open, setOpen] = React.useState(false);
   const [url, setUrl] = React.useState('');
-  const [title, setTitle] = React.useState('');
   const [urlTouched, setUrlTouched] = React.useState(false);
   const [saving, setSaving] = React.useState(false);
   const [error, setError] = React.useState(null);
@@ -68,7 +68,6 @@ const WorkflowDocumentation = ({ workflow, menuOpen, closeMenu }) => {
   const openDialog = () => {
     closeMenu();
     setUrl('');
-    setTitle('');
     setUrlTouched(false);
     setError(null);
     setOpen(true);
@@ -82,7 +81,6 @@ const WorkflowDocumentation = ({ workflow, menuOpen, closeMenu }) => {
     try {
       const created = await documentationApi.attach(workflow.id, {
         url: validUrl,
-        title: title.trim() || undefined,
         author: toAuthor(userInfo)
       });
       setDoc(created);
@@ -104,7 +102,7 @@ const WorkflowDocumentation = ({ workflow, menuOpen, closeMenu }) => {
         <ListItemIcon>
           <OpenInNewIcon />
         </ListItemIcon>
-        <ListItemText primary={t('OpenDocumentation')} />
+        <ListItemText primary={t('Documentation')} />
       </MenuItem>
     );
   }
@@ -131,17 +129,11 @@ const WorkflowDocumentation = ({ workflow, menuOpen, closeMenu }) => {
               value={url}
               onChange={({ target: { value } }) => setUrl(value)}
               onBlur={() => setUrlTouched(true)}
-              error={urlError}
-              helperText={urlError ? t('DocumentationUrlInvalid') : ' '}
-            />
-            <TextField
-              fullWidth
-              label={t('DocumentationTitle')}
-              value={title}
-              onChange={({ target: { value } }) => setTitle(value)}
-              helperText={error ? error.message : t('DocumentationTitleHint')}
-              error={!!error}
               onKeyDown={(event) => event.key === 'Enter' && handleAttach()}
+              error={urlError || !!error}
+              helperText={
+                urlError ? t('DocumentationUrlInvalid') : error ? error.message : ' '
+              }
             />
           </div>
         </DialogContent>
