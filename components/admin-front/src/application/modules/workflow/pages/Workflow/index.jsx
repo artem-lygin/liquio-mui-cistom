@@ -131,9 +131,14 @@ const styles = (theme) => ({
   // before. body2 (0.875rem → 12.25px at this app's 14px root), not caption (10.5px: too small).
   historyText: {
     ...theme.typography.body2,
-    color: theme.palette.text.primary,
+    color: theme.palette.text.secondary,
     display: 'flex',
-    alignItems: 'center'
+    alignItems: 'center',
+    // The versions (history) button belongs to this label, so it sits closer than the
+    // theme's large-button gap (theme.buttonGap.large) would put it.
+    '& + .MuiIconButton-root': {
+      marginLeft: theme.spacing(1)
+    }
   },
   pasteElementButton: {
     fill: theme.navigator.navItem.linkActiveColor
