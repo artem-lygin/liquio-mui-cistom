@@ -127,8 +127,10 @@ const styles = (theme) => ({
   saveButtonIcon: {
     marginRight: theme.spacing(1)
   },
+  // Sits beside the sidebar's Save button, one step below the body text it used to be.
   historyText: {
-    color: '#fff',
+    ...theme.typography.caption,
+    color: theme.palette.text.primary,
     display: 'flex',
     alignItems: 'center'
   },
@@ -1071,8 +1073,6 @@ class WorkflowPage extends ModulePage {
         <div className={classes.root}>
           <AppBar position="relative" color="transparent">
             <Toolbar disableGutters={true} className={classes.toolbar}>
-              {this.lastEditString(workflow?.lastWorkflowHistory)}
-
               <div style={{ flexGrow: 1 }} />
 
               {copiedElement ? (
@@ -1082,6 +1082,8 @@ class WorkflowPage extends ModulePage {
                   </IconButton>
                 </Tooltip>
               ) : null}
+
+              {this.lastEditString(workflow?.lastWorkflowHistory)}
 
               <RightSidebar
                 t={t}

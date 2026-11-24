@@ -34,11 +34,13 @@ import useCommentOverlays from '../comments/useCommentOverlays';
 const MODE_PROPERTIES = 'properties';
 const MODE_COMMENTS = 'comments';
 
+const PANEL_WIDTH = 300;
+
 const useStyles = makeStyles((theme) => ({
+  // Only as wide as the header controls, so whatever the toolbar puts before it (the "last
+  // changes" text) sits right next to Save; the panel body below keeps its own fixed width.
   root: {
-    width: 300,
     height: '100%',
-    paddingLeft: theme.spacing(3),
     paddingBottom: theme.spacing(2),
     paddingTop: theme.spacing(2),
     position: 'relative',
@@ -80,7 +82,7 @@ const useStyles = makeStyles((theme) => ({
     position: 'absolute',
     right: 0,
     top: 52,
-    width: '100%',
+    width: PANEL_WIDTH,
     height: 'calc(100vh - 125px)',
     background: theme?.navigator?.sidebarBg,
     paddingTop: theme.spacing(5),
