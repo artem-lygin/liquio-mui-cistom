@@ -35,6 +35,7 @@ import unitSchema from './WorkflowSettings/unitSchema';
 import CommentsPanel from '../comments/CommentsPanel';
 import useWorkflowComments from '../comments/useWorkflowComments';
 import useCommentOverlays from '../comments/useCommentOverlays';
+import CommentPins from '../comments/CommentPins';
 
 const MODE_PROPERTIES = 'properties';
 const MODE_COMMENTS = 'comments';
@@ -262,12 +263,7 @@ const RightSidebar = ({
     [onSelectElement],
   );
 
-  useCommentOverlays({
-    modeler,
-    comments,
-    selectedElementId: commentTarget ? commentTarget.id : null,
-    onPinClick: showElementComments,
-  });
+  const commentPins = useCommentOverlays({ modeler, comments });
 
   const activeType = chosenElement
     ? `${getElementType(selection)} Id`
@@ -277,6 +273,12 @@ const RightSidebar = ({
 
   return (
     <div className={classes.root}>
+      <CommentPins
+        t={t}
+        pins={commentPins}
+        selectedElementId={commentTarget ? commentTarget.id : null}
+        onPinClick={showElementComments}
+      />
       <div className={classes.header}>
         <div className={classes.headerControls}>
           <Button

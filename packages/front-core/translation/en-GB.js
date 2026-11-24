@@ -3255,6 +3255,8 @@ export default {
     DeleteComment: 'Delete comment',
     ElementRemoved: 'Element removed from the schema',
     WholeWorkflow: 'Workflow',
+    OneComment: '1 comment',
+    CommentsCount: '{{count}} comments',
     CollapsePanel: 'Collapse panel',
     ExpandPanel: 'Expand panel',
     'editorSettings': 'Editor settings (monaco-editor)',
