@@ -45,6 +45,9 @@ const useStyles = makeStyles((theme) => ({
   // changes" text) sits right next to Save; the panel body below keeps its own fixed width.
   root: {
     height: '100%',
+    // Keeps the collapse button off the window edge (the panel body is absolutely positioned
+    // against this box's padding edge, so it stays flush right).
+    paddingRight: theme.spacing(2),
     paddingBottom: theme.spacing(2),
     paddingTop: theme.spacing(2),
     position: 'relative',
