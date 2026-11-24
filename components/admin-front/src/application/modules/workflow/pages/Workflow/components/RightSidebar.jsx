@@ -8,6 +8,7 @@ import {
   Divider,
   Typography,
   IconButton,
+  Paper,
   SvgIcon,
   ToggleButton,
   ToggleButtonGroup,
@@ -39,6 +40,7 @@ const MODE_PROPERTIES = 'properties';
 const MODE_COMMENTS = 'comments';
 
 const PANEL_WIDTH = 300;
+const PANEL_ELEVATION = 1;
 
 const useStyles = makeStyles((theme) => ({
   // Only as wide as the header controls, so whatever the toolbar puts before it (the "last
@@ -76,12 +78,18 @@ const useStyles = makeStyles((theme) => ({
     top: 52,
     width: PANEL_WIDTH,
     height: 'calc(100vh - 125px)',
-    background: theme?.navigator?.sidebarBg,
-    paddingTop: theme.spacing(5),
     transition: theme.transitions.create(['transform', 'visibility']),
     transform: 'translateX(0)',
     opacity: 1,
     zIndex: 10,
+  },
+  // The panel surface: a square Paper at elevation 1 (was the flat navigator.sidebarBg
+  // #404040, off the elevation scale), so cards inside at higher elevations read as raised.
+  // A child of body rather than body itself, so Paper's own transition can't override the
+  // collapse animation above.
+  surface: {
+    height: '100%',
+    paddingTop: theme.spacing(5),
   },
   // Collapses off the right edge; the page layout clips the overflow.
   bodyClosed: {
@@ -329,94 +337,96 @@ const RightSidebar = ({
           [classes.bodyClosed]: !open,
         })}
       >
-        <Scrollbar options={{ suppressScrollX: true }}>
-          <div
-            className={classNames({
-              [classes.pdr]: true,
-              [classes.bodyToggled]: !mounted && mode === MODE_PROPERTIES,
-            })}
-          >
-            <Divider className={classes.divider} />
-
-            {mode === MODE_COMMENTS ? (
-              <CommentsPanel
-                t={t}
-                comments={comments}
-                loading={commentsLoading}
-                error={commentsError}
-                selection={commentTarget}
-                modeler={modeler}
-                currentUser={currentUser}
-                onAdd={addComment}
-                onRemove={removeComment}
-                onSelectElement={onSelectElement}
-              />
-            ) : (
-              <>
-              <Typography className={classes.sidebarHeadline}>
-                <span>{activeType}</span>
-                <div
-                  className={classes.copyButton}
-                  onClick={() => navigator.clipboard.writeText(activeId)}
-                >
-                  {activeId}
-                  <Tooltip title={t('Copy')}>
-                    <IconButton className={classes.copyIcon} size="large">
-                      <img src={Copy} alt={'copy'} />
-                    </IconButton>
-                  </Tooltip>
-                </div>
-              </Typography>
-  
-              <CreateParallelGatewayEnding
-                t={t}
-                modeler={modeler}
-                selection={selection}
-                classes={classes}
-              />
-  
+        <Paper square elevation={PANEL_ELEVATION} className={classes.surface}>
+          <Scrollbar options={{ suppressScrollX: true }}>
+            <div
+              className={classNames({
+                [classes.pdr]: true,
+                [classes.bodyToggled]: !mounted && mode === MODE_PROPERTIES,
+              })}
+            >
               <Divider className={classes.divider} />
-  
-              {chosenElement ? (
-                <ElementDetails
+
+              {mode === MODE_COMMENTS ? (
+                <CommentsPanel
                   t={t}
-                  numberTemplates={numberTemplates}
-                  selectionId={selection?.businessObject?.id}
-                  selection={selection}
-                  workflow={workflow}
+                  comments={comments}
+                  loading={commentsLoading}
+                  error={commentsError}
+                  selection={commentTarget}
                   modeler={modeler}
-                  onChange={handleChangeElement}
-                  handleSave={handleSave}
-                  busy={busy}
-                  savingElement={savingElement}
-                  setBusy={setBusy}
-                  blockHotkeysEvent={blockHotkeysEvent}
-                  classes={classes}
+                  currentUser={currentUser}
+                  onAdd={addComment}
+                  onRemove={removeComment}
+                  onSelectElement={onSelectElement}
                 />
               ) : (
-                <WorkflowSettings
+                <>
+                <Typography className={classes.sidebarHeadline}>
+                  <span>{activeType}</span>
+                  <div
+                    className={classes.copyButton}
+                    onClick={() => navigator.clipboard.writeText(activeId)}
+                  >
+                    {activeId}
+                    <Tooltip title={t('Copy')}>
+                      <IconButton className={classes.copyIcon} size="large">
+                        <img src={Copy} alt={'copy'} />
+                      </IconButton>
+                    </Tooltip>
+                  </div>
+                </Typography>
+  
+                <CreateParallelGatewayEnding
                   t={t}
-                  busy={busy}
-                  errors={errors}
-                  setErrors={setErrors}
-                  workflow={workflow}
-                  handleChangeWorkflow={onChangeSettings}
-                  events={events}
-                  taskTemplates={taskTemplates}
-                  workflowStatuses={workflowStatuses}
-                  numberTemplates={numberTemplates}
-                  onChange={onChangeSettings}
-                  workflowSchema={workflowSchema}
-                  unitSettingsSchema={unitSettingsSchema}
                   modeler={modeler}
-                  handleSave={handleSaveAction}
-                  isPristine={isPristine}
+                  selection={selection}
+                  classes={classes}
                 />
+  
+                <Divider className={classes.divider} />
+  
+                {chosenElement ? (
+                  <ElementDetails
+                    t={t}
+                    numberTemplates={numberTemplates}
+                    selectionId={selection?.businessObject?.id}
+                    selection={selection}
+                    workflow={workflow}
+                    modeler={modeler}
+                    onChange={handleChangeElement}
+                    handleSave={handleSave}
+                    busy={busy}
+                    savingElement={savingElement}
+                    setBusy={setBusy}
+                    blockHotkeysEvent={blockHotkeysEvent}
+                    classes={classes}
+                  />
+                ) : (
+                  <WorkflowSettings
+                    t={t}
+                    busy={busy}
+                    errors={errors}
+                    setErrors={setErrors}
+                    workflow={workflow}
+                    handleChangeWorkflow={onChangeSettings}
+                    events={events}
+                    taskTemplates={taskTemplates}
+                    workflowStatuses={workflowStatuses}
+                    numberTemplates={numberTemplates}
+                    onChange={onChangeSettings}
+                    workflowSchema={workflowSchema}
+                    unitSettingsSchema={unitSettingsSchema}
+                    modeler={modeler}
+                    handleSave={handleSaveAction}
+                    isPristine={isPristine}
+                  />
+                )}
+                </>
               )}
-              </>
-            )}
-          </div>
-        </Scrollbar>
+            </div>
+          </Scrollbar>
+        </Paper>
       </div>
     </div>
   );
