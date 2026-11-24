@@ -141,6 +141,8 @@ export default {
     DeleteComment: 'Видалити коментар',
     ElementRemoved: 'Елемент видалено зі схеми',
     WholeWorkflow: 'Весь процес',
+    CollapsePanel: 'Згорнути панель',
+    ExpandPanel: 'Розгорнути панель',
     EventType: 'Тип події',
     EventSchema: 'Схема події',
     EditForm: 'Форма',

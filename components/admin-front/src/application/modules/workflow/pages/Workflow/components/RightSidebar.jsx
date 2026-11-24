@@ -8,6 +8,7 @@ import {
   Divider,
   Typography,
   IconButton,
+  SvgIcon,
   ToggleButton,
   ToggleButtonGroup,
   Tooltip,
@@ -16,9 +17,12 @@ import { makeStyles } from '@mui/styles';
 import { useSelector } from 'react-redux';
 import TuneIcon from '@mui/icons-material/Tune';
 import ChatBubbleOutlineIcon from '@mui/icons-material/ChatBubbleOutline';
+import {
+  RightPanelOpen as SymbolRightPanelOpen,
+  RightPanelClose as SymbolRightPanelClose,
+} from '@material-symbols-svg/react/rounded/w400';
 import { validateData } from 'components/JsonSchema';
 import Scrollbar from 'components/Scrollbar';
-import DoubleArrowIcon from 'assets/img/arrow_forward_ios.svg';
 import Copy from 'assets/img/copy.svg';
 import WorkflowSettings from './WorkflowSettings';
 import CreateParallelGatewayEnding from './CreateParallelGatewayEnding';
@@ -49,34 +53,19 @@ const useStyles = makeStyles((theme) => ({
     display: 'flex',
     justifyContent: 'flex-end',
   },
-  // Stretch, not center: the collapse toggle is sized by height: 100%.
+  // Spacing between Save, the mode tabs and the collapse button is the theme's button gap:
+  // Save (first) and the collapse Icon Button space themselves via theme.buttonGap; the
+  // ToggleButtonGroup isn't a Button, so it takes the same gap explicitly.
   headerControls: {
     display: 'flex',
-    alignItems: 'stretch',
-    gap: theme.spacing(2),
+    alignItems: 'center',
   },
   modeSwitch: {
-    alignSelf: 'center',
-  },
-  saveButton: {
-    alignSelf: 'center',
-  },
-  iconWrapper: {
-    borderLeft: `1px solid ${theme.borderColor}`,
-  },
-  dropdownIcon: {
-    width: 48,
-    height: '100%',
-    backgroundRepeat: 'no-repeat',
-    backgroundImage: `url(${DoubleArrowIcon})`,
-    backgroundPosition: '50% 50%',
-    cursor: 'pointer',
-    transition: '.2s ease-in-out',
-    // The chevron points up natively: left (expand) when collapsed, right (collapse) when open.
-    transform: 'rotate(-90deg)',
-  },
-  iconRotate: {
-    transform: 'rotate(90deg)',
+    marginLeft: theme.spacing(theme.buttonGap.medium),
+    // Same 20px as Button / Icon Button icons.
+    '& .MuiSvgIcon-root': {
+      fontSize: theme.buttonIconSize.medium,
+    },
   },
   body: {
     position: 'absolute',
@@ -280,7 +269,6 @@ const RightSidebar = ({
       <div className={classes.header}>
         <div className={classes.headerControls}>
           <Button
-            className={classes.saveButton}
             variant="contained"
             color="primary"
             onClick={handleSaveAction}
@@ -306,27 +294,29 @@ const RightSidebar = ({
           >
             <ToggleButton value={MODE_PROPERTIES} aria-label={t('Properties')}>
               <Tooltip title={t('Properties')}>
-                <TuneIcon fontSize="small" />
+                <TuneIcon />
               </Tooltip>
             </ToggleButton>
             <ToggleButton value={MODE_COMMENTS} aria-label={t('Comments')}>
               <Tooltip title={t('Comments')}>
                 <Badge badgeContent={comments.length} color="primary" max={99}>
-                  <ChatBubbleOutlineIcon fontSize="small" />
+                  <ChatBubbleOutlineIcon />
                 </Badge>
               </Tooltip>
             </ToggleButton>
           </ToggleButtonGroup>
 
-          <div className={classes.iconWrapper}>
-            <div
-              className={classNames({
-                [classes.dropdownIcon]: true,
-                [classes.iconRotate]: open,
-              })}
+          <Tooltip title={open ? t('CollapsePanel') : t('ExpandPanel')}>
+            <IconButton
               onClick={handleOpen}
-            />
-          </div>
+              aria-label={open ? t('CollapsePanel') : t('ExpandPanel')}
+            >
+              <SvgIcon
+                component={open ? SymbolRightPanelClose : SymbolRightPanelOpen}
+                inheritViewBox={true}
+              />
+            </IconButton>
+          </Tooltip>
         </div>
       </div>
 

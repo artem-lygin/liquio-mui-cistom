@@ -3255,6 +3255,8 @@ export default {
     DeleteComment: 'Delete comment',
     ElementRemoved: 'Element removed from the schema',
     WholeWorkflow: 'Whole workflow',
+    CollapsePanel: 'Collapse panel',
+    ExpandPanel: 'Expand panel',
     'editorSettings': 'Editor settings (monaco-editor)',
     'editorTheme': 'Editor theme',
     'editorThemeSample': "Theme name: 'vs', 'vs-dark', 'hc-black', etc.",
