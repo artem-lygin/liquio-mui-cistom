@@ -99,10 +99,13 @@ const DELETE_INTERVAL = 100;
 const REQUEST_ELEMENTS_INTERVAL = 100;
 
 const styles = (theme) => ({
+  // Positioned so the RightSidebar panel body can anchor to this box (top under the toolbar,
+  // bottom: 0); the AppBar/Toolbar in between are kept static for the same reason.
   root: {
     display: 'flex',
     flexDirection: 'column',
-    height: '100%'
+    height: '100%',
+    position: 'relative'
   },
   saved: {
     display: 'flex',
@@ -118,6 +121,8 @@ const styles = (theme) => ({
     color: 'red'
   },
   toolbar: {
+    // MUI Toolbar is position: relative by default; static lets the sidebar panel reach root.
+    position: 'static',
     paddingLeft: theme.spacing(3),
     // Buttons space themselves (theme.buttonGap); this only spaces the other items.
     '& > * + :not(.MuiButtonBase-root)': {
@@ -1084,7 +1089,7 @@ class WorkflowPage extends ModulePage {
     return (
       <DrawerContent disableScrolls={true}>
         <div className={classes.root}>
-          <AppBar position="relative" color="transparent">
+          <AppBar position="static" color="transparent">
             <Toolbar disableGutters={true} className={classes.toolbar}>
               <div style={{ flexGrow: 1 }} />
 

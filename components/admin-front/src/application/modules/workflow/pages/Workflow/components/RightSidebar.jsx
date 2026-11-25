@@ -47,14 +47,14 @@ const PANEL_ELEVATION = 1;
 const useStyles = makeStyles((theme) => ({
   // Only as wide as the header controls, so whatever the toolbar puts before it (the "last
   // changes" text) sits right next to Save; the panel body below keeps its own fixed width.
+  // Deliberately not positioned (nor are the AppBar/Toolbar around it): the panel body is
+  // positioned against the workflow page itself — see body.
   root: {
     height: '100%',
-    // Keeps the collapse button off the window edge (the panel body is absolutely positioned
-    // against this box's padding edge, so it stays flush right).
+    // Keeps the collapse button off the window edge.
     paddingRight: theme.spacing(2),
     paddingBottom: theme.spacing(2),
     paddingTop: theme.spacing(2),
-    position: 'relative',
   },
   header: {
     display: 'flex',
@@ -74,12 +74,16 @@ const useStyles = makeStyles((theme) => ({
       fontSize: theme.buttonIconSize.medium,
     },
   },
+  // Anchored to the workflow page's own box (its nearest positioned ancestor): just under the
+  // toolbar down to the page's bottom edge, so it always fits whatever space the app chrome
+  // leaves. Was height: calc(100vh - 125px), which assumed a 73px app header and was cut off
+  // at the bottom once the header grew (113px now).
   body: {
     position: 'absolute',
     right: 0,
     top: 52,
+    bottom: 0,
     width: PANEL_WIDTH,
-    height: 'calc(100vh - 125px)',
     transition: theme.transitions.create(['transform', 'visibility']),
     transform: 'translateX(0)',
     opacity: 1,
