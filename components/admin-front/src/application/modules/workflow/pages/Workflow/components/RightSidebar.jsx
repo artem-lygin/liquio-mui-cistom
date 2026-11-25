@@ -343,8 +343,6 @@ const RightSidebar = ({
                 [classes.bodyToggled]: !mounted && mode === MODE_PROPERTIES,
               })}
             >
-              <Divider className={classes.divider} />
-
               {mode === MODE_COMMENTS ? (
                 <CommentsPanel
                   t={t}
