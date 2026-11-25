@@ -65,7 +65,11 @@ const useStyles = makeStyles((theme) => ({
   item: {
     position: 'relative',
     padding: theme.spacing(1.5, 3, 3),
-    transition: theme.transitions.create(['background-color', 'border-color'])
+    transition: theme.transitions.create(['background-color', 'border-color']),
+    // Hover (or keyboard focus inside the card) brings the author/time row back to full.
+    '&:hover $itemFooter, &:focus-within $itemFooter': {
+      opacity: 1
+    }
   },
   itemHighlighted: {
     // Matches the theme's own `&.MuiPaper-rounded` border rule, which otherwise wins.
@@ -121,12 +125,17 @@ const useStyles = makeStyles((theme) => ({
       textDecoration: 'line-through'
     }
   },
-  // Last row: author (truncated) · time.
+  // Last row: author (truncated) · time. Secondary while scanning the list, so it's dimmed to
+  // the theme's disabledOpacity until the card is hovered (see item).
   itemFooter: {
     display: 'flex',
     alignItems: 'center',
     gap: theme.spacing(1),
-    marginTop: theme.spacing(1.5)
+    marginTop: theme.spacing(1.5),
+    opacity: theme.palette.action.disabledOpacity,
+    transition: theme.transitions.create('opacity', {
+      duration: theme.transitions.duration.shortest
+    })
   },
   author: {
     ...theme.typography.caption,
