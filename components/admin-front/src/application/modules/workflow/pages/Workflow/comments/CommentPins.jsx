@@ -24,12 +24,13 @@ const useStyles = makeStyles((theme) => ({
     color: theme.palette.primary.contrastText,
     boxShadow: theme.shadows[2]
   },
+  // The element is selected, or one of its comments is hovered in the side panel.
   selected: {
     boxShadow: `0 0 0 2px ${theme.palette.background.paper}, 0 0 0 4px ${theme.palette.primary.main}`
   }
 }));
 
-const CommentPins = ({ t, pins, selectedElementId, onPinClick }) => {
+const CommentPins = ({ t, pins, selectedElementId, hoveredElementId, onPinClick }) => {
   const classes = useStyles();
 
   return pins.map(({ elementId, count, container }) =>
@@ -40,7 +41,7 @@ const CommentPins = ({ t, pins, selectedElementId, onPinClick }) => {
       >
         <ButtonBase
           className={classNames(classes.badge, {
-            [classes.selected]: elementId === selectedElementId
+            [classes.selected]: elementId === selectedElementId || elementId === hoveredElementId
           })}
           onClick={(event) => {
             event.stopPropagation();
@@ -60,11 +61,13 @@ CommentPins.propTypes = {
   t: PropTypes.func.isRequired,
   pins: PropTypes.array.isRequired,
   selectedElementId: PropTypes.string,
+  hoveredElementId: PropTypes.string,
   onPinClick: PropTypes.func.isRequired
 };
 
 CommentPins.defaultProps = {
-  selectedElementId: null
+  selectedElementId: null,
+  hoveredElementId: null
 };
 
 export default CommentPins;

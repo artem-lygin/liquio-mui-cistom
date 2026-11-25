@@ -303,12 +303,17 @@ const CommentsPanel = ({
   onAdd,
   onRemove,
   onSelectElement,
+  onHoverElement,
   documentation,
   documentationError,
   onAttachDocumentation,
   onRemoveDocumentation
 }) => {
   const classes = useStyles();
+
+  // A card unmounting under the pointer (panel closed, mode switched) never gets its
+  // mouseleave, so clear the canvas badge highlight on the way out.
+  React.useEffect(() => () => onHoverElement(null), [onHoverElement]);
   const [text, setText] = React.useState('');
   const [asDocumentation, setAsDocumentation] = React.useState(false);
   const [attach, setAttach] = React.useState(true);
@@ -500,6 +505,9 @@ const CommentsPanel = ({
                 key={id}
                 elevation={COMMENT_ELEVATION}
                 ref={assignRef ? firstHighlightedRef : undefined}
+                // Highlights the element's badge on the canvas (only while it's still there).
+                onMouseEnter={exists ? () => onHoverElement(anchor.elementId) : undefined}
+                onMouseLeave={exists ? () => onHoverElement(null) : undefined}
                 className={classNames(classes.item, {
                   [classes.itemHighlighted]: highlighted
                 })}
@@ -570,6 +578,7 @@ CommentsPanel.propTypes = {
   onAdd: PropTypes.func.isRequired,
   onRemove: PropTypes.func.isRequired,
   onSelectElement: PropTypes.func.isRequired,
+  onHoverElement: PropTypes.func,
   documentation: PropTypes.object,
   documentationError: PropTypes.object,
   onAttachDocumentation: PropTypes.func.isRequired,
@@ -582,6 +591,7 @@ CommentsPanel.defaultProps = {
   selection: null,
   modeler: null,
   currentUser: null,
+  onHoverElement: () => null,
   documentation: null,
   documentationError: null
 };

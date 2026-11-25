@@ -193,6 +193,9 @@ const RightSidebar = ({
 }) => {
   const [open, setOpen] = React.useState(true);
   const [mode, setMode] = React.useState(MODE_PROPERTIES);
+  // The element whose comment card is under the pointer in the side panel: its canvas badge
+  // is highlighted while it is.
+  const [hoveredElementId, setHoveredElementId] = React.useState(null);
   const userInfo = useSelector(({ auth }) => auth && auth.info);
   const currentUser = React.useMemo(() => toAuthor(userInfo), [userInfo]);
   const { comments, loading: commentsLoading, error: commentsError, addComment, removeComment } =
@@ -273,6 +276,7 @@ const RightSidebar = ({
         t={t}
         pins={commentPins}
         selectedElementId={commentTarget ? commentTarget.id : null}
+        hoveredElementId={hoveredElementId}
         onPinClick={showElementComments}
       />
       <div className={classes.header}>
@@ -355,6 +359,7 @@ const RightSidebar = ({
                   onAdd={addComment}
                   onRemove={removeComment}
                   onSelectElement={onSelectElement}
+                  onHoverElement={setHoveredElementId}
                   documentation={documentation.doc}
                   documentationError={documentation.error}
                   onAttachDocumentation={documentation.attach}
