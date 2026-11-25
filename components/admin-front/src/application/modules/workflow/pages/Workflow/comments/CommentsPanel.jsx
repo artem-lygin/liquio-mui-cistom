@@ -151,7 +151,8 @@ const useStyles = makeStyles((theme) => ({
     alignItems: 'center',
     minWidth: 0,
     minHeight: theme.buttonIconSize.medium,
-    paddingRight: theme.spacing(5)
+    // 28px: the 32px menu at 4px in, minus the card's 12px side padding, plus a 4px gap.
+    paddingRight: theme.spacing(7)
   },
   // Ignores the card padding: pinned 1 spacing step (4px) from the card's top and right edges.
   cardMenuButton: {
