@@ -60,8 +60,11 @@ const useStyles = makeStyles((theme) => ({
   },
   // A Paper at COMMENT_ELEVATION: surface, shadow, radius and hairline border all come from
   // the theme (MuiPaper override + dark-mode elevation overlay).
+  // Tight top (the first row is small caption text), roomier sides and bottom. Positioned so
+  // the 3-dot menu can sit in the corner outside this padding (cardMenuButton).
   item: {
-    padding: theme.spacing(2),
+    position: 'relative',
+    padding: theme.spacing(1.5, 3, 3),
     transition: theme.transitions.create(['background-color', 'border-color'])
   },
   itemHighlighted: {
@@ -141,15 +144,20 @@ const useStyles = makeStyles((theme) => ({
     whiteSpace: 'nowrap'
   },
   // First row of every card: place (or the documentation label) + the 3-dot menu, top-right.
+  // The menu is taken out of the row (see cardMenuButton), so the row only reserves room
+  // for it on the right: the menu's reach into the card, less the card's own side padding.
   cardHeader: {
     display: 'flex',
     alignItems: 'center',
-    justifyContent: 'space-between',
-    gap: theme.spacing(1),
-    minWidth: 0
+    minWidth: 0,
+    minHeight: theme.buttonIconSize.medium,
+    paddingRight: theme.spacing(5)
   },
+  // Ignores the card padding: pinned 1 spacing step (4px) from the card's top and right edges.
   cardMenuButton: {
-    flexShrink: 0
+    position: 'absolute',
+    top: theme.spacing(1),
+    right: theme.spacing(1)
   },
   docTitle: {
     ...theme.typography.body2,
